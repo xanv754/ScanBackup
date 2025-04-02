@@ -1,6 +1,6 @@
 from os import getenv, getcwd, path
 from dotenv import load_dotenv
-from utils import LogHandler
+from utils.log import LogHandler
 
 
 load_dotenv(override=True)
@@ -23,7 +23,7 @@ class ConfigurationHandler:
                 raise ValueError("URI variable not found in enviroment file.")
             self.uri_postgres = uri_env
         except Exception as e:
-            LogHandler.save(message=str(e), script=__file__, err=True)
+            LogHandler.log(message=str(e), path=__file__, err=True)
 
 
 if __name__ == "__main__":

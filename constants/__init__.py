@@ -1,1 +1,1 @@
-from constants.system import SystemConstant
+from constants.path import SystemConstant
