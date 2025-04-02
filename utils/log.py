@@ -4,7 +4,8 @@ from datetime import datetime
 from rich.text import Text
 from rich.console import Console, Group
 from rich.panel import Panel
-from constants.path import SystemConstant
+from constants.path import PathConstant
+from constants.about import AboutConstant
 
 
 class LogHandler:
@@ -52,7 +53,7 @@ class LogHandler:
             If the message is an info. Default false.
         """
         if path:
-            path = path.split(f"/{SystemConstant.TITLE_PROJECT.value}/")[1]
+            path = path.split(f"/{AboutConstant.TITLE_PROJECT.value}/")[1]
         date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         if err:
             if path:
@@ -131,7 +132,7 @@ class LogHandler:
             If the message is an info. Default false.
         """
         if path:
-            path = path.split(f"/{SystemConstant.TITLE_PROJECT.value}/")[1]
+            path = path.split(f"/{AboutConstant.TITLE_PROJECT.value}/")[1]
         date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         if err:
             if path:
@@ -153,7 +154,7 @@ class LogHandler:
                 message = f"{date} ({path}) - {message}"
             else:
                 message = f"{date} - {message}"
-        with open(SystemConstant.FILEPATH_LOGS.value, "a") as file:
+        with open(PathConstant.FILEPATH_LOGS.value, "a") as file:
             file.write(f"{message}\n")
 
 
