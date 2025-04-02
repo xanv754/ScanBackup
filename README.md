@@ -1,10 +1,9 @@
-# System CGPRD
-A system designed to collect data for reporting and other coordinating files.
+# Sistema CPGRD
+Un sistema diseñado para la colleción de data para generación de reportes y otros archivos para la coordinación CPGRD.
 
-# Enviroment Variables
-The system required an `.env' file for the next set of variables:
+# Variables de Entorno
+El sistema require un archivo `.env` con las siguientes variables de entorno:
 
-**Example**
 ```bash
-URI="postgres://postgres:postgres@localhost:5432/postgres"
+URI="postgres://user:password@server:port/name_database"
 ```
