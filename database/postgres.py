@@ -1,4 +1,5 @@
 import psycopg2
+from psycopg2 import sql
 from utils.config import ConfigurationHandler
 from utils.log import LogHandler
 
@@ -44,6 +45,40 @@ class PostgresDatabase:
         else:
             self.connected = True
 
+    def __check_database(self) -> bool:
+        """Check if the database exists.
+
+        Returns
+        -------
+        If True, the database exists. Otherwise returns False.
+        """
+        try:
+            uri = self.__configuration.uri_postgres
+            name_db = uri.split("/")[-1]
+            uri_base = f"postgres://{uri.split("/")[-2]}/postgres"
+            connection = psycopg2.connect(uri_base)
+            connection.autocommit = True
+            cursor = connection.cursor()
+            cursor.execute(
+                """
+                    SELECT
+                        1
+                    FROM
+                        pg_database
+                    WHERE
+                        datname = %
+                """,
+                (name_db,),
+            )
+            status = cursor.fetchone() is not None
+            cursor.close()
+            connection.close()
+        except Exception as e:
+            LogHandler.log(f"Database error. {e}", err=True)
+            return False
+        else:
+            return status
+
     def get_connection(self) -> psycopg2.extensions.connection:
         """Get connection to database."""
         return self.__connection
@@ -58,3 +93,35 @@ class PostgresDatabase:
             self.__cursor.close()
         if not hasattr(self, "__connection") and self.__connection:
             self.__connection.close()
+
+    def create_database(self) -> bool:
+        """Create the database (if not exists).
+
+        Returns
+        --------
+        Operation status. If True, the database exists or has been created correctly. Otherwise returns False.
+        """
+        try:
+            uri = self.__configuration.uri_postgres
+            name_db = uri.split("/")[-1]
+            uri_base = f"postgres://{uri.split("/")[-2]}/postgres"
+            connection = psycopg2.connect(uri)
+            connection.autocommit = True
+            cursor = connection.cursor()
+            cursor.execute(
+                sql.SQL(
+                    """
+                        CREATE DATABASE
+                            {db}
+                    """
+                ).format(
+                    db=sql.Identifier(name_db)
+                )
+            )
+            cursor.close()
+            connection.close()
+        except Exception as e:
+            LogHandler.log(f"Database Error. {e}", err=True)
+            return False
+        else:
+            return True

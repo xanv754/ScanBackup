@@ -1,4 +1,5 @@
 import rich
+import art
 from typing import List
 from datetime import datetime
 from rich.text import Text
@@ -7,12 +8,13 @@ from rich.panel import Panel
 from constants.path import PathConstant
 from constants.about import AboutConstant
 
+TITLE_ART = art.text2art(f"{AboutConstant.TITLE_CLI.value}")
 
 class LogHandler:
     """Handler to realize all operation about log system."""
 
     __instance:  "LogHandler | None" = None
-    __stdout: List[Text] = []
+    __stdout: List[Text] = [Text(f"{TITLE_ART}", "dark_slate_gray2")]
     __console: Console
 
     def __new__(cls):
