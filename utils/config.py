@@ -11,6 +11,7 @@ class ConfigurationHandler:
 
     __instance: "ConfigurationHandler | None" = None
     uri_postgres: str
+    uri_mongo: str
 
     def __new__(cls):
         if not cls.__instance:
@@ -24,16 +25,20 @@ class ConfigurationHandler:
                 filepath_env = os.path.realpath("./") + "/.env"
                 if not os.path.isfile(filepath_env):
                     raise FileNotFoundError("Enviroment file not found.")
-                uri = os.getenv("URI")
-                if not uri:
-                    raise ValueError("URI variable not found in enviroment file.")
-                self.uri_postgres = uri
+                uri_postgres = os.getenv("URI_POSTGRES")
+                if not uri_postgres:
+                    LogHandler.log(message=f"Failed to obtain configuration. URI PostgreSQL variable not found in enviroment file", path=__file__, err=True)
+                else: self.uri_postgres = uri_postgres
+                uri_mongo = os.getenv("URI_MONGO")
+                if not uri_mongo:
+                    raise ValueError("URI MongoDB variable not found in enviroment file.")
+                self.uri_mongo = uri_mongo
         except Exception as e:
             LogHandler.log(message=f"Failed to obtain configuration. {e}", path=__file__, err=True)
             exit(1)
 
     @classmethod
-    def set_uri(cls, uri: str) -> "ConfigurationHandler":
+    def set_uri(cls, uri_postgres: str | None = None, uri_mongo: str | None = None) -> "ConfigurationHandler":
         """Set the URI database.
 
         Parameters
@@ -43,12 +48,8 @@ class ConfigurationHandler:
         """
         instance = cls.__new__(cls)
         instance.__init__()
-        instance.uri_postgres = uri
+        if uri_postgres:
+            instance.uri_postgres = uri_postgres
+        if uri_mongo:
+            instance.uri_mongo = uri_mongo
         return instance
-
-
-if __name__ == "__main__":
-    config_uno = ConfigurationHandler()
-    print(config_uno.uri_postgres)
-    config_two = ConfigurationHandler.set_uri("tumama")
-    print(config_two.uri_postgres)

@@ -1,36 +1,37 @@
 import os
 import unittest
-import psycopg2
 from dotenv import load_dotenv
-from database.postgres import PostgresDatabase
+from storage.database.factory.postgres import PostgresDatabaseFactory
+from storage.database.product.postgres import PostgresDatabase
+from storage.database.factory.mongo import MongoDatabaseFactory
+from storage.database.product.mongo import MongoDatabase
 from utils.config import ConfigurationHandler
 
 
 load_dotenv(override=True)
 
+URI_TEST_MONGO = os.getenv("URI_TEST_MONGO")
+URI_TEST_POSTGRES = os.getenv("URI_TEST_POSTGRES")
 
 class TestDatabase(unittest.TestCase):
 
-    def test_connection(self) -> None:
-        """Test to get connection to database."""
-        URI_TEST = os.getenv("URI_TEST")
-        if not URI_TEST:
-            self.assertTrue(False)
-        else:
-            database = PostgresDatabase.set_uri(URI_TEST)
-            connection = database.get_connection()
-            self.assertTrue(connection)
+    def test_connection_postgres(self) -> None:
+        """Test to get connection to PostgreSQL database."""
+        config = ConfigurationHandler().set_uri(uri_postgres=URI_TEST_POSTGRES)
+        uri = config.uri_postgres
+        database = PostgresDatabaseFactory().get_database(uri=uri)
+        self.assertTrue(database)
+        self.assertTrue(database.connected)
+        database.close_connection()
 
-
-    def test_get_cursor(self) -> None:
-        """Test to get cursor database."""
-        URI_TEST = os.getenv("URI_TEST")
-        if not URI_TEST:
-            self.assertTrue(False)
-        else:
-            database = PostgresDatabase.set_uri(URI_TEST)
-            cursor = database.get_cursor()
-            self.assertTrue(cursor)
+    def test_connection_mongo(self) -> None:
+        """Test to get connection to MongoDB database."""
+        config = ConfigurationHandler().set_uri(uri_mongo=URI_TEST_MONGO)
+        uri = config.uri_mongo
+        database = MongoDatabaseFactory().get_database(uri=uri)
+        self.assertTrue(database)
+        self.assertTrue(database.connected)
+        database.close_connection()
 
 
 if __name__ == "__main":

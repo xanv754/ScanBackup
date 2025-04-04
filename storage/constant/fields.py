@@ -28,18 +28,19 @@ class RaiFieldDatabase(Enum):
     CREATE_AT = "createAt"
 
 
-class IpBrasFieldDatabase(Enum):
-    NAME = "name"
-    CREATE_AT = "createAt"
-
-
 class TrafficHistoryFieldDatabase(Enum):
     DATE = "tdate"
-    TIME = "ttime"
-    LAYER = "layer"
+    ID_LAYER = "idLayer"
     TYPE_LAYER = "typeLayer"
     IN_PROM = "inProm"
     OUT_PROM = "outProm"
     IN_MAX = "inMax"
-    OUT_MAX = "outMax"
+    OUT_MAX = "outMax" 
+
+
+class IPHistoryFieldDatabase(Enum):
+    DATE = "tdate"
+    BRAS_NAME = "brasname"
+    IN_PROM = "inProm"
+    IN_MAX = "inMax"
 
