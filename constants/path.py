@@ -1,8 +1,8 @@
-from os import getcwd
-from enum import Enum
+from os import path
 
 
-class PathConstant(Enum):
+class PathConstant:
     """All paths neccessary to the system."""
 
-    FILEPATH_LOGS = f"{getcwd()}/system.log"
+    FILEPATH_LOGS = f"{path.realpath("./")}/system.log"
+    DATA_BORDER =   f"{path.realpath("./")}/data/Borde"

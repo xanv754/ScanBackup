@@ -156,7 +156,7 @@ class LogHandler:
                 message = f"{date} ({path}) - {message}"
             else:
                 message = f"{date} - {message}"
-        with open(PathConstant.FILEPATH_LOGS.value, "a") as file:
+        with open(PathConstant.FILEPATH_LOGS, "a") as file:
             file.write(f"{message}\n")
 
 
