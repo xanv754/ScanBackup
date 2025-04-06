@@ -1,46 +1,42 @@
-from enum import Enum
-
-
-class BrasFieldDatabase(Enum):
+class BrasFieldDatabase:
     NAME = "name"
     TYPE = "btype"
     CAPACITY = "capacity"
     CREATE_AT = "createAt"
 
 
-class BordeFieldDatabase(Enum):
+class BordeFieldDatabase:
     INTERFACE = "interface"
     MODEL = "model"
     CAPACITY = "capacity"
     CREATE_AT = "createAt"
 
 
-class CachingFieldDatabase(Enum):
+class CachingFieldDatabase:
     INTERFACE = "interface"
     SERVICE = "service"
     CAPACITY = "capacity"
     CREATE_AT = "createAt"
 
 
-class RaiFieldDatabase(Enum):
+class RaiFieldDatabase:
     INTERFACE = "interface"
     CAPACITY = "capacity"
     CREATE_AT = "createAt"
 
 
-class TrafficHistoryFieldDatabase(Enum):
+class TrafficHistoryFieldDatabase:
     DATE = "tdate"
     ID_LAYER = "idLayer"
     TYPE_LAYER = "typeLayer"
     IN_PROM = "inProm"
     OUT_PROM = "outProm"
     IN_MAX = "inMax"
-    OUT_MAX = "outMax" 
+    OUT_MAX = "outMax"
 
 
-class IPHistoryFieldDatabase(Enum):
+class IPHistoryFieldDatabase:
     DATE = "tdate"
     BRAS_NAME = "brasname"
     IN_PROM = "inProm"
     IN_MAX = "inMax"
-

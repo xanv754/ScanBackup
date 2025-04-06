@@ -1,7 +1,4 @@
-from enum import Enum
-
-
-class TableNameDatabase(Enum):
+class TableNameDatabase:
     """Names of all tables database."""
 
     BRAS = "Bras"
