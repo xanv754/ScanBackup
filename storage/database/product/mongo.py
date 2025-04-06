@@ -20,37 +20,37 @@ class MongoDatabase(Database):
             self.__connection = self.__client[name_db]
         except Exception as e:
             LogHandler.log(f"Failed to connect to MongoDB database. {e}", path=__file__, err=True)
-        else: 
+        else:
             self.connected = True
 
     def get_connection(self) -> MongoClient:
         return self.__connection
 
-    def get_cursor(self, table: str | None = None) -> Collection | None:
+    def get_cursor(self, table: str | None = None) -> Collection:
         if table:
             return self.__connection[table]
         else:
-            return None
-        
+            return self.__connection.get_default_collection()
+
     def close_connection(self) -> None:
         self.__client.close()
 
     def migration(self) -> bool:
         try:
             self.__connection.create_collection(
-                TableNameDatabase.BORDE.value,
+                TableNameDatabase.BORDE,
                 validator=BORDE_SCHEMA
             )
             self.__connection.create_collection(
-                TableNameDatabase.BRAS.value,
+                TableNameDatabase.BRAS,
                 validator=BRAS_SCHEMA
             )
             self.__connection.create_collection(
-                TableNameDatabase.CACHING.value,
+                TableNameDatabase.CACHING,
                 validator=CACHING_SCHEMA
             )
             self.__connection.create_collection(
-                TableNameDatabase.RAI.value,
+                TableNameDatabase.RAI,
                 validator=RAI_SCHEMA
             )
         except Exception as e:
@@ -61,16 +61,16 @@ class MongoDatabase(Database):
 
     def rollback(self) -> bool:
         try:
-            borde_collection: Collection = self.__connection[TableNameDatabase.BORDE.value]
+            borde_collection: Collection = self.__connection[TableNameDatabase.BORDE]
             borde_collection.delete_many({})
             borde_collection.drop()
-            bras_collection: Collection = self.__connection[TableNameDatabase.BRAS.value]
+            bras_collection: Collection = self.__connection[TableNameDatabase.BRAS]
             bras_collection.delete_many({})
             bras_collection.drop()
-            caching_collection: Collection = self.__connection[TableNameDatabase.CACHING.value]
+            caching_collection: Collection = self.__connection[TableNameDatabase.CACHING]
             caching_collection.delete_many({})
             caching_collection.drop()
-            rai_collection: Collection = self.__connection[TableNameDatabase.RAI.value]
+            rai_collection: Collection = self.__connection[TableNameDatabase.RAI]
             rai_collection.delete_many({})
             rai_collection.drop()
         except Exception as e:

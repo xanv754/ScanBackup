@@ -20,7 +20,7 @@ class Database(ABC):
     @abstractmethod
     def migration(self) -> bool:
         """Run migrations.
-        
+
         Returns
         -------
         Operation status. If True, the migrations have been executed correctly. Otherwise returns False.
@@ -30,7 +30,7 @@ class Database(ABC):
     @abstractmethod
     def rollback(self) -> bool:
         """Run rollback migrations.
-        
+
         Returns
         -------
         Operation status. If True, the rollback migrations have been executed correctly. Otherwise returns False.

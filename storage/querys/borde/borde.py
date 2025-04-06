@@ -1,21 +1,18 @@
 from abc import ABC, abstractmethod
+from model.boder import BorderModel
 
 
 class BordeQuery(ABC):
     """Query class for borde table."""
 
     @abstractmethod
-    def new_interface(self, interface: str, model: str, capacity: int) -> bool:
+    def new_interface(self, new: BorderModel) -> bool:
         """Register new interface.
 
         Parameters
         ----------
-        interface : str
-            Name interface.
-        model : str
-            Model interface.
-        capacity : int
-            Capacity interface.
+        new : BorderModel
+            New interface of border to register.
 
         Returns
         -------
