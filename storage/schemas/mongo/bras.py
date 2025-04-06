@@ -4,23 +4,23 @@ BRAS_SCHEMA ={
     "$jsonSchema": {
         "bsonType": "object",
         "required": [
-            BrasFieldDatabase.NAME.value,
-            BrasFieldDatabase.TYPE.value,
-            BrasFieldDatabase.CAPACITY.value
+            BrasFieldDatabase.NAME,
+            BrasFieldDatabase.TYPE,
+            BrasFieldDatabase.CAPACITY
         ],
         "properties": {
-            BrasFieldDatabase.NAME.value: {
+            BrasFieldDatabase.NAME: {
                 "bsonType": "string",
                 "description": "Name of bras of the bras layer"
             },
-            BrasFieldDatabase.TYPE.value: {
+            BrasFieldDatabase.TYPE: {
                 "bsonType": "string",
                 "description": "Type of the bras layer"
             },
-            BrasFieldDatabase.CAPACITY.value: {
+            BrasFieldDatabase.CAPACITY: {
                 "bsonType": "int",
                 "description": "Capacity of the bras layer"
             }
-        } 
-    } 
-} 
+        }
+    }
+}
