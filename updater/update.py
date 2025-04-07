@@ -9,7 +9,7 @@ class UpdaterHandler:
     """System data updater handler"""
 
     @abstractmethod
-    def get_data(self) -> List[Tuple]:
+    def get_data(self, filepath: str | None = None) -> List:
         """Obtain layer data."""
         pass
 

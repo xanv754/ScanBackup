@@ -13,7 +13,7 @@ from utils.log import LogHandler
 class BordeUpdaterHandler(UpdaterHandler):
     """Border data updater handler."""
 
-    def get_data(self) -> List[Tuple[BorderModel, List[TrafficHistoryModel]]]:
+    def get_data(self, filepath: str | None = None) -> List[Tuple[BorderModel, List[TrafficHistoryModel]]]:
         try:
             if not os.path.exists(PathConstant.DATA_BORDER) or not os.path.isdir(PathConstant.DATA_BORDER):
                 raise FileNotFoundError("Border folder not found.")
