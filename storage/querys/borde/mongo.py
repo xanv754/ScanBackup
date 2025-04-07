@@ -31,22 +31,28 @@ class MongoBordeQuery(BordeQuery):
 
     def new_interface(self, new: BorderModel) -> bool:
         try:
-            collection = self.__database.get_cursor(table=TableNameDatabase.BORDE)
-            data = new.model_dump()
-            response = collection.insert_one(data)
-            return response.acknowledged
+            if self.__database.connected:
+                collection = self.__database.get_cursor(table=TableNameDatabase.BORDE)
+                data = new.model_dump()
+                response = collection.insert_one(data)
+                return response.acknowledged
+            else:
+                raise Exception("Database not connected.")
         except Exception as e:
             LogHandler.log(f"Failed to create new interface. {e}", path=__file__, err=True)
             return False
 
     def get_interface(self, interface: str) -> dict | None:
         try:
-            collection = self.__database.get_cursor(table=TableNameDatabase.BORDE)
-            result = collection.find_one({BordeFieldDatabase.INTERFACE: interface})
-            if result:
-                return result
+            if self.__database.connected:
+                collection = self.__database.get_cursor(table=TableNameDatabase.BORDE)
+                result = collection.find_one({BordeFieldDatabase.INTERFACE: interface})
+                if result:
+                    return result
+                else:
+                    return None
             else:
-                return None
+                raise Exception("Database not connected.")
         except Exception as e:
             LogHandler.log(f"Failed to get interface. {e}", path=__file__, err=True)
             return None

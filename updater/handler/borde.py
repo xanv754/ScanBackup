@@ -6,6 +6,7 @@ from model.boder import BorderModel
 from model.trafficHistory import TrafficHistoryModel
 from updater.update import UpdaterHandler
 from updater.handler.history import HistoryUpdaterHandler
+from storage.constant.tables import TableNameDatabase
 from storage.querys.borde.mongo import MongoBordeQuery
 from utils.log import LogHandler
 
@@ -13,7 +14,7 @@ from utils.log import LogHandler
 class BordeUpdaterHandler(UpdaterHandler):
     """Border data updater handler."""
 
-    def get_data(self, filepath: str | None = None) -> List[Tuple[BorderModel, List[dict]]]:
+    def get_data(self, filepath: str | None = None) -> List[Tuple[BorderModel, List[TrafficHistoryModel]]]:
         try:
             if not os.path.exists(PathConstant.DATA_BORDER) or not os.path.isdir(PathConstant.DATA_BORDER):
                 raise FileNotFoundError("Border folder not found.")
@@ -45,9 +46,22 @@ class BordeUpdaterHandler(UpdaterHandler):
     def load_data(self, data: List[Tuple[BorderModel, List[TrafficHistoryModel]]]) -> bool:
         try:
             database = MongoBordeQuery()
+            historyHandler = HistoryUpdaterHandler()
             for interface, traffic in track(data, description="Saving data in the database..."):
-                if not database.get_interface(interface.interface):
-                    database.new_interface(interface)
+                try:
+                    if not database.get_interface(interface.interface):
+                        response = database.new_interface(interface)
+                        if not response:
+                            raise Exception(f"Failed to insert new interface of Border layer: {interface.interface}")
+                    for new_traffic in traffic:
+                        new_traffic.idLayer = interface.interface
+                        new_traffic.typeLayer = TableNameDatabase.BORDE
+                    response = historyHandler.load_data(data=traffic)
+                    if not response:
+                        raise Exception(f"Failed to insert histories traffic of an interface of Border layer: {interface.interface}")
+                except Exception as e:
+                    LogHandler.log(f"Failed to insert new interface or histories traffic of Border layer. {e}", err=True)
+                    continue
         except Exception as e:
             LogHandler.log(f"Failed to load data of Border layer. {e}", err=True)
             return False

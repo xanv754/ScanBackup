@@ -6,6 +6,7 @@ from storage.schemas.mongo.borde import BORDE_SCHEMA
 from storage.schemas.mongo.bras import BRAS_SCHEMA
 from storage.schemas.mongo.caching import CACHING_SCHEMA
 from storage.schemas.mongo.rai import RAI_SCHEMA
+from storage.schemas.mongo.historyTraffic import HISTORY_TRAFFIC_SCHEMA
 from utils.log import LogHandler
 
 class MongoDatabase(Database):
@@ -53,6 +54,10 @@ class MongoDatabase(Database):
                 TableNameDatabase.RAI,
                 validator=RAI_SCHEMA
             )
+            self.__connection.create_collection(
+                TableNameDatabase.TRAFFIC_HISTORY,
+                validator=HISTORY_TRAFFIC_SCHEMA
+            )
         except Exception as e:
             LogHandler.log(f"Failed to migrate MongoDB database. {e}", path=__file__, err=True)
             return False
@@ -73,6 +78,9 @@ class MongoDatabase(Database):
             rai_collection: Collection = self.__connection[TableNameDatabase.RAI]
             rai_collection.delete_many({})
             rai_collection.drop()
+            history_traffic_collection: Collection = self.__connection[TableNameDatabase.TRAFFIC_HISTORY]
+            history_traffic_collection.delete_many({})
+            history_traffic_collection.drop()
         except Exception as e:
             LogHandler.log(f"Failed to rollback MongoDB database. {e}", path=__file__, err=True)
             return False

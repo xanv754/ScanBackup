@@ -14,6 +14,6 @@ class UpdaterHandler:
         pass
 
     @abstractmethod
-    def load_data(self, data: List[Tuple[BorderModel, List[TrafficHistoryModel]]]) -> bool:
-        """Load layer data in the database."""
+    def load_data(self, data: List) -> bool:
+        """Load data in the database."""
         pass

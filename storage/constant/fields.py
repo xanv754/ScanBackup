@@ -26,7 +26,8 @@ class RaiFieldDatabase:
 
 
 class TrafficHistoryFieldDatabase:
-    DATE = "tdate"
+    DATE = "date"
+    TIME = "time"
     ID_LAYER = "idLayer"
     TYPE_LAYER = "typeLayer"
     IN_PROM = "inProm"
