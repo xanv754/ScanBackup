@@ -21,7 +21,7 @@ class HistoryUpdaterHandler(UpdaterHandler):
                     HeaderConstants.IN_MAX,
                     HeaderConstants.OUT_MAX
                 ]
-                df = pd.read_csv(filepath, header=0)
+                df = pd.read_csv(filepath, sep=" ", header=None, skiprows=1)
                 df.columns = new_header
                 data_str = df.to_json(orient='records')
                 if data_str:

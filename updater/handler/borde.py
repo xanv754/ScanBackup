@@ -1,11 +1,11 @@
 import os
-import pandas as pd
 from typing import List, Tuple
 from rich.progress import track
 from constants.path import PathConstant
 from model.boder import BorderModel
 from model.trafficHistory import TrafficHistoryModel
 from updater.update import UpdaterHandler
+from updater.handler.history import HistoryUpdaterHandler
 from storage.querys.borde.mongo import MongoBordeQuery
 from utils.log import LogHandler
 
@@ -13,7 +13,7 @@ from utils.log import LogHandler
 class BordeUpdaterHandler(UpdaterHandler):
     """Border data updater handler."""
 
-    def get_data(self, filepath: str | None = None) -> List[Tuple[BorderModel, List[TrafficHistoryModel]]]:
+    def get_data(self, filepath: str | None = None) -> List[Tuple[BorderModel, List[dict]]]:
         try:
             if not os.path.exists(PathConstant.DATA_BORDER) or not os.path.isdir(PathConstant.DATA_BORDER):
                 raise FileNotFoundError("Border folder not found.")
@@ -29,21 +29,8 @@ class BordeUpdaterHandler(UpdaterHandler):
                         model=model,
                         capacity=capacity
                     )
-                    traffic_border: List[TrafficHistoryModel] = []
-                    with open(f"{PathConstant.DATA_BORDER}/{filename}", "r") as file:
-                        lines = file.readlines()
-                        for line in lines[1:]:
-                            new_traffic = TrafficHistoryModel(
-                                date=line.split(" ")[0],
-                                time=line.split(" ")[1],
-                                id_layer=interface,
-                                type_layer="Borde",
-                                in_prom=int(line.split(" ")[2]),
-                                out_prom=int(line.split(" ")[3]),
-                                in_max=int(line.split(" ")[4]),
-                                out_max=int(line.split(" ")[5]),
-                            )
-                            traffic_border.append(new_traffic)
+                    historyHandler = HistoryUpdaterHandler()
+                    traffic_border = historyHandler.get_data(filepath=f"{PathConstant.DATA_BORDER}/{filename}")
                 except Exception as e:
                     LogHandler.log(f"Something went wrong to load data: {filename}. {e}", err=True)
                     continue
