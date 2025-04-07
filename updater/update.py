@@ -10,7 +10,7 @@ class UpdaterHandler:
 
     @abstractmethod
     def get_data(self, filepath: str | None = None) -> List:
-        """Obtain layer data."""
+        """Get data from files."""
         pass
 
     @abstractmethod
