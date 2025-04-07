@@ -1,5 +1,5 @@
 import click
-from updater.layer.borde import BordeUpdaterHandler
+from updater.handler.borde import BordeUpdaterHandler
 from utils.log import LogHandler
 
 @click.group
