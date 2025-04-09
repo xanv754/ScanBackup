@@ -1,5 +1,5 @@
 import click
-from updater.layer.borde import BordeUpdaterHandler
+from updater.handler.borde import BordeUpdaterHandler
 from utils.log import LogHandler
 
 @click.group
@@ -13,11 +13,7 @@ def data():
         LogHandler.log("Starting updater border data...", warn=True)
         borderHandler = BordeUpdaterHandler()
         data = borderHandler.get_data()
-        status_load = borderHandler.load_data(data=data)
-        if status_load:
-            LogHandler.log("Border data upload correctly", info=True)
-        else:
-            LogHandler.log("Border data upload failed", err=True)
+        borderHandler.load_data(data=data)
     except Exception as e:
         LogHandler.log(f"Border data upload failed. {e}", err=True)
     finally:

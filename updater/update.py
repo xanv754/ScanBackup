@@ -10,10 +10,10 @@ class UpdaterHandler:
 
     @abstractmethod
     def get_data(self, filepath: str | None = None) -> List:
-        """Obtain layer data."""
+        """Get data from files."""
         pass
 
     @abstractmethod
-    def load_data(self, data: List[Tuple[BorderModel, List[TrafficHistoryModel]]]) -> bool:
-        """Load layer data in the database."""
+    def load_data(self, data: List) -> bool:
+        """Load data in the database."""
         pass

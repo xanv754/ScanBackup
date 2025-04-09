@@ -1,11 +1,12 @@
 import os
-import pandas as pd
 from typing import List, Tuple
 from rich.progress import track
 from constants.path import PathConstant
 from model.boder import BorderModel
 from model.trafficHistory import TrafficHistoryModel
 from updater.update import UpdaterHandler
+from updater.handler.history import HistoryUpdaterHandler
+from storage.constant.tables import TableNameDatabase
 from storage.querys.borde.mongo import MongoBordeQuery
 from utils.log import LogHandler
 
@@ -29,21 +30,8 @@ class BordeUpdaterHandler(UpdaterHandler):
                         model=model,
                         capacity=capacity
                     )
-                    traffic_border: List[TrafficHistoryModel] = []
-                    with open(f"{PathConstant.DATA_BORDER}/{filename}", "r") as file:
-                        lines = file.readlines()
-                        for line in lines[1:]:
-                            new_traffic = TrafficHistoryModel(
-                                date=line.split(" ")[0],
-                                time=line.split(" ")[1],
-                                id_layer=interface,
-                                type_layer="Borde",
-                                in_prom=int(line.split(" ")[2]),
-                                out_prom=int(line.split(" ")[3]),
-                                in_max=int(line.split(" ")[4]),
-                                out_max=int(line.split(" ")[5]),
-                            )
-                            traffic_border.append(new_traffic)
+                    historyHandler = HistoryUpdaterHandler()
+                    traffic_border = historyHandler.get_data(filepath=f"{PathConstant.DATA_BORDER}/{filename}")
                 except Exception as e:
                     LogHandler.log(f"Something went wrong to load data: {filename}. {e}", err=True)
                     continue
@@ -58,9 +46,22 @@ class BordeUpdaterHandler(UpdaterHandler):
     def load_data(self, data: List[Tuple[BorderModel, List[TrafficHistoryModel]]]) -> bool:
         try:
             database = MongoBordeQuery()
+            historyHandler = HistoryUpdaterHandler()
             for interface, traffic in track(data, description="Saving data in the database..."):
-                if not database.get_interface(interface.interface):
-                    database.new_interface(interface)
+                try:
+                    if not database.get_interface(interface.interface):
+                        response = database.new_interface(interface)
+                        if not response:
+                            raise Exception(f"Failed to insert new interface of Border layer: {interface.interface}")
+                    for new_traffic in traffic:
+                        new_traffic.idLayer = interface.interface
+                        new_traffic.typeLayer = TableNameDatabase.BORDE
+                    response = historyHandler.load_data(data=traffic)
+                    if not response:
+                        raise Exception(f"Failed to insert histories traffic of an interface of Border layer: {interface.interface}")
+                except Exception as e:
+                    LogHandler.log(f"Failed to insert new interface or histories traffic of Border layer. {e}", err=True)
+                    continue
         except Exception as e:
             LogHandler.log(f"Failed to load data of Border layer. {e}", err=True)
             return False
