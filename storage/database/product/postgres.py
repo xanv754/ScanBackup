@@ -1,6 +1,6 @@
 import psycopg2
 from psycopg2 import sql
-from database.product.database import Database
+from storage.database.product.database import Database
 from utils.log import LogHandler
 
 class PostgresDatabase(Database):
@@ -50,7 +50,7 @@ class PostgresDatabase(Database):
             return False
         else:
             return status
-        
+
     def __create_database(self) -> bool:
         """Create the database (if not exists).
 
@@ -98,5 +98,3 @@ class PostgresDatabase(Database):
 
     def rollback(self) -> bool:
         return True
-
-    
