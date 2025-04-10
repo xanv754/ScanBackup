@@ -1,22 +1,23 @@
 from abc import ABC, abstractmethod
 from typing import List
+from model.trafficHistory import TrafficHistoryModel
 
 
 class HistoryTrafficQuery(ABC):
     """Query class for history traffic table."""
 
     @abstractmethod
-    def new_histories(self, new_histories: List[dict]) -> bool:
+    def new_histories(self, new_histories: List[TrafficHistoryModel]) -> bool:
         """Register new histories.
 
         Parameters
         ----------
-        new_histories : List[dict]
+        new_histories : List[TrafficHistoryModel]
             All histories of traffic to register.
 
         Returns
         -------
-        Insertion status. If True, the histories has been registered correctly. Otherwise returns False.
+            Insertion status. If True, the histories has been registered correctly. Otherwise returns False.
         """
         pass
 
