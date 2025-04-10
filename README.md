@@ -25,5 +25,5 @@ El sistema cuenta con un archivo Makefile para facilitar la ejecución de tareas
 3. `make migration`: Ejecuta las migraciones de la base de datos.
 4. `make rollback`: Ejecuta las migraciones inversas de la base de datos.
 5. `make updater`: Ejecuta el actualizador del sistema. Este actualizará la base de datos con la data del día actual.
-5. `make updater-date`: Ejecuta el actualizador del sistema. Este actualizará la base de datos con la data del día actual o, si se especifica una fecha (`DATE`), actualizará la base deatos con la fecha proporcionada.
+5. `make updater-date` o `make DATE=YYYY-MM-DD updater-date`: Ejecuta el actualizador del sistema. Este actualizará la base de datos con la data del día actual o, si se especifica una fecha (`DATE`), actualizará la base datos con la fecha proporcionada.
 6. `make clean`: Elimina archivos generados por el sistema.
