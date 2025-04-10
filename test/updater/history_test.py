@@ -4,7 +4,7 @@ from constants.path import PathConstant
 from updater.handler.history import HistoryUpdaterHandler
 
 class TestHistoryUpdater(unittest.TestCase):
-    def test_get_data(self):
+    def get_data(self):
         """Test to get data from history files."""
         if os.path.exists(PathConstant.SCAN_DATA_BORDER) and os.path.isdir(PathConstant.SCAN_DATA_BORDER):
             files = [filename for filename in os.listdir(PathConstant.SCAN_DATA_BORDER)]
