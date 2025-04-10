@@ -21,17 +21,61 @@ class HistoryTrafficQuery(ABC):
         """
         pass
 
-    # @abstractmethod
-    # def get_interface(self, interface: str) -> dict | None :
-    #     """Get interface.
+    @abstractmethod
+    def get_all_traffic_by_layer(self, layer_name: str) -> List[TrafficHistoryModel]:
+        """Get a list of all traffic history filtered by a layer.
+        
+        Parameters
+        ----------
+        layer_name : str
+            Name of layer.
+        """
+        pass
 
-    #     Parameters
-    #     ----------
-    #     interface : str
-    #         Name interface.
+    @abstractmethod
+    def get_all_traffic_by_id(self, id: str) -> List[TrafficHistoryModel]:
+        """Get a list of all traffic history filtered by a ID layer.
+        
+        Parameters
+        ----------
+        id : str
+            ID of layer.
+        """
+        pass
 
-    #     Returns
-    #     -------
-    #         Interface information. If the interface does not exist, returns None.
-    #     """
-    #     pass
+    @abstractmethod
+    def get_all_traffic_by_date(self, date: str) -> List[TrafficHistoryModel]:
+        """Get a list of all traffic history filtered by a date.
+        
+        Parameters
+        ----------
+        date : str
+            Date to consult.
+        """
+        pass
+
+    @abstractmethod
+    def get_all_traffic_date_by_layer(self, layer_name: str, date: str) -> List[TrafficHistoryModel]:
+        """Get a list of all traffic history filtered by a layer and a date.
+        
+        Parameters
+        ----------
+        layer_name : str
+            Name of layer.
+        date : str
+            Date to consult.
+        """
+        pass
+
+    @abstractmethod
+    def get_all_traffic_date_by_id(self, id: str, date: str) -> List[TrafficHistoryModel]:
+        """Get a list of all traffic history filtered by a id layer and a date.
+        
+        Parameters
+        ----------
+        id : str
+            ID of layer.
+        date : str
+            Date to consult.
+        """
+        pass

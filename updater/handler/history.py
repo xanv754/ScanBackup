@@ -1,11 +1,7 @@
-import ast
-import json
-import pandas as pd
-from typing import List, Tuple
+from typing import List
 from datetime import datetime
 from model.trafficHistory import TrafficHistoryModel
 from updater.update import UpdaterHandler
-from storage.constant.fields import TrafficHistoryFieldDatabase
 from storage.querys.history.mongo import MongoHistoryTrafficQuery
 from utils.log import LogHandler
 

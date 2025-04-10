@@ -35,6 +35,7 @@ class MongoDatabase(Database):
 
     def close_connection(self) -> None:
         self.__client.close()
+        self.connected = False
 
     def migration(self) -> bool:
         try:

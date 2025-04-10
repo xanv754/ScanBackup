@@ -1,3 +1,4 @@
+from typing import List
 from abc import ABC, abstractmethod
 from model.boder import BorderModel
 
@@ -33,4 +34,9 @@ class BordeQuery(ABC):
         -------
             Interface information. If the interface does not exist, returns None.
         """
+        pass
+
+    @abstractmethod
+    def get_interfaces(self) -> List[BorderModel]:
+        """Get all interfaces."""
         pass

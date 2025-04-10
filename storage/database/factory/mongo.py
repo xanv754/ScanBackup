@@ -15,7 +15,7 @@ class MongoDatabaseFactory(DatabaseFactory):
 
     def get_database(self, uri: str) -> MongoDatabase:
         try:
-            if not self.__database:
+            if not self.__database or (self.__database and not self.__database.connected):
                 self.__database = MongoDatabase(uri=uri)
             return self.__database
         except Exception as e:
