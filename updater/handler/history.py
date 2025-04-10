@@ -47,7 +47,7 @@ class HistoryUpdaterHandler(UpdaterHandler):
             if len(data) != 0:
                 response = database.new_histories(new_histories=data)
             else:
-                LogHandler.log("Attempted to load an empty traffic history list into the database", warn=True)
+                # LogHandler.log("Attempted to load an empty traffic history list into the database", warn=True)
                 response = True
         except Exception as e:
             LogHandler.log(f"Failed to load data of history traffic. {e}", err=True)
