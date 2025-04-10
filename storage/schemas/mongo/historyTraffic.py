@@ -26,19 +26,19 @@ HISTORY_TRAFFIC_SCHEMA ={
                 "description": "Type of the layer"
             },
             TrafficHistoryFieldDatabase.IN_PROM: {
-                "bsonType": "int",
+                "bsonType": ["int", "long"],
                 "description": "In prom of the traffic"
             },
             TrafficHistoryFieldDatabase.OUT_PROM: {
-                "bsonType": "int",
+                "bsonType": ["int", "long"],
                 "description": "Out prom of the traffic"
             },
             TrafficHistoryFieldDatabase.IN_MAX: {
-                "bsonType": "int",
+                "bsonType": ["int", "long"],
                 "description": "In max of the traffic"
             },
             TrafficHistoryFieldDatabase.OUT_MAX: {
-                "bsonType": "int",
+                "bsonType": ["int", "long"],
                 "description": "Out max of the traffic"
             }
         }
