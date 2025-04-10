@@ -14,7 +14,7 @@ from utils.log import LogHandler
 class RaiUpdaterHandler(UpdaterHandler):
     """Rai data updater handler."""
 
-    def get_data(self, filepath: str | None = None) -> List[Tuple[RaiModel, List[TrafficHistoryModel]]]:
+    def get_data(self, filepath: str | None = None, date: str | None = None) -> List[Tuple[RaiModel, List[TrafficHistoryModel]]]:
         try:
             if not os.path.exists(PathConstant.SCAN_DATA_RAI) or not os.path.isdir(PathConstant.SCAN_DATA_RAI):
                 raise FileNotFoundError("Rai folder not found.")
@@ -29,7 +29,10 @@ class RaiUpdaterHandler(UpdaterHandler):
                         capacity=capacity
                     )
                     historyHandler = HistoryUpdaterHandler()
-                    traffic_border = historyHandler.get_data(filepath=f"{PathConstant.SCAN_DATA_RAI}/{filename}")
+                    if date:
+                        traffic_border = historyHandler.get_data(filepath=f"{PathConstant.SCAN_DATA_RAI}/{filename}", date=date)
+                    else:
+                        traffic_border = historyHandler.get_data(filepath=f"{PathConstant.SCAN_DATA_RAI}/{filename}")
                 except Exception as e:
                     LogHandler.log(f"Something went wrong to load data: {filename}. {e}", err=True)
                     continue

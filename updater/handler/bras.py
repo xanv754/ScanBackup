@@ -14,7 +14,7 @@ from utils.log import LogHandler
 class BrasUpdaterHandler(UpdaterHandler):
     """Bras data updater handler."""
 
-    def get_data(self, filepath: str | None = None) -> List[Tuple[BrasModel, List[TrafficHistoryModel]]]:
+    def get_data(self, filepath: str | None = None, date: str | None = None) -> List[Tuple[BrasModel, List[TrafficHistoryModel]]]:
         try:
             if not os.path.exists(PathConstant.SCAN_DATA_BRAS) or not os.path.isdir(PathConstant.SCAN_DATA_BRAS):
                 raise FileNotFoundError("Bras folder not found.")
@@ -31,7 +31,10 @@ class BrasUpdaterHandler(UpdaterHandler):
                         capacity=capacity
                     )
                     historyHandler = HistoryUpdaterHandler()
-                    traffic_bras = historyHandler.get_data(filepath=f"{PathConstant.SCAN_DATA_BRAS}/{filename}")
+                    if date:
+                        traffic_bras = historyHandler.get_data(filepath=f"{PathConstant.SCAN_DATA_BRAS}/{filename}", date=date)
+                    else:
+                        traffic_bras = historyHandler.get_data(filepath=f"{PathConstant.SCAN_DATA_BRAS}/{filename}")
                 except Exception as e:
                     LogHandler.log(f"Something went wrong to load data: {filename}. {e}", err=True)
                     continue

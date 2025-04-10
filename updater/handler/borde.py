@@ -1,5 +1,6 @@
 import os
 from typing import List, Tuple
+from datetime import datetime
 from rich.progress import track
 from constants.path import PathConstant
 from model.boder import BorderModel
@@ -14,7 +15,7 @@ from utils.log import LogHandler
 class BordeUpdaterHandler(UpdaterHandler):
     """Border data updater handler."""
 
-    def get_data(self, filepath: str | None = None) -> List[Tuple[BorderModel, List[TrafficHistoryModel]]]:
+    def get_data(self, filepath: str | None = None, date: str | None = None) -> List[Tuple[BorderModel, List[TrafficHistoryModel]]]:
         try:
             if not os.path.exists(PathConstant.SCAN_DATA_BORDER) or not os.path.isdir(PathConstant.SCAN_DATA_BORDER):
                 raise FileNotFoundError("Border folder not found.")
@@ -31,7 +32,10 @@ class BordeUpdaterHandler(UpdaterHandler):
                         capacity=capacity
                     )
                     historyHandler = HistoryUpdaterHandler()
-                    traffic_border = historyHandler.get_data(filepath=f"{PathConstant.SCAN_DATA_BORDER}/{filename}")
+                    if date:
+                        traffic_border = historyHandler.get_data(filepath=f"{PathConstant.SCAN_DATA_BORDER}/{filename}", date=date)
+                    else:
+                        traffic_border = historyHandler.get_data(filepath=f"{PathConstant.SCAN_DATA_BORDER}/{filename}")
                 except Exception as e:
                     LogHandler.log(f"Something went wrong to load data: {filename}. {e}", err=True)
                     continue

@@ -9,8 +9,16 @@ class UpdaterHandler:
     """System data updater handler"""
 
     @abstractmethod
-    def get_data(self, filepath: str | None = None) -> List:
-        """Get data from files."""
+    def get_data(self, filepath: str | None = None, date: str | None = None) -> List:
+        """Get data from files.
+
+        Parameters
+        ----------
+        filepath : str | None
+            Path to the file to be read.
+        date : str | None
+            Date to be used for filtering.
+        """
         pass
 
     @abstractmethod

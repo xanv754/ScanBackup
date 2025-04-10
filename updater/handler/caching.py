@@ -14,7 +14,7 @@ from utils.log import LogHandler
 class CachingUpdaterHandler(UpdaterHandler):
     """Caching data updater handler."""
 
-    def get_data(self, filepath: str | None = None) -> List[Tuple[CachingModel, List[TrafficHistoryModel]]]:
+    def get_data(self, filepath: str | None = None, date: str | None = None) -> List[Tuple[CachingModel, List[TrafficHistoryModel]]]:
         try:
             if not os.path.exists(PathConstant.SCAN_DATA_CACHING) or not os.path.isdir(PathConstant.SCAN_DATA_CACHING):
                 raise FileNotFoundError("Caching folder not found.")
@@ -31,7 +31,10 @@ class CachingUpdaterHandler(UpdaterHandler):
                         capacity=capacity
                     )
                     historyHandler = HistoryUpdaterHandler()
-                    traffic_border = historyHandler.get_data(filepath=f"{PathConstant.SCAN_DATA_CACHING}/{filename}")
+                    if date:
+                        traffic_border = historyHandler.get_data(filepath=f"{PathConstant.SCAN_DATA_CACHING}/{filename}", date=date)
+                    else:
+                        traffic_border = historyHandler.get_data(filepath=f"{PathConstant.SCAN_DATA_CACHING}/{filename}")
                 except Exception as e:
                     LogHandler.log(f"Something went wrong to load data: {filename}. {e}", err=True)
                     continue
