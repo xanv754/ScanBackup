@@ -1,18 +1,18 @@
 from abc import ABC, abstractmethod
-from model.boder import BorderModel
+from model.caching import CachingModel
 
 
-class BordeQuery(ABC):
-    """Query class for borde table."""
+class CachingQuery(ABC):
+    """Query class for caching table."""
 
     @abstractmethod
-    def new_interface(self, new: BorderModel) -> bool:
+    def new_interface(self, new: CachingModel) -> bool:
         """Register new interface.
 
         Parameters
         ----------
-        new : BorderModel
-            New interface of border to register.
+        new : CachingModel
+            New interface to register.
 
         Returns
         -------
@@ -31,6 +31,6 @@ class BordeQuery(ABC):
 
         Returns
         -------
-            Interface information. If the interface does not exist, returns None.
+            Caching information. If the interface does not exist, returns None.
         """
         pass

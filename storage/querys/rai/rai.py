@@ -1,18 +1,18 @@
 from abc import ABC, abstractmethod
-from model.boder import BorderModel
+from model.rai import RaiModel
 
 
-class BordeQuery(ABC):
-    """Query class for borde table."""
+class RaiQuery(ABC):
+    """Query class for rai table."""
 
     @abstractmethod
-    def new_interface(self, new: BorderModel) -> bool:
+    def new_interface(self, new: RaiModel) -> bool:
         """Register new interface.
 
         Parameters
         ----------
-        new : BorderModel
-            New interface of border to register.
+        new : RaiModel
+            New interface to register.
 
         Returns
         -------
@@ -31,6 +31,6 @@ class BordeQuery(ABC):
 
         Returns
         -------
-            Interface information. If the interface does not exist, returns None.
+            Rai information. If the interface does not exist, returns None.
         """
         pass
