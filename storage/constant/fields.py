@@ -1,26 +1,30 @@
 class BrasFieldDatabase:
+    ID = "id"
     NAME = "name"
-    TYPE = "btype"
+    TYPE = "type"
     CAPACITY = "capacity"
     CREATE_AT = "createAt"
 
 
 class BordeFieldDatabase:
-    INTERFACE = "interface"
+    ID = "id"
+    NAME = "name"
     MODEL = "model"
     CAPACITY = "capacity"
     CREATE_AT = "createAt"
 
 
 class CachingFieldDatabase:
-    INTERFACE = "interface"
+    ID = "id"
+    NAME = "name"
     SERVICE = "service"
     CAPACITY = "capacity"
     CREATE_AT = "createAt"
 
 
 class RaiFieldDatabase:
-    INTERFACE = "interface"
+    ID = "id"
+    NAME = "name"
     CAPACITY = "capacity"
     CREATE_AT = "createAt"
 
@@ -37,7 +41,8 @@ class TrafficHistoryFieldDatabase:
 
 
 class IPHistoryFieldDatabase:
-    DATE = "tdate"
-    BRAS_NAME = "brasname"
+    DATE = "date"
+    TIME = "time"
+    BRAS_NAME = "Bras"
     IN_PROM = "inProm"
     IN_MAX = "inMax"

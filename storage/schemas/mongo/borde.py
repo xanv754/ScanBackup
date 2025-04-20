@@ -4,22 +4,22 @@ BORDE_SCHEMA = {
     "$jsonSchema": {
         "bsonType": "object",
         "required": [
-            BordeFieldDatabase.INTERFACE,
+            BordeFieldDatabase.NAME,
             BordeFieldDatabase.MODEL,
             BordeFieldDatabase.CAPACITY
         ],
         "properties": {
-            BordeFieldDatabase.INTERFACE: {
+            BordeFieldDatabase.NAME: {
                 "bsonType": "string",
-                "description": "Name interface of the border layer"
+                "description": "Name interface of the Borde layer"
             },
             BordeFieldDatabase.MODEL: {
                 "bsonType": "string",
-                "description": "Model of the border layer"
+                "description": "Model of the Borde layer"
             },
             BordeFieldDatabase.CAPACITY: {
                 "bsonType": "int",
-                "description": "Capacity of the border layer"
+                "description": "Capacity of the Borde layer"
             }
         }
     }

@@ -1,13 +1,15 @@
 import os
 from typing import List, Tuple
+from datetime import datetime
 from rich.progress import track
 from constants.path import PathConstant
+from constants.group import BrasType, LayerType
 from model.bras import BrasModel
 from model.trafficHistory import TrafficHistoryModel
 from updater.update import UpdaterHandler
-from updater.handler.history import HistoryUpdaterHandler
-from storage.constant.tables import TableNameDatabase
+from updater.handler.traffic import TrafficHistoryUpdaterHandler
 from storage.querys.bras.mongo import MongoBrasQuery
+from storage.querys.bras.postgres import PostgresBrasQuery
 from utils.log import LogHandler
 
 
@@ -23,14 +25,20 @@ class BrasUpdaterHandler(UpdaterHandler):
             for filename in track(files, description="Reading data bras..."):
                 try:
                     type_interface = filename.split("%")[0]
+                    if "UP" in type_interface:
+                        type_interface = BrasType.UPLINK
+                    elif "DOWN" in type_interface:
+                        type_interface = BrasType.DOWNLINK
                     brasname = filename.split("%")[1]
                     capacity = int(filename.split("%")[2])
                     bras = BrasModel(
+                        id=None,
                         name=brasname,
                         type=type_interface,
-                        capacity=capacity
+                        capacity=capacity,
+                        createAt=datetime.now().strftime("%Y-%m-%d")
                     )
-                    historyHandler = HistoryUpdaterHandler()
+                    historyHandler = TrafficHistoryUpdaterHandler()
                     if date:
                         traffic_bras = historyHandler.get_data(filepath=f"{PathConstant.SCAN_DATA_BRAS}/{filename}", date=date)
                     else:
@@ -47,19 +55,25 @@ class BrasUpdaterHandler(UpdaterHandler):
             return data
 
     def load_data(self, data: List[Tuple[BrasModel, List[TrafficHistoryModel]]]) -> bool:
+        failed = False
         try:
             database = MongoBrasQuery()
-            historyHandler = HistoryUpdaterHandler()
-            for bras, traffic in track(data, description="Saving data in the database..."):
+            historyHandler = TrafficHistoryUpdaterHandler()
+            for bras, traffic in track(data, description="Saving data in mongo database..."):
                 try:
-                    if not database.get_bras(brasname=bras.name, type=bras.type):
+                    data_bras = database.get_bras(brasname=bras.name, type=bras.type)
+                    if not data_bras:
                         response = database.new_bras(bras)
                         if not response:
                             raise Exception(f"Failed to insert new bras: {bras.name} {bras.type}")
+                        else:
+                            data_bras = database.get_bras(brasname=bras.name, type=bras.type)
+                            if not data_bras:
+                                raise Exception(f"Failed to get new bras: {bras.name} {bras.type}")
                     for new_traffic in traffic:
-                        new_traffic.idLayer = bras.name
-                        new_traffic.typeLayer = TableNameDatabase.BRAS
-                    response = historyHandler.load_data(data=traffic)
+                        new_traffic.idLayer = str(data_bras.id)
+                        new_traffic.typeLayer = LayerType.BRAS
+                    response = historyHandler.load_data(data=traffic, mongo=True)
                     if not response:
                         raise Exception(f"Failed to insert histories traffic of an bras: {bras.name} {bras.type}")
                 except Exception as e:
@@ -67,6 +81,35 @@ class BrasUpdaterHandler(UpdaterHandler):
                     continue
         except Exception as e:
             LogHandler.log(f"Failed to load data of Bras layer. {e}", err=True)
-            return False
-        else:
-            return True
+            failed = True
+        finally:
+            database.close_connection()
+        try:
+            database = PostgresBrasQuery()
+            historyHandler = TrafficHistoryUpdaterHandler()
+            for bras, traffic in track(data, description="Saving data in postgres database..."):
+                try:
+                    data_bras = database.get_bras(brasname=bras.name, type=bras.type)
+                    if not data_bras:
+                        response = database.new_bras(bras)
+                        if not response:
+                            raise Exception(f"Failed to insert new bras: {bras.name} {bras.type}")
+                        else:
+                            data_bras = database.get_bras(brasname=bras.name, type=bras.type)
+                            if not data_bras:
+                                raise Exception(f"Failed to get new bras: {bras.name} {bras.type}")
+                    for new_traffic in traffic:
+                        new_traffic.idLayer = str(data_bras.id)
+                        new_traffic.typeLayer = LayerType.BRAS
+                    response = historyHandler.load_data(data=traffic, postgres=True)
+                    if not response:
+                        raise Exception(f"Failed to insert histories traffic of an bras: {bras.name} {bras.type}")
+                except Exception as e:
+                    LogHandler.log(f"Failed to insert new bras or histories traffic of Bras layer. {e}", err=True)
+                    continue
+        except Exception as e:
+            LogHandler.log(f"Failed to load data of Histories Traffic of Bras layer. {e}", err=True)
+            failed = True
+        finally:
+            database.close_connection()
+        return not failed

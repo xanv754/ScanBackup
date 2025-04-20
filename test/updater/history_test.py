@@ -1,7 +1,7 @@
 import unittest
 import os
 from constants.path import PathConstant
-from updater.handler.history import HistoryUpdaterHandler
+from updater.handler.traffic import HistoryUpdaterHandler
 
 class TestHistoryUpdater(unittest.TestCase):
     def get_data(self):

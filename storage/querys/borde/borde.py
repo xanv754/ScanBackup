@@ -1,19 +1,35 @@
 from typing import List
 from abc import ABC, abstractmethod
-from model.boder import BorderModel
+from model.boder import BordeModel
 
 
 class BordeQuery(ABC):
     """Query class for borde table."""
+    
+    @abstractmethod
+    def set_database(self, uri: str) -> None:
+        """Set the connection database.
+        
+        Parameters
+        ----------
+        uri : str
+            New URI to connection database.
+        """
+        pass
 
     @abstractmethod
-    def new_interface(self, new: BorderModel) -> bool:
+    def close_connection(self) -> None:
+        """Close the connection to the database."""
+        pass
+
+    @abstractmethod
+    def new_interface(self, new: BordeModel) -> bool:
         """Register new interface.
 
         Parameters
         ----------
-        new : BorderModel
-            New interface of border to register.
+        new : BordeModel
+            New interface of borde to register.
 
         Returns
         -------
@@ -22,12 +38,12 @@ class BordeQuery(ABC):
         pass
 
     @abstractmethod
-    def get_interface(self, interface: str) -> dict | None :
+    def get_interface(self, name: str) -> BordeModel | None :
         """Get interface.
 
         Parameters
         ----------
-        interface : str
+        name : str
             Name interface.
 
         Returns
@@ -37,6 +53,6 @@ class BordeQuery(ABC):
         pass
 
     @abstractmethod
-    def get_interfaces(self) -> List[BorderModel]:
+    def get_interfaces(self) -> List[BordeModel]:
         """Get all interfaces."""
         pass

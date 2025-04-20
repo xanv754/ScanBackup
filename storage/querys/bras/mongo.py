@@ -5,6 +5,7 @@ from storage.database.product.mongo import MongoDatabase
 from storage.querys.bras.bras import BrasQuery
 from model.bras import BrasModel
 from utils.config import ConfigurationHandler
+from utils.trasform import BrasResponseTrasform
 from utils.log import LogHandler
 
 
@@ -29,20 +30,33 @@ class MongoBrasQuery(BrasQuery):
         except Exception as e:
             LogHandler.log(f"Failed to connect to MongoDB database. {e}", path=__file__, err=True)
 
+    def set_database(self, uri: str) -> None:
+        try:
+            if self.__database.connected:
+                self.__database.close_connection()
+            new_database = MongoDatabaseFactory().get_database(uri=uri)
+            self.__database = new_database
+        except Exception as e:
+            LogHandler.log(f"Failed to connect to MongoDB database. {e}", path=__file__, err=True)
+
+    def close_connection(self) -> None:
+        self.__database.close_connection()
+
     def new_bras(self, new: BrasModel) -> bool:
         try:
             if self.__database.connected:
                 collection = self.__database.get_cursor(table=TableNameDatabase.BRAS)
-                data = new.model_dump()
+                data = new.model_dump(exclude={BrasFieldDatabase.ID})
                 response = collection.insert_one(data)
-                return response.acknowledged
             else:
                 raise Exception("Database not connected.")
         except Exception as e:
             LogHandler.log(f"Failed to create new bras. {e}", path=__file__, err=True)
             return False
+        else:
+            return response.acknowledged
 
-    def get_bras(self, brasname: str, type: str) -> dict | None:
+    def get_bras(self, brasname: str, type: str) -> BrasModel | None:
         try:
             if self.__database.connected:
                 collection = self.__database.get_cursor(table=TableNameDatabase.BRAS)
@@ -53,9 +67,9 @@ class MongoBrasQuery(BrasQuery):
                     }
                 )
                 if result:
-                    return result
-                else:
-                    return None
+                    data = BrasResponseTrasform.default_model_mongo([result])
+                    if data: return data[0]
+                return None
             else:
                 raise Exception("Database not connected.")
         except Exception as e:

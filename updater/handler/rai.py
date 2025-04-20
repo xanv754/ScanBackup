@@ -1,13 +1,15 @@
 import os
 from typing import List, Tuple
 from rich.progress import track
+from datetime import datetime
 from constants.path import PathConstant
+from constants.group import LayerType
 from model.rai import RaiModel
 from model.trafficHistory import TrafficHistoryModel
 from updater.update import UpdaterHandler
-from updater.handler.history import HistoryUpdaterHandler
-from storage.constant.tables import TableNameDatabase
+from updater.handler.traffic import TrafficHistoryUpdaterHandler
 from storage.querys.rai.mongo import MongoRaiQuery
+from storage.querys.rai.postgres import PostgresRaiQuery
 from utils.log import LogHandler
 
 
@@ -25,10 +27,12 @@ class RaiUpdaterHandler(UpdaterHandler):
                     interface = filename.split("%")[0]
                     capacity = int(filename.split("%")[1])
                     interface_border = RaiModel(
-                        interface=interface,
-                        capacity=capacity
+                        id=None,
+                        name=interface,
+                        capacity=capacity,
+                        createAt=datetime.now().strftime("%Y-%m-%d")
                     )
-                    historyHandler = HistoryUpdaterHandler()
+                    historyHandler = TrafficHistoryUpdaterHandler()
                     if date:
                         traffic_border = historyHandler.get_data(filepath=f"{PathConstant.SCAN_DATA_RAI}/{filename}", date=date)
                     else:
@@ -45,26 +49,61 @@ class RaiUpdaterHandler(UpdaterHandler):
             return data
 
     def load_data(self, data: List[Tuple[RaiModel, List[TrafficHistoryModel]]]) -> bool:
+        failed = False
         try:
             database = MongoRaiQuery()
-            historyHandler = HistoryUpdaterHandler()
-            for interface, traffic in track(data, description="Saving data in the database..."):
+            historyHandler = TrafficHistoryUpdaterHandler()
+            for interface, traffic in track(data, description="Saving data in mongo database..."):
                 try:
-                    if not database.get_interface(interface.interface):
+                    data_interface = database.get_interface(interface.name)
+                    if not data_interface:
                         response = database.new_interface(interface)
                         if not response:
-                            raise Exception(f"Failed to insert new interface of Rai layer: {interface.interface}")
+                            raise Exception(f"Failed to insert new interface of Rai layer: {interface.name}")
+                        else:
+                            data_interface = database.get_interface(interface.name)
+                            if not data_interface:
+                                raise Exception(f"Failed to get new interface of Rai layer: {interface.name}")
                     for new_traffic in traffic:
-                        new_traffic.idLayer = interface.interface
-                        new_traffic.typeLayer = TableNameDatabase.RAI
-                    response = historyHandler.load_data(data=traffic)
+                        new_traffic.idLayer = str(data_interface.id)
+                        new_traffic.typeLayer = LayerType.RAI
+                    response = historyHandler.load_data(data=traffic, mongo=True)
                     if not response:
-                        raise Exception(f"Failed to insert histories traffic of an interface of Rai layer: {interface.interface}")
+                        raise Exception(f"Failed to insert histories traffic of an interface of Rai layer: {interface.name}")
                 except Exception as e:
                     LogHandler.log(f"Failed to insert new interface or histories traffic of Rai layer. {e}", err=True)
                     continue
         except Exception as e:
             LogHandler.log(f"Failed to load data of Rai layer. {e}", err=True)
-            return False
-        else:
-            return True
+            failed = True
+        finally:
+            database.close_connection()
+        try:
+            database = PostgresRaiQuery()
+            historyHandler = TrafficHistoryUpdaterHandler()
+            for interface, traffic in track(data, description="Saving data in postgres database..."):
+                try:
+                    data_interface = database.get_interface(interface.name)
+                    if not data_interface:
+                        response = database.new_interface(interface)
+                        if not response:
+                            raise Exception(f"Failed to insert new interface of Rai layer: {interface.name}")
+                        else:
+                            data_interface = database.get_interface(interface.name)
+                            if not data_interface:
+                                raise Exception(f"Failed to get new interface of Rai layer: {interface.name}")
+                    for new_traffic in traffic:
+                        new_traffic.idLayer = str(data_interface.id)
+                        new_traffic.typeLayer = LayerType.RAI
+                    response = historyHandler.load_data(data=traffic, postgres=True)
+                    if not response:
+                        raise Exception(f"Failed to insert histories traffic of an interface of Rai layer: {interface.name}")
+                except Exception as e:
+                    LogHandler.log(f"Failed to insert new interface or histories traffic of Rai layer. {e}", err=True)
+                    continue
+        except Exception as e:
+            LogHandler.log(f"Failed to load data of Rai layer. {e}", err=True)
+            failed = True
+        finally:
+            database.close_connection()
+        return not failed

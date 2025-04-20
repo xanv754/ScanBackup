@@ -2,12 +2,12 @@ import pandas as pd
 from typing import List
 from storage.querys.borde.mongo import MongoBordeQuery
 from storage.querys.history.mongo import MongoHistoryTrafficQuery
-from model.boder import BorderModel, BordeTrafficModel
+from model.boder import BordeModel, BordeTrafficModel
 from utils.log import LogHandler
 
 class BordeController:
     @staticmethod
-    def get_interfaces() -> List[BorderModel]:
+    def get_interfaces() -> List[BordeModel]:
         """Get a list of all interfaces of Borde in the database."""
         try:
             borderQuery = MongoBordeQuery()
@@ -17,7 +17,7 @@ class BordeController:
             return []
 
     @staticmethod
-    def get_interface(interface: str) -> BorderModel | None:
+    def get_interface(interface: str) -> BordeModel | None:
         """Get an interface of Borde in the database.
         
         Parameters
@@ -27,7 +27,7 @@ class BordeController:
         """
         try:
             borderQuery = MongoBordeQuery()
-            return borderQuery.get_interface(interface=interface)
+            return borderQuery.get_interface(name=interface)
         except Exception as e:
             LogHandler.log(f"Failed in the controller to make requests to the database. {e}", path=__file__, err=True)
             return None
@@ -48,11 +48,11 @@ class BordeController:
             interfaces = borderQuery.get_interfaces()
             if interfaces:
                 for interface in interfaces:
-                    traffic = trafficQuery.get_all_traffic_date_by_id(id=interface.interface, date=date)
+                    traffic = trafficQuery.get_all_traffic_date_by_id(id=interface.name, date=date)
                     for data_traffic in traffic:
                         data.append(
                             BordeTrafficModel(
-                                interface=interface.interface,
+                                interface=interface.name,
                                 model=interface.model,
                                 capacity=interface.capacity,
                                 date=data_traffic.date,
@@ -85,11 +85,11 @@ class BordeController:
             if interfaces:
                 data: List[BordeTrafficModel] = []
                 for interface in interfaces:
-                    traffic = trafficQuery.get_all_traffic_date_by_id(id=interface.interface, date=date)
+                    traffic = trafficQuery.get_all_traffic_date_by_id(id=interface.name, date=date)
                     for data_traffic in traffic:
                         data.append(
                             BordeTrafficModel(
-                                interface=interface.interface,
+                                interface=interface.name,
                                 model=interface.model,
                                 capacity=interface.capacity,
                                 date=data_traffic.date,

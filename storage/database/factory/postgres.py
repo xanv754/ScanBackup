@@ -16,7 +16,7 @@ class PostgresDatabaseFactory(DatabaseFactory):
 
     def get_database(self, uri: str) -> PostgresDatabase:
         try:
-            if not self.__database:
+            if not self.__database or (self.__database and not self.__database.connected):
                 self.__database = PostgresDatabase(uri=uri)
             return self.__database
         except Exception as e:

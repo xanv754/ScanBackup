@@ -34,6 +34,7 @@ class LogHandler:
     def log(cls, message: str, path: str | None = None, err: bool = False, warn: bool = False, info: bool = False, cprint: bool = True) -> None:
         instance = cls.__new__(cls)
         instance.__init__()
+        message = message.strip()
         if cprint:
             instance.cprint(message, path=path, err=err, warn=warn, info=info)
         instance.save(message, path=path, err=err, warn=warn, info=info)

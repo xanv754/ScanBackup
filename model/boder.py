@@ -1,15 +1,18 @@
 from pydantic import BaseModel
 
 
-class BorderModel(BaseModel):
-    """Border data model."""
+class BordeModel(BaseModel):
+    """Borde data model."""
 
-    interface: str
+    id: str | None
+    name: str
     model: str
     capacity: int
+    createAt: str
 
 class BordeTrafficModel(BaseModel):
     """Borde with data history traffic model."""
+    
     interface: str
     model: str
     capacity: int

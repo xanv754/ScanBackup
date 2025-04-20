@@ -6,6 +6,22 @@ class RaiQuery(ABC):
     """Query class for rai table."""
 
     @abstractmethod
+    def set_database(self, uri: str) -> None:
+        """Set the connection database.
+        
+        Parameters
+        ----------
+        uri : str
+            New URI to connection database.
+        """
+        pass
+
+    @abstractmethod
+    def close_connection(self) -> None:
+        """Close the connection to the database."""
+        pass
+
+    @abstractmethod
     def new_interface(self, new: RaiModel) -> bool:
         """Register new interface.
 
@@ -21,12 +37,12 @@ class RaiQuery(ABC):
         pass
 
     @abstractmethod
-    def get_interface(self, interface: str) -> dict | None :
+    def get_interface(self, name: str) -> dict | None :
         """Get interface.
 
         Parameters
         ----------
-        interface : str
+        name : str
             Name interface.
 
         Returns

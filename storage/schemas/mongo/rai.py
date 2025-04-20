@@ -4,17 +4,17 @@ RAI_SCHEMA ={
     "$jsonSchema": {
         "bsonType": "object",
         "required": [
-            RaiFieldDatabase.INTERFACE,
+            RaiFieldDatabase.NAME,
             RaiFieldDatabase.CAPACITY
         ],
         "properties": {
-            RaiFieldDatabase.INTERFACE: {
+            RaiFieldDatabase.NAME: {
                 "bsonType": "string",
-                "description": "Name interface of the rai layer"
+                "description": "Name interface of the Rai layer"
             },
             RaiFieldDatabase.CAPACITY: {
                 "bsonType": "double",
-                "description": "Capacity of the rai layer"
+                "description": "Capacity of the Rai layer"
             }
         }
     }

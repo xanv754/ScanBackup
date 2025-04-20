@@ -3,6 +3,9 @@ from pydantic import BaseModel
 
 class CachingModel(BaseModel):
     """Caching data model."""
-    interface: str
+    
+    id: str | None
+    name: str
     service: str
-    capacity: int
+    capacity: float
+    createAt: str

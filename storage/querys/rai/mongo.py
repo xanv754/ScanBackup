@@ -5,6 +5,7 @@ from storage.database.product.mongo import MongoDatabase
 from storage.querys.rai.rai import RaiQuery
 from model.rai import RaiModel
 from utils.config import ConfigurationHandler
+from utils.trasform import RaiResponseTrasform
 from utils.log import LogHandler
 
 
@@ -29,28 +30,41 @@ class MongoRaiQuery(RaiQuery):
         except Exception as e:
             LogHandler.log(f"Failed to connect to MongoDB database. {e}", path=__file__, err=True)
 
+    def set_database(self, uri: str) -> None:
+        try:
+            if self.__database.connected:
+                self.__database.close_connection()
+            new_database = MongoDatabaseFactory().get_database(uri=uri)
+            self.__database = new_database
+        except Exception as e:
+            LogHandler.log(f"Failed to connect to MongoDB database. {e}", path=__file__, err=True)
+
+    def close_connection(self) -> None:
+        self.__database.close_connection()
+
     def new_interface(self, new: RaiModel) -> bool:
         try:
             if self.__database.connected:
                 collection = self.__database.get_cursor(table=TableNameDatabase.RAI)
-                data = new.model_dump()
+                data = new.model_dump(exclude={RaiFieldDatabase.ID})
                 response = collection.insert_one(data)
-                return response.acknowledged
             else:
                 raise Exception("Database not connected.")
         except Exception as e:
             LogHandler.log(f"Failed to create new interface. {e}", path=__file__, err=True)
             return False
+        else:
+            return response.acknowledged
 
-    def get_interface(self, interface: str) -> dict | None:
+    def get_interface(self, name: str) -> RaiModel | None:
         try:
             if self.__database.connected:
                 collection = self.__database.get_cursor(table=TableNameDatabase.RAI)
-                result = collection.find_one({RaiFieldDatabase.INTERFACE: interface})
+                result = collection.find_one({RaiFieldDatabase.NAME: name})
                 if result:
-                    return result
-                else:
-                    return None
+                    data = RaiResponseTrasform.default_model_mongo([result])
+                    if data: return data[0]
+                return None
             else:
                 raise Exception("Database not connected.")
         except Exception as e:

@@ -1,12 +1,17 @@
 from storage.constant.fields import TrafficHistoryFieldDatabase
 
-HISTORY_TRAFFIC_SCHEMA ={
+TRAFFIC_HISTORY_SCHEMA ={
     "$jsonSchema": {
         "bsonType": "object",
         "required": [
             TrafficHistoryFieldDatabase.DATE,
             TrafficHistoryFieldDatabase.TIME,
             TrafficHistoryFieldDatabase.ID_LAYER,
+            TrafficHistoryFieldDatabase.TYPE_LAYER,
+            TrafficHistoryFieldDatabase.IN_PROM,
+            TrafficHistoryFieldDatabase.IN_MAX,
+            TrafficHistoryFieldDatabase.OUT_PROM,
+            TrafficHistoryFieldDatabase.OUT_MAX
         ],
         "properties": {
             TrafficHistoryFieldDatabase.DATE: {
@@ -15,7 +20,7 @@ HISTORY_TRAFFIC_SCHEMA ={
             },
             TrafficHistoryFieldDatabase.TIME: {
                 "bsonType": "string",
-                "description": "Time of the traffic"
+                "description": "Hour of the traffic"
             },
             TrafficHistoryFieldDatabase.ID_LAYER: {
                 "bsonType": "string",

@@ -3,35 +3,41 @@ from typing import List, Tuple
 from datetime import datetime
 from rich.progress import track
 from constants.path import PathConstant
-from model.boder import BorderModel
+from constants.group import ModelBordeType, LayerType
+from model.boder import BordeModel
 from model.trafficHistory import TrafficHistoryModel
 from updater.update import UpdaterHandler
-from updater.handler.history import HistoryUpdaterHandler
-from storage.constant.tables import TableNameDatabase
+from updater.handler.traffic import TrafficHistoryUpdaterHandler
 from storage.querys.borde.mongo import MongoBordeQuery
+from storage.querys.borde.postgres import PostgresBordeQuery
 from utils.log import LogHandler
 
 
 class BordeUpdaterHandler(UpdaterHandler):
     """Border data updater handler."""
 
-    def get_data(self, filepath: str | None = None, date: str | None = None) -> List[Tuple[BorderModel, List[TrafficHistoryModel]]]:
+    def get_data(self, filepath: str | None = None, date: str | None = None) -> List[Tuple[BordeModel, List[TrafficHistoryModel]]]:
         try:
             if not os.path.exists(PathConstant.SCAN_DATA_BORDER) or not os.path.isdir(PathConstant.SCAN_DATA_BORDER):
                 raise FileNotFoundError("Border folder not found.")
             files = [filename for filename in os.listdir(PathConstant.SCAN_DATA_BORDER)]
-            data: List[Tuple[BorderModel, List[TrafficHistoryModel]]] = []
+            data: List[Tuple[BordeModel, List[TrafficHistoryModel]]] = []
             for filename in track(files, description="Reading data border..."):
                 try:
-                    model = filename.split("%")[0]
+                    if filename.split("%")[0] == ModelBordeType.CISCO:
+                        model = ModelBordeType.CISCO
+                    else:
+                        model = ModelBordeType.HUAWEI
                     interface = filename.split("%")[1]
                     capacity = int(filename.split("%")[2])
-                    interface_border = BorderModel(
-                        interface=interface,
+                    interface_border = BordeModel(
+                        id=None,
+                        name=interface,
                         model=model,
-                        capacity=capacity
+                        capacity=capacity,
+                        createAt=datetime.now().strftime("%Y-%m-%d")
                     )
-                    historyHandler = HistoryUpdaterHandler()
+                    historyHandler = TrafficHistoryUpdaterHandler()
                     if date:
                         traffic_border = historyHandler.get_data(filepath=f"{PathConstant.SCAN_DATA_BORDER}/{filename}", date=date)
                     else:
@@ -47,27 +53,62 @@ class BordeUpdaterHandler(UpdaterHandler):
         else:
             return data
 
-    def load_data(self, data: List[Tuple[BorderModel, List[TrafficHistoryModel]]]) -> bool:
+    def load_data(self, data: List[Tuple[BordeModel, List[TrafficHistoryModel]]]) -> bool:
+        failed = False
         try:
             database = MongoBordeQuery()
-            historyHandler = HistoryUpdaterHandler()
-            for interface, traffic in track(data, description="Saving data in the database..."):
+            historyHandler = TrafficHistoryUpdaterHandler()
+            for interface, traffic in track(data, description="Saving data in mongo database..."):
                 try:
-                    if not database.get_interface(interface.interface):
+                    data_interface = database.get_interface(interface.name)
+                    if not data_interface:
                         response = database.new_interface(interface)
                         if not response:
-                            raise Exception(f"Failed to insert new interface of Border layer: {interface.interface}")
+                            raise Exception(f"Failed to insert new interface of Border layer: {interface.name}")
+                        else:
+                            data_interface = database.get_interface(interface.name)
+                            if not data_interface:
+                                raise Exception(f"Failed to get new interface of Border layer: {interface.name}")
                     for new_traffic in traffic:
-                        new_traffic.idLayer = interface.interface
-                        new_traffic.typeLayer = TableNameDatabase.BORDE
-                    response = historyHandler.load_data(data=traffic)
+                        new_traffic.idLayer = str(data_interface.id)
+                        new_traffic.typeLayer = LayerType.BORDE
+                    response = historyHandler.load_data(data=traffic, mongo=True)
                     if not response:
-                        raise Exception(f"Failed to insert histories traffic of an interface of Border layer: {interface.interface}")
+                        raise Exception(f"Failed to insert histories traffic of an interface of Border layer: {interface.name}")
                 except Exception as e:
                     LogHandler.log(f"Failed to insert new interface or histories traffic of Border layer. {e}", err=True)
                     continue
         except Exception as e:
             LogHandler.log(f"Failed to load data of Border layer. {e}", err=True)
-            return False
-        else:
-            return True
+            failed = True
+        finally:
+            database.close_connection()
+        try:
+            database = PostgresBordeQuery()
+            historyHandler = TrafficHistoryUpdaterHandler()
+            for interface, traffic in track(data, description="Saving data in postgres database..."):
+                try:
+                    data_interface = database.get_interface(interface.name)
+                    if not data_interface:
+                        response = database.new_interface(interface)
+                        if not response:
+                            raise Exception(f"Failed to insert new interface of Border layer: {interface.name}")
+                        else:
+                            data_interface = database.get_interface(interface.name)
+                            if not data_interface:
+                                raise Exception(f"Failed to get new interface of Border layer: {interface.name}")
+                    for new_traffic in traffic:
+                        new_traffic.idLayer = str(data_interface.id)
+                        new_traffic.typeLayer = LayerType.BORDE
+                    response = historyHandler.load_data(data=traffic, postgres=True)
+                    if not response:
+                        raise Exception(f"Failed to insert histories traffic of an interface of Border layer: {interface.name}")
+                except Exception as e:
+                    LogHandler.log(f"Failed to insert new interface or histories traffic of Border layer. {e}", err=True)
+                    continue
+        except Exception as e:
+            LogHandler.log(f"Failed to load data of Border layer. {e}", err=True)
+            failed = True
+        finally:
+            database.close_connection()
+        return not failed

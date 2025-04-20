@@ -1,48 +1,145 @@
 import os
 import unittest
+import random
+from datetime import datetime
+from unittest.mock import MagicMock
 from dotenv import load_dotenv
-from controllers.borde import BordeController
-from model.boder import BorderModel
+from constants.group import ModelBordeType
+from model.boder import BordeModel
 from storage.querys.borde.mongo import MongoBordeQuery
+from storage.querys.borde.postgres import PostgresBordeQuery
 
 
 load_dotenv(override=True)
 
-URI_TEST_MONGO = os.getenv("URI_MONGO")
-INTERFACE_EXAMPLE = BorderModel(
-    interface="interface_test",
-    model="interface_model",
-    capacity=0
-)
 
-class TestBordeResponse(unittest.TestCase):
-    def test_insert_interface(self):
-        """Test insert a new interface of Borde layer in the database."""
+URI_TEST_MONGO = os.getenv("URI_TEST_MONGO")
+URI_TEST_POSTGRES = os.getenv("URI_TEST_POSTGRES")
+
+class TestBordeOperation(unittest.TestCase):
+    def test_insert_interface_mongo(self):
+        """Test insert a new interface of Borde layer in mongo database."""
+        mock_interface = MagicMock()
+        mock_interface.border_model.return_value = BordeModel(
+            id=None,
+            name="interface_test_" + str(random.randint(0, 1000)),
+            model=ModelBordeType.CISCO,
+            capacity=0,
+            createAt=datetime.now().strftime("%Y-%m-%d")
+        )
+
         database = MongoBordeQuery()
         database.set_database(uri=URI_TEST_MONGO)
-        response = database.new_interface(new=INTERFACE_EXAMPLE)
+        
+        response = database.new_interface(new=mock_interface.border_model())
         self.assertTrue(response)
 
-    def test_get_interface(self):
-        """Test get an interface by interface name of Borde layer in the database."""
+    def test_insert_interface_postgres(self):
+        """Test insert a new interface of Borde layer in postgres database."""
+        mock_interface = MagicMock()
+        mock_interface.border_model.return_value = BordeModel(
+            id=None,
+            name="interface_test_" + str(random.randint(0, 1000)),
+            model=ModelBordeType.CISCO,
+            capacity=0,
+            createAt=datetime.now().strftime("%Y-%m-%d")
+        )
+
+        database = PostgresBordeQuery()
+        database.set_database(uri=URI_TEST_POSTGRES)
+        
+        response = database.new_interface(new=mock_interface.border_model())
+        self.assertTrue(response)
+
+    def test_get_interface_mongo(self):
+        """Test get an interface of Borde layer in mongo database."""
+        mock_interface = MagicMock()
+        interface_example = BordeModel(
+            id=None,
+            name="interface_test_" + str(random.randint(0, 1000)),
+            model=ModelBordeType.CISCO,
+            capacity=0,
+            createAt=datetime.now().strftime("%Y-%m-%d")
+        )
+        mock_interface.border_model.return_value = interface_example
+
         database = MongoBordeQuery()
         database.set_database(uri=URI_TEST_MONGO)
-        response = database.get_interface(interface=INTERFACE_EXAMPLE.interface)
+        response = database.new_interface(new=mock_interface.border_model())
         self.assertTrue(response)
-        self.assertEqual(response.interface, INTERFACE_EXAMPLE.interface)
 
-    def test_get_interfaces(self):
-        """Test get all interfaces of Borde layer in the database."""
         database = MongoBordeQuery()
         database.set_database(uri=URI_TEST_MONGO)
-        response = database.get_interfaces()
+        interface = database.get_interface(name=interface_example.name)
+        self.assertIsNotNone(interface)
+        self.assertEqual(interface.name, interface_example.name)
+
+    def test_get_interface_postgres(self):
+        """Test get an interface of Borde layer in postgres database."""
+        mock_interface = MagicMock()
+        interface_example = BordeModel(
+            id=None,
+            name="interface_test_" + str(random.randint(0, 1000)),
+            model=ModelBordeType.CISCO,
+            capacity=0,
+            createAt=datetime.now().strftime("%Y-%m-%d")
+        )
+        mock_interface.border_model.return_value = interface_example
+
+        database = PostgresBordeQuery()
+        database.set_database(uri=URI_TEST_POSTGRES)
+        response = database.new_interface(new=mock_interface.border_model())
         self.assertTrue(response)
 
-    def test_get_traffic_by_date(self):
-        """Test get all traffic by a date."""
-        response = BordeController.get_traffic_by_date(date="2025-01-01")
-        print(response)
+        database = PostgresBordeQuery()
+        database.set_database(uri=URI_TEST_POSTGRES)
+        interface = database.get_interface(name=interface_example.name)
+        self.assertIsNotNone(interface)
+        self.assertEqual(interface.name, interface_example.name)
+
+    def test_get_interfaces_mongo(self):
+        """Test get all interfaces of Borde layer in mongo database."""
+        mock_interface = MagicMock()
+        interface_example = BordeModel(
+            id=None,
+            name="interface_test_" + str(random.randint(0, 1000)),
+            model=ModelBordeType.CISCO,
+            capacity=0,
+            createAt=datetime.now().strftime("%Y-%m-%d")
+        )
+        mock_interface.border_model.return_value = interface_example
+
+        database = MongoBordeQuery()
+        database.set_database(uri=URI_TEST_MONGO)
+        response = database.new_interface(new=mock_interface.border_model())
         self.assertTrue(response)
+
+        database = MongoBordeQuery()
+        database.set_database(uri=URI_TEST_MONGO)
+        interfaces = database.get_interfaces()
+        self.assertIsNotNone(interfaces)
+
+    def test_get_interfaces_postgres(self):
+        """Test get all interfaces of Borde layer in postgres database."""
+        mock_interface = MagicMock()
+        interface_example = BordeModel(
+            id=None,
+            name="interface_test_" + str(random.randint(0, 1000)),
+            model=ModelBordeType.CISCO,
+            capacity=0,
+            createAt=datetime.now().strftime("%Y-%m-%d")
+        )
+        mock_interface.border_model.return_value = interface_example
+
+        database = PostgresBordeQuery()
+        database.set_database(uri=URI_TEST_POSTGRES)
+        response = database.new_interface(new=mock_interface.border_model())
+        self.assertTrue(response)
+
+        database = PostgresBordeQuery()
+        database.set_database(uri=URI_TEST_POSTGRES)
+        interfaces = database.get_interfaces()
+        self.assertIsNotNone(interfaces)
 
 
 if __name__ == "__main__":

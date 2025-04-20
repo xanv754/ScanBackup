@@ -6,6 +6,22 @@ class BrasQuery(ABC):
     """Query class for bras table."""
 
     @abstractmethod
+    def set_database(self, uri: str) -> None:
+        """Set the connection database.
+        
+        Parameters
+        ----------
+        uri : str
+            New URI to connection database.
+        """
+        pass
+
+    @abstractmethod
+    def close_connection(self) -> None:
+        """Close the connection to the database."""
+        pass
+
+    @abstractmethod
     def new_bras(self, new: BrasModel) -> bool:
         """Register new bras.
 

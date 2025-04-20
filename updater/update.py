@@ -1,11 +1,8 @@
-import pandas as pd
-from typing import List, Tuple
-from model.boder import BorderModel
-from model.trafficHistory import TrafficHistoryModel
+from typing import List
 from abc import ABC, abstractmethod
 
 
-class UpdaterHandler:
+class UpdaterHandler(ABC):
     """System data updater handler"""
 
     @abstractmethod
@@ -22,6 +19,16 @@ class UpdaterHandler:
         pass
 
     @abstractmethod
-    def load_data(self, data: List) -> bool:
-        """Load data in the database."""
+    def load_data(self, data: List, mongo: bool = False, postgres: bool = False) -> bool:
+        """Load data in the database.
+        
+        Parameters
+        ----------
+        data : List
+            Data to be loaded.
+        mongo : bool
+            Insert data in mongo database.
+        postgres : bool
+            Insert data in postgres database.
+        """
         pass

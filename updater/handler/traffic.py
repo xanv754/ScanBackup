@@ -2,11 +2,12 @@ from typing import List
 from datetime import datetime
 from model.trafficHistory import TrafficHistoryModel
 from updater.update import UpdaterHandler
-from storage.querys.history.mongo import MongoHistoryTrafficQuery
+from storage.querys.traffic.mongo import MongoTrafficHistoryQuery
+from storage.querys.traffic.postgres import PostgresTrafficHistoryQuery
 from utils.log import LogHandler
 
 
-class HistoryUpdaterHandler(UpdaterHandler):
+class TrafficHistoryUpdaterHandler(UpdaterHandler):
     """Class to get history data of files."""
 
     def get_data(self, filepath: str | None = None, date: str | None = None) -> List[TrafficHistoryModel]:
@@ -37,16 +38,24 @@ class HistoryUpdaterHandler(UpdaterHandler):
             LogHandler.log(f"Failed to get data of history traffic. {e}", err=True)
             return []
 
-    def load_data(self, data: List[TrafficHistoryModel]) -> bool:
-        try:
-            database = MongoHistoryTrafficQuery()
-            if len(data) != 0:
-                response = database.new_histories(new_histories=data)
-            else:
-                # LogHandler.log("Attempted to load an empty traffic history list into the database", warn=True)
-                response = True
-        except Exception as e:
-            LogHandler.log(f"Failed to load data of history traffic. {e}", err=True)
-            return False
-        else:
-            return response
+    def load_data(self, data: List[TrafficHistoryModel], mongo: bool = False, postgres: bool = False) -> bool:
+        failed = False
+        if mongo and len(data) > 0:
+            try:
+                mongo_database = MongoTrafficHistoryQuery()
+                response = mongo_database.new_traffic(traffic=data)
+                if not response:
+                    raise Exception(f"Failed to insert histories traffic of {data[0].typeLayer} into mongo database.")
+            except Exception as e:
+                LogHandler.log(f"Failed to load data of history traffic. {e}", err=True)
+                failed = True
+        if postgres and len(data) > 0:
+            try:
+                postgres_database = PostgresTrafficHistoryQuery()
+                response = postgres_database.new_traffic(traffic=data)
+                if not response:
+                    raise Exception(f"Failed to insert histories traffic of {data[0].typeLayer} into postgres database.")
+            except Exception as e:
+                LogHandler.log(f"Failed to load data of history traffic. {e}", err=True)
+                failed = True
+        return not failed

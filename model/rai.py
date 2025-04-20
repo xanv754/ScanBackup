@@ -2,5 +2,8 @@ from pydantic import BaseModel
 
 class RaiModel(BaseModel):
     """Rai data model."""
-    interface: str
-    capacity: int
+
+    id: str | None
+    name: str
+    capacity: float
+    createAt: str

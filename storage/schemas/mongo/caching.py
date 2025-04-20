@@ -4,22 +4,22 @@ CACHING_SCHEMA ={
     "$jsonSchema": {
         "bsonType": "object",
         "required": [
-            CachingFieldDatabase.INTERFACE,
+            CachingFieldDatabase.NAME,
             CachingFieldDatabase.SERVICE,
             CachingFieldDatabase.CAPACITY
         ],
         "properties": {
-            CachingFieldDatabase.INTERFACE: {
+            CachingFieldDatabase.NAME: {
                 "bsonType": "string",
-                "description": "Name interface of the caching layer"
+                "description": "Name interface of the Caching layer"
             },
             CachingFieldDatabase.SERVICE: {
                 "bsonType": "string",
-                "description": "Service of the caching layer"
+                "description": "Service of the Caching layer"
             },
             CachingFieldDatabase.CAPACITY: {
                 "bsonType": "double",
-                "description": "Capacity of the caching layer"
+                "description": "Capacity of the Caching layer"
             }
         }
     }
