@@ -2,6 +2,7 @@
 data/*
 sources/*
 routines/*
+test/correcciondata
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
