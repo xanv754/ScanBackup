@@ -40,61 +40,19 @@ class TrafficHistoryQuery(ABC):
         """
         pass
 
-    # @abstractmethod
-    # def get_all_traffic_by_layer(self, layer_name: str) -> List[TrafficHistoryModel]:
-    #     """Get a list of all traffic history filtered by a layer.
+    @abstractmethod
+    def get_traffic_layer_by_date(self, id_layer: str, date: str) -> List[TrafficHistoryModel]:
+        """Get all traffic history of a layer by date.
 
-    #     Parameters
-    #     ----------
-    #     layer_name : str
-    #         Name of layer.
-    #     """
-    #     pass
+        Parameters
+        ----------
+        id_layer : str
+            ID of layer.
+        date : str
+            Date of traffic history.
 
-    # @abstractmethod
-    # def get_all_traffic_by_id(self, id: str) -> List[TrafficHistoryModel]:
-    #     """Get a list of all traffic history filtered by a ID layer.
-
-    #     Parameters
-    #     ----------
-    #     id : str
-    #         ID of layer.
-    #     """
-    #     pass
-
-    # @abstractmethod
-    # def get_all_traffic_by_date(self, date: str) -> List[TrafficHistoryModel]:
-    #     """Get a list of all traffic history filtered by a date.
-
-    #     Parameters
-    #     ----------
-    #     date : str
-    #         Date to consult.
-    #     """
-    #     pass
-
-    # @abstractmethod
-    # def get_all_traffic_date_by_layer(self, layer_name: str, date: str) -> List[TrafficHistoryModel]:
-    #     """Get a list of all traffic history filtered by a layer and a date.
-
-    #     Parameters
-    #     ----------
-    #     layer_name : str
-    #         Name of layer.
-    #     date : str
-    #         Date to consult.
-    #     """
-    #     pass
-
-    # @abstractmethod
-    # def get_all_traffic_date_by_id(self, id: str, date: str) -> List[TrafficHistoryModel]:
-    #     """Get a list of all traffic history filtered by a id layer and a date.
-
-    #     Parameters
-    #     ----------
-    #     id : str
-    #         ID of layer.
-    #     date : str
-    #         Date to consult.
-    #     """
-    #     pass
+        Returns
+        -------
+            List of traffic history model.
+        """
+        pass

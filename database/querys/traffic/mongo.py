@@ -57,17 +57,18 @@ class MongoTrafficHistoryQuery(TrafficHistoryQuery):
                 for data in traffic:
                     if not self.get_traffic(date=data.date, time=data.time, id_layer=data.idLayer):
                         traffic_json.append(data.model_dump())
-                collection = self.__database.get_cursor(table=TableNameDatabase.TRAFFIC_HISTORY)
-                response = collection.insert_many(traffic_json)
-                self.__database.close_connection()
+                if traffic_json:
+                    collection = self.__database.get_cursor(table=TableNameDatabase.TRAFFIC_HISTORY)
+                    response = collection.insert_many(traffic_json)
+                    self.__database.close_connection()
+                    return response.acknowledged
+                return False
             else:
                 raise Exception("Database not connected.")
         except Exception as e:
             log = LogHandler()
             log.export(f"Failed to insert histories traffic. {e}", path=__file__, err=True)
             return False
-        else:
-            return response.acknowledged
 
     def get_traffic(self, date: str, time: str, id_layer: str) -> TrafficHistoryModel | None:
         try:
@@ -91,137 +92,23 @@ class MongoTrafficHistoryQuery(TrafficHistoryQuery):
             log.export(f"Failed to get traffic. {e}", path=__file__, err=True)
             return None
 
-    # def get_all_traffic_by_layer(self, layer_name: str) -> List[TrafficHistoryModel]:
-    #     try:
-    #         result: List[TrafficHistoryModel] = []
-    #         if self.__database.connected:
-    #             collection = self.__database.get_cursor(table=TableNameDatabase.TRAFFIC_HISTORY)
-    #             cursor = collection.find({TrafficHistoryFieldDatabase.TYPE_LAYER: layer_name})
-    #             for data in cursor:
-    #                 result.append(
-    #                     TrafficHistoryModel(
-    #                         date=data[TrafficHistoryFieldDatabase.DATE],
-    #                         time=data[TrafficHistoryFieldDatabase.TIME],
-    #                         idLayer=data[TrafficHistoryFieldDatabase.ID_LAYER],
-    #                         typeLayer=data[TrafficHistoryFieldDatabase.TYPE_LAYER],
-    #                         inProm=data[TrafficHistoryFieldDatabase.IN_PROM],
-    #                         inMax=data[TrafficHistoryFieldDatabase.IN_MAX],
-    #                         outProm=data[TrafficHistoryFieldDatabase.OUT_PROM],
-    #                         outMax=data[TrafficHistoryFieldDatabase.OUT_MAX],
-    #                     )
-    #                 )
-    #             self.__database.close_connection()
-    #         return result
-    #     except Exception as e:
-    #         LogHandler.log(f"Failed to get all traffic of {layer_name} layer. {e}", path=__file__, err=True)
-    #         return []
-
-    # def get_all_traffic_by_id(self, id: str) -> List[TrafficHistoryModel]:
-    #     try:
-    #         result: List[TrafficHistoryModel] = []
-    #         if self.__database.connected:
-    #             collection = self.__database.get_cursor(table=TableNameDatabase.TRAFFIC_HISTORY)
-    #             cursor = collection.find({TrafficHistoryFieldDatabase.ID_LAYER: id})
-    #             for data in cursor:
-    #                 result.append(
-    #                     TrafficHistoryModel(
-    #                         date=data[TrafficHistoryFieldDatabase.DATE],
-    #                         time=data[TrafficHistoryFieldDatabase.TIME],
-    #                         idLayer=data[TrafficHistoryFieldDatabase.ID_LAYER],
-    #                         typeLayer=data[TrafficHistoryFieldDatabase.TYPE_LAYER],
-    #                         inProm=data[TrafficHistoryFieldDatabase.IN_PROM],
-    #                         inMax=data[TrafficHistoryFieldDatabase.IN_MAX],
-    #                         outProm=data[TrafficHistoryFieldDatabase.OUT_PROM],
-    #                         outMax=data[TrafficHistoryFieldDatabase.OUT_MAX],
-    #                     )
-    #                 )
-    #             self.__database.close_connection()
-    #         return result
-    #     except Exception as e:
-    #         LogHandler.log(f"Failed to get all traffic of {id}. {e}", path=__file__, err=True)
-    #         return []
-
-    # def get_all_traffic_by_date(self, date: str) -> List[TrafficHistoryModel]:
-    #     try:
-    #         result: List[TrafficHistoryModel] = []
-    #         if self.__database.connected:
-    #             collection = self.__database.get_cursor(table=TableNameDatabase.TRAFFIC_HISTORY)
-    #             cursor = collection.find({TrafficHistoryFieldDatabase.DATE: date})
-    #             for data in cursor:
-    #                 result.append(
-    #                     TrafficHistoryModel(
-    #                         date=data[TrafficHistoryFieldDatabase.DATE],
-    #                         time=data[TrafficHistoryFieldDatabase.TIME],
-    #                         idLayer=data[TrafficHistoryFieldDatabase.ID_LAYER],
-    #                         typeLayer=data[TrafficHistoryFieldDatabase.TYPE_LAYER],
-    #                         inProm=data[TrafficHistoryFieldDatabase.IN_PROM],
-    #                         inMax=data[TrafficHistoryFieldDatabase.IN_MAX],
-    #                         outProm=data[TrafficHistoryFieldDatabase.OUT_PROM],
-    #                         outMax=data[TrafficHistoryFieldDatabase.OUT_MAX],
-    #                     )
-    #                 )
-    #             self.__database.close_connection()
-    #         return result
-    #     except Exception as e:
-    #         LogHandler.log(f"Failed to get all traffic of date {date}. {e}", path=__file__, err=True)
-    #         return []
-
-    # def get_all_traffic_date_by_layer(self, layer_name: str, date: str) -> List[TrafficHistoryModel]:
-    #     try:
-    #         result: List[TrafficHistoryModel] = []
-    #         if self.__database.connected:
-    #             collection = self.__database.get_cursor(table=TableNameDatabase.TRAFFIC_HISTORY)
-    #             cursor = collection.find(
-    #                 {
-    #                     TrafficHistoryFieldDatabase.DATE: date,
-    #                     TrafficHistoryFieldDatabase.TYPE_LAYER: layer_name
-    #                 }
-    #             )
-    #             for data in cursor:
-    #                 result.append(
-    #                     TrafficHistoryModel(
-    #                         date=data[TrafficHistoryFieldDatabase.DATE],
-    #                         time=data[TrafficHistoryFieldDatabase.TIME],
-    #                         idLayer=data[TrafficHistoryFieldDatabase.ID_LAYER],
-    #                         typeLayer=data[TrafficHistoryFieldDatabase.TYPE_LAYER],
-    #                         inProm=data[TrafficHistoryFieldDatabase.IN_PROM],
-    #                         inMax=data[TrafficHistoryFieldDatabase.IN_MAX],
-    #                         outProm=data[TrafficHistoryFieldDatabase.OUT_PROM],
-    #                         outMax=data[TrafficHistoryFieldDatabase.OUT_MAX],
-    #                     )
-    #                 )
-    #             self.__database.close_connection()
-    #         return result
-    #     except Exception as e:
-    #         LogHandler.log(f"Failed to get all traffic of date {date} in the {layer_name} layer. {e}", path=__file__, err=True)
-    #         return []
-
-    # def get_all_traffic_date_by_id(self, id: str, date: str) -> List[TrafficHistoryModel]:
-    #     try:
-    #         result: List[TrafficHistoryModel] = []
-    #         if self.__database.connected:
-    #             collection = self.__database.get_cursor(table=TableNameDatabase.TRAFFIC_HISTORY)
-    #             cursor = collection.find(
-    #                 {
-    #                     TrafficHistoryFieldDatabase.DATE: date,
-    #                     TrafficHistoryFieldDatabase.ID_LAYER: id
-    #                 }
-    #             )
-    #             for data in cursor:
-    #                 result.append(
-    #                     TrafficHistoryModel(
-    #                         date=data[TrafficHistoryFieldDatabase.DATE],
-    #                         time=data[TrafficHistoryFieldDatabase.TIME],
-    #                         idLayer=data[TrafficHistoryFieldDatabase.ID_LAYER],
-    #                         typeLayer=data[TrafficHistoryFieldDatabase.TYPE_LAYER],
-    #                         inProm=data[TrafficHistoryFieldDatabase.IN_PROM],
-    #                         inMax=data[TrafficHistoryFieldDatabase.IN_MAX],
-    #                         outProm=data[TrafficHistoryFieldDatabase.OUT_PROM],
-    #                         outMax=data[TrafficHistoryFieldDatabase.OUT_MAX],
-    #                     )
-    #                 )
-    #             self.__database.close_connection()
-    #         return result
-    #     except Exception as e:
-    #         LogHandler.log(f"Failed to get all traffic of date {date} in {id}. {e}", path=__file__, err=True)
-    #         return []
+    def get_traffic_layer_by_date(self, id_layer: str, date: str) -> List[TrafficHistoryModel]:
+        try:
+            if self.__database.connected:
+                collection = self.__database.get_cursor(table=TableNameDatabase.TRAFFIC_HISTORY)
+                cursor = collection.find(
+                    {
+                        TrafficHistoryFieldDatabase.DATE: date,
+                        TrafficHistoryFieldDatabase.ID_LAYER: id_layer
+                    }
+                )
+                result: List[TrafficHistoryModel] = []
+                if cursor:
+                    result = TrafficHistoryResponseTrasform.default_model_mongo(cursor)
+                return result
+            else:
+                raise Exception("Database not connected.")
+        except Exception as e:
+            log = LogHandler()
+            log.export(f"Failed to get traffic. {e}", path=__file__, err=True)
+            return []

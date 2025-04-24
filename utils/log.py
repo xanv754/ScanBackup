@@ -168,7 +168,8 @@ class LogHandler:
             self.__cprint(message, path=path, err=err, warn=warn, info=info)
         self.__save(message, path=path, err=err, warn=warn, info=info)
 
-    def print(self, message: str, path: str | None = None) -> None:
+    def print(self, message: any, path: str | None = None) -> None:
+        message = str(message)
         messages: List[str] = []
         if path:
             path = path.split(f"/{AboutConstant.TITLE_PROJECT.value}/")[1]
