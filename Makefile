@@ -11,7 +11,6 @@ setup: requirements.txt
 	   python3.13 -m venv .venv; \
 	fi
 	.venv/bin/pip install -r requirements.txt
-	export PYTHONPATH="$(PYTHONPATH):$(PWD)/constants:$(PWD)/model:$(PWD)/storage:$(PWD)/test:$(PWD)/updater:$(PWD)/utils"
 
 migration: .venv/bin/activate
 	.venv/bin/python3 -m storage migration
