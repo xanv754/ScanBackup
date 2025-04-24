@@ -49,7 +49,6 @@ def migration(test: bool):
     if postgres_database.connected:
         postgres_status = postgres_database.migration()
         postgres_database.close_connection()
-    print(mongo_status, postgres_status)
     if mongo_status and postgres_status: 
         log.export("Migrations successfully completed", info=True)
     else:
