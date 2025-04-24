@@ -27,14 +27,16 @@ class ConfigurationHandler:
                     raise FileNotFoundError("Enviroment file not found.")
                 uri_postgres = os.getenv("URI_POSTGRES")
                 if not uri_postgres:
-                    LogHandler.log(message=f"Failed to obtain configuration. URI PostgreSQL variable not found in enviroment file", path=__file__, err=True)
+                    log = LogHandler()
+                    log.export(message=f"Failed to obtain configuration. URI PostgreSQL variable not found in enviroment file", path=__file__, err=True)
                 else: self.uri_postgres = uri_postgres
                 uri_mongo = os.getenv("URI_MONGO")
                 if not uri_mongo:
                     raise ValueError("URI MongoDB variable not found in enviroment file.")
                 self.uri_mongo = uri_mongo
         except Exception as e:
-            LogHandler.log(message=f"Failed to obtain configuration. {e}", path=__file__, err=True)
+            log = LogHandler()
+            log.export(message=f"Failed to obtain configuration. {e}", path=__file__, err=True)
             exit(1)
 
     @classmethod

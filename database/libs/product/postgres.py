@@ -22,7 +22,8 @@ class PostgresDatabase(Database):
             self.__connection = psycopg2.connect(uri)
             self.__cursor = self.__connection.cursor()
         except Exception as e:
-            LogHandler.log(f"Failed to connect to PostgreSQL database. {e}", path=__file__, err=True)
+            log = LogHandler()
+            log.export(f"Failed to connect to PostgreSQL database. {e}", path=__file__, err=True)
         else:
             self.connected = True
 
@@ -49,7 +50,8 @@ class PostgresDatabase(Database):
             cursor.close()
             connection.close()
         except Exception as e:
-            LogHandler.log(f"PostgreSQL database error. {e}", err=True)
+            log = LogHandler()
+            log.export(f"PostgreSQL database error. {e}", err=True)
             return False
         else:
             return status
@@ -74,7 +76,8 @@ class PostgresDatabase(Database):
             cursor.close()
             connection.close()
         except Exception as e:
-            LogHandler.log(f"PostgreSQL database Error. {e}", err=True)
+            log = LogHandler()
+            log.export(f"PostgreSQL database Error. {e}", err=True)
             return False
         else:
             return True
@@ -106,7 +109,8 @@ class PostgresDatabase(Database):
             self.__connection.commit()
             self.close_connection()
         except Exception as e:
-            LogHandler.log(f"PostgreSQL database Error. {e}", err=True)
+            log = LogHandler()
+            log.export(f"PostgreSQL database Error. {e}", err=True)
             return False
         else:
             return True
@@ -123,7 +127,8 @@ class PostgresDatabase(Database):
             self.__connection.commit()
             self.close_connection()
         except Exception as e:
-            LogHandler.log(f"PostgreSQL database Error. {e}", err=True)
+            log = LogHandler()
+            log.export(f"PostgreSQL database Error. {e}", err=True)
             return False
         else:
             return True

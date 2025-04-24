@@ -43,12 +43,14 @@ class BordeUpdaterHandler(UpdaterHandler):
                     else:
                         traffic_border = historyHandler.get_data(filepath=f"{PathConstant.SCAN_DATA_BORDER}/{filename}")
                 except Exception as e:
-                    LogHandler.log(f"Something went wrong to load data: {filename}. {e}", err=True)
+                    log = LogHandler()
+                    log.export(f"Something went wrong to load data: {filename}. {e}", err=True)
                     continue
                 else:
                     data.append((interface_border, traffic_border))
         except Exception as e:
-            LogHandler.log(f"Failed to data load of Border layer. {e}", err=True)
+            log = LogHandler()
+            log.export(f"Failed to data load of Border layer. {e}", err=True)
             return []
         else:
             return data
@@ -76,10 +78,12 @@ class BordeUpdaterHandler(UpdaterHandler):
                     if not response:
                         raise Exception(f"Failed to insert histories traffic of an interface of Border layer: {interface.name}")
                 except Exception as e:
-                    LogHandler.log(f"Failed to insert new interface or histories traffic of Border layer. {e}", err=True)
+                    log = LogHandler()
+                    log.export(f"Failed to insert new interface or histories traffic of Border layer. {e}", err=True)
                     continue
         except Exception as e:
-            LogHandler.log(f"Failed to load data of Border layer. {e}", err=True)
+            log = LogHandler()
+            log.export(f"Failed to load data of Border layer. {e}", err=True)
             failed = True
         finally:
             database.close_connection()
@@ -104,10 +108,12 @@ class BordeUpdaterHandler(UpdaterHandler):
                     if not response:
                         raise Exception(f"Failed to insert histories traffic of an interface of Border layer: {interface.name}")
                 except Exception as e:
-                    LogHandler.log(f"Failed to insert new interface or histories traffic of Border layer. {e}", err=True)
+                    log = LogHandler()
+                    log.export(f"Failed to insert new interface or histories traffic of Border layer. {e}", err=True)
                     continue
         except Exception as e:
-            LogHandler.log(f"Failed to load data of Border layer. {e}", err=True)
+            log = LogHandler()
+            log.export(f"Failed to load data of Border layer. {e}", err=True)
             failed = True
         finally:
             database.close_connection()

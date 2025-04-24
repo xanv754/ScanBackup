@@ -29,7 +29,8 @@ class PostgresTrafficHistoryQuery(TrafficHistoryQuery):
                 database = PostgresDatabaseFactory().get_database(uri=config.uri_postgres)
                 self.__database = database
         except Exception as e:
-            LogHandler.log(f"Failed to connect to Postgres database. {e}", path=__file__, err=True)
+            log = LogHandler()
+            log.export(f"Failed to connect to Postgres database. {e}", path=__file__, err=True)
 
     def set_database(self, uri: str) -> None:
         """Set the connection database.
@@ -45,7 +46,8 @@ class PostgresTrafficHistoryQuery(TrafficHistoryQuery):
             new_database = PostgresDatabaseFactory().get_database(uri=uri)
             self.__database = new_database
         except Exception as e:
-            LogHandler.log(f"Failed to connect to Postgres database. {e}", path=__file__, err=True)
+            log = LogHandler()
+            log.export(f"Failed to connect to Postgres database. {e}", path=__file__, err=True)
 
     def new_traffic(self, traffic: List[TrafficHistoryModel]) -> bool:
         try:
@@ -92,7 +94,8 @@ class PostgresTrafficHistoryQuery(TrafficHistoryQuery):
             else:
                 raise Exception("Database not connected.")
         except Exception as e:
-            LogHandler.log(f"Failed to insert traffic histories. {e}", path=__file__, err=True)
+            log = LogHandler()
+            log.export(f"Failed to insert traffic histories. {e}", path=__file__, err=True)
             return False
         else:
             return total_inserted == total_insert
@@ -124,7 +127,8 @@ class PostgresTrafficHistoryQuery(TrafficHistoryQuery):
             else:
                 raise Exception("Database not connected.")
         except Exception as e:
-            LogHandler.log(f"Failed to get traffic. {e}", path=__file__, err=True)
+            log = LogHandler()
+            log.export(f"Failed to get traffic. {e}", path=__file__, err=True)
             return None
 
     # def get_all_traffic_by_layer(self, layer_name: str) -> List[TrafficHistoryModel]:

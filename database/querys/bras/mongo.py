@@ -28,7 +28,8 @@ class MongoBrasQuery(BrasQuery):
                 database = MongoDatabaseFactory().get_database(uri=config.uri_mongo)
                 self.__database = database
         except Exception as e:
-            LogHandler.log(f"Failed to connect to MongoDB database. {e}", path=__file__, err=True)
+            log = LogHandler()
+            log.export(f"Failed to connect to MongoDB database. {e}", path=__file__, err=True)
 
     def set_database(self, uri: str) -> None:
         try:
@@ -37,7 +38,8 @@ class MongoBrasQuery(BrasQuery):
             new_database = MongoDatabaseFactory().get_database(uri=uri)
             self.__database = new_database
         except Exception as e:
-            LogHandler.log(f"Failed to connect to MongoDB database. {e}", path=__file__, err=True)
+            log = LogHandler()
+            log.export(f"Failed to connect to MongoDB database. {e}", path=__file__, err=True)
 
     def close_connection(self) -> None:
         self.__database.close_connection()
@@ -51,7 +53,8 @@ class MongoBrasQuery(BrasQuery):
             else:
                 raise Exception("Database not connected.")
         except Exception as e:
-            LogHandler.log(f"Failed to create new bras. {e}", path=__file__, err=True)
+            log = LogHandler()
+            log.export(f"Failed to create new bras. {e}", path=__file__, err=True)
             return False
         else:
             return response.acknowledged
@@ -73,5 +76,6 @@ class MongoBrasQuery(BrasQuery):
             else:
                 raise Exception("Database not connected.")
         except Exception as e:
-            LogHandler.log(f"Failed to get bras. {e}", path=__file__, err=True)
+            log = LogHandler()
+            log.export(f"Failed to get bras. {e}", path=__file__, err=True)
             return None

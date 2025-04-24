@@ -21,7 +21,8 @@ class MongoDatabase(Database):
             name_db = uri.split("/")[-1]
             self.__connection = self.__client[name_db]
         except Exception as e:
-            LogHandler.log(f"Failed to connect to MongoDB database. {e}", path=__file__, err=True)
+            log = LogHandler()
+            log.export(f"Failed to connect to MongoDB database. {e}", path=__file__, err=True)
         else:
             self.connected = True
 
@@ -65,7 +66,8 @@ class MongoDatabase(Database):
                 validator=IP_HISTORY_SCHEMA
             )
         except Exception as e:
-            LogHandler.log(f"Failed to migrate MongoDB database. {e}", path=__file__, err=True)
+            log = LogHandler()
+            log.export(f"Failed to migrate MongoDB database. {e}", path=__file__, err=True)
             return False
         else:
             return True
@@ -91,7 +93,8 @@ class MongoDatabase(Database):
             ip_history_collection.delete_many({})
             ip_history_collection.drop()
         except Exception as e:
-            LogHandler.log(f"Failed to rollback MongoDB database. {e}", path=__file__, err=True)
+            log = LogHandler()
+            log.export(f"Failed to rollback MongoDB database. {e}", path=__file__, err=True)
             return False
         else:
             return True

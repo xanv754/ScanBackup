@@ -29,7 +29,8 @@ class MongoBordeQuery(BordeQuery):
                 database = MongoDatabaseFactory().get_database(uri=config.uri_mongo)
                 self.__database = database
         except Exception as e:
-            LogHandler.log(f"Failed to connect to MongoDB database. {e}", path=__file__, err=True)
+            log = LogHandler()
+            log.export(f"Failed to connect to MongoDB database. {e}", path=__file__, err=True)
 
     def set_database(self, uri: str) -> None:
         try:
@@ -38,7 +39,8 @@ class MongoBordeQuery(BordeQuery):
             new_database = MongoDatabaseFactory().get_database(uri=uri)
             self.__database = new_database
         except Exception as e:
-            LogHandler.log(f"Failed to connect to MongoDB database. {e}", path=__file__, err=True)
+            log = LogHandler()
+            log.export(f"Failed to connect to MongoDB database. {e}", path=__file__, err=True)
 
     def close_connection(self) -> None:
         self.__database.close_connection()
@@ -52,7 +54,8 @@ class MongoBordeQuery(BordeQuery):
             else:
                 raise Exception("Database not connected.")
         except Exception as e:
-            LogHandler.log(f"Failed to create new interface. {e}", path=__file__, err=True)
+            log = LogHandler()
+            log.export(f"Failed to create new interface. {e}", path=__file__, err=True)
             return False
         else:
             return response.acknowledged
@@ -69,7 +72,8 @@ class MongoBordeQuery(BordeQuery):
             else:
                 raise Exception("Database not connected.")
         except Exception as e:
-            LogHandler.log(f"Failed to get interface. {e}", path=__file__, err=True)
+            log = LogHandler()
+            log.export(f"Failed to get interface. {e}", path=__file__, err=True)
             return None
         
     def get_interfaces(self) -> List[BordeModel]:
@@ -80,7 +84,8 @@ class MongoBordeQuery(BordeQuery):
                 result: List[BordeModel] = BordeResponseTrasform.default_model_mongo(cursor)
                 self.__database.close_connection()
         except Exception as e:
-            LogHandler.log(f"Failed to get all interfaces. {e}", path=__file__, err=True)
+            log = LogHandler()
+            log.export(f"Failed to get all interfaces. {e}", path=__file__, err=True)
             return []
         else:
             return result

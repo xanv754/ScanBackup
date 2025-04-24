@@ -28,7 +28,8 @@ class PostgresCachingQuery(CachingQuery):
                 database = PostgresDatabaseFactory().get_database(uri=config.uri_postgres)
                 self.__database = database
         except Exception as e:
-            LogHandler.log(f"Failed to connect to Postgres database. {e}", path=__file__, err=True)
+            log = LogHandler()
+            log.export(f"Failed to connect to Postgres database. {e}", path=__file__, err=True)
 
     def set_database(self, uri: str) -> None:
         try:
@@ -37,7 +38,8 @@ class PostgresCachingQuery(CachingQuery):
             new_database = PostgresDatabaseFactory().get_database(uri=uri)
             self.__database = new_database
         except Exception as e:
-            LogHandler.log(f"Failed to connect to Postgres database. {e}", path=__file__, err=True)
+            log = LogHandler()
+            log.export(f"Failed to connect to Postgres database. {e}", path=__file__, err=True)
 
     def close_connection(self) -> None:
         self.__database.close_connection()
@@ -66,7 +68,8 @@ class PostgresCachingQuery(CachingQuery):
             else:
                 raise Exception("Database not connected.")
         except Exception as e:
-            LogHandler.log(f"Failed to create new interface. {e}", path=__file__, err=True)
+            log = LogHandler()
+            log.export(f"Failed to create new interface. {e}", path=__file__, err=True)
             return False
         else:
             return status == "INSERT 0 1"
@@ -94,5 +97,6 @@ class PostgresCachingQuery(CachingQuery):
             else:
                 raise Exception("Database not connected.")
         except Exception as e:
-            LogHandler.log(f"Failed to get interface. {e}", path=__file__, err=True)
+            log = LogHandler()
+            log.export(f"Failed to get interface. {e}", path=__file__, err=True)
             return None

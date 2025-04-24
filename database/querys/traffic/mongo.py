@@ -30,7 +30,8 @@ class MongoTrafficHistoryQuery(TrafficHistoryQuery):
                 database = MongoDatabaseFactory().get_database(uri=config.uri_mongo)
                 self.__database = database
         except Exception as e:
-            LogHandler.log(f"Failed to connect to MongoDB database. {e}", path=__file__, err=True)
+            log = LogHandler()
+            log.export(f"Failed to connect to MongoDB database. {e}", path=__file__, err=True)
 
     def set_database(self, uri: str) -> None:
         """Set the connection database.
@@ -46,7 +47,8 @@ class MongoTrafficHistoryQuery(TrafficHistoryQuery):
             new_database = MongoDatabaseFactory().get_database(uri=uri)
             self.__database = new_database
         except Exception as e:
-            LogHandler.log(f"Failed to connect to MongoDB database. {e}", path=__file__, err=True)
+            log = LogHandler()
+            log.export(f"Failed to connect to MongoDB database. {e}", path=__file__, err=True)
 
     def new_traffic(self, traffic: List[TrafficHistoryModel]) -> bool:
         try:
@@ -61,7 +63,8 @@ class MongoTrafficHistoryQuery(TrafficHistoryQuery):
             else:
                 raise Exception("Database not connected.")
         except Exception as e:
-            LogHandler.log(f"Failed to insert histories traffic. {e}", path=__file__, err=True)
+            log = LogHandler()
+            log.export(f"Failed to insert histories traffic. {e}", path=__file__, err=True)
             return False
         else:
             return response.acknowledged
@@ -84,7 +87,8 @@ class MongoTrafficHistoryQuery(TrafficHistoryQuery):
             else:
                 raise Exception("Database not connected.")
         except Exception as e:
-            LogHandler.log(f"Failed to get traffic. {e}", path=__file__, err=True)
+            log = LogHandler()
+            log.export(f"Failed to get traffic. {e}", path=__file__, err=True)
             return None
 
     # def get_all_traffic_by_layer(self, layer_name: str) -> List[TrafficHistoryModel]:

@@ -35,7 +35,8 @@ class TrafficHistoryUpdaterHandler(UpdaterHandler):
                 return traffic
             return []
         except Exception as e:
-            LogHandler.log(f"Failed to get data of history traffic. {e}", err=True)
+            log = LogHandler()
+            log.export(f"Failed to get data of history traffic. {e}", err=True)
             return []
 
     def load_data(self, data: List[TrafficHistoryModel], mongo: bool = False, postgres: bool = False) -> bool:
@@ -47,7 +48,8 @@ class TrafficHistoryUpdaterHandler(UpdaterHandler):
                 if not response:
                     raise Exception(f"Failed to insert histories traffic of {data[0].typeLayer} into mongo database.")
             except Exception as e:
-                LogHandler.log(f"Failed to load data of history traffic. {e}", err=True)
+                log = LogHandler()
+                log.export(f"Failed to load data of history traffic. {e}", err=True)
                 failed = True
         if postgres and len(data) > 0:
             try:
@@ -56,6 +58,7 @@ class TrafficHistoryUpdaterHandler(UpdaterHandler):
                 if not response:
                     raise Exception(f"Failed to insert histories traffic of {data[0].typeLayer} into postgres database.")
             except Exception as e:
-                LogHandler.log(f"Failed to load data of history traffic. {e}", err=True)
+                log = LogHandler()
+                log.export(f"Failed to load data of history traffic. {e}", err=True)
                 failed = True
         return not failed

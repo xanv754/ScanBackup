@@ -29,7 +29,8 @@ class PostgresBordeQuery(BordeQuery):
                 database = PostgresDatabaseFactory().get_database(uri=config.uri_postgres)
                 self.__database = database
         except Exception as e:
-            LogHandler.log(f"Failed to connect to Postgres database. {e}", path=__file__, err=True)
+            log = LogHandler()
+            log.export(f"Failed to connect to Postgres database. {e}", path=__file__, err=True)
 
     def set_database(self, uri: str) -> None:
         try:
@@ -38,7 +39,8 @@ class PostgresBordeQuery(BordeQuery):
             new_database = PostgresDatabaseFactory().get_database(uri=uri)
             self.__database = new_database
         except Exception as e:
-            LogHandler.log(f"Failed to connect to Postgres database. {e}", path=__file__, err=True)
+            log = LogHandler()
+            log.export(f"Failed to connect to Postgres database. {e}", path=__file__, err=True)
 
     def close_connection(self) -> None:
         self.__database.close_connection()
@@ -67,7 +69,8 @@ class PostgresBordeQuery(BordeQuery):
             else:
                 raise Exception("Database not connected.")
         except Exception as e:
-            LogHandler.log(f"Failed to create new interface. {e}", path=__file__, err=True)
+            log = LogHandler()
+            log.export(f"Failed to create new interface. {e}", path=__file__, err=True)
             return False
         else:
             return status == "INSERT 0 1"
@@ -95,7 +98,8 @@ class PostgresBordeQuery(BordeQuery):
             else:
                 raise Exception("Database not connected.")
         except Exception as e:
-            LogHandler.log(f"Failed to get interface. {e}", path=__file__, err=True)
+            log = LogHandler()
+            log.export(f"Failed to get interface. {e}", path=__file__, err=True)
             return None
         
     def get_interfaces(self) -> List[BordeModel]:
@@ -112,7 +116,8 @@ class PostgresBordeQuery(BordeQuery):
                 )
                 result: List[BordeModel] = BordeResponseTrasform.default_model_postgres(cursor)
         except Exception as e:
-            LogHandler.log(f"Failed to get all interfaces. {e}", path=__file__, err=True)
+            log = LogHandler()
+            log.export(f"Failed to get all interfaces. {e}", path=__file__, err=True)
             return []
         else:
             return result

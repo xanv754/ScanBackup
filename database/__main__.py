@@ -8,6 +8,7 @@ from utils.log import LogHandler
 
 
 load_dotenv(override=True)
+log = LogHandler()
 
 
 @click.group()
@@ -24,18 +25,18 @@ def cli():
 def migration(test: bool):
     config = ConfigurationHandler()
     if test:
-        LogHandler.log("Starting migrations in test mode...", warn=True)
+        log.export("Starting migrations in test mode...", warn=True)
         uri_test_mongo = os.getenv("URI_TEST_MONGO")
         if not uri_test_mongo:
-            LogHandler.log("URI test MongoDB variable not found in enviroment file.", err=True)
+            log.export("URI test MongoDB variable not found in enviroment file.", err=True)
             exit(1)
         uri_test_postgres = os.getenv("URI_TEST_POSTGRES")
         if not uri_test_postgres:
-            LogHandler.log("URI test PostgreSQL variable not found in enviroment file.", err=True)
+            log.export("URI test PostgreSQL variable not found in enviroment file.", err=True)
             exit(1)
         config.set_uri(uri_postgres=uri_test_postgres, uri_mongo=uri_test_mongo)
     else:
-        LogHandler.log("Starting migrations...", warn=True)
+        log.export("Starting migrations...", warn=True)
     uri_mongo = config.uri_mongo
     uri_postgres = config.uri_postgres
     mongo_status = False
@@ -50,9 +51,9 @@ def migration(test: bool):
         postgres_database.close_connection()
     print(mongo_status, postgres_status)
     if mongo_status and postgres_status: 
-        LogHandler.log("Migrations successfully completed", info=True)
+        log.export("Migrations successfully completed", info=True)
     else:
-        LogHandler.log("Migrations completed not successfully", err=True)
+        log.export("Migrations completed not successfully", err=True)
 
 
 @cli.command(help="Rollback database operations.")
@@ -60,18 +61,18 @@ def migration(test: bool):
 def rollback(test: bool):
     config = ConfigurationHandler()
     if test:
-        LogHandler.log("Starting rollback in test mode...", warn=True)
+        log.export("Starting rollback in test mode...", warn=True)
         uri_test_mongo = os.getenv("URI_TEST_MONGO")
         if not uri_test_mongo:
-            LogHandler.log("URI test MongoDB variable not found in enviroment file.", err=True)
+            log.export("URI test MongoDB variable not found in enviroment file.", err=True)
             exit(1)
         uri_test_postgres = os.getenv("URI_TEST_POSTGRES")
         if not uri_test_postgres:
-            LogHandler.log("URI test PostgreSQL variable not found in enviroment file.", err=True)
+            log.export("URI test PostgreSQL variable not found in enviroment file.", err=True)
             exit(1)
         config.set_uri(uri_postgres=uri_test_postgres, uri_mongo=uri_test_mongo)
     else:
-        LogHandler.log("Starting rollback...", warn=True)
+        log.export("Starting rollback...", warn=True)
     uri_mongo = config.uri_mongo
     uri_postgres = config.uri_postgres
     mongo_database = MongoDatabaseFactory().get_database(uri=uri_mongo)
@@ -81,9 +82,9 @@ def rollback(test: bool):
     postgres_status = postgres_database.rollback()
     postgres_database.close_connection()
     if mongo_status and postgres_status:
-        LogHandler.log("Rollback successfully completed", info=True)
+        log.export("Rollback successfully completed", info=True)
     else:
-        LogHandler.log("Rollback completed not successfully", err=True)
+        log.export("Rollback completed not successfully", err=True)
 
 
 if __name__ == "__main__":
