@@ -1,13 +1,13 @@
 import psycopg2
 from psycopg2 import sql
-from storage.constant.tables import TableNameDatabase
-from storage.schemas.postgres.borde import BORDE_SCHEMA, BORDE_SECUENCE_SCHEMA
-from storage.schemas.postgres.bras import BRAS_SCHEMA, BRAS_SECUENCE_SCHEMA
-from storage.schemas.postgres.caching import CACHING_SCHEMA, CACHING_SECUENCE_SCHEMA
-from storage.schemas.postgres.rai import RAI_SCHEMA, RAI_SECUENCE_SCHEMA
-from storage.schemas.postgres.trafficHistory import TRAFFIC_HISTORY_SCHEMA
-from storage.schemas.postgres.ipHistory import IP_HISTORY_SCHEMA
-from storage.database.product.database import Database
+from database.constant.tables import TableNameDatabase
+from database.schemas.postgres.borde import BORDE_SCHEMA, BORDE_SECUENCE_SCHEMA
+from database.schemas.postgres.bras import BRAS_SCHEMA, BRAS_SECUENCE_SCHEMA
+from database.schemas.postgres.caching import CACHING_SCHEMA, CACHING_SECUENCE_SCHEMA
+from database.schemas.postgres.rai import RAI_SCHEMA, RAI_SECUENCE_SCHEMA
+from database.schemas.postgres.trafficHistory import TRAFFIC_HISTORY_SCHEMA
+from database.schemas.postgres.ipHistory import IP_HISTORY_SCHEMA
+from database.database.product.database import Database
 from utils.log import LogHandler
 
 class PostgresDatabase(Database):

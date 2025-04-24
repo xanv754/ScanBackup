@@ -1,13 +1,13 @@
 from pymongo import MongoClient
 from pymongo.collection import Collection
-from storage.constant.tables import TableNameDatabase
-from storage.database.product.database import Database
-from storage.schemas.mongo.borde import BORDE_SCHEMA
-from storage.schemas.mongo.bras import BRAS_SCHEMA
-from storage.schemas.mongo.caching import CACHING_SCHEMA
-from storage.schemas.mongo.rai import RAI_SCHEMA
-from storage.schemas.mongo.trafficHistory import TRAFFIC_HISTORY_SCHEMA
-from storage.schemas.mongo.ipHistory import IP_HISTORY_SCHEMA
+from database.constant.tables import TableNameDatabase
+from database.database.product.database import Database
+from database.schemas.mongo.borde import BORDE_SCHEMA
+from database.schemas.mongo.bras import BRAS_SCHEMA
+from database.schemas.mongo.caching import CACHING_SCHEMA
+from database.schemas.mongo.rai import RAI_SCHEMA
+from database.schemas.mongo.trafficHistory import TRAFFIC_HISTORY_SCHEMA
+from database.schemas.mongo.ipHistory import IP_HISTORY_SCHEMA
 from utils.log import LogHandler
 
 class MongoDatabase(Database):
