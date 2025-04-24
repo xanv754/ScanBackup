@@ -8,8 +8,8 @@ from model.boder import BordeModel
 from model.trafficHistory import TrafficHistoryModel
 from updater.update import UpdaterHandler
 from updater.handler.traffic import TrafficHistoryUpdaterHandler
-from storage.querys.borde.mongo import MongoBordeQuery
-from storage.querys.borde.postgres import PostgresBordeQuery
+from database.querys.borde.mongo import MongoBordeQuery
+from database.querys.borde.postgres import PostgresBordeQuery
 from utils.log import LogHandler
 
 

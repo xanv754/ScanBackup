@@ -2,8 +2,8 @@ from typing import List
 from datetime import datetime
 from model.trafficHistory import TrafficHistoryModel
 from updater.update import UpdaterHandler
-from storage.querys.traffic.mongo import MongoTrafficHistoryQuery
-from storage.querys.traffic.postgres import PostgresTrafficHistoryQuery
+from database.querys.traffic.mongo import MongoTrafficHistoryQuery
+from database.querys.traffic.postgres import PostgresTrafficHistoryQuery
 from utils.log import LogHandler
 
 

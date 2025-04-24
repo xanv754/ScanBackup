@@ -6,8 +6,8 @@ from unittest.mock import MagicMock
 from dotenv import load_dotenv
 from constants.group import ModelBordeType
 from model.caching import CachingModel
-from storage.querys.caching.mongo import MongoCachingQuery
-from storage.querys.caching.postgres import PostgresCachingQuery
+from database.querys.caching.mongo import MongoCachingQuery
+from database.querys.caching.postgres import PostgresCachingQuery
 
 
 load_dotenv(override=True)

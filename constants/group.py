@@ -1,4 +1,4 @@
-from storage.constant.tables import TableNameDatabase
+from database.constant.tables import TableNameDatabase
 
 
 class ModelBordeType:

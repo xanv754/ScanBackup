@@ -6,8 +6,8 @@ from unittest.mock import MagicMock
 from dotenv import load_dotenv
 from constants.group import ModelBordeType
 from model.boder import BordeModel
-from storage.querys.borde.mongo import MongoBordeQuery
-from storage.querys.borde.postgres import PostgresBordeQuery
+from database.querys.borde.mongo import MongoBordeQuery
+from database.querys.borde.postgres import PostgresBordeQuery
 
 
 load_dotenv(override=True)

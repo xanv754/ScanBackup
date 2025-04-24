@@ -8,8 +8,8 @@ from model.bras import BrasModel
 from model.trafficHistory import TrafficHistoryModel
 from updater.update import UpdaterHandler
 from updater.handler.traffic import TrafficHistoryUpdaterHandler
-from storage.querys.bras.mongo import MongoBrasQuery
-from storage.querys.bras.postgres import PostgresBrasQuery
+from database.querys.bras.mongo import MongoBrasQuery
+from database.querys.bras.postgres import PostgresBrasQuery
 from utils.log import LogHandler
 
 

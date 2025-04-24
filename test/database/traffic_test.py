@@ -5,8 +5,8 @@ from unittest.mock import MagicMock
 from dotenv import load_dotenv
 from constants.group import LayerType
 from model.trafficHistory import TrafficHistoryModel
-from storage.querys.traffic.mongo import MongoTrafficHistoryQuery
-from storage.querys.traffic.postgres import PostgresTrafficHistoryQuery
+from database.querys.traffic.mongo import MongoTrafficHistoryQuery
+from database.querys.traffic.postgres import PostgresTrafficHistoryQuery
 
 
 load_dotenv(override=True)

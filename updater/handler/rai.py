@@ -8,8 +8,8 @@ from model.rai import RaiModel
 from model.trafficHistory import TrafficHistoryModel
 from updater.update import UpdaterHandler
 from updater.handler.traffic import TrafficHistoryUpdaterHandler
-from storage.querys.rai.mongo import MongoRaiQuery
-from storage.querys.rai.postgres import PostgresRaiQuery
+from database.querys.rai.mongo import MongoRaiQuery
+from database.querys.rai.postgres import PostgresRaiQuery
 from utils.log import LogHandler
 
 

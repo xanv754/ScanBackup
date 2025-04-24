@@ -8,8 +8,8 @@ from model.caching import CachingModel
 from model.trafficHistory import TrafficHistoryModel
 from updater.update import UpdaterHandler
 from updater.handler.traffic import TrafficHistoryUpdaterHandler
-from storage.querys.caching.mongo import MongoCachingQuery
-from storage.querys.caching.postgres import PostgresCachingQuery
+from database.querys.caching.mongo import MongoCachingQuery
+from database.querys.caching.postgres import PostgresCachingQuery
 from utils.log import LogHandler
 
 
