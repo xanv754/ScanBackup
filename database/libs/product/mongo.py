@@ -26,6 +26,11 @@ class MongoDatabase(Database):
         else:
             self.connected = True
 
+    def __check_collection(self, name: str) -> bool:
+        """Check if the collection exists."""
+        collection_list = self.__connection.list_collection_names()
+        return name in collection_list
+
     def get_connection(self) -> MongoClient:
         return self.__connection
 
@@ -41,30 +46,36 @@ class MongoDatabase(Database):
 
     def migration(self) -> bool:
         try:
-            self.__connection.create_collection(
-                TableNameDatabase.BORDE,
-                validator=BORDE_SCHEMA
-            )
-            self.__connection.create_collection(
-                TableNameDatabase.BRAS,
-                validator=BRAS_SCHEMA
-            )
-            self.__connection.create_collection(
-                TableNameDatabase.CACHING,
-                validator=CACHING_SCHEMA
-            )
-            self.__connection.create_collection(
-                TableNameDatabase.RAI,
-                validator=RAI_SCHEMA
-            )
-            self.__connection.create_collection(
-                TableNameDatabase.TRAFFIC_HISTORY,
-                validator=TRAFFIC_HISTORY_SCHEMA
-            )
-            self.__connection.create_collection(
-                TableNameDatabase.IP_HISTORY,
-                validator=IP_HISTORY_SCHEMA
-            )
+            if not self.__check_collection(TableNameDatabase.BORDE):
+                self.__connection.create_collection(
+                    TableNameDatabase.BORDE,
+                    validator=BORDE_SCHEMA
+                )
+            if not self.__check_collection(TableNameDatabase.BRAS):
+                self.__connection.create_collection(
+                    TableNameDatabase.BRAS,
+                    validator=BRAS_SCHEMA
+                )
+            if not self.__check_collection(TableNameDatabase.CACHING):
+                self.__connection.create_collection(
+                    TableNameDatabase.CACHING,
+                    validator=CACHING_SCHEMA
+                )
+            if not self.__check_collection(TableNameDatabase.RAI):
+                self.__connection.create_collection(
+                    TableNameDatabase.RAI,
+                    validator=RAI_SCHEMA
+                )
+            if not self.__check_collection(TableNameDatabase.TRAFFIC_HISTORY):
+                self.__connection.create_collection(
+                    TableNameDatabase.TRAFFIC_HISTORY,
+                    validator=TRAFFIC_HISTORY_SCHEMA
+                )
+            if not self.__check_collection(TableNameDatabase.IP_HISTORY):
+                self.__connection.create_collection(
+                    TableNameDatabase.IP_HISTORY,
+                    validator=IP_HISTORY_SCHEMA
+                )
         except Exception as e:
             log = LogHandler()
             log.export(f"Failed to migrate MongoDB database. {e}", path=__file__, err=True)
