@@ -1,8 +1,8 @@
 import os
 import click
 from dotenv import load_dotenv
-from storage.database.factory.mongo import MongoDatabaseFactory
-from storage.database.factory.postgres import PostgresDatabaseFactory
+from database.libs.factory.mongo import MongoDatabaseFactory
+from database.libs.factory.postgres import PostgresDatabaseFactory
 from utils.config import ConfigurationHandler
 from utils.log import LogHandler
 
