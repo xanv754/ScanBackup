@@ -1,10 +1,10 @@
 import os
 import unittest
 from dotenv import load_dotenv
-from database.database.factory.postgres import PostgresDatabaseFactory
-from database.database.product.postgres import PostgresDatabase
-from database.database.factory.mongo import MongoDatabaseFactory
-from database.database.product.mongo import MongoDatabase
+from database.libs.factory.postgres import PostgresDatabaseFactory
+from database.libs.product.postgres import PostgresDatabase
+from database.libs.factory.mongo import MongoDatabaseFactory
+from database.libs.product.mongo import MongoDatabase
 from utils.config import ConfigurationHandler
 
 

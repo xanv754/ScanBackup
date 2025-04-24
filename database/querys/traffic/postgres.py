@@ -2,8 +2,8 @@ from typing import List
 from model.trafficHistory import TrafficHistoryModel
 from database.constant.tables import TableNameDatabase
 from database.constant.fields import TrafficHistoryFieldDatabase
-from database.database.factory.postgres import PostgresDatabaseFactory
-from database.database.product.postgres import PostgresDatabase
+from database.libs.factory.postgres import PostgresDatabaseFactory
+from database.libs.product.postgres import PostgresDatabase
 from database.querys.traffic.traffic import TrafficHistoryQuery
 from utils.config import ConfigurationHandler
 from utils.trasform import TrafficHistoryResponseTrasform

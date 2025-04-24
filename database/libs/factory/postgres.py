@@ -1,5 +1,5 @@
-from database.database.factory.database import DatabaseFactory
-from database.database.product.postgres import PostgresDatabase
+from database.libs.factory.database import DatabaseFactory
+from database.libs.product.postgres import PostgresDatabase
 from utils.log import LogHandler
 
 
