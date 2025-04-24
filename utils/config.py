@@ -1,5 +1,5 @@
 import os
-from dotenv import load_dotenv
+from dotenv import load_dotenv, dotenv_values
 from utils.log import LogHandler
 
 
@@ -22,18 +22,50 @@ class ConfigurationHandler:
         try:
             if not hasattr(self, "__initialized"):
                 self.__initialized = True
-                filepath_env = os.path.realpath("./") + "/.env"
-                if not os.path.isfile(filepath_env):
-                    raise FileNotFoundError("Enviroment file not found.")
-                uri_postgres = os.getenv("URI_POSTGRES")
-                if not uri_postgres:
-                    log = LogHandler()
-                    log.export(message=f"Failed to obtain configuration. URI PostgreSQL variable not found in enviroment file", path=__file__, err=True)
-                else: self.uri_postgres = uri_postgres
-                uri_mongo = os.getenv("URI_MONGO")
-                if not uri_mongo:
-                    raise ValueError("URI MongoDB variable not found in enviroment file.")
-                self.uri_mongo = uri_mongo
+                if os.path.exists(".env.development"):
+                    env = dotenv_values(".env.development")
+                    uri_postgres = env.get("URI_POSTGRES")
+                    if uri_postgres: 
+                        self.uri_postgres = uri_postgres
+                    else:
+                        log = LogHandler()
+                        log.export(message=f"Failed to obtain configuration. URI PostgreSQL variable not found in enviroment file", path=__file__, err=True)
+                    uri_mongo = env.get("URI_MONGO")
+                    if uri_mongo: 
+                        self.uri_mongo = uri_mongo
+                    else:
+                        log = LogHandler()
+                        log.export(message=f"Failed to obtain configuration. URI MongoDB variable not found in enviroment file", path=__file__, err=True)
+                elif os.path.exists(".env.production"):
+                    env = dotenv_values(".env.production")
+                    uri_postgres = env.get("URI_POSTGRES")
+                    if uri_postgres: 
+                        self.uri_postgres = uri_postgres
+                    else:
+                        log = LogHandler()
+                        log.export(message=f"Failed to obtain configuration. URI PostgreSQL variable not found in enviroment file", path=__file__, err=True)
+                    uri_mongo = env.get("URI_MONGO")
+                    if uri_mongo: 
+                        self.uri_mongo = uri_mongo
+                    else:
+                        log = LogHandler()
+                        log.export(message=f"Failed to obtain configuration. URI MongoDB variable not found in enviroment file", path=__file__, err=True)
+                elif os.path.exists(".env"):
+                    env = dotenv_values(".env")
+                    uri_postgres = env.get("URI_POSTGRES")
+                    if uri_postgres: 
+                        self.uri_postgres = uri_postgres
+                    else:
+                        log = LogHandler()
+                        log.export(message=f"Failed to obtain configuration. URI PostgreSQL variable not found in enviroment file", path=__file__, err=True)
+                    uri_mongo = env.get("URI_MONGO")
+                    if uri_mongo: 
+                        self.uri_mongo = uri_mongo
+                    else:
+                        log = LogHandler()
+                        log.export(message=f"Failed to obtain configuration. URI MongoDB variable not found in enviroment file", path=__file__, err=True)
+                else:
+                    raise FileNotFoundError("No file with environment variables found")
         except Exception as e:
             log = LogHandler()
             log.export(message=f"Failed to obtain configuration. {e}", path=__file__, err=True)

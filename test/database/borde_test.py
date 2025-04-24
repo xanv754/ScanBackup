@@ -1,20 +1,12 @@
-import os
 import unittest
 import random
 from datetime import datetime
 from unittest.mock import MagicMock
-from dotenv import load_dotenv
 from constants.group import ModelBordeType
 from model.boder import BordeModel
 from database.querys.borde.mongo import MongoBordeQuery
 from database.querys.borde.postgres import PostgresBordeQuery
 
-
-load_dotenv(override=True)
-
-
-URI_TEST_MONGO = os.getenv("URI_TEST_MONGO")
-URI_TEST_POSTGRES = os.getenv("URI_TEST_POSTGRES")
 
 class TestBordeOperation(unittest.TestCase):
     def test_insert_interface_mongo(self):
@@ -29,7 +21,6 @@ class TestBordeOperation(unittest.TestCase):
         )
 
         database = MongoBordeQuery()
-        database.set_database(uri=URI_TEST_MONGO)
         
         response = database.new_interface(new=mock_interface.border_model())
         self.assertTrue(response)
@@ -46,7 +37,6 @@ class TestBordeOperation(unittest.TestCase):
         )
 
         database = PostgresBordeQuery()
-        database.set_database(uri=URI_TEST_POSTGRES)
         
         response = database.new_interface(new=mock_interface.border_model())
         self.assertTrue(response)
@@ -64,12 +54,10 @@ class TestBordeOperation(unittest.TestCase):
         mock_interface.border_model.return_value = interface_example
 
         database = MongoBordeQuery()
-        database.set_database(uri=URI_TEST_MONGO)
         response = database.new_interface(new=mock_interface.border_model())
         self.assertTrue(response)
 
         database = MongoBordeQuery()
-        database.set_database(uri=URI_TEST_MONGO)
         interface = database.get_interface(name=interface_example.name)
         self.assertIsNotNone(interface)
         self.assertEqual(interface.name, interface_example.name)
@@ -87,12 +75,10 @@ class TestBordeOperation(unittest.TestCase):
         mock_interface.border_model.return_value = interface_example
 
         database = PostgresBordeQuery()
-        database.set_database(uri=URI_TEST_POSTGRES)
         response = database.new_interface(new=mock_interface.border_model())
         self.assertTrue(response)
 
         database = PostgresBordeQuery()
-        database.set_database(uri=URI_TEST_POSTGRES)
         interface = database.get_interface(name=interface_example.name)
         self.assertIsNotNone(interface)
         self.assertEqual(interface.name, interface_example.name)
@@ -110,12 +96,10 @@ class TestBordeOperation(unittest.TestCase):
         mock_interface.border_model.return_value = interface_example
 
         database = MongoBordeQuery()
-        database.set_database(uri=URI_TEST_MONGO)
         response = database.new_interface(new=mock_interface.border_model())
         self.assertTrue(response)
 
         database = MongoBordeQuery()
-        database.set_database(uri=URI_TEST_MONGO)
         interfaces = database.get_interfaces()
         self.assertIsNotNone(interfaces)
 
@@ -132,12 +116,10 @@ class TestBordeOperation(unittest.TestCase):
         mock_interface.border_model.return_value = interface_example
 
         database = PostgresBordeQuery()
-        database.set_database(uri=URI_TEST_POSTGRES)
         response = database.new_interface(new=mock_interface.border_model())
         self.assertTrue(response)
 
         database = PostgresBordeQuery()
-        database.set_database(uri=URI_TEST_POSTGRES)
         interfaces = database.get_interfaces()
         self.assertIsNotNone(interfaces)
 

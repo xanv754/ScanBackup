@@ -1,19 +1,10 @@
-import os
 import random
 import unittest
 from unittest.mock import MagicMock
-from dotenv import load_dotenv
 from constants.group import LayerType
 from model.trafficHistory import TrafficHistoryModel
 from database.querys.traffic.mongo import MongoTrafficHistoryQuery
 from database.querys.traffic.postgres import PostgresTrafficHistoryQuery
-
-
-load_dotenv(override=True)
-
-URI_TEST_MONGO = os.getenv("URI_TEST_MONGO")
-URI_TEST_POSTGRES = os.getenv("URI_TEST_POSTGRES")
-
 
 
 class TestTrafficHistoryOperation(unittest.TestCase):
@@ -31,7 +22,6 @@ class TestTrafficHistoryOperation(unittest.TestCase):
             typeLayer=LayerType.BORDE
         )
         database = MongoTrafficHistoryQuery()
-        database.set_database(uri=URI_TEST_MONGO)
         
         response = database.new_traffic(traffic=[mock_traffic.traffic_history_model()])
         self.assertTrue(response)
@@ -50,7 +40,6 @@ class TestTrafficHistoryOperation(unittest.TestCase):
             typeLayer=LayerType.BORDE
         )
         database = PostgresTrafficHistoryQuery()
-        database.set_database(uri=URI_TEST_POSTGRES)
         
         response = database.new_traffic(traffic=[mock_traffic.traffic_history_model()])
         self.assertTrue(response)

@@ -1,20 +1,11 @@
-import os
 import unittest
 import random
 from datetime import datetime
 from unittest.mock import MagicMock
-from dotenv import load_dotenv
-from constants.group import ModelBordeType
 from model.caching import CachingModel
 from database.querys.caching.mongo import MongoCachingQuery
 from database.querys.caching.postgres import PostgresCachingQuery
 
-
-load_dotenv(override=True)
-
-
-URI_TEST_MONGO = os.getenv("URI_TEST_MONGO")
-URI_TEST_POSTGRES = os.getenv("URI_TEST_POSTGRES")
 
 class TestCachingOperation(unittest.TestCase):
     def test_insert_interface_mongo(self):
@@ -29,7 +20,6 @@ class TestCachingOperation(unittest.TestCase):
         )
 
         database = MongoCachingQuery()
-        database.set_database(uri=URI_TEST_MONGO)
         
         response = database.new_interface(new=mock_interface.caching_model())
         self.assertTrue(response)
@@ -46,7 +36,6 @@ class TestCachingOperation(unittest.TestCase):
         )
 
         database = PostgresCachingQuery()
-        database.set_database(uri=URI_TEST_POSTGRES)
         
         response = database.new_interface(new=mock_interface.caching_model())
         self.assertTrue(response)
@@ -64,12 +53,10 @@ class TestCachingOperation(unittest.TestCase):
         mock_interface.caching_model.return_value = interface_example
 
         database = MongoCachingQuery()
-        database.set_database(uri=URI_TEST_MONGO)
         response = database.new_interface(new=mock_interface.caching_model())
         self.assertTrue(response)
 
         database = MongoCachingQuery()
-        database.set_database(uri=URI_TEST_MONGO)
         interface = database.get_interface(name=interface_example.name)
         self.assertIsNotNone(interface)
         self.assertEqual(interface.name, interface_example.name)
@@ -87,12 +74,10 @@ class TestCachingOperation(unittest.TestCase):
         mock_interface.caching_model.return_value = interface_example
 
         database = PostgresCachingQuery()
-        database.set_database(uri=URI_TEST_POSTGRES)
         response = database.new_interface(new=mock_interface.caching_model())
         self.assertTrue(response)
 
         database = PostgresCachingQuery()
-        database.set_database(uri=URI_TEST_POSTGRES)
         interface = database.get_interface(name=interface_example.name)
         self.assertIsNotNone(interface)
         self.assertEqual(interface.name, interface_example.name)
