@@ -1,15 +1,15 @@
 import unittest
-from updater.handler.caching import CachingUpdaterHandler
+from updater.handler.traffic import TrafficHistoryUpdaterHandler
 from test import FileCachingDataTest
 
 
-class TestHistoryUpdater(unittest.TestCase):
+class TestTrafficHistoryUpdater(unittest.TestCase):
     def test_get_data(self):
-        """Test get all data from caching files."""
+        """Test to get data from history files."""
         data_example = FileCachingDataTest(filename="SERVICIO%INTERFACE_TEST_1%22.5")
         data_example.create_file()
-        cachingHandler = CachingUpdaterHandler()
-        data = cachingHandler.get_data(filepath=data_example.folder)
+        historyHandler = TrafficHistoryUpdaterHandler()
+        data = historyHandler.get_data(filepath=data_example.filepath)
         self.assertEqual(type(data), list)
         self.assertTrue(data)
         data_example.delete_file()

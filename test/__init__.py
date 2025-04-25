@@ -8,6 +8,7 @@ from dotenv import dotenv_values
 from pymongo import MongoClient
 from database.constant.tables import TableNameDatabase as LayerTypeTest
 from constants.group import ModelBordeType as ModelBordeTypeTest
+from constants.group import BrasType as BrasTypeTest
 from constants.path import PathConstant
 
 
@@ -162,22 +163,6 @@ class FileDataTest(ABC):
 
     def create_file(self) -> None:
         """Create a file with example data."""
-        pass
-
-    def delete_file(self) -> None:
-        """Delete the example file."""
-        pass
-
-
-class FileBordeDataTest(FileDataTest):
-    def __init__(self, filename: str):
-        filepath = f"{os.path.realpath("./")}/test/data/SCAN/Borde/{filename}"
-        self.filepath = filepath
-        self.folder = os.path.dirname(filepath)
-
-
-    def create_file(self) -> None:
-        """Create a file with example data."""
         os.makedirs(self.folder, exist_ok=True)
         with open(self.filepath, "w") as file:
             file.write("Fecha Hora InPro OutPro InMax OutMax\n")
@@ -192,6 +177,42 @@ class FileBordeDataTest(FileDataTest):
             if os.path.isdir(self.folder):
                 os.rmdir(self.folder)
 
+    @classmethod
+    def delete_father_folder(cls) -> None:
+        """Delete the father folder."""
+        if os.path.isdir(f"{os.path.realpath("./")}/test/data/SCAN"):
+            os.rmdir(f"{os.path.realpath("./")}/test/data/SCAN")
+        if os.path.isdir(f"{os.path.realpath("./")}/test/data"):
+            os.rmdir(f"{os.path.realpath("./")}/test/data")
+
+
+class FileBordeDataTest(FileDataTest):
+    def __init__(self, filename: str):
+        filepath = f"{os.path.realpath("./")}/test/data/SCAN/Borde/{filename}"
+        self.filepath = filepath
+        self.folder = os.path.dirname(filepath)
+
+ 
+class FileBrasDataTest(FileDataTest):
+    def __init__(self, filename: str):
+        filepath = f"{os.path.realpath("./")}/test/data/SCAN/Bras/{filename}"
+        self.filepath = filepath
+        self.folder = os.path.dirname(filepath)
+
+
+class FileCachingDataTest(FileDataTest):
+    def __init__(self, filename: str):
+        filepath = f"{os.path.realpath("./")}/test/data/SCAN/Caching/{filename}"
+        self.filepath = filepath
+        self.folder = os.path.dirname(filepath)
+
+
+class FileRaiDataTest(FileDataTest):
+    def __init__(self, filename: str):
+        filepath = f"{os.path.realpath("./")}/test/data/SCAN/RAI/{filename}"
+        self.filepath = filepath
+        self.folder = os.path.dirname(filepath)
+
 
 if __name__ == "__main__":
     mongo = DatabaseMongoTest()
@@ -205,7 +226,24 @@ if __name__ == "__main__":
     response = postgres.get(name_collection="unittest", condition="name = 'test'")
     postgres.clean(table="unittest")
 
-    filename = f"{ModelBordeTypeTest.CISCO}%INTERFACE_TEST_1%10"
-    borde_data_example = FileBordeDataTest(filename)
+    filename_borde = f"{ModelBordeTypeTest.CISCO}%INTERFACE_TEST_1%10"
+    borde_data_example = FileBordeDataTest(filename_borde)
     borde_data_example.create_file()
     borde_data_example.delete_file()
+
+    filename_bras = f"{BrasTypeTest.UPLINK}%INTERFACE_TEST_1%10"
+    bras_data_example = FileBrasDataTest(filename_bras)
+    bras_data_example.create_file()
+    bras_data_example.delete_file()
+
+    filename_caching = f"SERVICIO%INTERFACE_TEST_1%22.5"
+    caching_data_example = FileCachingDataTest(filename_caching)
+    caching_data_example.create_file()
+    caching_data_example.delete_file()
+
+    filename_rai = f"DEDICADO%INTERFACE_TEST_1%0.04"
+    rai_data_example = FileRaiDataTest(filename_rai)
+    rai_data_example.create_file()
+    rai_data_example.delete_file()
+
+    FileDataTest.delete_father_folder()

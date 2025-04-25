@@ -13,6 +13,7 @@ class TestHistoryUpdater(unittest.TestCase):
         self.assertEqual(type(data), list)
         self.assertTrue(data)
         data_example.delete_file()
+        data_example.delete_father_folder()
 
 
 if __name__ == "__main__":
