@@ -37,7 +37,7 @@ class RaiQuery(ABC):
         pass
 
     @abstractmethod
-    def get_interface(self, name: str) -> dict | None :
+    def get_interface(self, name: str) -> RaiModel | None :
         """Get interface.
 
         Parameters

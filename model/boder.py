@@ -1,24 +1,8 @@
-from pydantic import BaseModel
+from model.layer import LayerModel
 
 
-class BordeModel(BaseModel):
+class BordeModel(LayerModel):
     """Borde data model."""
 
-    id: str | None
-    name: str
     model: str
     capacity: int
-    createAt: str
-
-class BordeTrafficModel(BaseModel):
-    """Borde with data history traffic model."""
-    
-    interface: str
-    model: str
-    capacity: int
-    date: str
-    time: str
-    inProm: int
-    inMax: int
-    outProm: int
-    outMax: int

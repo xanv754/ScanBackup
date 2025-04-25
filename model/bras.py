@@ -1,11 +1,7 @@
-from pydantic import BaseModel
+from model.layer import LayerModel
 
-
-class BrasModel(BaseModel):
+class BrasModel(LayerModel):
     """Bras data model."""
     
-    id: str | None
-    name: str
     type: str
     capacity: int
-    createAt: str

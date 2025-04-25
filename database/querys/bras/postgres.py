@@ -1,3 +1,4 @@
+from typing import List
 from database.constant.tables import TableNameDatabase
 from database.constant.fields import BrasFieldDatabase
 from database.libs.factory.postgres import PostgresDatabaseFactory
@@ -65,7 +66,6 @@ class PostgresBrasQuery(BrasQuery):
                 )
                 status = cursor.statusmessage
                 connection.commit()
-                self.__database.close_connection()
             else:
                 raise Exception("Database not connected.")
         except Exception as e:
@@ -93,7 +93,6 @@ class PostgresBrasQuery(BrasQuery):
                     (brasname, type)
                 )
                 result = cursor.fetchone()
-                self.__database.close_connection()
                 if result: 
                     data = BrasResponseTrasform.default_model_postgres([result])
                     if data: return data[0]
@@ -104,3 +103,27 @@ class PostgresBrasQuery(BrasQuery):
             log = LogHandler()
             log.export(f"Failed to get bras. {e}", path=__file__, err=True)
             return None
+
+    def get_all_bras(self) -> List[BrasModel]:
+        try:
+            if self.__database.connected:
+                cursor = self.__database.get_cursor()
+                cursor.execute(
+                    f"""
+                        SELECT
+                            *
+                        FROM
+                            {TableNameDatabase.BRAS}
+                    """
+                )
+                result = cursor.fetchall()
+                data: List[BrasModel] = []
+                if result: 
+                    data = BrasResponseTrasform.default_model_postgres(result)
+                return data
+            else:
+                raise Exception("Database not connected.")
+        except Exception as e:
+            log = LogHandler()
+            log.export(f"Failed to get bras. {e}", path=__file__, err=True)
+            return []

@@ -1,9 +1,6 @@
-from pydantic import BaseModel
+from model.layer import LayerModel
 
-class RaiModel(BaseModel):
+class RaiModel(LayerModel):
     """Rai data model."""
 
-    id: str | None
-    name: str
     capacity: float
-    createAt: str

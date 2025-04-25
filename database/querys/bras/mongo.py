@@ -1,3 +1,4 @@
+from typing import List
 from database.constant.tables import TableNameDatabase
 from database.constant.fields import BrasFieldDatabase
 from database.libs.factory.mongo import MongoDatabaseFactory
@@ -79,3 +80,19 @@ class MongoBrasQuery(BrasQuery):
             log = LogHandler()
             log.export(f"Failed to get bras. {e}", path=__file__, err=True)
             return None
+        
+    def get_all_bras(self) -> List[BrasModel]:
+        try:
+            if self.__database.connected:
+                collection = self.__database.get_cursor(table=TableNameDatabase.BRAS)
+                result = collection.find()
+                data: List[BrasModel] = []
+                if result:
+                    data = BrasResponseTrasform.default_model_mongo(result) 
+                return data
+            else:
+                raise Exception("Database not connected.")
+        except Exception as e:
+            log = LogHandler()
+            log.export(f"Failed to get bras. {e}", path=__file__, err=True)
+            return []

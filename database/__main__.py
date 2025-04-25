@@ -1,13 +1,10 @@
-import os
 import click
-from dotenv import load_dotenv
 from database.libs.factory.mongo import MongoDatabaseFactory
 from database.libs.factory.postgres import PostgresDatabaseFactory
 from utils.config import ConfigurationHandler
 from utils.log import LogHandler
 
 
-load_dotenv(override=True)
 log = LogHandler()
 
 
@@ -21,22 +18,9 @@ def cli():
 
 
 @cli.command(help="Perfom database migrations.")
-@click.option("--test", is_flag=True, help="Realize migrations in the test database.")
-def migration(test: bool):
+def migration():
     config = ConfigurationHandler()
-    if test:
-        log.export("Starting migrations in test mode...", warn=True)
-        uri_test_mongo = os.getenv("URI_TEST_MONGO")
-        if not uri_test_mongo:
-            log.export("URI test MongoDB variable not found in enviroment file.", err=True)
-            exit(1)
-        uri_test_postgres = os.getenv("URI_TEST_POSTGRES")
-        if not uri_test_postgres:
-            log.export("URI test PostgreSQL variable not found in enviroment file.", err=True)
-            exit(1)
-        config.set_uri(uri_postgres=uri_test_postgres, uri_mongo=uri_test_mongo)
-    else:
-        log.export("Starting migrations...", warn=True)
+    log.export("Starting migrations...", warn=True)
     uri_mongo = config.uri_mongo
     uri_postgres = config.uri_postgres
     mongo_status = False
@@ -56,22 +40,9 @@ def migration(test: bool):
 
 
 @cli.command(help="Rollback database operations.")
-@click.option("--test", is_flag=True, help="Realize rollback in the test database.")
-def rollback(test: bool):
+def rollback():
     config = ConfigurationHandler()
-    if test:
-        log.export("Starting rollback in test mode...", warn=True)
-        uri_test_mongo = os.getenv("URI_TEST_MONGO")
-        if not uri_test_mongo:
-            log.export("URI test MongoDB variable not found in enviroment file.", err=True)
-            exit(1)
-        uri_test_postgres = os.getenv("URI_TEST_POSTGRES")
-        if not uri_test_postgres:
-            log.export("URI test PostgreSQL variable not found in enviroment file.", err=True)
-            exit(1)
-        config.set_uri(uri_postgres=uri_test_postgres, uri_mongo=uri_test_mongo)
-    else:
-        log.export("Starting rollback...", warn=True)
+    log.export("Starting rollback...", warn=True)
     uri_mongo = config.uri_mongo
     uri_postgres = config.uri_postgres
     mongo_database = MongoDatabaseFactory().get_database(uri=uri_mongo)

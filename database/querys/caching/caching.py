@@ -37,7 +37,7 @@ class CachingQuery(ABC):
         pass
 
     @abstractmethod
-    def get_interface(self, name: str) -> dict | None :
+    def get_interface(self, name: str) -> CachingModel | None :
         """Get interface.
 
         Parameters

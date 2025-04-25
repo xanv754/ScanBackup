@@ -92,14 +92,55 @@ class MongoTrafficHistoryQuery(TrafficHistoryQuery):
             log.export(f"Failed to get traffic. {e}", path=__file__, err=True)
             return None
 
-    def get_traffic_layer_by_date(self, id_layer: str, date: str) -> List[TrafficHistoryModel]:
+    def get_traffic_interface_by_date(self, id: str, date: str) -> List[TrafficHistoryModel]:
         try:
             if self.__database.connected:
                 collection = self.__database.get_cursor(table=TableNameDatabase.TRAFFIC_HISTORY)
                 cursor = collection.find(
                     {
                         TrafficHistoryFieldDatabase.DATE: date,
-                        TrafficHistoryFieldDatabase.ID_LAYER: id_layer
+                        TrafficHistoryFieldDatabase.ID_LAYER: id
+                    }
+                )
+                result: List[TrafficHistoryModel] = []
+                if cursor:
+                    result = TrafficHistoryResponseTrasform.default_model_mongo(cursor)
+                return result
+            else:
+                raise Exception("Database not connected.")
+        except Exception as e:
+            log = LogHandler()
+            log.export(f"Failed to get traffic. {e}", path=__file__, err=True)
+            return []
+        
+    def get_traffic_layer_by_date(self, layer_type: str, date: str) -> List[TrafficHistoryModel]:
+        try:
+            if self.__database.connected:
+                collection = self.__database.get_cursor(table=TableNameDatabase.TRAFFIC_HISTORY)
+                cursor = collection.find(
+                    {
+                        TrafficHistoryFieldDatabase.DATE: date,
+                        TrafficHistoryFieldDatabase.TYPE_LAYER: layer_type
+                    }
+                )
+                result: List[TrafficHistoryModel] = []
+                if cursor:
+                    result = TrafficHistoryResponseTrasform.default_model_mongo(cursor)
+                return result
+            else:
+                raise Exception("Database not connected.")
+        except Exception as e:
+            log = LogHandler()
+            log.export(f"Failed to get traffic. {e}", path=__file__, err=True)
+            return []
+        
+    def get_traffic_by_date(self, date: str) -> List[TrafficHistoryModel]:
+        try:
+            if self.__database.connected:
+                collection = self.__database.get_cursor(table=TableNameDatabase.TRAFFIC_HISTORY)
+                cursor = collection.find(
+                    {
+                        TrafficHistoryFieldDatabase.DATE: date
                     }
                 )
                 result: List[TrafficHistoryModel] = []

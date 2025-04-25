@@ -1,3 +1,4 @@
+from typing import List
 from abc import ABC, abstractmethod
 from model.bras import BrasModel
 
@@ -37,7 +38,7 @@ class BrasQuery(ABC):
         pass
 
     @abstractmethod
-    def get_bras(self, brasname: str, type: str) -> dict | None :
+    def get_bras(self, brasname: str, type: str) -> BrasModel | None :
         """Get bras.
 
         Parameters
@@ -50,5 +51,15 @@ class BrasQuery(ABC):
         Returns
         -------
             Bras information. If the brasname does not exist, returns None.
+        """
+        pass
+
+    @abstractmethod
+    def get_all_bras(self) -> List[BrasModel]:
+        """Get all bras.
+
+        Returns
+        -------
+            List of bras.
         """
         pass

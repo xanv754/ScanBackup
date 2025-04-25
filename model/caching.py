@@ -1,11 +1,8 @@
-from pydantic import BaseModel
+from model.layer import LayerModel
 
 
-class CachingModel(BaseModel):
+class CachingModel(LayerModel):
     """Caching data model."""
     
-    id: str | None
-    name: str
     service: str
     capacity: float
-    createAt: str
