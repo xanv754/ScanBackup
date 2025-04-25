@@ -7,9 +7,9 @@ from abc import ABC, abstractmethod
 from dotenv import dotenv_values
 from pymongo import MongoClient
 from database.constant.tables import TableNameDatabase as LayerTypeTest
+from database.constant.fields import TrafficHistoryFieldDatabase as TrafficFieldDatabaseTest
 from constants.group import ModelBordeType as ModelBordeTypeTest
 from constants.group import BrasType as BrasTypeTest
-from constants.path import PathConstant
 
 
 class DatabaseTest(ABC):
@@ -93,6 +93,8 @@ class DatabaseMongoTest(DatabaseTest):
 
 
 class DatabasePostgresTest(DatabaseTest):
+    __table_created: bool = False
+
     def __init__(self):
         try:
             if os.path.exists(".env.development"): env = dotenv_values(".env.development")
@@ -109,16 +111,19 @@ class DatabasePostgresTest(DatabaseTest):
             name_db = self.uri_postgres.split("/")[-1]
             self.name_db = name_db
 
-    def create(self, table: str, fields: str) -> None:
+    def create(self, table: str, query: str) -> None:
         try:
-            database = psycopg2.connect(self.uri_postgres)
-            cursor = database.cursor()
-            cursor.execute(f"CREATE TABLE IF NOT EXISTS {table} ({fields})")
-            database.commit()
-            database.close()
+            if not self.__table_created:
+                database = psycopg2.connect(self.uri_postgres)
+                cursor = database.cursor()
+                cursor.execute(f"CREATE TABLE IF NOT EXISTS {table} {query}")
+                database.commit()
+                database.close()
         except Exception as e:
             traceback.print_exc(e)
             exit(1)
+        else:
+            self.__table_created = True
 
     def clean(self, table: str) -> None:
         try:
@@ -135,7 +140,7 @@ class DatabasePostgresTest(DatabaseTest):
         try:
             database = psycopg2.connect(self.uri_postgres)
             cursor = database.cursor()
-            cursor.execute(query)
+            cursor.execute(f"INSERT INTO {table} {query}")
             database.commit()
             status = cursor.statusmessage
             database.close()
@@ -221,8 +226,8 @@ if __name__ == "__main__":
     mongo.clean(table="unittest")
 
     postgres = DatabasePostgresTest()
-    postgres.create(table="unittest", fields="id SERIAL PRIMARY KEY, name VARCHAR(30) NOT NULL")
-    inserted = postgres.insert(table="unittest", query="INSERT INTO unittest (name) VALUES ('test')")
+    postgres.create(table="unittest", query="(id SERIAL PRIMARY KEY, name VARCHAR(30) NOT NULL)")
+    inserted = postgres.insert(table="unittest", query="(name) VALUES ('test')")
     response = postgres.get(name_collection="unittest", condition="name = 'test'")
     postgres.clean(table="unittest")
 
