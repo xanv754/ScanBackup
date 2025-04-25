@@ -18,9 +18,11 @@ class BrasUpdaterHandler(UpdaterHandler):
 
     def get_data(self, filepath: str | None = None, date: str | None = None) -> List[Tuple[BrasModel, List[TrafficHistoryModel]]]:
         try:
-            if not os.path.exists(PathConstant.SCAN_DATA_BRAS) or not os.path.isdir(PathConstant.SCAN_DATA_BRAS):
+            if not filepath:
+                filepath = PathConstant.SCAN_DATA_BRAS
+            if not os.path.exists(filepath) or not os.path.isdir(filepath):
                 raise FileNotFoundError("Bras folder not found.")
-            files = [filename for filename in os.listdir(PathConstant.SCAN_DATA_BRAS)]
+            files = [filename for filename in os.listdir(filepath)]
             data: List[Tuple[BrasModel, List[TrafficHistoryModel]]] = []
             for filename in track(files, description="Reading data bras..."):
                 try:
@@ -40,9 +42,9 @@ class BrasUpdaterHandler(UpdaterHandler):
                     )
                     historyHandler = TrafficHistoryUpdaterHandler()
                     if date:
-                        traffic_bras = historyHandler.get_data(filepath=f"{PathConstant.SCAN_DATA_BRAS}/{filename}", date=date)
+                        traffic_bras = historyHandler.get_data(filepath=f"{filepath}/{filename}", date=date)
                     else:
-                        traffic_bras = historyHandler.get_data(filepath=f"{PathConstant.SCAN_DATA_BRAS}/{filename}")
+                        traffic_bras = historyHandler.get_data(filepath=f"{filepath}/{filename}")
                 except Exception as e:
                     log = LogHandler()
                     log.export(f"Something went wrong to load data: {filename}. {e}", err=True)

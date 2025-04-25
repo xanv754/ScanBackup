@@ -18,14 +18,16 @@ class RaiUpdaterHandler(UpdaterHandler):
 
     def get_data(self, filepath: str | None = None, date: str | None = None) -> List[Tuple[RaiModel, List[TrafficHistoryModel]]]:
         try:
-            if not os.path.exists(PathConstant.SCAN_DATA_RAI) or not os.path.isdir(PathConstant.SCAN_DATA_RAI):
+            if not filepath:
+                filepath = PathConstant.SCAN_DATA_RAI
+            if not os.path.exists(filepath) or not os.path.isdir(filepath):
                 raise FileNotFoundError("Rai folder not found.")
-            files = [filename for filename in os.listdir(PathConstant.SCAN_DATA_RAI)]
+            files = [filename for filename in os.listdir(filepath)]
             data: List[Tuple[RaiModel, List[TrafficHistoryModel]]] = []
             for filename in track(files, description="Reading data caching..."):
                 try:
-                    interface = filename.split("%")[0]
-                    capacity = int(filename.split("%")[1])
+                    interface = filename.split("%")[1]
+                    capacity = float(filename.split("%")[2])
                     interface_border = RaiModel(
                         id=None,
                         name=interface,
@@ -34,9 +36,9 @@ class RaiUpdaterHandler(UpdaterHandler):
                     )
                     historyHandler = TrafficHistoryUpdaterHandler()
                     if date:
-                        traffic_border = historyHandler.get_data(filepath=f"{PathConstant.SCAN_DATA_RAI}/{filename}", date=date)
+                        traffic_border = historyHandler.get_data(filepath=f"{filepath}/{filename}", date=date)
                     else:
-                        traffic_border = historyHandler.get_data(filepath=f"{PathConstant.SCAN_DATA_RAI}/{filename}")
+                        traffic_border = historyHandler.get_data(filepath=f"{filepath}/{filename}")
                 except Exception as e:
                     log = LogHandler()
                     log.export(f"Something went wrong to load data: {filename}. {e}", err=True)
