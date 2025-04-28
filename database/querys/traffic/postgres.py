@@ -215,3 +215,32 @@ class PostgresTrafficHistoryQuery(TrafficHistoryQuery):
             log = LogHandler()
             log.export(f"Failed to get traffic. {e}", path=__file__, err=True)
             return []
+        
+    def get_traffic_layer_by_month(self, layer_type, month):
+        try:
+            if self.__database.connected:
+                cursor = self.__database.get_cursor()
+                cursor.execute(
+                    f"""
+                        SELECT 
+                            *
+                        FROM
+                            {TableNameDatabase.TRAFFIC_HISTORY}
+                        WHERE
+                            {TrafficHistoryFieldDatabase.TYPE_LAYER} = %s
+                            AND
+                            EXTRACT(MONTH FROM {TrafficHistoryFieldDatabase.DATE}) = %s
+                    """,
+                    (layer_type, month)
+                )
+                result = cursor.fetchall()
+                data: List[TrafficHistoryModel] = []
+                if result:
+                    data = TrafficHistoryResponseTrasform.default_model_postgres(result)
+                return data
+            else:
+                raise Exception("Database not connected.")
+        except Exception as e:
+            log = LogHandler()
+            log.export(f"Failed to get traffic. {e}", path=__file__, err=True)
+            return []

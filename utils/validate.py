@@ -22,3 +22,32 @@ class Validate:
         else:
             return False
 
+    @staticmethod
+    def month(month: str) -> bool:
+        """Validate month to consult in database.
+
+        Parameters
+        ----------
+        month : str
+            Month to validate.
+        """
+        if (month.isdigit() and int(month) >= 1 and int(month) <= 12):
+            return True
+        else:
+            return False
+        
+    @staticmethod
+    def date(date: str) -> bool:
+        """Validate date to consult in database.
+
+        Parameters
+        ----------
+        date : str
+            Date to validate.
+        """
+        if "-" in date:
+            content = date.split("-")
+            if len(content) == 3:
+                if content[0].isdigit() and content[1].isdigit() and content[2].isdigit():
+                    return True
+        return False

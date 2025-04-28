@@ -78,6 +78,22 @@ class TestMongo(unittest.TestCase):
         self.assertEqual(interface[0].date, example_traffic.date)
         self.assertEqual(interface[0].typeLayer, example_traffic.typeLayer)
 
+    # def test_get_traffic_layer_by_month(self):
+    #     """Test get all traffic history of a layer by a month in MongoDB."""
+    #     example_traffic = get_example_traffic()
+    #     self.test_database.insert(table=LayerTypeTest.TRAFFIC_HISTORY, data=example_traffic.model_dump())
+    #     database = MongoTrafficHistoryQuery()
+    #     interface = database.get_traffic_layer_by_month(
+    #         layer_type=example_traffic.typeLayer, 
+    #         month=example_traffic.date.split("-")[1]
+    #     )
+    #     self.test_database.clean(table=LayerTypeTest.TRAFFIC_HISTORY)
+    #     print(interface)
+
+    #     self.assertIsNotNone(interface)
+    #     self.assertEqual(interface[0].date, example_traffic.date)
+    #     self.assertEqual(interface[0].typeLayer, example_traffic.typeLayer)
+
 class TestPostgres(unittest.TestCase):
     test_database: DatabasePostgresTest = DatabasePostgresTest()
 
@@ -103,7 +119,7 @@ class TestPostgres(unittest.TestCase):
             )
         """)
 
-    def insert(self) -> None:
+    def insert(self) -> TrafficHistoryModel:
         """Insert data example in the TrafficHistory table in the PostgreSQL."""
         example_traffic = get_example_traffic()
         self.create_table()
@@ -168,6 +184,19 @@ class TestPostgres(unittest.TestCase):
         self.assertIsNotNone(interface)
         self.assertEqual(interface[0].date, example_traffic.date)
         self.assertEqual(interface[0].typeLayer, example_traffic.typeLayer)
+
+    def test_get_traffic_layer_by_month(self):
+        """Test get all traffic history of a layer by a month in PostgreSQL."""
+        example_traffic = self.insert()
+        database = PostgresTrafficHistoryQuery()
+        interface = database.get_traffic_layer_by_month(
+            layer_type=LayerTypeTest.BORDE, 
+            month=datetime.now().strftime("%m")
+        )
+        self.test_database.clean(table=LayerTypeTest.TRAFFIC_HISTORY)
+        
+        self.assertIsNotNone(interface)
+        self.assertEqual(interface[0].date, example_traffic.date)
 
 
 if __name__ == "__main__":

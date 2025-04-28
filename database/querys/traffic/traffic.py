@@ -88,3 +88,21 @@ class TrafficHistoryQuery(ABC):
             List of traffic history model.
         """
         pass
+
+
+    @abstractmethod
+    def get_traffic_layer_by_month(self, layer_type: str, month: str) -> List[TrafficHistoryModel]:
+        """Get all traffic history of a layer by a month.
+
+        Parameters
+        ----------
+        layer_type : str
+            Type name of the layer to consult.
+        month : str
+            Month of traffic history to consult. Format MM.
+
+        Returns
+        -------
+            List of traffic history model.
+        """
+        pass

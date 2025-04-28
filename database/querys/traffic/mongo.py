@@ -153,3 +153,29 @@ class MongoTrafficHistoryQuery(TrafficHistoryQuery):
             log = LogHandler()
             log.export(f"Failed to get traffic. {e}", path=__file__, err=True)
             return []
+        
+    def get_traffic_layer_by_month(self, layer_type: str, month: str) -> List[TrafficHistoryModel]:
+        try:
+            if self.__database.connected:
+                collection = self.__database.get_cursor(table=TableNameDatabase.TRAFFIC_HISTORY)
+                cursor = collection.find(
+                    {
+                        "$expr": {
+                            "$eq": [
+                                {"$month": "$date"},
+                                month
+                            ]
+                        },
+                        TrafficHistoryFieldDatabase.TYPE_LAYER: layer_type
+                    }
+                )
+                result: List[TrafficHistoryModel] = []
+                if cursor:
+                    result = TrafficHistoryResponseTrasform.default_model_mongo(cursor)
+                return result
+            else:
+                raise Exception("Database not connected.")
+        except Exception as e:
+            log = LogHandler()
+            log.export(f"Failed to get traffic. {e}", path=__file__, err=True)
+            return []

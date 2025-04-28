@@ -192,7 +192,7 @@ class TrafficHandler:
         else:
             return df
     
-    def get_traffic_interface_by_date(self, layer_type: str, interface_name: str, date: str) -> pd.DataFrame:
+    def get_traffic_interface_by_date(self, layer_type: str, interface_name: str, date: str = datetime.now().strftime("%Y-%m-%d")) -> pd.DataFrame:
         """Get all traffic history of a interface of a layer by a date.
 
         Parameters
@@ -201,13 +201,15 @@ class TrafficHandler:
             Type name of the layer to consult.
         interface_name : str
             Name of the interface to consult.
-        date : str
-            Date of traffic history to consult.
+        date : str, default today
+            Date of traffic history to consult. Format YYYY-MM-DD.
         """
         try:
             if self.__error_connection: raise Exception("An error occurred while connecting to the database. The method has skipped.")
             if not Validate.layer_type(layer_type):
                 raise Exception("Invalid parameter: name layer.")
+            if not Validate.date(date):
+                raise Exception("Invalid parameter: date.")
             if layer_type == LayerType.BORDE:
                 interface = self.borde_query.get_interface(name=interface_name)
             elif layer_type == LayerType.BRAS:
@@ -238,12 +240,14 @@ class TrafficHandler:
         layer_type : str
             Type name of the layer to consult.
         date : str, default today
-            Date of traffic history to consult.
+            Date of traffic history to consult. Format YYYY-MM-DD.
         """
         try:
             if self.__error_connection: raise Exception("An error occurred while connecting to the database. The method has skipped.")
             if not Validate.layer_type(layer_type):
                 raise Exception("Invalid parameter: name layer.")
+            if not Validate.date(date):
+                raise Exception("Invalid parameter: date.")
             traffic: List[TrafficHistoryModel] = self.traffic_query.get_traffic_layer_by_date(layer_type=layer_type, date=date)
             df = pd.DataFrame([data.model_dump() for data in traffic])
             df = self.__insert_name_layer(df_traffic=df, layer_type=layer_type)
@@ -253,3 +257,28 @@ class TrafficHandler:
             return pd.DataFrame()
         else:
             return df
+        
+    def get_traffic_layer_by_month(self, layer_type: str, month: str = str(datetime.now().month)) -> pd.DataFrame:
+        """Get all traffic history of a layer by a month.
+            
+        Parameters
+        ----------
+        layer_type : str
+            Type name of the layer to consult.
+        month : str, default current month
+            Month of traffic history to consult. Format MM.
+        """
+        try:
+            if self.__error_connection: raise Exception("An error occurred while connecting to the database. The method has skipped.")
+            if not Validate.layer_type(layer_type):
+                raise Exception("Invalid parameter: name layer.")
+            if not Validate.month(month):
+                raise Exception("Invalid parameter: month.")
+            if len(month) == 1: month = f"0{month}"
+            # TODO: Get traffic history by month
+        except Exception as e:
+            log = LogHandler()
+            log.export(f"Traffic handler. Failed to get traffic of layer by a month. {e}", path=__file__, err=True)
+            return pd.DataFrame()
+        else:
+            return pd.DataFrame()

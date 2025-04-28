@@ -162,26 +162,32 @@ class LogHandler:
         with open(PathConstant.FILEPATH_LOGS, "a") as file:
             file.write(f"{message}\n")
 
-    def export(self, message: str, path: str | None = None, err: bool = False, warn: bool = False, info: bool = False, cprint: bool = True) -> None:
+    def get_console(self) -> Console:
+        return self.__console
+
+    def export(self, message: str, path: str | None = None, err: bool = False, warn: bool = False, info: bool = False, cprint: bool = False) -> None:
         message = message.strip()
         if cprint:
             self.__cprint(message, path=path, err=err, warn=warn, info=info)
         self.__save(message, path=path, err=err, warn=warn, info=info)
 
-    def print(self, message: any, path: str | None = None) -> None:
+    @classmethod
+    def printStr(cls, message: any, path: str | None = None) -> None:
         message = str(message)
         messages: List[str] = []
         if path:
             path = path.split(f"/{AboutConstant.TITLE_PROJECT.value}/")[1]
             messages.append(f"Path print: {path}\n")
+        log = cls()
         messages.append(message)
         group = Group(*messages)
         panel = Panel(group, title="Debug", style="dark_slate_gray2", title_align="left")
-        self.__console.print(panel)
+        console = log.get_console()
+        console.print(panel)
 
 if __name__ == "__main__":
     log = LogHandler()
-    log.export("This is a test", path=__file__, err=True)
-    log.export("This is a test", path=__file__, warn=True)
-    log.print("This is a test", path=__file__)
-    log.export("This is a test", path=__file__, info=True)
+    log.export("This is a test", path=__file__, err=True, cprint=True)
+    log.export("This is a test", path=__file__, warn=True, cprint=True)
+    LogHandler.printStr("This is a test", path=__file__)
+    log.export("This is a test", path=__file__, info=True, cprint=True)

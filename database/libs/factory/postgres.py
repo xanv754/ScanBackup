@@ -21,5 +21,5 @@ class PostgresDatabaseFactory(DatabaseFactory):
             return self.__database
         except Exception as e:
             log = LogHandler()
-            log.export(f"Failed to factory PostgreSQL database. {e}", path=__file__, err=True)
+            log.export(f"Failed to factory PostgreSQL database. {e}", path=__file__, err=True, cprint=True)
             exit(1)
