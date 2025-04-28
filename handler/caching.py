@@ -1,0 +1,39 @@
+import pandas as pd
+from constants.header import HeaderCachingDataFrameConstant
+from database.querys.caching.caching import CachingQuery
+from database.querys.caching.mongo import MongoCachingQuery
+from database.querys.caching.postgres import PostgresCachingQuery
+from utils.log import LogHandler
+
+
+class CachingHandler:
+    """Class to get data of caching layer."""
+
+    __error_connection: bool = False
+    caching_query: CachingQuery
+
+    def __init__(self, db_backup: bool = False):
+        try:
+            if not hasattr(self, "__initialized"):
+                self.__initialized = True
+                if not db_backup: 
+                    self.caching_query = MongoCachingQuery()
+                else: 
+                    self.caching_query = PostgresCachingQuery()
+        except Exception as e:
+            log = LogHandler()
+            log.export(f"Caching handler. Failed connecting to the database. {e}", path=__file__, err=True)
+            self.__error_connection = True
+
+    def get_all_interfaces(self) -> pd.DataFrame:
+        """Get all interfaces of caching layer."""
+        try:
+            if self.__error_connection: raise Exception("An error occurred while connecting to the database. The method has skipped.")
+            interfaces = self.caching_query.get_interfaces()
+            df = pd.DataFrame([data.model_dump(exclude={HeaderCachingDataFrameConstant.CREATE_AT}) for data in interfaces])
+        except Exception as e:
+            log = LogHandler()
+            log.export(f"Caching handler. Failed to get all interfaces of caching layer. {e}", path=__file__, err=True)
+            return pd.DataFrame()
+        else:
+            return df

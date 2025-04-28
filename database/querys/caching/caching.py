@@ -1,3 +1,4 @@
+from typing import List
 from abc import ABC, abstractmethod
 from model.caching import CachingModel
 
@@ -48,5 +49,15 @@ class CachingQuery(ABC):
         Returns
         -------
             Caching information. If the interface does not exist, returns None.
+        """
+        pass
+
+    @abstractmethod
+    def get_interfaces(self) -> List[CachingModel]:
+        """Get all interfaces to caching layer.
+
+        Returns
+        -------
+            List of caching interfaces.
         """
         pass

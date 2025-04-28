@@ -2,7 +2,7 @@ import pandas as pd
 from typing import List
 from datetime import datetime
 from constants.group import LayerType
-from constants.header import HeaderTrafficDataFrameConstant, HeaderBordeDataFrameConstant, HeaderBrasDataFrameConstant
+from constants.header import HeaderTrafficDataFrameConstant, HeaderBordeDataFrameConstant, HeaderBrasDataFrameConstant, HeaderCachingDataFrameConstant, HeaderRaiDataFrameConstant
 from model.trafficHistory import TrafficHistoryModel
 from database.querys.borde.borde import BordeQuery
 from database.querys.borde.mongo import MongoBordeQuery
@@ -23,6 +23,8 @@ from utils.validate import Validate
 from utils.log import LogHandler
 from handler.borde import BordeHandler
 from handler.bras import BrasHandler
+from handler.caching import CachingHandler
+from handler.rai import RaiHandler
 
 class TrafficHandler:
     """Class to get history data."""
@@ -59,9 +61,10 @@ class TrafficHandler:
         """Format a dataframe of data traffic history."""
         try:
             df = data.copy()
+            df.drop(columns=[HeaderTrafficDataFrameConstant.TYPE_LAYER], inplace=True)
             df = df.reindex([
-                HeaderTrafficDataFrameConstant.TYPE_LAYER, 
                 HeaderTrafficDataFrameConstant.NAME, 
+                HeaderTrafficDataFrameConstant.CAPACITY,
                 HeaderTrafficDataFrameConstant.DATE, 
                 HeaderTrafficDataFrameConstant.TIME, 
                 HeaderTrafficDataFrameConstant.IN_PROM, 
@@ -79,20 +82,15 @@ class TrafficHandler:
         """Format a dataframe of data traffic history with data borde."""
         try:
             df = data.copy()
-            df.drop(columns=[HeaderBordeDataFrameConstant.ID], inplace=True)
-            df = df.reindex([
-                HeaderTrafficDataFrameConstant.TYPE_LAYER, 
-                HeaderBordeDataFrameConstant.NAME, 
-                HeaderBordeDataFrameConstant.MODEL, 
-                HeaderBordeDataFrameConstant.CAPACITY, 
-                HeaderTrafficDataFrameConstant.DATE, 
-                HeaderTrafficDataFrameConstant.TIME, 
-                HeaderTrafficDataFrameConstant.IN_PROM, 
-                HeaderTrafficDataFrameConstant.OUT_PROM, 
-                HeaderTrafficDataFrameConstant.IN_MAX, 
-                HeaderTrafficDataFrameConstant.OUT_MAX
-            ], axis="columns")
-            df.rename(columns={HeaderBordeDataFrameConstant.NAME: HeaderTrafficDataFrameConstant.NAME}, inplace=True)
+            df.drop(columns=[
+                HeaderBordeDataFrameConstant.ID,
+                HeaderBordeDataFrameConstant.MODEL,
+            ], inplace=True)
+            df.rename(columns={
+                HeaderBordeDataFrameConstant.NAME: HeaderTrafficDataFrameConstant.NAME,
+                HeaderBordeDataFrameConstant.CAPACITY: HeaderTrafficDataFrameConstant.CAPACITY,
+            }, inplace=True)
+            df = self.__format_traffic(data=df)
             return df
         except Exception as e:
             log = LogHandler()
@@ -103,9 +101,8 @@ class TrafficHandler:
         """Format a dataframe of data traffic history with data bras."""
         try:
             df = data.copy()
-            df.drop(columns=[HeaderBordeDataFrameConstant.ID], inplace=True)
+            df.drop(columns=[HeaderBrasDataFrameConstant.ID, HeaderBrasDataFrameConstant.TYPE], inplace=True)
             df = df.reindex([
-                HeaderTrafficDataFrameConstant.TYPE_LAYER, 
                 HeaderBrasDataFrameConstant.NAME, 
                 HeaderBrasDataFrameConstant.TYPE, 
                 HeaderBrasDataFrameConstant.CAPACITY, 
@@ -116,7 +113,42 @@ class TrafficHandler:
                 HeaderTrafficDataFrameConstant.IN_MAX, 
                 HeaderTrafficDataFrameConstant.OUT_MAX
             ], axis="columns")
-            df.rename(columns={HeaderBrasDataFrameConstant.NAME: HeaderTrafficDataFrameConstant.NAME}, inplace=True)
+            df.rename(columns={
+                HeaderBrasDataFrameConstant.NAME: HeaderTrafficDataFrameConstant.NAME,
+                HeaderBrasDataFrameConstant.CAPACITY: HeaderTrafficDataFrameConstant.CAPACITY,
+            }, inplace=True)
+            return df
+        except Exception as e:
+            log = LogHandler()
+            log.export(f"Traffic handler. Failed to format dataframe. {e}", path=__file__, err=True)
+            return data
+        
+    def __format_caching_traffic(self, data: pd.DataFrame) -> pd.DataFrame:
+        """Format a dataframe of data traffic history with data caching."""
+        try:
+            df = data.copy()
+            df.drop(columns=[HeaderCachingDataFrameConstant.ID, HeaderCachingDataFrameConstant.SERVICE], inplace=True)
+            df.rename(columns={
+                HeaderCachingDataFrameConstant.NAME: HeaderTrafficDataFrameConstant.NAME,
+                HeaderCachingDataFrameConstant.CAPACITY: HeaderTrafficDataFrameConstant.CAPACITY,
+            }, inplace=True)
+            df = self.__format_traffic(data=df)
+            return df
+        except Exception as e:
+            log = LogHandler()
+            log.export(f"Traffic handler. Failed to format dataframe. {e}", path=__file__, err=True)
+            return data
+        
+    def __format_rai_traffic(self, data: pd.DataFrame) -> pd.DataFrame:
+        """Format a dataframe of data traffic history with data rai."""
+        try:
+            df = data.copy()
+            df.drop(columns=[HeaderRaiDataFrameConstant.ID], inplace=True)
+            df = self.__format_traffic(data=df)
+            df.rename(columns={
+                HeaderRaiDataFrameConstant.NAME: HeaderTrafficDataFrameConstant.NAME,
+                HeaderRaiDataFrameConstant.CAPACITY: HeaderTrafficDataFrameConstant.CAPACITY,
+            }, inplace=True)
             return df
         except Exception as e:
             log = LogHandler()
@@ -139,6 +171,20 @@ class TrafficHandler:
                 df.rename(columns={HeaderTrafficDataFrameConstant.ID_LAYER: HeaderBrasDataFrameConstant.ID}, inplace=True)
                 df = df.merge(df_bras, how="inner", on=HeaderBrasDataFrameConstant.ID)
                 df = self.__format_bras_traffic(data=df)
+            elif not df.empty and layer_type == LayerType.CACHING:
+                caching_handler = CachingHandler()
+                df_caching = caching_handler.get_all_interfaces()
+                df.rename(columns={HeaderTrafficDataFrameConstant.ID_LAYER: HeaderCachingDataFrameConstant.ID}, inplace=True)
+                df = df.merge(df_caching, how="inner", on=HeaderCachingDataFrameConstant.ID)
+                df = self.__format_caching_traffic(data=df)
+            elif not df.empty and layer_type == LayerType.RAI:
+                rai_handler = RaiHandler()
+                df_rai = rai_handler.get_all_interfaces()
+                df.rename(columns={HeaderTrafficDataFrameConstant.ID_LAYER: HeaderRaiDataFrameConstant.ID}, inplace=True)
+                df = df.merge(df_rai, how="inner", on=HeaderRaiDataFrameConstant.ID)
+                df = self.__format_rai_traffic(data=df)
+            else:
+                raise Exception(f"Layer handler not found: {layer_type}")
         except Exception as e:
             log = LogHandler()
             log.export(f"Traffic handler. Failed to insert name layer in dataframe. {e}", path=__file__, err=True)
@@ -175,6 +221,7 @@ class TrafficHandler:
             traffic = self.traffic_query.get_traffic_interface_by_date(id=interface.id, date=date)
             df = pd.DataFrame([data.model_dump(exclude={HeaderTrafficDataFrameConstant.ID_LAYER}) for data in traffic])
             df[HeaderTrafficDataFrameConstant.NAME] = interface_name
+            df[HeaderTrafficDataFrameConstant.CAPACITY] = interface.capacity
             df = self.__format_traffic(data=df)
         except Exception as e:
             log = LogHandler()

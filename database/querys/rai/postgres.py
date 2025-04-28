@@ -1,3 +1,4 @@
+from typing import List
 from database.constant.tables import TableNameDatabase
 from database.constant.fields import RaiFieldDatabase
 from database.libs.factory.postgres import PostgresDatabaseFactory
@@ -99,3 +100,27 @@ class PostgresRaiQuery(RaiQuery):
             log = LogHandler()
             log.export(f"Failed to get interface. {e}", path=__file__, err=True)
             return None
+
+    def get_interfaces(self) -> List[RaiModel]:
+        try:
+            if self.__database.connected:
+                cursor = self.__database.get_cursor()
+                cursor.execute(
+                    f"""
+                        SELECT 
+                            *
+                        FROM
+                            {TableNameDatabase.RAI}
+                    """
+                )
+                result = cursor.fetchall()
+                data: List[RaiModel] = []
+                if result: 
+                    data = RaiResponseTrasform.default_model_postgres(result)
+                return data
+            else:
+                raise Exception("Database not connected.")
+        except Exception as e:
+            log = LogHandler()
+            log.export(f"Failed to get all interfaces. {e}", path=__file__, err=True)
+            return []

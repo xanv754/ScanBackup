@@ -12,7 +12,8 @@ class HeaderConstant:
 class HeaderTrafficDataFrameConstant:
     """Header of the traffic dataframe."""
 
-    NAME = "Interface"
+    NAME = "interface"
+    CAPACITY = "capacity"
     DATE = "date"
     TIME = "time"
     ID_LAYER = "idLayer"
@@ -39,5 +40,24 @@ class HeaderBrasDataFrameConstant:
     ID = "id"
     NAME = "name"
     TYPE = "type"
+    CAPACITY = "capacity"
+    CREATE_AT = "createAt"
+
+
+class HeaderCachingDataFrameConstant:
+    """Header of the caching dataframe."""
+
+    ID = "id"
+    NAME = "name"
+    SERVICE = "service"
+    CAPACITY = "capacity"
+    CREATE_AT = "createAt"
+
+
+class HeaderRaiDataFrameConstant:
+    """Header of the rai dataframe."""
+
+    ID = "id"
+    NAME = "name"
     CAPACITY = "capacity"
     CREATE_AT = "createAt"

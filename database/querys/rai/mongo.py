@@ -1,3 +1,4 @@
+from typing import List
 from database.constant.tables import TableNameDatabase
 from database.constant.fields import RaiFieldDatabase
 from database.libs.factory.mongo import MongoDatabaseFactory
@@ -74,3 +75,19 @@ class MongoRaiQuery(RaiQuery):
             log = LogHandler()
             log.export(f"Failed to get interface. {e}", path=__file__, err=True)
             return None
+
+    def get_interfaces(self) -> List[RaiModel]:
+        try:
+            if self.__database.connected:
+                collection = self.__database.get_cursor(table=TableNameDatabase.RAI)
+                result = collection.find()
+                data: List[RaiModel] = []
+                if result:
+                    data = RaiResponseTrasform.default_model_mongo(result)
+                return data
+            else:
+                raise Exception("Database not connected.")
+        except Exception as e:
+            log = LogHandler()
+            log.export(f"Failed to get all interfaces. {e}", path=__file__, err=True)
+            return []

@@ -1,3 +1,4 @@
+from typing import List
 from abc import ABC, abstractmethod
 from model.rai import RaiModel
 
@@ -48,5 +49,15 @@ class RaiQuery(ABC):
         Returns
         -------
             Rai information. If the interface does not exist, returns None.
+        """
+        pass
+
+    @abstractmethod
+    def get_interfaces(self) -> List[RaiModel]:
+        """Get all interfaces to rai layer.
+
+        Returns
+        -------
+            List of rai interfaces.
         """
         pass
