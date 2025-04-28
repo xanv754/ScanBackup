@@ -10,10 +10,11 @@ class TestHistoryUpdater(unittest.TestCase):
         data_example.create_file()
         brasHandler = BrasUpdaterHandler()
         data = brasHandler.get_data(filepath=data_example.folder)
-        self.assertEqual(type(data), list)
-        self.assertTrue(data)
         data_example.delete_file()
         data_example.delete_father_folder()
+        
+        self.assertEqual(type(data), list)
+        self.assertTrue(data)
 
 
 if __name__ == "__main__":

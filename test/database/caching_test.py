@@ -22,17 +22,19 @@ class TestMongoCachingOperation(unittest.TestCase):
         """Test insert a new interface of Caching layer in the MongoDB."""
         database = MongoCachingQuery() 
         response = database.new_interface(new=self.test_interface)
-        self.assertTrue(response)
         self.test_database.clean(table=LayerTypeTest.CACHING)
+
+        self.assertTrue(response)
 
     def test_get_interface(self):
         """Test get an interface of Borde layer in the MongoDB."""
         self.test_database.insert(table=LayerTypeTest.CACHING, data=self.test_interface.model_dump())
         database = MongoCachingQuery()
         interface = database.get_interface(name=self.test_interface.name)
+        self.test_database.clean(table=LayerTypeTest.CACHING)
+        
         self.assertIsNotNone(interface)
         self.assertEqual(interface.name, self.test_interface.name)
-        self.test_database.clean(table=LayerTypeTest.CACHING)
 
 
 # class TestPostgresCachingOperation(unittest.TestCase):

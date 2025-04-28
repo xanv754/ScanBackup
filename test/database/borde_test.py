@@ -22,25 +22,28 @@ class TestMongoBordeOperation(unittest.TestCase):
         """Test insert a new interface of Borde layer in the MongoDB."""
         database = MongoBordeQuery()
         response = database.new_interface(new=self.test_interface)
-        self.assertTrue(response)
         self.test_database.clean(table=LayerTypeTest.BORDE)
+
+        self.assertTrue(response)
 
     def test_get_interface(self):
         """Test get an interface of Borde layer in the MongoDB."""
         self.test_database.insert(table=LayerTypeTest.BORDE, data=self.test_interface.model_dump())
         database = MongoBordeQuery()
         interface = database.get_interface(name=self.test_interface.name)
+        self.test_database.clean(table=LayerTypeTest.BORDE)
+
         self.assertIsNotNone(interface)
         self.assertEqual(interface.name, self.test_interface.name)
-        self.test_database.clean(table=LayerTypeTest.BORDE)
 
     def test_get_interfaces(self):
         """Test get all interfaces of Borde layer in the MongoDB."""
         self.test_database.insert(table=LayerTypeTest.BORDE, data=self.test_interface.model_dump())
         database = MongoBordeQuery()
         interfaces = database.get_interfaces()
-        self.assertIsNotNone(interfaces)
         self.test_database.clean(table=LayerTypeTest.BORDE)
+        
+        self.assertIsNotNone(interfaces)
 
 # class TestPostgresBordeOperation(unittest.TestCase):
 #     def test_insert_interface(self):
