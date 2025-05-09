@@ -1,6 +1,6 @@
 import pandas as pd
 from typing import List
-from datetime import datetime
+from datetime import datetime, timedelta
 from constants.group import LayerType
 from constants.header import HeaderTrafficDataFrameConstant, HeaderBordeDataFrameConstant, HeaderBrasDataFrameConstant, HeaderCachingDataFrameConstant, HeaderRaiDataFrameConstant
 from model.trafficHistory import TrafficHistoryModel
@@ -19,12 +19,12 @@ from database.querys.rai.postgres import PostgresRaiQuery
 from database.querys.traffic.traffic import TrafficHistoryQuery
 from database.querys.traffic.mongo import MongoTrafficHistoryQuery
 from database.querys.traffic.postgres import PostgresTrafficHistoryQuery
-from utils.validate import Validate
-from utils.log import LogHandler
 from handler.borde import BordeHandler
 from handler.bras import BrasHandler
 from handler.caching import CachingHandler
 from handler.rai import RaiHandler
+from utils.validate import Validate
+from utils.log import log
 
 class TrafficHandler:
     """Class to get history data."""
@@ -53,8 +53,7 @@ class TrafficHandler:
                     self.caching_query = PostgresCachingQuery()
                     self.rai_query = PostgresRaiQuery()
         except Exception as e:
-            log = LogHandler()
-            log.export(f"Traffic handler. Failed connecting to the database. {e}", path=__file__, err=True)
+            log.error(f"Traffic handler. Failed connecting to the database. {e}")
             self.__error_connection = True
 
     def __format_traffic(self, data: pd.DataFrame) -> pd.DataFrame:
@@ -74,8 +73,7 @@ class TrafficHandler:
             ], axis="columns")
             return df
         except Exception as e:
-            log = LogHandler()
-            log.export(f"Traffic handler. Failed to format dataframe. {e}", path=__file__, err=True)
+            log.error(f"Traffic handler. Failed to format dataframe. {e}")
             return data
         
     def __format_borde_traffic(self, data: pd.DataFrame) -> pd.DataFrame:
@@ -93,8 +91,7 @@ class TrafficHandler:
             df = self.__format_traffic(data=df)
             return df
         except Exception as e:
-            log = LogHandler()
-            log.export(f"Traffic handler. Failed to format dataframe. {e}", path=__file__, err=True)
+            log.error(f"Traffic handler. Failed to format dataframe. {e}")
             return data
         
     def __format_bras_traffic(self, data: pd.DataFrame) -> pd.DataFrame:
@@ -119,8 +116,7 @@ class TrafficHandler:
             }, inplace=True)
             return df
         except Exception as e:
-            log = LogHandler()
-            log.export(f"Traffic handler. Failed to format dataframe. {e}", path=__file__, err=True)
+            log.error(f"Traffic handler. Failed to format dataframe. {e}")
             return data
         
     def __format_caching_traffic(self, data: pd.DataFrame) -> pd.DataFrame:
@@ -135,8 +131,7 @@ class TrafficHandler:
             df = self.__format_traffic(data=df)
             return df
         except Exception as e:
-            log = LogHandler()
-            log.export(f"Traffic handler. Failed to format dataframe. {e}", path=__file__, err=True)
+            log.error(f"Traffic handler. Failed to format dataframe. {e}")
             return data
         
     def __format_rai_traffic(self, data: pd.DataFrame) -> pd.DataFrame:
@@ -151,8 +146,7 @@ class TrafficHandler:
             }, inplace=True)
             return df
         except Exception as e:
-            log = LogHandler()
-            log.export(f"Traffic handler. Failed to format dataframe. {e}", path=__file__, err=True)
+            log.error(f"Traffic handler. Failed to format dataframe. {e}")
             return data
         
     def __insert_name_layer(self, df_traffic: pd.DataFrame, layer_type: str) -> pd.DataFrame:
@@ -183,11 +177,10 @@ class TrafficHandler:
                 df.rename(columns={HeaderTrafficDataFrameConstant.ID_LAYER: HeaderRaiDataFrameConstant.ID}, inplace=True)
                 df = df.merge(df_rai, how="inner", on=HeaderRaiDataFrameConstant.ID)
                 df = self.__format_rai_traffic(data=df)
-            else:
+            elif not df.empty:
                 raise Exception(f"Layer handler not found: {layer_type}")
         except Exception as e:
-            log = LogHandler()
-            log.export(f"Traffic handler. Failed to insert name layer in dataframe. {e}", path=__file__, err=True)
+            log.error(f"Traffic handler. Failed to insert name layer in dataframe. {e}")
             return pd.DataFrame()
         else:
             return df
@@ -226,13 +219,12 @@ class TrafficHandler:
             df[HeaderTrafficDataFrameConstant.CAPACITY] = interface.capacity
             df = self.__format_traffic(data=df)
         except Exception as e:
-            log = LogHandler()
-            log.export(f"Traffic handler. Failed to get traffic of layer by a date. {e}", path=__file__, err=True)
+            log.error(f"Traffic handler. Failed to get traffic of layer by a date. {e}")
             return pd.DataFrame()
         else:
             return df
         
-    def get_traffic_layer_by_date(self, layer_type: str, date: str = datetime.now().strftime("%Y-%m-%d")) -> pd.DataFrame:
+    def get_traffic_layer_by_thirty_days_before(self, layer_type: str, date: str = datetime.now().strftime("%Y-%m-%d")) -> pd.DataFrame:
         """Get all traffic history of a layer by a date.
 
         Parameters
@@ -248,37 +240,20 @@ class TrafficHandler:
                 raise Exception("Invalid parameter: name layer.")
             if not Validate.date(date):
                 raise Exception("Invalid parameter: date.")
-            traffic: List[TrafficHistoryModel] = self.traffic_query.get_traffic_layer_by_date(layer_type=layer_type, date=date)
-            df = pd.DataFrame([data.model_dump() for data in traffic])
-            df = self.__insert_name_layer(df_traffic=df, layer_type=layer_type)
+            df_traffic = pd.DataFrame()
+            date = datetime.strptime(date, "%Y-%m-%d")
+            dates = [(date - timedelta(days=i)).strftime("%Y-%m-%d") for i in range(30)]
+            for date in dates:
+                traffic: List[TrafficHistoryModel] = self.traffic_query.get_traffic_layer_by_date(layer_type=layer_type, date=date)
+                df = pd.DataFrame([data.model_dump() for data in traffic])
+                if not df.empty:
+                    df = self.__insert_name_layer(df_traffic=df, layer_type=layer_type)
+                    if not df_traffic.empty:
+                        df_traffic = pd.concat([df_traffic, df])
+                    else:
+                        df_traffic = df
+            df_traffic = df_traffic.reset_index(drop=True)
+            return df_traffic
         except Exception as e:
-            log = LogHandler()
-            log.export(f"Traffic handler. Failed to get traffic of layer by a date. {e}", path=__file__, err=True)
-            return pd.DataFrame()
-        else:
-            return df
-        
-    def get_traffic_layer_by_month(self, layer_type: str, month: str = str(datetime.now().month)) -> pd.DataFrame:
-        """Get all traffic history of a layer by a month.
-            
-        Parameters
-        ----------
-        layer_type : str
-            Type name of the layer to consult.
-        month : str, default current month
-            Month of traffic history to consult. Format MM.
-        """
-        try:
-            if self.__error_connection: raise Exception("An error occurred while connecting to the database. The method has skipped.")
-            if not Validate.layer_type(layer_type):
-                raise Exception("Invalid parameter: name layer.")
-            if not Validate.month(month):
-                raise Exception("Invalid parameter: month.")
-            if len(month) == 1: month = f"0{month}"
-            # TODO: Get traffic history by month
-        except Exception as e:
-            log = LogHandler()
-            log.export(f"Traffic handler. Failed to get traffic of layer by a month. {e}", path=__file__, err=True)
-            return pd.DataFrame()
-        else:
+            log.error(f"Traffic handler. Failed to get traffic of layer by a date. {e}")
             return pd.DataFrame()

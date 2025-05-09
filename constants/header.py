@@ -22,6 +22,7 @@ class HeaderTrafficDataFrameConstant:
     OUT_PROM = "outProm"
     IN_MAX = "inMax"
     OUT_MAX = "outMax"
+    USE = "use (%)"
 
 
 class HeaderBordeDataFrameConstant:

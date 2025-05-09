@@ -3,7 +3,7 @@ from constants.header import HeaderBordeDataFrameConstant
 from database.querys.borde.borde import BordeQuery
 from database.querys.borde.mongo import MongoBordeQuery
 from database.querys.borde.postgres import PostgresBordeQuery
-from utils.log import LogHandler
+from utils.log import log
 
 
 class BordeHandler:
@@ -21,8 +21,7 @@ class BordeHandler:
                 else: 
                     self.borde_query = PostgresBordeQuery()
         except Exception as e:
-            log = LogHandler()
-            log.export(f"Borde handler. Failed connecting to the database. {e}", path=__file__, err=True)
+            log.error(f"Borde handler. Failed connecting to the database. {e}")
             self.__error_connection = True
 
     def get_all_interfaces(self) -> pd.DataFrame:
@@ -32,8 +31,7 @@ class BordeHandler:
             interfaces = self.borde_query.get_interfaces()
             df = pd.DataFrame([data.model_dump(exclude={HeaderBordeDataFrameConstant.CREATE_AT}) for data in interfaces])
         except Exception as e:
-            log = LogHandler()
-            log.export(f"Borde handler. Failed to get all interfaces of borde layer. {e}", path=__file__, err=True)
+            log.error(f"Borde handler. Failed to get all interfaces of borde layer. {e}")
             return pd.DataFrame()
         else:
             return df
