@@ -1,6 +1,6 @@
 import os
 from dotenv import load_dotenv, dotenv_values
-from utils.log import LogHandler
+from utils.log import log
 
 
 load_dotenv(override=True)
@@ -30,20 +30,18 @@ class ConfigurationHandler:
                     env = dotenv_values(".env")
                 else:
                     raise FileNotFoundError("No file with environment variables found")
-                log = LogHandler()
                 uri_postgres = env.get("URI_POSTGRES")
                 if uri_postgres: 
                     self.uri_postgres = uri_postgres
                 else:
-                    log.export(message=f"Failed to obtain configuration. URI PostgreSQL variable not found in enviroment file", path=__file__, err=True)
+                    log.warning(message=f"Failed to obtain configuration. URI PostgreSQL variable not found in enviroment file", path=__file__, err=True)
                 uri_mongo = env.get("URI_MONGO")
                 if uri_mongo: 
                     self.uri_mongo = uri_mongo
                 else:
-                    log.export(message=f"Failed to obtain configuration. URI MongoDB variable not found in enviroment file", path=__file__, err=True)
+                    log.warning(message=f"Failed to obtain configuration. URI MongoDB variable not found in enviroment file", path=__file__, err=True)
         except Exception as e:
-            log = LogHandler()
-            log.export(message=f"Failed to obtain configuration. {e}", path=__file__, err=True)
+            log.error(message=f"Failed to obtain configuration. {e}", path=__file__, err=True)
             exit(1)
 
     @classmethod

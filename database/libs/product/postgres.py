@@ -8,7 +8,7 @@ from database.schemas.postgres.rai import RAI_SCHEMA, RAI_SECUENCE_SCHEMA
 from database.schemas.postgres.trafficHistory import TRAFFIC_HISTORY_SCHEMA
 from database.schemas.postgres.ipHistory import IP_HISTORY_SCHEMA
 from database.libs.product.database import Database
-from utils.log import LogHandler
+from utils.log import log
 
 class PostgresDatabase(Database):
     __connection: psycopg2.extensions.connection
@@ -22,8 +22,7 @@ class PostgresDatabase(Database):
             self.__connection = psycopg2.connect(uri)
             self.__cursor = self.__connection.cursor()
         except Exception as e:
-            log = LogHandler()
-            log.export(f"Failed to connect to PostgreSQL database. {e}", path=__file__, err=True)
+            log.error(f"Failed to connect to PostgreSQL database. {e}")
         else:
             self.connected = True
 
@@ -50,8 +49,7 @@ class PostgresDatabase(Database):
             cursor.close()
             connection.close()
         except Exception as e:
-            log = LogHandler()
-            log.export(f"PostgreSQL database error. {e}", err=True)
+            log.error(f"PostgreSQL database error. {e}")
             return False
         else:
             return status
@@ -76,8 +74,7 @@ class PostgresDatabase(Database):
             cursor.close()
             connection.close()
         except Exception as e:
-            log = LogHandler()
-            log.export(f"PostgreSQL database Error. {e}", err=True)
+            log.error(f"PostgreSQL database Error. {e}")
             return False
         else:
             return True
@@ -109,8 +106,7 @@ class PostgresDatabase(Database):
             self.__connection.commit()
             self.close_connection()
         except Exception as e:
-            log = LogHandler()
-            log.export(f"PostgreSQL database Error. {e}", err=True)
+            log.error(f"PostgreSQL database Error. {e}")
             return False
         else:
             return True
@@ -127,8 +123,7 @@ class PostgresDatabase(Database):
             self.__connection.commit()
             self.close_connection()
         except Exception as e:
-            log = LogHandler()
-            log.export(f"PostgreSQL database Error. {e}", err=True)
+            log.error(f"PostgreSQL database Error. {e}")
             return False
         else:
             return True

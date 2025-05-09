@@ -1,6 +1,6 @@
 from database.libs.factory.database import DatabaseFactory
 from database.libs.product.postgres import PostgresDatabase
-from utils.log import LogHandler
+from utils.log import log
 
 
 class PostgresDatabaseFactory(DatabaseFactory):
@@ -19,7 +19,6 @@ class PostgresDatabaseFactory(DatabaseFactory):
             if not self.__database or (self.__database and not self.__database.connected):
                 self.__database = PostgresDatabase(uri=uri)
             return self.__database
-        except Exception as e:
-            log = LogHandler()
-            log.export(f"Failed to factory PostgreSQL database. {e}", path=__file__, err=True, cprint=True)
+        except Exception as error:
+            log.error(f"Failed to factory PostgreSQL database. {error}")
             exit(1)

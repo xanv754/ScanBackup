@@ -8,7 +8,7 @@ from database.schemas.mongo.caching import CACHING_SCHEMA
 from database.schemas.mongo.rai import RAI_SCHEMA
 from database.schemas.mongo.trafficHistory import TRAFFIC_HISTORY_SCHEMA
 from database.schemas.mongo.ipHistory import IP_HISTORY_SCHEMA
-from utils.log import LogHandler
+from utils.log import log
 
 class MongoDatabase(Database):
     __client: MongoClient
@@ -21,8 +21,7 @@ class MongoDatabase(Database):
             name_db = uri.split("/")[-1]
             self.__connection = self.__client[name_db]
         except Exception as e:
-            log = LogHandler()
-            log.export(f"Failed to connect to MongoDB database. {e}", path=__file__, err=True)
+            log.error(f"Failed to connect to MongoDB database. {e}")
         else:
             self.connected = True
 
@@ -77,8 +76,7 @@ class MongoDatabase(Database):
                     validator=IP_HISTORY_SCHEMA
                 )
         except Exception as e:
-            log = LogHandler()
-            log.export(f"Failed to migrate MongoDB database. {e}", path=__file__, err=True)
+            log.error(f"Failed to migrate MongoDB database. {e}")
             return False
         else:
             return True
@@ -104,8 +102,7 @@ class MongoDatabase(Database):
             ip_history_collection.delete_many({})
             ip_history_collection.drop()
         except Exception as e:
-            log = LogHandler()
-            log.export(f"Failed to rollback MongoDB database. {e}", path=__file__, err=True)
+            log.error(f"Failed to rollback MongoDB database. {e}")
             return False
         else:
             return True

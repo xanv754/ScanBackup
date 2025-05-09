@@ -7,7 +7,7 @@ from database.querys.bras.bras import BrasQuery
 from model.bras import BrasModel
 from utils.config import ConfigurationHandler
 from utils.trasform import BrasResponseTrasform
-from utils.log import LogHandler
+from utils.log import log
 
 
 class PostgresBrasQuery(BrasQuery):
@@ -29,8 +29,7 @@ class PostgresBrasQuery(BrasQuery):
                 database = PostgresDatabaseFactory().get_database(uri=config.uri_postgres)
                 self.__database = database
         except Exception as e:
-            log = LogHandler()
-            log.export(f"Failed to connect to Postgres database. {e}", path=__file__, err=True)
+            log.error(f"Failed to connect to Postgres database. {e}")
 
     def set_database(self, uri: str) -> None:
         try:
@@ -39,8 +38,7 @@ class PostgresBrasQuery(BrasQuery):
             new_database = PostgresDatabaseFactory().get_database(uri=uri)
             self.__database = new_database
         except Exception as e:
-            log = LogHandler()
-            log.export(f"Failed to connect to Postgres database. {e}", path=__file__, err=True)
+            log.error(f"Failed to connect to Postgres database. {e}")
 
     def close_connection(self) -> None:
         self.__database.close_connection()
@@ -69,8 +67,7 @@ class PostgresBrasQuery(BrasQuery):
             else:
                 raise Exception("Database not connected.")
         except Exception as e:
-            log = LogHandler()
-            log.export(f"Failed to create new bras. {e}", path=__file__, err=True)
+            log.error(f"Failed to create new bras. {e}")
             return False
         else:
             return status == "INSERT 0 1"
@@ -100,8 +97,7 @@ class PostgresBrasQuery(BrasQuery):
             else:
                 raise Exception("Database not connected.")
         except Exception as e:
-            log = LogHandler()
-            log.export(f"Failed to get bras. {e}", path=__file__, err=True)
+            log.error(f"Failed to get bras. {e}")
             return None
 
     def get_all_bras(self) -> List[BrasModel]:
@@ -124,6 +120,5 @@ class PostgresBrasQuery(BrasQuery):
             else:
                 raise Exception("Database not connected.")
         except Exception as e:
-            log = LogHandler()
-            log.export(f"Failed to get bras. {e}", path=__file__, err=True)
+            log.error(f"Failed to get bras. {e}")
             return []

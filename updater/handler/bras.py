@@ -2,7 +2,7 @@ import os
 from typing import List, Tuple
 from datetime import datetime
 from rich.progress import track
-from constants.path import PathConstant
+from constants.path import DataPath
 from constants.group import BrasType, LayerType
 from model.bras import BrasModel
 from model.trafficHistory import TrafficHistoryModel
@@ -10,7 +10,7 @@ from updater.update import UpdaterHandler
 from updater.handler.traffic import TrafficHistoryUpdaterHandler
 from database.querys.bras.mongo import MongoBrasQuery
 from database.querys.bras.postgres import PostgresBrasQuery
-from utils.log import LogHandler
+from utils.log import log
 
 
 class BrasUpdaterHandler(UpdaterHandler):
@@ -19,7 +19,7 @@ class BrasUpdaterHandler(UpdaterHandler):
     def get_data(self, filepath: str | None = None, date: str | None = None) -> List[Tuple[BrasModel, List[TrafficHistoryModel]]]:
         try:
             if not filepath:
-                filepath = PathConstant.SCAN_DATA_BRAS
+                filepath = DataPath.SCAN_DATA_BRAS
             if not os.path.exists(filepath) or not os.path.isdir(filepath):
                 raise FileNotFoundError("Bras folder not found.")
             files = [filename for filename in os.listdir(filepath)]
@@ -46,14 +46,12 @@ class BrasUpdaterHandler(UpdaterHandler):
                     else:
                         traffic_bras = historyHandler.get_data(filepath=f"{filepath}/{filename}")
                 except Exception as e:
-                    log = LogHandler()
-                    log.export(f"Something went wrong to load data: {filename}. {e}", err=True)
+                    log.error(f"Something went wrong to load data: {filename}. {e}")
                     continue
                 else:
                     data.append((bras, traffic_bras))
         except Exception as e:
-            log = LogHandler()
-            log.export(f"Failed to data load of Bras layer. {e}", err=True)
+            log.error(f"Failed to data load of Bras layer. {e}")
             return []
         else:
             return data
@@ -81,12 +79,10 @@ class BrasUpdaterHandler(UpdaterHandler):
                     if not response:
                         raise Exception(f"Failed to insert histories traffic of an bras: {bras.name} {bras.type}")
                 except Exception as e:
-                    log = LogHandler()
-                    log.export(f"Failed to insert new bras or histories traffic of Bras layer. {e}", err=True)
+                    log.error(f"Failed to insert new bras or histories traffic of Bras layer. {e}")
                     continue
         except Exception as e:
-            log = LogHandler()
-            log.export(f"Failed to load data of Bras layer. {e}", err=True)
+            log.error(f"Failed to load data of Bras layer. {e}")
             failed = True
         finally:
             database.close_connection()
@@ -111,12 +107,10 @@ class BrasUpdaterHandler(UpdaterHandler):
                     if not response:
                         raise Exception(f"Failed to insert histories traffic of an bras: {bras.name} {bras.type}")
                 except Exception as e:
-                    log = LogHandler()
-                    log.export(f"Failed to insert new bras or histories traffic of Bras layer. {e}", err=True)
+                    log.error(f"Failed to insert new bras or histories traffic of Bras layer. {e}")
                     continue
         except Exception as e:
-            log = LogHandler()
-            log.export(f"Failed to load data of Histories Traffic of Bras layer. {e}", err=True)
+            log.error(f"Failed to load data of Histories Traffic of Bras layer. {e}")
             failed = True
         finally:
             database.close_connection()

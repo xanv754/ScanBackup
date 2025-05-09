@@ -7,7 +7,7 @@ from database.querys.rai.rai import RaiQuery
 from model.rai import RaiModel
 from utils.config import ConfigurationHandler
 from utils.trasform import RaiResponseTrasform
-from utils.log import LogHandler
+from utils.log import log
 
 
 class MongoRaiQuery(RaiQuery):
@@ -29,8 +29,7 @@ class MongoRaiQuery(RaiQuery):
                 database = MongoDatabaseFactory().get_database(uri=config.uri_mongo)
                 self.__database = database
         except Exception as e:
-            log = LogHandler()
-            log.export(f"Failed to connect to MongoDB database. {e}", path=__file__, err=True)
+            log.error(f"Failed to connect to MongoDB database. {e}")
 
     def set_database(self, uri: str) -> None:
         try:
@@ -39,8 +38,7 @@ class MongoRaiQuery(RaiQuery):
             new_database = MongoDatabaseFactory().get_database(uri=uri)
             self.__database = new_database
         except Exception as e:
-            log = LogHandler()
-            log.export(f"Failed to connect to MongoDB database. {e}", path=__file__, err=True)
+            log.error(f"Failed to connect to MongoDB database. {e}")
 
     def close_connection(self) -> None:
         self.__database.close_connection()
@@ -54,8 +52,7 @@ class MongoRaiQuery(RaiQuery):
             else:
                 raise Exception("Database not connected.")
         except Exception as e:
-            log = LogHandler()
-            log.export(f"Failed to create new interface. {e}", path=__file__, err=True)
+            log.error(f"Failed to create new interface. {e}")
             return False
         else:
             return response.acknowledged
@@ -72,8 +69,7 @@ class MongoRaiQuery(RaiQuery):
             else:
                 raise Exception("Database not connected.")
         except Exception as e:
-            log = LogHandler()
-            log.export(f"Failed to get interface. {e}", path=__file__, err=True)
+            log.error(f"Failed to get interface. {e}")
             return None
 
     def get_interfaces(self) -> List[RaiModel]:
@@ -88,6 +84,5 @@ class MongoRaiQuery(RaiQuery):
             else:
                 raise Exception("Database not connected.")
         except Exception as e:
-            log = LogHandler()
-            log.export(f"Failed to get all interfaces. {e}", path=__file__, err=True)
+            log.error(f"Failed to get all interfaces. {e}")
             return []

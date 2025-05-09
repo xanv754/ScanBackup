@@ -7,7 +7,7 @@ from database.querys.caching.caching import CachingQuery
 from model.caching import CachingModel
 from utils.config import ConfigurationHandler
 from utils.trasform import CachingResponseTrasform
-from utils.log import LogHandler
+from utils.log import log
 
 
 class PostgresCachingQuery(CachingQuery):
@@ -29,8 +29,7 @@ class PostgresCachingQuery(CachingQuery):
                 database = PostgresDatabaseFactory().get_database(uri=config.uri_postgres)
                 self.__database = database
         except Exception as e:
-            log = LogHandler()
-            log.export(f"Failed to connect to Postgres database. {e}", path=__file__, err=True)
+            log.error(f"Failed to connect to Postgres database. {e}")
 
     def set_database(self, uri: str) -> None:
         try:
@@ -39,8 +38,7 @@ class PostgresCachingQuery(CachingQuery):
             new_database = PostgresDatabaseFactory().get_database(uri=uri)
             self.__database = new_database
         except Exception as e:
-            log = LogHandler()
-            log.export(f"Failed to connect to Postgres database. {e}", path=__file__, err=True)
+            log.error(f"Failed to connect to Postgres database. {e}")
 
     def close_connection(self) -> None:
         self.__database.close_connection()
@@ -69,8 +67,7 @@ class PostgresCachingQuery(CachingQuery):
             else:
                 raise Exception("Database not connected.")
         except Exception as e:
-            log = LogHandler()
-            log.export(f"Failed to create new interface. {e}", path=__file__, err=True)
+            log.error(f"Failed to create new interface. {e}")
             return False
         else:
             return status == "INSERT 0 1"
@@ -98,8 +95,7 @@ class PostgresCachingQuery(CachingQuery):
             else:
                 raise Exception("Database not connected.")
         except Exception as e:
-            log = LogHandler()
-            log.export(f"Failed to get interface. {e}", path=__file__, err=True)
+            log.error(f"Failed to get interface. {e}")
             return None
 
     def get_interfaces(self) -> List[CachingModel]:
@@ -122,6 +118,5 @@ class PostgresCachingQuery(CachingQuery):
             else:
                 raise Exception("Database not connected.")
         except Exception as e:
-            log = LogHandler()
-            log.export(f"Failed to get all interfaces. {e}", path=__file__, err=True)
+            log.error(f"Failed to get all interfaces. {e}")
             return []

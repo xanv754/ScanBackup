@@ -8,7 +8,7 @@ from database.libs.product.mongo import MongoDatabase
 from database.querys.traffic.traffic import TrafficHistoryQuery
 from utils.config import ConfigurationHandler
 from utils.trasform import TrafficHistoryResponseTrasform
-from utils.log import LogHandler
+from utils.log import log
 
 
 class MongoTrafficHistoryQuery(TrafficHistoryQuery):
@@ -30,8 +30,7 @@ class MongoTrafficHistoryQuery(TrafficHistoryQuery):
                 database = MongoDatabaseFactory().get_database(uri=config.uri_mongo)
                 self.__database = database
         except Exception as e:
-            log = LogHandler()
-            log.export(f"Failed to connect to MongoDB database. {e}", path=__file__, err=True)
+            log.error(f"Failed to connect to MongoDB database. {e}")
 
     def set_database(self, uri: str) -> None:
         """Set the connection database.
@@ -47,8 +46,7 @@ class MongoTrafficHistoryQuery(TrafficHistoryQuery):
             new_database = MongoDatabaseFactory().get_database(uri=uri)
             self.__database = new_database
         except Exception as e:
-            log = LogHandler()
-            log.export(f"Failed to connect to MongoDB database. {e}", path=__file__, err=True)
+            log.error(f"Failed to connect to MongoDB database. {e}")
 
     def new_traffic(self, traffic: List[TrafficHistoryModel]) -> bool:
         try:
@@ -66,8 +64,7 @@ class MongoTrafficHistoryQuery(TrafficHistoryQuery):
             else:
                 raise Exception("Database not connected.")
         except Exception as e:
-            log = LogHandler()
-            log.export(f"Failed to insert histories traffic. {e}", path=__file__, err=True)
+            log.error(f"Failed to insert histories traffic. {e}")
             return False
 
     def get_traffic(self, date: str, time: str, id_layer: str) -> TrafficHistoryModel | None:
@@ -88,8 +85,7 @@ class MongoTrafficHistoryQuery(TrafficHistoryQuery):
             else:
                 raise Exception("Database not connected.")
         except Exception as e:
-            log = LogHandler()
-            log.export(f"Failed to get traffic. {e}", path=__file__, err=True)
+            log.error(f"Failed to get traffic. {e}")
             return None
 
     def get_traffic_interface_by_date(self, id: str, date: str) -> List[TrafficHistoryModel]:
@@ -109,8 +105,7 @@ class MongoTrafficHistoryQuery(TrafficHistoryQuery):
             else:
                 raise Exception("Database not connected.")
         except Exception as e:
-            log = LogHandler()
-            log.export(f"Failed to get traffic. {e}", path=__file__, err=True)
+            log.error(f"Failed to get traffic. {e}")
             return []
         
     def get_traffic_layer_by_date(self, layer_type: str, date: str) -> List[TrafficHistoryModel]:
@@ -130,8 +125,7 @@ class MongoTrafficHistoryQuery(TrafficHistoryQuery):
             else:
                 raise Exception("Database not connected.")
         except Exception as e:
-            log = LogHandler()
-            log.export(f"Failed to get traffic. {e}", path=__file__, err=True)
+            log.error(f"Failed to get traffic. {e}")
             return []
         
     def get_traffic_by_date(self, date: str) -> List[TrafficHistoryModel]:
@@ -150,8 +144,7 @@ class MongoTrafficHistoryQuery(TrafficHistoryQuery):
             else:
                 raise Exception("Database not connected.")
         except Exception as e:
-            log = LogHandler()
-            log.export(f"Failed to get traffic. {e}", path=__file__, err=True)
+            log.error(f"Failed to get traffic. {e}")
             return []
         
     def get_traffic_layer_by_month(self, layer_type: str, month: str) -> List[TrafficHistoryModel]:
@@ -176,6 +169,5 @@ class MongoTrafficHistoryQuery(TrafficHistoryQuery):
             else:
                 raise Exception("Database not connected.")
         except Exception as e:
-            log = LogHandler()
-            log.export(f"Failed to get traffic. {e}", path=__file__, err=True)
+            log.error(f"Failed to get traffic. {e}")
             return []

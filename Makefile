@@ -11,6 +11,7 @@ setup: requirements.txt
 	   python3.13 -m venv .venv; \
 	fi
 	.venv/bin/pip install -r requirements.txt
+	sudo python3.13 utils/log.py
 
 migration: .venv/bin/activate
 	.venv/bin/python3 -m storage migration

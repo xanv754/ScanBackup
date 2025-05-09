@@ -1,6 +1,6 @@
 from database.libs.factory.database import DatabaseFactory
 from database.libs.product.mongo import MongoDatabase
-from utils.log import LogHandler
+from utils.log import log
 
 class MongoDatabaseFactory(DatabaseFactory):
     """Mongo database factory class."""
@@ -18,7 +18,6 @@ class MongoDatabaseFactory(DatabaseFactory):
             if not self.__database or (self.__database and not self.__database.connected):
                 self.__database = MongoDatabase(uri=uri)
             return self.__database
-        except Exception as e:
-            log = LogHandler()
-            log.export(f"Failed to factory MongoDB database. {e}", path=__file__, err=True, cprint=True)
+        except Exception as error:
+            log.error(f"Failed to factory MongoDB database. {error}")
             exit(1)

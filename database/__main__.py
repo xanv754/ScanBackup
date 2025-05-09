@@ -2,10 +2,7 @@ import click
 from database.libs.factory.mongo import MongoDatabaseFactory
 from database.libs.factory.postgres import PostgresDatabaseFactory
 from utils.config import ConfigurationHandler
-from utils.log import LogHandler
-
-
-log = LogHandler()
+from utils.log import log
 
 
 @click.group()
@@ -20,7 +17,7 @@ def cli():
 @cli.command(help="Perfom database migrations.")
 def migration():
     config = ConfigurationHandler()
-    log.export("Starting migrations...", warn=True)
+    log.info("Starting migrations...")
     uri_mongo = config.uri_mongo
     uri_postgres = config.uri_postgres
     mongo_status = False
@@ -34,15 +31,15 @@ def migration():
         postgres_status = postgres_database.migration()
         postgres_database.close_connection()
     if mongo_status and postgres_status: 
-        log.export("Migrations successfully completed", info=True)
+        log.info("Migrations successfully completed")
     else:
-        log.export("Migrations completed not successfully", err=True)
+        log.error("Migrations completed not successfully")
 
 
 @cli.command(help="Rollback database operations.")
 def rollback():
     config = ConfigurationHandler()
-    log.export("Starting rollback...", warn=True)
+    log.info("Starting rollback...")
     uri_mongo = config.uri_mongo
     uri_postgres = config.uri_postgres
     mongo_database = MongoDatabaseFactory().get_database(uri=uri_mongo)
@@ -52,9 +49,9 @@ def rollback():
     postgres_status = postgres_database.rollback()
     postgres_database.close_connection()
     if mongo_status and postgres_status:
-        log.export("Rollback successfully completed", info=True)
+        log.info("Rollback successfully completed")
     else:
-        log.export("Rollback completed not successfully", err=True)
+        log.error("Rollback completed not successfully")
 
 
 if __name__ == "__main__":

@@ -7,7 +7,7 @@ from database.querys.bras.bras import BrasQuery
 from model.bras import BrasModel
 from utils.config import ConfigurationHandler
 from utils.trasform import BrasResponseTrasform
-from utils.log import LogHandler
+from utils.log import log
 
 
 class MongoBrasQuery(BrasQuery):
@@ -29,8 +29,7 @@ class MongoBrasQuery(BrasQuery):
                 database = MongoDatabaseFactory().get_database(uri=config.uri_mongo)
                 self.__database = database
         except Exception as e:
-            log = LogHandler()
-            log.export(f"Failed to connect to MongoDB database. {e}", path=__file__, err=True)
+            log.error(f"Failed to connect to MongoDB database. {e}")
 
     def set_database(self, uri: str) -> None:
         try:
@@ -39,8 +38,7 @@ class MongoBrasQuery(BrasQuery):
             new_database = MongoDatabaseFactory().get_database(uri=uri)
             self.__database = new_database
         except Exception as e:
-            log = LogHandler()
-            log.export(f"Failed to connect to MongoDB database. {e}", path=__file__, err=True)
+            log.error(f"Failed to connect to MongoDB database. {e}")
 
     def close_connection(self) -> None:
         self.__database.close_connection()
@@ -54,8 +52,7 @@ class MongoBrasQuery(BrasQuery):
             else:
                 raise Exception("Database not connected.")
         except Exception as e:
-            log = LogHandler()
-            log.export(f"Failed to create new bras. {e}", path=__file__, err=True)
+            log.error(f"Failed to create new bras. {e}")
             return False
         else:
             return response.acknowledged
@@ -77,8 +74,7 @@ class MongoBrasQuery(BrasQuery):
             else:
                 raise Exception("Database not connected.")
         except Exception as e:
-            log = LogHandler()
-            log.export(f"Failed to get bras. {e}", path=__file__, err=True)
+            log.error(f"Failed to get bras. {e}")
             return None
         
     def get_all_bras(self) -> List[BrasModel]:
@@ -93,6 +89,5 @@ class MongoBrasQuery(BrasQuery):
             else:
                 raise Exception("Database not connected.")
         except Exception as e:
-            log = LogHandler()
-            log.export(f"Failed to get bras. {e}", path=__file__, err=True)
+            log.error(f"Failed to get bras. {e}")
             return []

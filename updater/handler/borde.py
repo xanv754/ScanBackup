@@ -2,7 +2,7 @@ import os
 from typing import List, Tuple
 from datetime import datetime
 from rich.progress import track
-from constants.path import PathConstant
+from constants.path import DataPath
 from constants.group import ModelBordeType, LayerType
 from model.boder import BordeModel
 from model.trafficHistory import TrafficHistoryModel
@@ -10,7 +10,7 @@ from updater.update import UpdaterHandler
 from updater.handler.traffic import TrafficHistoryUpdaterHandler
 from database.querys.borde.mongo import MongoBordeQuery
 from database.querys.borde.postgres import PostgresBordeQuery
-from utils.log import LogHandler
+from utils.log import log
 
 
 class BordeUpdaterHandler(UpdaterHandler):
@@ -19,7 +19,7 @@ class BordeUpdaterHandler(UpdaterHandler):
     def get_data(self, filepath: str | None = None, date: str | None = None) -> List[Tuple[BordeModel, List[TrafficHistoryModel]]]:
         try:
             if not filepath:
-                filepath = PathConstant.SCAN_DATA_BORDER
+                filepath = DataPath.SCAN_DATA_BORDER
             if not os.path.exists(filepath) or not os.path.isdir(filepath):
                 raise FileNotFoundError("Border folder not found.")
             files = [filename for filename in os.listdir(filepath)]
@@ -45,14 +45,12 @@ class BordeUpdaterHandler(UpdaterHandler):
                     else:
                         traffic_border = historyHandler.get_data(filepath=f"{filepath}/{filename}")
                 except Exception as e:
-                    log = LogHandler()
-                    log.export(f"Something went wrong to load data: {filename}. {e}", err=True)
+                    log.error(f"Something went wrong to load data: {filename}. {e}")
                     continue
                 else:
                     data.append((interface_border, traffic_border))
         except Exception as e:
-            log = LogHandler()
-            log.export(f"Failed to data load of Border layer. {e}", err=True)
+            log.error(f"Failed to data load of Border layer. {e}")
             return []
         else:
             return data
@@ -80,12 +78,10 @@ class BordeUpdaterHandler(UpdaterHandler):
                     if not response:
                         raise Exception(f"Failed to insert histories traffic of an interface of Border layer: {interface.name}")
                 except Exception as e:
-                    log = LogHandler()
-                    log.export(f"Failed to insert new interface or histories traffic of Border layer. {e}", err=True)
+                    log.error(f"Failed to insert new interface or histories traffic of Border layer. {e}")
                     continue
         except Exception as e:
-            log = LogHandler()
-            log.export(f"Failed to load data of Border layer. {e}", err=True)
+            log.error(f"Failed to load data of Border layer. {e}")
             failed = True
         finally:
             database.close_connection()
@@ -110,12 +106,10 @@ class BordeUpdaterHandler(UpdaterHandler):
                     if not response:
                         raise Exception(f"Failed to insert histories traffic of an interface of Border layer: {interface.name}")
                 except Exception as e:
-                    log = LogHandler()
-                    log.export(f"Failed to insert new interface or histories traffic of Border layer. {e}", err=True)
+                    log.error(f"Failed to insert new interface or histories traffic of Border layer. {e}")
                     continue
         except Exception as e:
-            log = LogHandler()
-            log.export(f"Failed to load data of Border layer. {e}", err=True)
+            log.error(f"Failed to load data of Border layer. {e}")
             failed = True
         finally:
             database.close_connection()

@@ -7,7 +7,7 @@ from database.libs.product.postgres import PostgresDatabase
 from database.querys.traffic.traffic import TrafficHistoryQuery
 from utils.config import ConfigurationHandler
 from utils.trasform import TrafficHistoryResponseTrasform
-from utils.log import LogHandler
+from utils.log import log
 
 
 class PostgresTrafficHistoryQuery(TrafficHistoryQuery):
@@ -29,8 +29,7 @@ class PostgresTrafficHistoryQuery(TrafficHistoryQuery):
                 database = PostgresDatabaseFactory().get_database(uri=config.uri_postgres)
                 self.__database = database
         except Exception as e:
-            log = LogHandler()
-            log.export(f"Failed to connect to Postgres database. {e}", path=__file__, err=True)
+            log.error(f"Failed to connect to Postgres database. {e}")
 
     def set_database(self, uri: str) -> None:
         """Set the connection database.
@@ -46,8 +45,7 @@ class PostgresTrafficHistoryQuery(TrafficHistoryQuery):
             new_database = PostgresDatabaseFactory().get_database(uri=uri)
             self.__database = new_database
         except Exception as e:
-            log = LogHandler()
-            log.export(f"Failed to connect to Postgres database. {e}", path=__file__, err=True)
+            log.error(f"Failed to connect to Postgres database. {e}")
 
     def new_traffic(self, traffic: List[TrafficHistoryModel]) -> bool:
         try:
@@ -94,8 +92,7 @@ class PostgresTrafficHistoryQuery(TrafficHistoryQuery):
             else:
                 raise Exception("Database not connected.")
         except Exception as e:
-            log = LogHandler()
-            log.export(f"Failed to insert traffic histories. {e}", path=__file__, err=True)
+            log.error(f"Failed to insert traffic histories. {e}")
             return False
         else:
             return total_inserted == total_insert
@@ -127,8 +124,7 @@ class PostgresTrafficHistoryQuery(TrafficHistoryQuery):
             else:
                 raise Exception("Database not connected.")
         except Exception as e:
-            log = LogHandler()
-            log.export(f"Failed to get traffic. {e}", path=__file__, err=True)
+            log.error(f"Failed to get traffic. {e}")
             return None
 
     def get_traffic_interface_by_date(self, id: str, date: str) -> List[TrafficHistoryModel]:
@@ -156,8 +152,7 @@ class PostgresTrafficHistoryQuery(TrafficHistoryQuery):
             else:
                 raise Exception("Database not connected.")
         except Exception as e:
-            log = LogHandler()
-            log.export(f"Failed to get traffic. {e}", path=__file__, err=True)
+            log.error(f"Failed to get traffic. {e}")
             return []
         
     def get_traffic_layer_by_date(self, layer_type: str, date: str) -> List[TrafficHistoryModel]:
@@ -185,8 +180,7 @@ class PostgresTrafficHistoryQuery(TrafficHistoryQuery):
             else:
                 raise Exception("Database not connected.")
         except Exception as e:
-            log = LogHandler()
-            log.export(f"Failed to get traffic. {e}", path=__file__, err=True)
+            log.error(f"Failed to get traffic. {e}")
             return []
         
     def get_traffic_by_date(self, date: str) -> List[TrafficHistoryModel]:
@@ -212,8 +206,7 @@ class PostgresTrafficHistoryQuery(TrafficHistoryQuery):
             else:
                 raise Exception("Database not connected.")
         except Exception as e:
-            log = LogHandler()
-            log.export(f"Failed to get traffic. {e}", path=__file__, err=True)
+            log.error(f"Failed to get traffic. {e}")
             return []
         
     def get_traffic_layer_by_month(self, layer_type, month):
@@ -241,6 +234,5 @@ class PostgresTrafficHistoryQuery(TrafficHistoryQuery):
             else:
                 raise Exception("Database not connected.")
         except Exception as e:
-            log = LogHandler()
-            log.export(f"Failed to get traffic. {e}", path=__file__, err=True)
+            log.error(f"Failed to get traffic. {e}")
             return []
