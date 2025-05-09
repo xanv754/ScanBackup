@@ -77,7 +77,7 @@ class TestMongoTrafficHandler(unittest.TestCase):
         self.test_database.insert(table=LayerTypeTest.TRAFFIC_HISTORY, data=self.test_traffic.model_dump())
 
         trafficHandler = TrafficHandler()
-        data_traffic = trafficHandler.get_traffic_layer_by_date(
+        data_traffic = trafficHandler.get_traffic_layer_by_thirty_days_before(
             layer_type=self.test_traffic.typeLayer,
             date=self.test_traffic.date
         )
