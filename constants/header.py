@@ -8,11 +8,12 @@ class HeaderConstant:
     IN_MAX = "InMax"
     OUT_MAX = "OutMax"
 
-
-class HeaderTrafficDataFrameConstant:
+class HeaderDataFrameConstant:
     """Header of the traffic dataframe."""
-
-    NAME = "interface"
+    ID = "id"
+    NAME = "name"
+    MODEL = "model"
+    INTERFACE = "interface"
     CAPACITY = "capacity"
     DATE = "date"
     TIME = "time"
@@ -22,7 +23,25 @@ class HeaderTrafficDataFrameConstant:
     OUT_PROM = "outProm"
     IN_MAX = "inMax"
     OUT_MAX = "outMax"
-    USE = "use (%)"
+    TYPE = "type"
+    SERVICE = "service"
+    CREATE_AT = "createAt"
+
+
+# class HeaderDataFrameConstant:
+#     """Header of the traffic dataframe."""
+
+#     NAME = "interface"
+#     CAPACITY = "capacity"
+#     DATE = "date"
+#     TIME = "time"
+#     ID_LAYER = "idLayer"
+#     TYPE_LAYER = "typeLayer"
+#     IN_PROM = "inProm"
+#     OUT_PROM = "outProm"
+#     IN_MAX = "inMax"
+#     OUT_MAX = "outMax"
+#     USE = "use (%)"
 
 
 class HeaderBordeDataFrameConstant:
@@ -62,3 +81,27 @@ class HeaderRaiDataFrameConstant:
     NAME = "name"
     CAPACITY = "capacity"
     CREATE_AT = "createAt"
+
+
+class HeaderSummaryDataFrameConstant:
+    """Header of the summary dataframe."""
+
+    INTERFACE = "interface"
+    CAPACITY = "capacity"
+    TYPE = "type"
+    IN_PROM = "inProm"
+    OUT_PROM = "outProm"
+    IN_MAX_PROM = "inMaxProm"
+    OUT_MAX_PROM = "outMaxProm"
+    USE = "use (%)"
+
+
+header_summary = [
+    HeaderSummaryDataFrameConstant.INTERFACE,
+    HeaderSummaryDataFrameConstant.CAPACITY,
+    HeaderSummaryDataFrameConstant.IN_PROM,
+    HeaderSummaryDataFrameConstant.OUT_PROM,
+    HeaderSummaryDataFrameConstant.IN_MAX_PROM,
+    HeaderSummaryDataFrameConstant.OUT_MAX_PROM,
+    HeaderSummaryDataFrameConstant.USE
+]

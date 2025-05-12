@@ -18,11 +18,6 @@ class BrasQuery(ABC):
         pass
 
     @abstractmethod
-    def close_connection(self) -> None:
-        """Close the connection to the database."""
-        pass
-
-    @abstractmethod
     def new_bras(self, new: BrasModel) -> bool:
         """Register new bras.
 

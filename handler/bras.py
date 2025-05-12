@@ -2,7 +2,7 @@ import pandas as pd
 from constants.header import HeaderBrasDataFrameConstant
 from database.querys.bras.bras import BrasQuery
 from database.querys.bras.mongo import MongoBrasQuery
-from database.querys.bras.postgres import PostgresBrasQuery
+# from database.querys.bras.postgres import PostgresBrasQuery
 from utils.log import log
 
 
@@ -17,8 +17,8 @@ class BrasHandler:
                 self.__initialized = True
                 if not db_backup: 
                     self.bras_query = MongoBrasQuery()
-                else: 
-                    self.bras_query = PostgresBrasQuery()
+                # else: 
+                #     self.bras_query = PostgresBrasQuery()
         except Exception as e:
             log.export(f"Bras handler. Failed connecting to the database. {e}")
             self.__error_connection = True

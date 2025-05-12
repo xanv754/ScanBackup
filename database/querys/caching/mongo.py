@@ -13,23 +13,17 @@ from utils.log import log
 class MongoCachingQuery(CachingQuery):
     """Mongo query class for caching table."""
 
-    __instance: "MongoCachingQuery | None" = None
     __database: MongoDatabase
-
-    def __new__(cls) -> "MongoCachingQuery":
-        if not cls.__instance:
-            cls.__instance = super(MongoCachingQuery, cls).__new__(cls)
-        return cls.__instance
 
     def __init__(self):
         try:
-            if not hasattr(self, "__initialized"):
-                self.__initialized = True
-                config = ConfigurationHandler()
-                database = MongoDatabaseFactory().get_database(uri=config.uri_mongo)
-                self.__database = database
+            config = ConfigurationHandler()
+            factory = MongoDatabaseFactory()
+            database = factory.get_database(uri=config.uri_mongo)
+            self.__database = database
         except Exception as e:
             log.error(f"Failed to connect to MongoDB database. {e}")
+
 
     def set_database(self, uri: str) -> None:
         try:
@@ -40,49 +34,47 @@ class MongoCachingQuery(CachingQuery):
         except Exception as e:
             log.error(f"Failed to connect to MongoDB database. {e}")
 
-    def close_connection(self) -> None:
-        self.__database.close_connection()
-
     def new_interface(self, new: CachingModel) -> bool:
         try:
+            status_insert = False
+            self.__database.open_connection()
             if self.__database.connected:
                 collection = self.__database.get_cursor(table=TableNameDatabase.CACHING)
                 data = new.model_dump(exclude={CachingFieldDatabase.ID})
                 response = collection.insert_one(data)
-            else:
-                raise Exception("Database not connected.")
+                status_insert = response.acknowledged
+                self.__database.close_connection()
+            return status_insert
         except Exception as e:
             log.error(f"Failed to create new interface. {e}")
             return False
-        else:
-            return response.acknowledged
 
     def get_interface(self, name: str) -> CachingModel | None:
         try:
+            interface: CachingModel | None = None
+            self.__database.open_connection()
             if self.__database.connected:
                 collection = self.__database.get_cursor(table=TableNameDatabase.CACHING)
                 result = collection.find_one({CachingFieldDatabase.NAME: name})
                 if result:
                     data = CachingResponseTrasform.default_model_mongo([result])
-                    if data: return data[0]
-                return None
-            else:
-                raise Exception("Database not connected.")
+                    if data: interface = data[0]
+                self.__database.close_connection()
+            return interface
         except Exception as e:
             log.error(f"Failed to get interface. {e}")
             return None
 
     def get_interfaces(self) -> List[CachingModel]:
         try:
+            interfaces: List[CachingModel] = []
+            self.__database.open_connection()
             if self.__database.connected:
                 collection = self.__database.get_cursor(table=TableNameDatabase.CACHING)
                 result = collection.find()
-                data: List[CachingModel] = []
-                if result:
-                    data = CachingResponseTrasform.default_model_mongo(result)
-                return data
-            else:
-                raise Exception("Database not connected.")
+                if result: interfaces = CachingResponseTrasform.default_model_mongo(result)
+                self.__database.close_connection()
+            return interfaces
         except Exception as e:
             log.error(f"Failed to get all interfaces. {e}")
             return []

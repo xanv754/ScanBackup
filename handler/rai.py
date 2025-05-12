@@ -2,7 +2,7 @@ import pandas as pd
 from constants.header import HeaderRaiDataFrameConstant
 from database.querys.rai.rai import RaiQuery
 from database.querys.rai.mongo import MongoRaiQuery
-from database.querys.rai.postgres import PostgresRaiQuery
+# from database.querys.rai.postgres import PostgresRaiQuery
 from utils.log import log
 
 
@@ -18,8 +18,8 @@ class RaiHandler:
                 self.__initialized = True
                 if not db_backup: 
                     self.rai_query = MongoRaiQuery()
-                else: 
-                    self.rai_query = PostgresRaiQuery()
+                # else: 
+                #     self.rai_query = PostgresRaiQuery()
         except Exception as e:
             log.error(f"Rai handler. Failed connecting to the database. {e}")
             self.__error_connection = True

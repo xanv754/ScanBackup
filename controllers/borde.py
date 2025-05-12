@@ -1,6 +1,7 @@
 from datetime import datetime
 from constants.group import LayerType
 from handler.traffic import TrafficHandler
+from utils.calculate import calculate
 
 
 class BordeController:
@@ -12,6 +13,8 @@ class BordeController:
         traffic = TrafficHandler()
         data = traffic.get_traffic_layer_by_thirty_days_before(layer_type=LayerType.BORDE, date=date)
         print(data)
+        # df_summary = calculate(data)
+        # print(df_summary)
 
 
 if __name__ == "__main__":

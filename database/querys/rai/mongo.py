@@ -13,21 +13,14 @@ from utils.log import log
 class MongoRaiQuery(RaiQuery):
     """Mongo query class for rai table."""
 
-    __instance: "MongoRaiQuery | None" = None
     __database: MongoDatabase
-
-    def __new__(cls) -> "MongoRaiQuery":
-        if not cls.__instance:
-            cls.__instance = super(MongoRaiQuery, cls).__new__(cls)
-        return cls.__instance
 
     def __init__(self):
         try:
-            if not hasattr(self, "__initialized"):
-                self.__initialized = True
-                config = ConfigurationHandler()
-                database = MongoDatabaseFactory().get_database(uri=config.uri_mongo)
-                self.__database = database
+            config = ConfigurationHandler()
+            factory = MongoDatabaseFactory()
+            database = factory.get_database(uri=config.uri_mongo)
+            self.__database = database
         except Exception as e:
             log.error(f"Failed to connect to MongoDB database. {e}")
 
@@ -40,49 +33,48 @@ class MongoRaiQuery(RaiQuery):
         except Exception as e:
             log.error(f"Failed to connect to MongoDB database. {e}")
 
-    def close_connection(self) -> None:
-        self.__database.close_connection()
-
     def new_interface(self, new: RaiModel) -> bool:
         try:
+            status_insert = False
+            self.__database.open_connection()
             if self.__database.connected:
                 collection = self.__database.get_cursor(table=TableNameDatabase.RAI)
                 data = new.model_dump(exclude={RaiFieldDatabase.ID})
                 response = collection.insert_one(data)
-            else:
-                raise Exception("Database not connected.")
+                status_insert = response.acknowledged
+                self.__database.close_connection()
+            return status_insert
         except Exception as e:
             log.error(f"Failed to create new interface. {e}")
             return False
-        else:
-            return response.acknowledged
 
     def get_interface(self, name: str) -> RaiModel | None:
         try:
+            interface: RaiModel | None = None
+            self.__database.open_connection()
             if self.__database.connected:
                 collection = self.__database.get_cursor(table=TableNameDatabase.RAI)
                 result = collection.find_one({RaiFieldDatabase.NAME: name})
+                self.__database.close_connection()
                 if result:
                     data = RaiResponseTrasform.default_model_mongo([result])
-                    if data: return data[0]
-                return None
-            else:
-                raise Exception("Database not connected.")
+                    if data: interface = data[0]
+                self.__database.close_connection()
+            return interface
         except Exception as e:
             log.error(f"Failed to get interface. {e}")
             return None
 
     def get_interfaces(self) -> List[RaiModel]:
         try:
+            interfaces: List[RaiModel] = []
+            self.__database.open_connection()
             if self.__database.connected:
                 collection = self.__database.get_cursor(table=TableNameDatabase.RAI)
                 result = collection.find()
-                data: List[RaiModel] = []
-                if result:
-                    data = RaiResponseTrasform.default_model_mongo(result)
-                return data
-            else:
-                raise Exception("Database not connected.")
+                if result: interfaces = RaiResponseTrasform.default_model_mongo(result)
+                self.__database.close_connection()
+            return interfaces
         except Exception as e:
             log.error(f"Failed to get all interfaces. {e}")
             return []

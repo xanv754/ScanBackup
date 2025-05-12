@@ -2,7 +2,7 @@ import pandas as pd
 from constants.header import HeaderCachingDataFrameConstant
 from database.querys.caching.caching import CachingQuery
 from database.querys.caching.mongo import MongoCachingQuery
-from database.querys.caching.postgres import PostgresCachingQuery
+# from database.querys.caching.postgres import PostgresCachingQuery
 from utils.log import log
 
 
@@ -18,8 +18,8 @@ class CachingHandler:
                 self.__initialized = True
                 if not db_backup: 
                     self.caching_query = MongoCachingQuery()
-                else: 
-                    self.caching_query = PostgresCachingQuery()
+                # else: 
+                #     self.caching_query = PostgresCachingQuery()
         except Exception as e:
             log.error(f"Caching handler. Failed connecting to the database. {e}")
             self.__error_connection = True

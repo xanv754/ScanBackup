@@ -18,11 +18,6 @@ class RaiQuery(ABC):
         pass
 
     @abstractmethod
-    def close_connection(self) -> None:
-        """Close the connection to the database."""
-        pass
-
-    @abstractmethod
     def new_interface(self, new: RaiModel) -> bool:
         """Register new interface.
 

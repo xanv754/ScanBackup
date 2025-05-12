@@ -13,6 +13,11 @@ class Database(ABC):
         pass
 
     @abstractmethod
+    def open_connection(self):
+        """Open a connection to the database."""
+        pass
+
+    @abstractmethod
     def close_connection(self):
         """Close the connection to the database."""
         pass

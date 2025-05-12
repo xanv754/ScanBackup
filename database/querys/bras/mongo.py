@@ -13,23 +13,17 @@ from utils.log import log
 class MongoBrasQuery(BrasQuery):
     """Mongo query class for bras table."""
 
-    __instance: "MongoBrasQuery | None" = None
     __database: MongoDatabase
-
-    def __new__(cls) -> "MongoBrasQuery":
-        if not cls.__instance:
-            cls.__instance = super(MongoBrasQuery, cls).__new__(cls)
-        return cls.__instance
 
     def __init__(self):
         try:
-            if not hasattr(self, "__initialized"):
-                self.__initialized = True
                 config = ConfigurationHandler()
-                database = MongoDatabaseFactory().get_database(uri=config.uri_mongo)
+                factory = MongoDatabaseFactory()
+                database = factory.get_database(uri=config.uri_mongo)
                 self.__database = database
         except Exception as e:
             log.error(f"Failed to connect to MongoDB database. {e}")
+
 
     def set_database(self, uri: str) -> None:
         try:
@@ -40,54 +34,50 @@ class MongoBrasQuery(BrasQuery):
         except Exception as e:
             log.error(f"Failed to connect to MongoDB database. {e}")
 
-    def close_connection(self) -> None:
-        self.__database.close_connection()
-
     def new_bras(self, new: BrasModel) -> bool:
         try:
+            status_insert = False
+            self.__database.open_connection()
             if self.__database.connected:
                 collection = self.__database.get_cursor(table=TableNameDatabase.BRAS)
                 data = new.model_dump(exclude={BrasFieldDatabase.ID})
                 response = collection.insert_one(data)
-            else:
-                raise Exception("Database not connected.")
+                status_insert = response.acknowledged
+                self.__database.close_connection()
+            return status_insert
         except Exception as e:
             log.error(f"Failed to create new bras. {e}")
             return False
-        else:
-            return response.acknowledged
 
     def get_bras(self, brasname: str, type: str) -> BrasModel | None:
         try:
+            interface: BrasModel | None = None
+            self.__database.open_connection()
             if self.__database.connected:
                 collection = self.__database.get_cursor(table=TableNameDatabase.BRAS)
-                result = collection.find_one(
-                    {
-                        BrasFieldDatabase.NAME: brasname,
-                        BrasFieldDatabase.TYPE: type
-                    }
-                )
+                result = collection.find_one({
+                    BrasFieldDatabase.NAME: brasname,
+                    BrasFieldDatabase.TYPE: type
+                })
                 if result:
                     data = BrasResponseTrasform.default_model_mongo([result])
-                    if data: return data[0]
-                return None
-            else:
-                raise Exception("Database not connected.")
+                    if data: interface = data[0]
+                self.__database.close_connection()
+            return interface
         except Exception as e:
             log.error(f"Failed to get bras. {e}")
             return None
         
     def get_all_bras(self) -> List[BrasModel]:
         try:
+            interfaces: List[BrasModel] = []
+            self.__database.open_connection()
             if self.__database.connected:
                 collection = self.__database.get_cursor(table=TableNameDatabase.BRAS)
                 result = collection.find()
-                data: List[BrasModel] = []
-                if result:
-                    data = BrasResponseTrasform.default_model_mongo(result) 
-                return data
-            else:
-                raise Exception("Database not connected.")
+                if result: interfaces = BrasResponseTrasform.default_model_mongo(result) 
+                self.__database.close_connection()
+            return interfaces
         except Exception as e:
             log.error(f"Failed to get bras. {e}")
             return []

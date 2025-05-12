@@ -2,7 +2,7 @@ import pandas as pd
 from constants.header import HeaderBordeDataFrameConstant
 from database.querys.borde.borde import BordeQuery
 from database.querys.borde.mongo import MongoBordeQuery
-from database.querys.borde.postgres import PostgresBordeQuery
+# from database.querys.borde.postgres import PostgresBordeQuery
 from utils.log import log
 
 
@@ -14,12 +14,10 @@ class BordeHandler:
 
     def __init__(self, db_backup: bool = False):
         try:
-            if not hasattr(self, "__initialized"):
-                self.__initialized = True
-                if not db_backup: 
-                    self.borde_query = MongoBordeQuery()
-                else: 
-                    self.borde_query = PostgresBordeQuery()
+            if not db_backup: 
+                self.borde_query = MongoBordeQuery()
+            # else: 
+            #     self.borde_query = PostgresBordeQuery()
         except Exception as e:
             log.error(f"Borde handler. Failed connecting to the database. {e}")
             self.__error_connection = True

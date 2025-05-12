@@ -13,31 +13,34 @@ from utils.log import log
 class MongoDatabase(Database):
     __client: MongoClient
     __connection: MongoClient
+    __uri: str
     connected: bool = False
 
     def __init__(self, uri: str) -> "MongoDatabase":
-        try:
-            self.__client = MongoClient(uri)
-            name_db = uri.split("/")[-1]
-            self.__connection = self.__client[name_db]
-        except Exception as e:
-            log.error(f"Failed to connect to MongoDB database. {e}")
-        else:
-            self.connected = True
+        self.__uri = uri
 
     def __check_collection(self, name: str) -> bool:
         """Check if the collection exists."""
         collection_list = self.__connection.list_collection_names()
         return name in collection_list
+    
+    def open_connection(self) -> None:
+        try:
+            self.__client = MongoClient(self.__uri)
+            name_db = self.__uri.split("/")[-1]
+            self.__connection = self.__client[name_db]
+        except Exception as e:
+            log.error(f"Failed to connect to MongoDB database. {e}")
+            self.connected = False
+        else:
+            self.connected = True
 
     def get_connection(self) -> MongoClient:
         return self.__connection
 
     def get_cursor(self, table: str | None = None) -> Collection:
-        if table:
-            return self.__connection[table]
-        else:
-            return self.__connection.get_default_collection()
+        if table: return self.__connection[table]
+        else: return self.__connection.get_default_collection()
 
     def close_connection(self) -> None:
         self.__client.close()
