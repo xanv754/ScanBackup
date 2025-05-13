@@ -1,6 +1,6 @@
 from typing import List
 from abc import ABC, abstractmethod
-from model.rai import RaiModel
+from model import RaiModel
 
 
 class RaiQuery(ABC):

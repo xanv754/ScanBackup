@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 
+
 class LayerModel(BaseModel):
     """Layer data model."""
     

@@ -1,5 +1,4 @@
-from database.constant.fields import TrafficHistoryFieldDatabase
-from database.constant.tables import TableNameDatabase
+from database import TableNameDatabase, TrafficHistoryFieldDatabase
 
 
 TRAFFIC_HISTORY_SCHEMA = f"""

@@ -1,6 +1,6 @@
 import os
 from dotenv import load_dotenv, dotenv_values
-from utils.log import log
+from utils import log
 
 
 load_dotenv(override=True)

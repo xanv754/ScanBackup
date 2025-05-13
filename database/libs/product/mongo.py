@@ -1,14 +1,16 @@
 from pymongo import MongoClient
 from pymongo.collection import Collection
-from database.constant.tables import TableNameDatabase
-from database.libs.product.database import Database
-from database.schemas.mongo.borde import BORDE_SCHEMA
-from database.schemas.mongo.bras import BRAS_SCHEMA
-from database.schemas.mongo.caching import CACHING_SCHEMA
-from database.schemas.mongo.rai import RAI_SCHEMA
-from database.schemas.mongo.trafficHistory import TRAFFIC_HISTORY_SCHEMA
-from database.schemas.mongo.ipHistory import IP_HISTORY_SCHEMA
-from utils.log import log
+from database import (
+    TableNameDatabase,
+    Database,
+    BORDE_SCHEMA_MONGO,
+    BRAS_SCHEMA_MONGO,
+    CACHING_SCHEMA_MONGO,
+    RAI_SCHEMA_MONGO,
+    TRAFFIC_HISTORY_SCHEMA_MONGO,
+    IP_HISTORY_SCHEMA_MONGO
+)
+from utils import log
 
 class MongoDatabase(Database):
     __client: MongoClient
@@ -52,32 +54,32 @@ class MongoDatabase(Database):
             if not self.__check_collection(TableNameDatabase.BORDE):
                 self.__connection.create_collection(
                     TableNameDatabase.BORDE,
-                    validator=BORDE_SCHEMA
+                    validator=BORDE_SCHEMA_MONGO
                 )
             if not self.__check_collection(TableNameDatabase.BRAS):
                 self.__connection.create_collection(
                     TableNameDatabase.BRAS,
-                    validator=BRAS_SCHEMA
+                    validator=BRAS_SCHEMA_MONGO
                 )
             if not self.__check_collection(TableNameDatabase.CACHING):
                 self.__connection.create_collection(
                     TableNameDatabase.CACHING,
-                    validator=CACHING_SCHEMA
+                    validator=CACHING_SCHEMA_MONGO
                 )
             if not self.__check_collection(TableNameDatabase.RAI):
                 self.__connection.create_collection(
                     TableNameDatabase.RAI,
-                    validator=RAI_SCHEMA
+                    validator=RAI_SCHEMA_MONGO
                 )
             if not self.__check_collection(TableNameDatabase.TRAFFIC_HISTORY):
                 self.__connection.create_collection(
                     TableNameDatabase.TRAFFIC_HISTORY,
-                    validator=TRAFFIC_HISTORY_SCHEMA
+                    validator=TRAFFIC_HISTORY_SCHEMA_MONGO
                 )
             if not self.__check_collection(TableNameDatabase.IP_HISTORY):
                 self.__connection.create_collection(
                     TableNameDatabase.IP_HISTORY,
-                    validator=IP_HISTORY_SCHEMA
+                    validator=IP_HISTORY_SCHEMA_MONGO
                 )
             self.close_connection()
         except Exception as e:

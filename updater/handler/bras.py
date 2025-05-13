@@ -1,12 +1,11 @@
 import os
 from typing import List, Tuple
 from datetime import datetime
-from constants.path import DataPath
-from constants.group import BrasType, LayerType
+from constants import BrasType, LayerType, DataPath
 from database import MongoBrasQuery, PostgresBrasQuery
 from model import BrasModel, TrafficHistoryModel
 from updater import UpdaterHandler, TrafficHistoryUpdaterHandler
-from utils.log import log
+from utils import log
 
 
 class BrasUpdaterHandler(UpdaterHandler):
@@ -14,8 +13,7 @@ class BrasUpdaterHandler(UpdaterHandler):
 
     def get_data(self, filepath: str | None = None, date: str | None = None) -> List[Tuple[BrasModel, List[TrafficHistoryModel]]]:
         try:
-            if not filepath:
-                filepath = DataPath.SCAN_DATA_BRAS
+            if not filepath: filepath = DataPath.SCAN_DATA_BRAS
             if not os.path.exists(filepath) or not os.path.isdir(filepath):
                 raise FileNotFoundError("Bras folder not found.")
             files = [filename for filename in os.listdir(filepath)]
@@ -23,10 +21,8 @@ class BrasUpdaterHandler(UpdaterHandler):
             for filename in files:
                 try:
                     type_interface = filename.split("%")[0]
-                    if "UP" in type_interface:
-                        type_interface = BrasType.UPLINK
-                    elif "DOWN" in type_interface:
-                        type_interface = BrasType.DOWNLINK
+                    if "UP" in type_interface: type_interface = BrasType.UPLINK
+                    elif "DOWN" in type_interface: type_interface = BrasType.DOWNLINK
                     brasname = filename.split("%")[1]
                     capacity = int(filename.split("%")[2])
                     bras = BrasModel(

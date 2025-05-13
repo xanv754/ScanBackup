@@ -1,4 +1,5 @@
-from database.constant.fields import RaiFieldDatabase
+from database import RaiFieldDatabase
+
 
 RAI_SCHEMA ={
     "$jsonSchema": {

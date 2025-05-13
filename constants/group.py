@@ -1,4 +1,4 @@
-from database.constant.tables import TableNameDatabase
+from database import TableNameDatabase
 
 
 class ModelBordeType:

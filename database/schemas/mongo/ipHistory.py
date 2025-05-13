@@ -1,4 +1,5 @@
-from database.constant.fields import IPHistoryFieldDatabase
+from database import IPHistoryFieldDatabase
+
 
 IP_HISTORY_SCHEMA ={
     "$jsonSchema": {

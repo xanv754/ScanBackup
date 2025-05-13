@@ -1,4 +1,5 @@
-from constants.group import LayerType
+from constants import LayerType
+
 
 class Validate:
     """Class to validate parameters."""

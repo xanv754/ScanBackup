@@ -1,5 +1,4 @@
-from database.constant.fields import IPHistoryFieldDatabase
-from database.constant.tables import TableNameDatabase
+from database import IPHistoryFieldDatabase, TableNameDatabase
 
 
 IP_HISTORY_SCHEMA = f"""

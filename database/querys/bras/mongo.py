@@ -1,13 +1,13 @@
 from typing import List
-from database.constant.tables import TableNameDatabase
-from database.constant.fields import BrasFieldDatabase
-from database.libs.factory.mongo import MongoDatabaseFactory
-from database.libs.product.mongo import MongoDatabase
-from database.querys.bras.bras import BrasQuery
-from model.bras import BrasModel
-from utils.config import ConfigurationHandler
-from utils.trasform import BrasResponseTrasform
-from utils.log import log
+from database import (
+    TableNameDatabase,
+    BrasFieldDatabase,
+    MongoDatabaseFactory,
+    MongoDatabase,
+    BrasQuery
+)
+from model import BrasModel
+from utils import ConfigurationHandler, BrasResponseTrasform, log
 
 
 class MongoBrasQuery(BrasQuery):

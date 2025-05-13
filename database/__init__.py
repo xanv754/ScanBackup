@@ -7,6 +7,22 @@ from database.constant.fields import (
     TrafficHistoryFieldDatabase,
     IPHistoryFieldDatabase
 )
+from database.schemas.mongo.borde import BORDE_SCHEMA as BORDE_SCHEMA_MONGO
+from database.schemas.mongo.bras import BRAS_SCHEMA as BRAS_SCHEMA_MONGO
+from database.schemas.mongo.caching import CACHING_SCHEMA as CACHING_SCHEMA_MONGO
+from database.schemas.mongo.rai import RAI_SCHEMA as RAI_SCHEMA_MONGO
+from database.schemas.mongo.trafficHistory import TRAFFIC_HISTORY_SCHEMA as TRAFFIC_HISTORY_SCHEMA_MONGO
+from database.schemas.mongo.ipHistory import IP_HISTORY_SCHEMA as IP_HISTORY_SCHEMA_MONGO
+from database.schemas.postgres.borde import BORDE_SECUENCE_SCHEMA as BORDE_SECUENCE_SCHEMA_POSTGRES
+from database.schemas.postgres.borde import BORDE_SCHEMA as BORDE_SCHEMA_POSTGRES
+from database.schemas.postgres.bras import BRAS_SECUENCE_SCHEMA as BRAS_SECUENCE_SCHEMA_POSTGRES
+from database.schemas.postgres.bras import BRAS_SCHEMA as BRAS_SCHEMA_POSTGRES
+from database.schemas.postgres.caching import CACHING_SECUENCE_SCHEMA as CACHING_SECUENCE_SCHEMA_POSTGRES
+from database.schemas.postgres.caching import CACHING_SCHEMA as CACHING_SCHEMA_POSTGRES
+from database.schemas.postgres.rai import RAI_SECUENCE_SCHEMA as RAI_SECUENCE_SCHEMA_POSTGRES
+from database.schemas.postgres.rai import RAI_SCHEMA as RAI_SCHEMA_POSTGRES
+from database.schemas.postgres.trafficHistory import TRAFFIC_HISTORY_SCHEMA as TRAFFIC_HISTORY_SCHEMA_POSTGRES
+from database.schemas.postgres.ipHistory import IP_HISTORY_SCHEMA as IP_HISTORY_SCHEMA_POSTGRES
 from database.libs.product.database import Database
 from database.libs.product.mongo import MongoDatabase
 from database.libs.product.postgres import PostgresDatabase

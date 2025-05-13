@@ -1,12 +1,11 @@
 import os
 from typing import List, Tuple
 from datetime import datetime
-from constants.path import DataPath
-from constants.group import ModelBordeType, LayerType
+from constants import ModelBordeType, LayerType, DataPath
 from database import MongoBordeQuery, PostgresBordeQuery
 from model import BordeModel, TrafficHistoryModel
 from updater import UpdaterHandler, TrafficHistoryUpdaterHandler
-from utils.log import log
+from utils import log
 
 
 class BordeUpdaterHandler(UpdaterHandler):
@@ -14,18 +13,15 @@ class BordeUpdaterHandler(UpdaterHandler):
 
     def get_data(self, filepath: str | None = None, date: str | None = None) -> List[Tuple[BordeModel, List[TrafficHistoryModel]]]:
         try:
-            if not filepath:
-                filepath = DataPath.SCAN_DATA_BORDER
+            if not filepath: filepath = DataPath.SCAN_DATA_BORDER
             if not os.path.exists(filepath) or not os.path.isdir(filepath):
                 raise FileNotFoundError("Border folder not found.")
             files = [filename for filename in os.listdir(filepath)]
             data: List[Tuple[BordeModel, List[TrafficHistoryModel]]] = []
             for filename in files:
                 try:
-                    if filename.split("%")[0] == ModelBordeType.CISCO:
-                        model = ModelBordeType.CISCO
-                    else:
-                        model = ModelBordeType.HUAWEI
+                    if filename.split("%")[0] == ModelBordeType.CISCO: model = ModelBordeType.CISCO
+                    else: model = ModelBordeType.HUAWEI
                     interface = filename.split("%")[1]
                     capacity = int(filename.split("%")[2])
                     interface_border = BordeModel(

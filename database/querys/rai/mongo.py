@@ -7,9 +7,7 @@ from database import (
     RaiQuery
 )
 from model import RaiModel
-from utils.config import ConfigurationHandler
-from utils.trasform import RaiResponseTrasform
-from utils.log import log
+from utils import ConfigurationHandler, RaiResponseTrasform, log
 
 
 class MongoRaiQuery(RaiQuery):

@@ -7,9 +7,7 @@ from database import (
     TrafficHistoryQuery
 )
 from model import TrafficHistoryModel
-from utils.config import ConfigurationHandler
-from utils.trasform import TrafficHistoryResponseTrasform
-from utils.log import log
+from utils import ConfigurationHandler, TrafficHistoryResponseTrasform, log
 
 
 class MongoTrafficHistoryQuery(TrafficHistoryQuery):

@@ -3,7 +3,7 @@ from datetime import datetime
 from database import MongoTrafficHistoryQuery, PostgresTrafficHistoryQuery
 from model import TrafficHistoryModel
 from updater import UpdaterHandler
-from utils.log import log
+from utils import log
 
 
 class TrafficHistoryUpdaterHandler(UpdaterHandler):
@@ -13,8 +13,7 @@ class TrafficHistoryUpdaterHandler(UpdaterHandler):
         try:
             if filepath:
                 traffic: List[TrafficHistoryModel] = []
-                if not date:
-                    date = datetime.now().strftime("%Y-%m-%d")
+                if not date: date = datetime.now().strftime("%Y-%m-%d")
                 with open(filepath, "r") as file:
                     lines = file.readlines()
                     for line in lines[1:]:

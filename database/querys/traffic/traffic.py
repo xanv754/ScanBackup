@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import List
-from model.trafficHistory import TrafficHistoryModel
+from model import TrafficHistoryModel
 
 
 class TrafficHistoryQuery(ABC):
@@ -41,7 +41,7 @@ class TrafficHistoryQuery(ABC):
         pass
 
     @abstractmethod
-    def get_traffic_layer_by_date(self, layer_type: str, interface_name: str, date: str) -> List[TrafficHistoryModel]:
+    def get_traffic_layer_by_date(self, layer_type: str, date: str) -> List[TrafficHistoryModel]:
         """Get all traffic history of a layer by a date.
 
         Parameters

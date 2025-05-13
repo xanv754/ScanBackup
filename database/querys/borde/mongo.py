@@ -7,9 +7,7 @@ from database import (
     BordeQuery
 )
 from model import BordeModel
-from utils.config import ConfigurationHandler
-from utils.trasform import BordeResponseTrasform
-from utils.log import log
+from utils import ConfigurationHandler, BordeResponseTrasform, log
 
 
 class MongoBordeQuery(BordeQuery):

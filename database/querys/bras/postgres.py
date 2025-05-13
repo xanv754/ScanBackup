@@ -7,9 +7,7 @@ from database import (
     BrasQuery
 )
 from model import BrasModel
-from utils.config import ConfigurationHandler
-from utils.trasform import BrasResponseTrasform
-from utils.log import log
+from utils import ConfigurationHandler, BrasResponseTrasform, log
 
 
 class PostgresBrasQuery(BrasQuery):

@@ -1,6 +1,5 @@
-from constants.group import ModelBordeType
-from database.constant.fields import BordeFieldDatabase
-from database.constant.tables import TableNameDatabase
+from constants import ModelBordeType
+from database import TableNameDatabase, BordeFieldDatabase
 
 
 BORDE_SECUENCE_SCHEMA = f"""

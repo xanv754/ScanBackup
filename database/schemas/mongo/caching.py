@@ -1,4 +1,5 @@
-from database.constant.fields import CachingFieldDatabase
+from database import CachingFieldDatabase
+
 
 CACHING_SCHEMA ={
     "$jsonSchema": {

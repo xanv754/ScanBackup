@@ -1,5 +1,4 @@
-from database.constant.fields import CachingFieldDatabase
-from database.constant.tables import TableNameDatabase
+from database import TableNameDatabase, CachingFieldDatabase
 
 
 CACHING_SECUENCE_SCHEMA = f"""

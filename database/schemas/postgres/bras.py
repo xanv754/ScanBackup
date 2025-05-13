@@ -1,6 +1,5 @@
-from constants.group import BrasType
-from database.constant.fields import BrasFieldDatabase
-from database.constant.tables import TableNameDatabase
+from constants import BrasType
+from database import TableNameDatabase, BrasFieldDatabase
 
 
 BRAS_SECUENCE_SCHEMA = f"""

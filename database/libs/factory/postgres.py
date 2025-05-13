@@ -1,5 +1,5 @@
 from database import DatabaseFactory, PostgresDatabase
-from utils.log import log
+from utils import log
 
 
 class PostgresDatabaseFactory(DatabaseFactory):

@@ -1,4 +1,4 @@
-from model.layer import LayerModel
+from model import LayerModel
 
 class BrasModel(LayerModel):
     """Bras data model."""

@@ -1,4 +1,5 @@
-from database.constant.fields import TrafficHistoryFieldDatabase
+from database import TrafficHistoryFieldDatabase
+
 
 TRAFFIC_HISTORY_SCHEMA ={
     "$jsonSchema": {

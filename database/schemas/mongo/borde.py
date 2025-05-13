@@ -1,4 +1,5 @@
-from database.constant.fields import BordeFieldDatabase
+from database import BordeFieldDatabase
+
 
 BORDE_SCHEMA = {
     "$jsonSchema": {

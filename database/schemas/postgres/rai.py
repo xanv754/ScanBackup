@@ -1,5 +1,4 @@
-from database.constant.fields import RaiFieldDatabase
-from database.constant.tables import TableNameDatabase
+from database import TableNameDatabase, RaiFieldDatabase
 
 
 RAI_SECUENCE_SCHEMA = f"""

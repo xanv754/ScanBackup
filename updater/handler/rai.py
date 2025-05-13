@@ -1,12 +1,11 @@
 import os
 from typing import List, Tuple
 from datetime import datetime
-from constants.path import DataPath
-from constants.group import LayerType
+from constants import LayerType, DataPath
 from database import MongoRaiQuery, PostgresRaiQuery
 from model import RaiModel, TrafficHistoryModel
 from updater import UpdaterHandler, TrafficHistoryUpdaterHandler
-from utils.log import log
+from utils import log
 
 
 class RaiUpdaterHandler(UpdaterHandler):
@@ -14,8 +13,7 @@ class RaiUpdaterHandler(UpdaterHandler):
 
     def get_data(self, filepath: str | None = None, date: str | None = None) -> List[Tuple[RaiModel, List[TrafficHistoryModel]]]:
         try:
-            if not filepath:
-                filepath = DataPath.SCAN_DATA_RAI
+            if not filepath: filepath = DataPath.SCAN_DATA_RAI
             if not os.path.exists(filepath) or not os.path.isdir(filepath):
                 raise FileNotFoundError("Rai folder not found.")
             files = [filename for filename in os.listdir(filepath)]

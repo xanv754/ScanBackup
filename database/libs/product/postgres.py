@@ -1,14 +1,20 @@
 import psycopg2
 from psycopg2 import sql
-from database.constant.tables import TableNameDatabase
-from database.schemas.postgres.borde import BORDE_SCHEMA, BORDE_SECUENCE_SCHEMA
-from database.schemas.postgres.bras import BRAS_SCHEMA, BRAS_SECUENCE_SCHEMA
-from database.schemas.postgres.caching import CACHING_SCHEMA, CACHING_SECUENCE_SCHEMA
-from database.schemas.postgres.rai import RAI_SCHEMA, RAI_SECUENCE_SCHEMA
-from database.schemas.postgres.trafficHistory import TRAFFIC_HISTORY_SCHEMA
-from database.schemas.postgres.ipHistory import IP_HISTORY_SCHEMA
-from database.libs.product.database import Database
-from utils.log import log
+from database import (
+    TableNameDatabase,
+    Database,
+    BORDE_SECUENCE_SCHEMA_POSTGRES,
+    BORDE_SCHEMA_POSTGRES,
+    BRAS_SECUENCE_SCHEMA_POSTGRES,
+    BRAS_SCHEMA_POSTGRES,
+    CACHING_SECUENCE_SCHEMA_POSTGRES,
+    CACHING_SCHEMA_POSTGRES,
+    RAI_SECUENCE_SCHEMA_POSTGRES,
+    RAI_SCHEMA_POSTGRES,
+    TRAFFIC_HISTORY_SCHEMA_POSTGRES,
+    IP_HISTORY_SCHEMA_POSTGRES
+)
+from utils import log
 
 class PostgresDatabase(Database):
     __connection: psycopg2.extensions.connection
@@ -99,16 +105,16 @@ class PostgresDatabase(Database):
         try:
             self.open_connection()
             cursor = self.__cursor
-            cursor.execute(BORDE_SECUENCE_SCHEMA)
-            cursor.execute(BORDE_SCHEMA)
-            cursor.execute(BRAS_SECUENCE_SCHEMA)
-            cursor.execute(BRAS_SCHEMA)
-            cursor.execute(CACHING_SECUENCE_SCHEMA)
-            cursor.execute(CACHING_SCHEMA)
-            cursor.execute(RAI_SECUENCE_SCHEMA)
-            cursor.execute(RAI_SCHEMA)
-            cursor.execute(TRAFFIC_HISTORY_SCHEMA)
-            cursor.execute(IP_HISTORY_SCHEMA)
+            cursor.execute(BORDE_SECUENCE_SCHEMA_POSTGRES)
+            cursor.execute(BORDE_SCHEMA_POSTGRES)
+            cursor.execute(BRAS_SECUENCE_SCHEMA_POSTGRES)
+            cursor.execute(BRAS_SCHEMA_POSTGRES)
+            cursor.execute(CACHING_SECUENCE_SCHEMA_POSTGRES)
+            cursor.execute(CACHING_SCHEMA_POSTGRES)
+            cursor.execute(RAI_SECUENCE_SCHEMA_POSTGRES)
+            cursor.execute(RAI_SCHEMA_POSTGRES)
+            cursor.execute(TRAFFIC_HISTORY_SCHEMA_POSTGRES)
+            cursor.execute(IP_HISTORY_SCHEMA_POSTGRES)
             self.__connection.commit()
             self.close_connection()
         except Exception as e:

@@ -1,6 +1,6 @@
 from typing import List
 from abc import ABC, abstractmethod
-from model.bras import BrasModel
+from model import BrasModel
 
 
 class BrasQuery(ABC):

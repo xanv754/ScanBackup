@@ -1,6 +1,6 @@
 from typing import List
 from abc import ABC, abstractmethod
-from model.caching import CachingModel
+from model import CachingModel
 
 
 class CachingQuery(ABC):

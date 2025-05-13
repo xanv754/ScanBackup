@@ -1,9 +1,4 @@
 from typing import List, Tuple
-from model.boder import BordeModel
-from model.bras import BrasModel
-from model.caching import CachingModel
-from model.rai import RaiModel
-from model.trafficHistory import TrafficHistoryModel
 from database.constant.fields import (
     BordeFieldDatabase, 
     BrasFieldDatabase,
@@ -11,6 +6,7 @@ from database.constant.fields import (
     RaiFieldDatabase,
     TrafficHistoryFieldDatabase
 )
+from model import BordeModel, BrasModel, CachingModel, RaiModel, TrafficHistoryModel
 
 
 class BordeResponseTrasform:

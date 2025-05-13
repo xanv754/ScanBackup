@@ -1,4 +1,5 @@
-from database.constant.fields import BrasFieldDatabase
+from database import BrasFieldDatabase
+
 
 BRAS_SCHEMA ={
     "$jsonSchema": {
