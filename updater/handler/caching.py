@@ -1,7 +1,7 @@
 import os
 from typing import List, Tuple
 from datetime import datetime
-from constants import LayerType
+from constants.group import LayerType
 from constants.path import DataPath
 from database import MongoCachingQuery, PostgresCachingQuery
 from model import CachingModel, TrafficHistoryModel
