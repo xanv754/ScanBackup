@@ -27,7 +27,7 @@ class BrasHandler:
         """Get all interfaces of bras layer."""
         try:
             if self.__error_connection: raise Exception("An error occurred while connecting to the database. The method has skipped.")
-            interfaces = self.bras_query.get_all_bras()
+            interfaces = self.bras_query.get_interfaces()
             df = pd.DataFrame([data.model_dump(exclude={HeaderBrasDataFrameConstant.CREATE_AT}) for data in interfaces])
         except Exception as e:
             log.export(f"Bras handler. Failed to get all interfaces of bras layer. {e}")

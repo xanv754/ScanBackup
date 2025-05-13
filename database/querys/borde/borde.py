@@ -1,6 +1,6 @@
 from typing import List
 from abc import ABC, abstractmethod
-from model.boder import BordeModel
+from model import BordeModel
 
 
 class BordeQuery(ABC):

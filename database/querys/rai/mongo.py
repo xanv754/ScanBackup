@@ -1,10 +1,12 @@
 from typing import List
-from database.constant.tables import TableNameDatabase
-from database.constant.fields import RaiFieldDatabase
-from database.libs.factory.mongo import MongoDatabaseFactory
-from database.libs.product.mongo import MongoDatabase
-from database.querys.rai.rai import RaiQuery
-from model.rai import RaiModel
+from database import (
+    TableNameDatabase,
+    RaiFieldDatabase,
+    MongoDatabaseFactory,
+    MongoDatabase,
+    RaiQuery
+)
+from model import RaiModel
 from utils.config import ConfigurationHandler
 from utils.trasform import RaiResponseTrasform
 from utils.log import log

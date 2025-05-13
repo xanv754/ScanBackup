@@ -15,7 +15,9 @@ class MongoDatabaseFactory(DatabaseFactory):
 
     def get_database(self, uri: str) -> MongoDatabase:
         try:
-            return MongoDatabase(uri=uri)
+            if not self.__database:
+                self.__database = MongoDatabase(uri=uri)
+            return self.__database
         except Exception as error:
             log.error(f"Failed to factory MongoDB database. {error}")
             exit(1)

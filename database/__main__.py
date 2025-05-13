@@ -1,6 +1,5 @@
 import click
-from database.libs.factory.mongo import MongoDatabaseFactory
-from database.libs.factory.postgres import PostgresDatabaseFactory
+from database import MongoDatabaseFactory, PostgresDatabaseFactory
 from utils.config import ConfigurationHandler
 from utils.log import log
 
@@ -23,13 +22,9 @@ def migration():
     mongo_status = False
     postgres_status = False
     mongo_database = MongoDatabaseFactory().get_database(uri=uri_mongo)
-    if mongo_database.connected:
-        mongo_status = mongo_database.migration()
-        mongo_database.close_connection()
+    mongo_status = mongo_database.migration()
     postgres_database = PostgresDatabaseFactory().get_database(uri=uri_postgres)
-    if postgres_database.connected:
-        postgres_status = postgres_database.migration()
-        postgres_database.close_connection()
+    postgres_status = postgres_database.migration()
     if mongo_status and postgres_status: 
         log.info("Migrations successfully completed")
     else:
@@ -44,10 +39,8 @@ def rollback():
     uri_postgres = config.uri_postgres
     mongo_database = MongoDatabaseFactory().get_database(uri=uri_mongo)
     mongo_status = mongo_database.rollback()
-    mongo_database.close_connection()
     postgres_database = PostgresDatabaseFactory().get_database(uri=uri_postgres)
     postgres_status = postgres_database.rollback()
-    postgres_database.close_connection()
     if mongo_status and postgres_status:
         log.info("Rollback successfully completed")
     else:

@@ -1,9 +1,8 @@
 from typing import List
 from datetime import datetime
-from model.trafficHistory import TrafficHistoryModel
-from updater.update import UpdaterHandler
-from database.querys.traffic.mongo import MongoTrafficHistoryQuery
-# from database.querys.traffic.postgres import PostgresTrafficHistoryQuery
+from database import MongoTrafficHistoryQuery, PostgresTrafficHistoryQuery
+from model import TrafficHistoryModel
+from updater import UpdaterHandler
 from utils.log import log
 
 
@@ -49,13 +48,13 @@ class TrafficHistoryUpdaterHandler(UpdaterHandler):
             except Exception as e:
                 log.error(f"Failed to load data of history traffic. {e}")
                 failed = True
-        # if postgres and len(data) > 0:
-        #     try:
-        #         postgres_database = PostgresTrafficHistoryQuery()
-        #         response = postgres_database.new_traffic(traffic=data)
-        #         if not response:
-        #             raise Exception(f"Failed to insert histories traffic of {data[0].typeLayer} into postgres database.")
-        #     except Exception as e:
-        #         log.error(f"Failed to load data of history traffic. {e}")
-        #         failed = True
+        if postgres and len(data) > 0:
+            try:
+                postgres_database = PostgresTrafficHistoryQuery()
+                response = postgres_database.new_traffic(traffic=data)
+                if not response:
+                    raise Exception(f"Failed to insert histories traffic of {data[0].typeLayer} into postgres database.")
+            except Exception as e:
+                log.error(f"Failed to load data of history traffic. {e}")
+                failed = True
         return not failed

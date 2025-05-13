@@ -1,9 +1,12 @@
 from typing import List
-from database.constant.tables import TableNameDatabase
-from database.constant.fields import BordeFieldDatabase
-from database.libs.factory.mongo import MongoDatabaseFactory, MongoDatabase
-from database.querys.borde.borde import BordeQuery
-from model.boder import BordeModel
+from database import (
+    TableNameDatabase,
+    BordeFieldDatabase,
+    MongoDatabaseFactory,
+    MongoDatabase,
+    BordeQuery
+)
+from model import BordeModel
 from utils.config import ConfigurationHandler
 from utils.trasform import BordeResponseTrasform
 from utils.log import log

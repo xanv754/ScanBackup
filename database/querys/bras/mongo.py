@@ -17,10 +17,10 @@ class MongoBrasQuery(BrasQuery):
 
     def __init__(self):
         try:
-                config = ConfigurationHandler()
-                factory = MongoDatabaseFactory()
-                database = factory.get_database(uri=config.uri_mongo)
-                self.__database = database
+            config = ConfigurationHandler()
+            factory = MongoDatabaseFactory()
+            database = factory.get_database(uri=config.uri_mongo)
+            self.__database = database
         except Exception as e:
             log.error(f"Failed to connect to MongoDB database. {e}")
 
@@ -34,7 +34,7 @@ class MongoBrasQuery(BrasQuery):
         except Exception as e:
             log.error(f"Failed to connect to MongoDB database. {e}")
 
-    def new_bras(self, new: BrasModel) -> bool:
+    def new_interface(self, new: BrasModel) -> bool:
         try:
             status_insert = False
             self.__database.open_connection()
@@ -49,7 +49,7 @@ class MongoBrasQuery(BrasQuery):
             log.error(f"Failed to create new bras. {e}")
             return False
 
-    def get_bras(self, brasname: str, type: str) -> BrasModel | None:
+    def get_interface(self, brasname: str, type: str) -> BrasModel | None:
         try:
             interface: BrasModel | None = None
             self.__database.open_connection()
@@ -68,7 +68,7 @@ class MongoBrasQuery(BrasQuery):
             log.error(f"Failed to get bras. {e}")
             return None
         
-    def get_all_bras(self) -> List[BrasModel]:
+    def get_interfaces(self) -> List[BrasModel]:
         try:
             interfaces: List[BrasModel] = []
             self.__database.open_connection()

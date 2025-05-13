@@ -1,11 +1,12 @@
-from ast import Eq
 from typing import List
-from model.trafficHistory import TrafficHistoryModel
-from database.constant.tables import TableNameDatabase
-from database.constant.fields import TrafficHistoryFieldDatabase
-from database.libs.factory.mongo import MongoDatabaseFactory
-from database.libs.product.mongo import MongoDatabase
-from database.querys.traffic.traffic import TrafficHistoryQuery
+from database import (
+    TableNameDatabase,
+    TrafficHistoryFieldDatabase,
+    MongoDatabaseFactory,
+    MongoDatabase,
+    TrafficHistoryQuery
+)
+from model import TrafficHistoryModel
 from utils.config import ConfigurationHandler
 from utils.trasform import TrafficHistoryResponseTrasform
 from utils.log import log
@@ -44,68 +45,45 @@ class MongoTrafficHistoryQuery(TrafficHistoryQuery):
 
     def new_traffic(self, traffic: List[TrafficHistoryModel]) -> bool:
         try:
-            self.open_connection()
+            status_insert = False
+            traffic_json: List[dict] = []
+            for data in traffic:
+                if not self.get_traffic(date=data.date, time=data.time, id_layer=data.idLayer):
+                    traffic_json.append(data.model_dump())
+            self.__database.open_connection()
             if self.__database.connected:
-                traffic_json: List[dict] = []
-                for data in traffic:
-                    if not self.get_traffic(date=data.date, time=data.time, id_layer=data.idLayer):
-                        traffic_json.append(data.model_dump())
                 if traffic_json:
                     collection = self.__database.get_cursor(table=TableNameDatabase.TRAFFIC_HISTORY)
                     response = collection.insert_many(traffic_json)
+                    status_insert = response.acknowledged
                     self.__database.close_connection()
-                    return response.acknowledged
-                return False
-            else:
-                raise Exception("Database not connected.")
+                else:
+                    log.warning(f"Traffic histories of {traffic[0].typeLayer} to insert is empty.")
+                    status_insert = True
+            return status_insert
         except Exception as e:
             log.error(f"Failed to insert histories traffic. {e}")
             return False
-
-    # def get_traffic(self, date: str, time: str, id_layer: str) -> TrafficHistoryModel | None:
-    #     try:
-    #         self.open_connection()
-    #         if self.__database.connected:
-    #             collection = self.__database.get_cursor(table=TableNameDatabase.TRAFFIC_HISTORY)
-    #             response = collection.find_one(
-    #                 {
-    #                     TrafficHistoryFieldDatabase.DATE: date,
-    #                     TrafficHistoryFieldDatabase.TIME: time,
-    #                     TrafficHistoryFieldDatabase.ID_LAYER: id_layer
-    #                 }
-    #             )
-    #             self.__database.close_connection()
-    #             if response:
-    #                 data = TrafficHistoryResponseTrasform.default_model_mongo([response])
-    #                 if data: return data[0]
-    #             return None
-    #         else:
-    #             raise Exception("Database not connected.")
-    #     except Exception as e:
-    #         log.error(f"Failed to get traffic. {e}")
-    #         return None
-
-    # def get_traffic_interface_by_date(self, id: str, date: str) -> List[TrafficHistoryModel]:
-    #     try:
-    #         self.open_connection()
-    #         if self.__database.connected:
-    #             collection = self.__database.get_cursor(table=TableNameDatabase.TRAFFIC_HISTORY)
-    #             cursor = collection.find(
-    #                 {
-    #                     TrafficHistoryFieldDatabase.DATE: date,
-    #                     TrafficHistoryFieldDatabase.ID_LAYER: id
-    #                 }
-    #             )
-    #             result: List[TrafficHistoryModel] = []
-    #             self.__database.close_connection()
-    #             if cursor:
-    #                 result = TrafficHistoryResponseTrasform.default_model_mongo(cursor)
-    #             return result
-    #         else:
-    #             raise Exception("Database not connected.")
-    #     except Exception as e:
-    #         log.error(f"Failed to get traffic. {e}")
-    #         return []
+        
+    def get_traffic(self, date: str, time: str, id_layer: str) -> TrafficHistoryModel | None:
+        try:
+            traffic: TrafficHistoryModel | None = None
+            self.__database.open_connection()
+            if self.__database.connected:
+                collection = self.__database.get_cursor(table=TableNameDatabase.TRAFFIC_HISTORY)
+                result = collection.find_one({
+                    TrafficHistoryFieldDatabase.DATE: date,
+                    TrafficHistoryFieldDatabase.TIME: time,
+                    TrafficHistoryFieldDatabase.ID_LAYER: id_layer
+                })
+                if result:
+                    data = TrafficHistoryResponseTrasform.default_model_mongo([result])
+                    if data: traffic = data[0]
+                self.__database.close_connection()
+            return traffic
+        except Exception as e:
+            log.error(f"Failed to get traffic. {e}")
+            return None
         
     def get_traffic_layer_by_date(self, layer_type: str, date: str) -> List[TrafficHistoryModel]:
         try:
@@ -123,51 +101,3 @@ class MongoTrafficHistoryQuery(TrafficHistoryQuery):
         except Exception as e:
             log.error(f"Failed to get traffic. {e}")
             return []
-        
-    # def get_traffic_by_date(self, date: str) -> List[TrafficHistoryModel]:
-    #     try:
-    #         self.open_connection()
-    #         if self.__database.connected:
-    #             collection = self.__database.get_cursor(table=TableNameDatabase.TRAFFIC_HISTORY)
-    #             cursor = collection.find(
-    #                 {
-    #                     TrafficHistoryFieldDatabase.DATE: date
-    #                 }
-    #             )
-    #             result: List[TrafficHistoryModel] = []
-    #             self.__database.close_connection()
-    #             if cursor:
-    #                 result = TrafficHistoryResponseTrasform.default_model_mongo(cursor)
-    #             return result
-    #         else:
-    #             raise Exception("Database not connected.")
-    #     except Exception as e:
-    #         log.error(f"Failed to get traffic. {e}")
-    #         return []
-        
-    # def get_traffic_layer_by_month(self, layer_type: str, month: str) -> List[TrafficHistoryModel]:
-    #     try:
-    #         self.open_connection()
-    #         if self.__database.connected:
-    #             collection = self.__database.get_cursor(table=TableNameDatabase.TRAFFIC_HISTORY)
-    #             cursor = collection.find(
-    #                 {
-    #                     "$expr": {
-    #                         "$eq": [
-    #                             {"$month": "$date"},
-    #                             month
-    #                         ]
-    #                     },
-    #                     TrafficHistoryFieldDatabase.TYPE_LAYER: layer_type
-    #                 }
-    #             )
-    #             result: List[TrafficHistoryModel] = []
-    #             self.__database.close_connection()
-    #             if cursor:
-    #                 result = TrafficHistoryResponseTrasform.default_model_mongo(cursor)
-    #             return result
-    #         else:
-    #             raise Exception("Database not connected.")
-    #     except Exception as e:
-    #         log.error(f"Failed to get traffic. {e}")
-    #         return []

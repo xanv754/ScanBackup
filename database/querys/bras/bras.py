@@ -18,8 +18,8 @@ class BrasQuery(ABC):
         pass
 
     @abstractmethod
-    def new_bras(self, new: BrasModel) -> bool:
-        """Register new bras.
+    def new_interface(self, new: BrasModel) -> bool:
+        """Register new interface bras.
 
         Parameters
         ----------
@@ -33,7 +33,7 @@ class BrasQuery(ABC):
         pass
 
     @abstractmethod
-    def get_bras(self, brasname: str, type: str) -> BrasModel | None :
+    def get_interface(self, brasname: str, type: str) -> BrasModel | None :
         """Get bras.
 
         Parameters
@@ -50,7 +50,7 @@ class BrasQuery(ABC):
         pass
 
     @abstractmethod
-    def get_all_bras(self) -> List[BrasModel]:
+    def get_interfaces(self) -> List[BrasModel]:
         """Get all bras.
 
         Returns

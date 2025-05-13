@@ -1,10 +1,12 @@
 from typing import List
-from database.constant.tables import TableNameDatabase
-from database.constant.fields import CachingFieldDatabase
-from database.libs.factory.mongo import MongoDatabaseFactory
-from database.libs.product.mongo import MongoDatabase
-from database.querys.caching.caching import CachingQuery
-from model.caching import CachingModel
+from database import (
+    TableNameDatabase,
+    CachingFieldDatabase,
+    MongoDatabaseFactory,
+    MongoDatabase,
+    CachingQuery
+)
+from model import CachingModel
 from utils.config import ConfigurationHandler
 from utils.trasform import CachingResponseTrasform
 from utils.log import log

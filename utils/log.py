@@ -4,7 +4,7 @@ from logging.handlers import TimedRotatingFileHandler
 from rich.logging import RichHandler
 
 # TITLE_ART = art.text2art(f"{AboutConstant.TITLE_CLI.value}")
-LOGS = "/var/log/cprd"
+LOGS = "/var/log/cgprd"
 LOG_FORMAT = "%(asctime)s %(levelname)s (%(filename)s:%(lineno)d) %(message)s"
 DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 FORMATTER = logging.Formatter(LOG_FORMAT, DATE_FORMAT)
@@ -29,7 +29,7 @@ class LogHandler:
             )
             self.__console_handler.setFormatter(FORMATTER)
             self.__file_handler = TimedRotatingFileHandler(
-                f"{LOGS}/system-cprd.log",
+                f"{LOGS}/system-cgprd.log",
                 when="W0",
                 interval=1,
                 backupCount=4,
