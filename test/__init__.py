@@ -6,10 +6,10 @@ from datetime import datetime
 from abc import ABC, abstractmethod
 from dotenv import dotenv_values
 from pymongo import MongoClient
-from database.constant.tables import TableNameDatabase as LayerTypeTest
-from database.constant.fields import TrafficHistoryFieldDatabase as TrafficFieldDatabaseTest
 from constants.group import ModelBordeType as ModelBordeTypeTest
 from constants.group import BrasType as BrasTypeTest
+from database.constant.tables import TableNameDatabase as LayerTypeTest
+from database.constant.fields import TrafficHistoryFieldDatabase as TrafficFieldDatabaseTest
 
 
 class DatabaseTest(ABC):

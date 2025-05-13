@@ -1,4 +1,4 @@
-from constants import ModelBordeType
+from constants.group import ModelBordeType
 from database import TableNameDatabase, BordeFieldDatabase
 
 

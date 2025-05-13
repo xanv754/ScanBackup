@@ -1,7 +1,7 @@
 import unittest
 import random
 from datetime import datetime
-from constants import HeaderDataFrame
+from constants.header import HeaderDataFrame
 from database import RaiFieldDatabase
 from model import RaiModel
 from handler import RaiHandler

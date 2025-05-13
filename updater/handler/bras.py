@@ -1,7 +1,8 @@
 import os
 from typing import List, Tuple
 from datetime import datetime
-from constants import BrasType, LayerType, DataPath
+from constants.group import BrasType, LayerType
+from constants.path import DataPath
 from database import MongoBrasQuery, PostgresBrasQuery
 from model import BrasModel, TrafficHistoryModel
 from updater import UpdaterHandler, TrafficHistoryUpdaterHandler

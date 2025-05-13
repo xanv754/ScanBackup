@@ -1,6 +1,3 @@
-from database import TableNameDatabase
-
-
 class ModelBordeType:
     """Model type for borde."""
 
@@ -17,9 +14,9 @@ class BrasType:
 class LayerType:
     """Type of layer."""
     
-    BORDE = TableNameDatabase.BORDE
-    BRAS = TableNameDatabase.BRAS
-    CACHING = TableNameDatabase.CACHING
-    RAI = TableNameDatabase.RAI
-    TRAFFIC_HISTORY = TableNameDatabase.TRAFFIC_HISTORY
-    IP_HISTORY = TableNameDatabase.IP_HISTORY
+    BRAS = "BRAS"
+    BORDE = "BORDE"
+    CACHING ="CACHING"
+    RAI = "RAI"
+    TRAFFIC_HISTORY = "TRAFFIC_HISTORY"
+    IP_HISTORY = "IP_HISTORY"

@@ -1,4 +1,4 @@
-from constants import LayerType
+from constants.group import LayerType
 
 
 class Validate:

@@ -1,4 +1,4 @@
-from constants import BrasType
+from constants.group import BrasType
 from database import TableNameDatabase, BrasFieldDatabase
 
 

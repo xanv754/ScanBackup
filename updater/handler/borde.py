@@ -1,7 +1,8 @@
 import os
 from typing import List, Tuple
 from datetime import datetime
-from constants import ModelBordeType, LayerType, DataPath
+from constants.group import ModelBordeType, LayerType
+from constants.path import DataPath
 from database import MongoBordeQuery, PostgresBordeQuery
 from model import BordeModel, TrafficHistoryModel
 from updater import UpdaterHandler, TrafficHistoryUpdaterHandler

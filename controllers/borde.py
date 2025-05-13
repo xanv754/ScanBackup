@@ -1,21 +1,20 @@
-from datetime import datetime
 from constants.group import LayerType
-from handler.traffic import TrafficHandler
-from utils.calculate import calculate
+from handler import TrafficHandler
+from utils import calculate
 
 
 class BordeController:
     """Controller to manage borde data."""
 
     @staticmethod
-    def summary_diary(date: str = datetime.now().strftime("%Y-%m-%d")) -> dict:
+    def summary_diary_today() -> dict:
         """Get summary diary of borde data."""
         traffic = TrafficHandler()
-        data = traffic.get_traffic_layer_by_thirty_days_before(layer_type=LayerType.BORDE, date=date)
+        data = traffic.get_traffic_layer_by_days_before(layer_type=LayerType.BORDE, day_before=1)
         print(data)
         # df_summary = calculate(data)
         # print(df_summary)
 
 
 if __name__ == "__main__":
-    BordeController.summary_diary(date="2025-05-08")
+    BordeController.summary_diary_today()

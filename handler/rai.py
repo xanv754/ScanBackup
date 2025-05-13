@@ -1,5 +1,5 @@
 import pandas as pd
-from constants import HeaderDataFrame
+from constants.header import HeaderDataFrame
 from database import RaiQuery, MongoRaiQuery, PostgresRaiQuery
 from utils import log
 
