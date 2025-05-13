@@ -1,5 +1,4 @@
-from database.libs.factory.database import DatabaseFactory
-from database.libs.product.mongo import MongoDatabase
+from database import DatabaseFactory, MongoDatabase
 from utils.log import log
 
 class MongoDatabaseFactory(DatabaseFactory):

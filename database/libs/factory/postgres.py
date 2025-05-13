@@ -1,5 +1,4 @@
-from database.libs.factory.database import DatabaseFactory
-from database.libs.product.postgres import PostgresDatabase
+from database import DatabaseFactory, PostgresDatabase
 from utils.log import log
 
 
