@@ -12,7 +12,8 @@ from database import (
 )
 from model import TrafficHistoryModel
 from handler import BordeHandler, BrasHandler, CachingHandler, RaiHandler
-from utils import Validate, log
+from utils.validate import Validate
+from utils.log import log
 
 class TrafficHandler:
     """Class to get history data."""

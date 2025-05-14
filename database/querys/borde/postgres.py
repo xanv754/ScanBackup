@@ -7,8 +7,9 @@ from database import (
     BordeQuery
 )
 from model import BordeModel
-from utils import ConfigurationHandler, BordeResponseTrasform, log
-
+from utils.trasform import BordeResponseTrasform
+from utils.config import ConfigurationHandler
+from utils.log import log
 
 class PostgresBordeQuery(BordeQuery):
     """Mongo query class for borde table."""

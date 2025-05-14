@@ -1,7 +1,7 @@
 import pandas as pd
 from constants.header import HeaderDataFrame
 from database import BordeQuery, MongoBordeQuery, PostgresBordeQuery
-from utils import log
+from utils.log import log
 
 
 class BordeHandler:

@@ -1,5 +1,5 @@
 from database import DatabaseFactory, MongoDatabase
-from utils import log
+from utils.log import log
 
 class MongoDatabaseFactory(DatabaseFactory):
     """Mongo database factory class."""

@@ -10,7 +10,7 @@ from database import (
     TRAFFIC_HISTORY_SCHEMA_MONGO,
     IP_HISTORY_SCHEMA_MONGO
 )
-from utils import log
+from utils.log import log
 
 class MongoDatabase(Database):
     __client: MongoClient

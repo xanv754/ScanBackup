@@ -7,7 +7,9 @@ from database import (
     CachingQuery
 )
 from model import CachingModel
-from utils import ConfigurationHandler, CachingResponseTrasform, log
+from utils.trasform import CachingResponseTrasform
+from utils.config import ConfigurationHandler
+from utils.log import log
 
 
 class PostgresCachingQuery(CachingQuery):

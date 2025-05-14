@@ -1,7 +1,7 @@
 import pandas as pd
 from constants.header import HeaderDataFrame
 from database import CachingQuery, MongoCachingQuery, PostgresCachingQuery
-from utils import log
+from utils.log import log
 
 
 class CachingHandler:

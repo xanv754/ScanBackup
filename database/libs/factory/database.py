@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from database.libs.product.database import Database
+from database import Database
 
 
 class DatabaseFactory(ABC):

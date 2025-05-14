@@ -7,7 +7,9 @@ from database import (
     TrafficHistoryQuery
 )
 from model import TrafficHistoryModel
-from utils import ConfigurationHandler, TrafficHistoryResponseTrasform, log
+from utils.trasform import TrafficHistoryResponseTrasform
+from utils.config import ConfigurationHandler
+from utils.log import log
 
 
 class PostgresTrafficHistoryQuery(TrafficHistoryQuery):

@@ -6,7 +6,7 @@ from constants.path import DataPath
 from database import MongoBrasQuery, PostgresBrasQuery
 from model import BrasModel, TrafficHistoryModel
 from updater import UpdaterHandler, TrafficHistoryUpdaterHandler
-from utils import log
+from utils.log import log
 
 
 class BrasUpdaterHandler(UpdaterHandler):

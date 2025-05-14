@@ -1,6 +1,7 @@
 import click
 from database import MongoDatabaseFactory, PostgresDatabaseFactory
-from utils import ConfigurationHandler, log
+from utils.config import ConfigurationHandler
+from utils.log import log
 
 
 @click.group()

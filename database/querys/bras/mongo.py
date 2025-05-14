@@ -7,8 +7,9 @@ from database import (
     BrasQuery
 )
 from model import BrasModel
-from utils import ConfigurationHandler, BrasResponseTrasform, log
-
+from utils.trasform import BrasResponseTrasform
+from utils.config import ConfigurationHandler
+from utils.log import log
 
 class MongoBrasQuery(BrasQuery):
     """Mongo query class for bras table."""

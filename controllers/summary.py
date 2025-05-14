@@ -1,6 +1,6 @@
 from constants.group import LayerType
 from handler import TrafficHandler
-from utils import calculate
+from utils.calculate import calculate
 
 
 class SummaryController:

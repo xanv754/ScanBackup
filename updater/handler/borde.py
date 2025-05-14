@@ -6,7 +6,7 @@ from constants.path import DataPath
 from database import MongoBordeQuery, PostgresBordeQuery
 from model import BordeModel, TrafficHistoryModel
 from updater import UpdaterHandler, TrafficHistoryUpdaterHandler
-from utils import log
+from utils.log import log
 
 
 class BordeUpdaterHandler(UpdaterHandler):

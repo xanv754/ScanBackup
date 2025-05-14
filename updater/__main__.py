@@ -5,7 +5,7 @@ from updater import (
     CachingUpdaterHandler,
     RaiUpdaterHandler
 )
-from utils import log
+from utils.log import log
 
 
 @click.group

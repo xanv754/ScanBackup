@@ -6,7 +6,7 @@ from constants.path import DataPath
 from database import MongoCachingQuery, PostgresCachingQuery
 from model import CachingModel, TrafficHistoryModel
 from updater import UpdaterHandler, TrafficHistoryUpdaterHandler
-from utils import log
+from utils.log import log
 
 
 class CachingUpdaterHandler(UpdaterHandler):

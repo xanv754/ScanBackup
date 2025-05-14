@@ -3,7 +3,7 @@ from datetime import datetime
 from database import MongoTrafficHistoryQuery, PostgresTrafficHistoryQuery
 from model import TrafficHistoryModel
 from updater import UpdaterHandler
-from utils import log
+from utils.log import log
 
 
 class TrafficHistoryUpdaterHandler(UpdaterHandler):

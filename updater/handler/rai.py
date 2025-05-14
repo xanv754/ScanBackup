@@ -6,7 +6,7 @@ from constants.path import DataPath
 from database import MongoRaiQuery, PostgresRaiQuery
 from model import RaiModel, TrafficHistoryModel
 from updater import UpdaterHandler, TrafficHistoryUpdaterHandler
-from utils import log
+from utils.log import log
 
 
 class RaiUpdaterHandler(UpdaterHandler):
