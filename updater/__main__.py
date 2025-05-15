@@ -1,5 +1,5 @@
 import click
-from multiprocessing import Pool
+from multiprocessing import Pool, Process
 from updater import (
     BordeUpdaterHandler,
     BrasUpdaterHandler,
@@ -58,11 +58,14 @@ def data(date: str):
     try:
         log.info("Starting updater data...")
         if not date: date = None
-        with Pool(processes=4) as pool:
-            pool.apply_async(load_borde, args=(date,))
-            pool.apply_async(load_bras, args=(date,))
-            pool.apply_async(load_caching, args=(date,))
-            pool.apply_async(load_rai, args=(date,))
+        borde = Process(target=load_borde, args=(date,)).start()
+        bras = Process(target=load_bras, args=(date,)).start()
+        caching = Process(target=load_caching, args=(date,)).start()
+        rai = Process(target=load_rai, args=(date,)).start()
+        borde.join()
+        bras.join()
+        caching.join()
+        rai.join()
     except Exception as e:
         log.error(f"Data upload failed. {e}")
     finally:
