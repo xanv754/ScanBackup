@@ -14,6 +14,7 @@ class BordeUpdaterHandler(UpdaterHandler):
     """Border data updater handler."""
 
     def __load_database(self, data: List[Tuple[BordeModel, List[TrafficHistoryModel]]]) -> bool:
+        """Load the data obtained in the principal database."""
         failed = False
         try:
             database = MongoBordeQuery()
@@ -44,6 +45,7 @@ class BordeUpdaterHandler(UpdaterHandler):
         return not failed
         
     def __load_backup_database(self, data: List[Tuple[BordeModel, List[TrafficHistoryModel]]]) -> bool:
+        """Load the data obtained in the secundary database."""
         failed = False
         try:
             database = PostgresBordeQuery()
@@ -82,15 +84,15 @@ class BordeUpdaterHandler(UpdaterHandler):
             data: List[Tuple[BordeModel, List[TrafficHistoryModel]]] = []
             for filename in files:
                 try:
-                    if filename.split("%")[0] == ModelBordeType.CISCO: model = ModelBordeType.CISCO
-                    else: model = ModelBordeType.HUAWEI
+                    if filename.split("%")[0] == ModelBordeType.CISCO: current_model = ModelBordeType.CISCO
+                    else: current_model = ModelBordeType.HUAWEI
                     interface = filename.split("%")[1]
-                    capacity = int(filename.split("%")[2])
+                    current_capacity = int(filename.split("%")[2])
                     interface_border = BordeModel(
                         id=None,
                         name=interface,
-                        model=model,
-                        capacity=capacity,
+                        model=current_model,
+                        capacity=current_capacity,
                         createAt=datetime.now().strftime("%Y-%m-%d")
                     )
                     historyHandler = TrafficHistoryUpdaterHandler()

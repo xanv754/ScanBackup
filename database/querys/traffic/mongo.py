@@ -47,9 +47,7 @@ class MongoTrafficHistoryQuery(TrafficHistoryQuery):
         try:
             status_insert = False
             traffic_json: List[dict] = []
-            for data in traffic:
-                if not self.get_traffic(date=data.date, time=data.time, id_layer=data.idLayer):
-                    traffic_json.append(data.model_dump())
+            traffic_json = [data.model_dump() for data in traffic]
             self.__database.open_connection()
             if self.__database.connected:
                 if traffic_json:

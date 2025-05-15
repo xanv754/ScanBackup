@@ -1,4 +1,5 @@
 import click
+from multiprocessing import Pool
 from updater import (
     BordeUpdaterHandler,
     BrasUpdaterHandler,
@@ -6,6 +7,43 @@ from updater import (
     RaiUpdaterHandler
 )
 from utils.log import log
+
+
+def load_borde(date: str | None) -> None:
+    try:
+        borderHandler = BordeUpdaterHandler()
+        if date: data_borde = borderHandler.get_data(date=date)
+        else: data_borde = borderHandler.get_data()
+        borderHandler.load_data(data=data_borde)
+    except Exception as e:
+        log.error(f"Failed to load data of Border layer. {e}")
+
+def load_bras(date: str | None) -> None:
+    try:
+        brasHandler = BrasUpdaterHandler()
+        if date: data_bras = brasHandler.get_data(date=date)
+        else: data_bras = brasHandler.get_data()
+        brasHandler.load_data(data=data_bras)
+    except Exception as e:
+        log.error(f"Failed to load data of Bras layer. {e}")
+
+def load_caching(date: str | None) -> None:
+    try:
+        cachingHandler = CachingUpdaterHandler()
+        if date: data_caching = cachingHandler.get_data(date=date)
+        else: data_caching = cachingHandler.get_data()
+        cachingHandler.load_data(data=data_caching)
+    except Exception as e:
+        log.error(f"Failed to load data of Caching layer. {e}")
+
+def load_rai(date: str | None) -> None:
+    try:
+        raiHandler = RaiUpdaterHandler()
+        if date: data_rai = raiHandler.get_data(date=date)
+        else: data_rai = raiHandler.get_data()
+        raiHandler.load_data(data=data_rai)
+    except Exception as e:
+        log.error(f"Failed to load data of Rai layer. {e}")
 
 
 @click.group
@@ -18,53 +56,17 @@ def cli():
 @click.option("--date", required=False, help="Date to upload data. Format YYYY-MM-DD")
 def data(date: str):
     try:
-        log.info("Starting updater borde data...")
-        borderHandler = BordeUpdaterHandler()
-        if date:
-            data_borde = borderHandler.get_data(date=date)
-        else:
-            data_borde = borderHandler.get_data()
-        borderHandler.load_data(data=data_borde)
+        log.info("Starting updater data...")
+        if not date: date = None
+        with Pool(processes=4) as pool:
+            pool.apply_async(load_borde, args=(date,))
+            pool.apply_async(load_bras, args=(date,))
+            pool.apply_async(load_caching, args=(date,))
+            pool.apply_async(load_rai, args=(date,))
     except Exception as e:
-        log.error(f"Borde data upload failed. {e}")
+        log.error(f"Data upload failed. {e}")
     finally:
-        log.info("Updater borde data finished")
-    try:
-        log.info("Starting updater bras data...")
-        brasHandler = BrasUpdaterHandler()
-        if date:
-            data_borde = brasHandler.get_data(date=date)
-        else:
-            data_borde = brasHandler.get_data()
-        brasHandler.load_data(data=data_borde)
-    except Exception as e:
-        log.error(f"Bras data upload failed. {e}")
-    finally:
-        log.info("Updater bras data finished")
-    try:
-        log.info("Starting updater caching data...")
-        cachingHandler = CachingUpdaterHandler()
-        if date:
-            data_borde = cachingHandler.get_data(date=date)
-        else:
-            data_borde = cachingHandler.get_data()
-        cachingHandler.load_data(data=data_borde)
-    except Exception as e:
-        log.error(f"Caching data upload failed. {e}")
-    finally:
-        log.info("Updater caching data finished")
-    try:
-        log.info("Starting updater rai data...")
-        raiHandler = RaiUpdaterHandler()
-        if date:
-            data_borde = raiHandler.get_data(date=date)
-        else:
-            data_borde = raiHandler.get_data()
-        raiHandler.load_data(data=data_borde)
-    except Exception as e:
-        log.error(f"Rai data upload failed. {e}")
-    finally:
-        log.info("Updater rai data finished")
+        log.info("Updater data finished")
 
 
 if __name__ == "__main__":

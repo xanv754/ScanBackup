@@ -51,15 +51,11 @@ class PostgresTrafficHistoryQuery(TrafficHistoryQuery):
 
     def new_traffic(self, traffic: List[TrafficHistoryModel]) -> bool:
         try:
-            traffic_insert: List[TrafficHistoryModel] = []
-            for history in traffic:
-                if not self.get_traffic(date=history.date, time=history.time, id_layer=history.idLayer):
-                    traffic_insert.append(history)
             self.__database.open_connection()
             if self.__database.connected:
                 connection = self.__database.get_connection()
                 cursor = self.__database.get_cursor()
-                for history in traffic_insert:
+                for history in traffic:
                     cursor.execute(
                         f"""
                             INSERT INTO

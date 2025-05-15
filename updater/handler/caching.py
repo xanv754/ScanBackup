@@ -1,4 +1,5 @@
 import os
+from multiprocessing import Process
 from typing import List, Tuple
 from datetime import datetime
 from constants.group import LayerType
@@ -12,6 +13,67 @@ from utils.log import log
 class CachingUpdaterHandler(UpdaterHandler):
     """Caching data updater handler."""
 
+    def __load_database(self, data: List[Tuple[CachingModel, List[TrafficHistoryModel]]]) -> bool:
+        """Load the data obtained in the principal database."""
+        failed = False
+        try:
+            database = MongoCachingQuery()
+            historyHandler = TrafficHistoryUpdaterHandler()
+            for interface, traffic in data:
+                try:
+                    data_interface = database.get_interface(interface.name)
+                    if not data_interface:
+                        response = database.new_interface(interface)
+                        if not response:
+                            raise Exception(f"Failed to insert new interface of Caching layer: {interface.name}")
+                        else:
+                            data_interface = database.get_interface(interface.name)
+                            if not data_interface:
+                                raise Exception(f"Failed to get new interface of Caching layer: {interface.name}")
+                    for new_traffic in traffic:
+                        new_traffic.idLayer = str(data_interface.id)
+                        new_traffic.typeLayer = LayerType.CACHING
+                    response = historyHandler.load_data(data=traffic, mongo=True)
+                    if not response:
+                        raise Exception(f"Failed to insert histories traffic of an interface of Caching layer: {interface.name}")
+                except Exception as e:
+                    log.error(f"Failed to insert new interface or histories traffic of Caching layer. {e}")
+                    continue
+        except Exception as e:
+            log.error(f"Failed to load data of Caching layer. {e}")
+            failed = True
+        return not failed
+
+    def __load_backup_database(self, data: List[Tuple[CachingModel, List[TrafficHistoryModel]]]) -> bool:
+        """Load the data obtained in the secundary database."""
+        failed = False
+        try:
+            database = PostgresCachingQuery()
+            historyHandler = TrafficHistoryUpdaterHandler()
+            for interface, traffic in data:
+                try:
+                    data_interface = database.get_interface(interface.name)
+                    if not data_interface:
+                        response = database.new_interface(interface)
+                        if not response:
+                            raise Exception(f"Failed to insert new interface of Caching layer: {interface.name}")
+                        else:
+                            data_interface = database.get_interface(interface.name)
+                            if not data_interface:
+                                raise Exception(f"Failed to get new interface of Caching layer: {interface.name}")
+                    for new_traffic in traffic:
+                        new_traffic.idLayer = str(data_interface.id)
+                        new_traffic.typeLayer = LayerType.CACHING
+                    response = historyHandler.load_data(data=traffic, postgres=True)
+                    if not response:
+                        raise Exception(f"Failed to insert histories traffic of an interface of Caching layer: {interface.name}")
+                except Exception as e:
+                    log.error(f"Failed to insert new interface or histories traffic of Caching layer. {e}")
+                    continue
+        except Exception as e:
+            log.error(f"Failed to load data of Caching layer. {e}")
+            failed = True
+        return not failed
     def get_data(self, filepath: str | None = None, date: str | None = None) -> List[Tuple[CachingModel, List[TrafficHistoryModel]]]:
         try:
             if not filepath: filepath = DataPath.SCAN_DATA_CACHING
@@ -48,57 +110,15 @@ class CachingUpdaterHandler(UpdaterHandler):
             return data
 
     def load_data(self, data: List[Tuple[CachingModel, List[TrafficHistoryModel]]]) -> bool:
-        failed = False
         try:
-            database = MongoCachingQuery()
-            historyHandler = TrafficHistoryUpdaterHandler()
-            for interface, traffic in data:
-                try:
-                    data_interface = database.get_interface(interface.name)
-                    if not data_interface:
-                        response = database.new_interface(interface)
-                        if not response:
-                            raise Exception(f"Failed to insert new interface of Caching layer: {interface.name}")
-                        else:
-                            data_interface = database.get_interface(interface.name)
-                            if not data_interface:
-                                raise Exception(f"Failed to get new interface of Caching layer: {interface.name}")
-                    for new_traffic in traffic:
-                        new_traffic.idLayer = str(data_interface.id)
-                        new_traffic.typeLayer = LayerType.CACHING
-                    response = historyHandler.load_data(data=traffic, mongo=True)
-                    if not response:
-                        raise Exception(f"Failed to insert histories traffic of an interface of Caching layer: {interface.name}")
-                except Exception as e:
-                    log.error(f"Failed to insert new interface or histories traffic of Caching layer. {e}")
-                    continue
+            load_mongo = Process(target=self.__load_database, args=(data,))
+            load_postgres = Process(target=self.__load_backup_database, args=(data,))
+            load_mongo.start()
+            load_postgres.start()
+            load_mongo.join()
+            load_postgres.join()
         except Exception as e:
             log.error(f"Failed to load data of Caching layer. {e}")
-            failed = True
-        try:
-            database = PostgresCachingQuery()
-            historyHandler = TrafficHistoryUpdaterHandler()
-            for interface, traffic in data:
-                try:
-                    data_interface = database.get_interface(interface.name)
-                    if not data_interface:
-                        response = database.new_interface(interface)
-                        if not response:
-                            raise Exception(f"Failed to insert new interface of Caching layer: {interface.name}")
-                        else:
-                            data_interface = database.get_interface(interface.name)
-                            if not data_interface:
-                                raise Exception(f"Failed to get new interface of Caching layer: {interface.name}")
-                    for new_traffic in traffic:
-                        new_traffic.idLayer = str(data_interface.id)
-                        new_traffic.typeLayer = LayerType.CACHING
-                    response = historyHandler.load_data(data=traffic, postgres=True)
-                    if not response:
-                        raise Exception(f"Failed to insert histories traffic of an interface of Caching layer: {interface.name}")
-                except Exception as e:
-                    log.error(f"Failed to insert new interface or histories traffic of Caching layer. {e}")
-                    continue
-        except Exception as e:
-            log.error(f"Failed to load data of Caching layer. {e}")
-            failed = True
-        return not failed
+            return False
+        else:
+            return True
