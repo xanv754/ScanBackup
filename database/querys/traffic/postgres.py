@@ -44,6 +44,7 @@ class PostgresTrafficHistoryQuery(TrafficHistoryQuery):
                 for value in interface.model_dump().values()
             ) + '\n'
             buffer.write(line)
+        buffer.seek(0)
         return buffer
 
     def set_database(self, uri: str) -> None:
