@@ -58,10 +58,14 @@ def data(date: str):
     try:
         log.info("Starting updater data...")
         if not date: date = None
-        borde = Process(target=load_borde, args=(date,)).start()
-        bras = Process(target=load_bras, args=(date,)).start()
-        caching = Process(target=load_caching, args=(date,)).start()
-        rai = Process(target=load_rai, args=(date,)).start()
+        borde = Process(target=load_borde, args=(date,))
+        borde.start()
+        bras = Process(target=load_bras, args=(date,))
+        bras.start()
+        caching = Process(target=load_caching, args=(date,))
+        caching.start()
+        rai = Process(target=load_rai, args=(date,))
+        rai.start()
         borde.join()
         bras.join()
         caching.join()
