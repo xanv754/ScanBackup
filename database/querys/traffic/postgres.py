@@ -1,3 +1,4 @@
+from io import StringIO
 from typing import List
 from database import (
     TableNameDatabase,
@@ -33,6 +34,18 @@ class PostgresTrafficHistoryQuery(TrafficHistoryQuery):
         except Exception as e:
             log.error(f"Failed to connect to Postgres database. {e}")
 
+    
+    def __create_buffer(self, data: List[TrafficHistoryModel]) -> StringIO:
+        """Create buffer to insert data in database."""
+        buffer = StringIO()
+        for interface in data:
+            line = ';'.join(
+                'null' if value is None else str(value)
+                for value in interface.model_dump().values()
+            ) + '\n'
+            buffer.write(line)
+        return buffer
+
     def set_database(self, uri: str) -> None:
         """Set the connection database.
 
@@ -55,36 +68,22 @@ class PostgresTrafficHistoryQuery(TrafficHistoryQuery):
             if self.__database.connected:
                 connection = self.__database.get_connection()
                 cursor = self.__database.get_cursor()
-                for history in traffic:
-                    cursor.execute(
-                        f"""
-                            INSERT INTO
-                                {TableNameDatabase.TRAFFIC_HISTORY}
-                            (
-                                {TrafficHistoryFieldDatabase.DATE},
-                                {TrafficHistoryFieldDatabase.TIME},
-                                {TrafficHistoryFieldDatabase.ID_LAYER},
-                                {TrafficHistoryFieldDatabase.TYPE_LAYER},
-                                {TrafficHistoryFieldDatabase.IN_PROM},
-                                {TrafficHistoryFieldDatabase.IN_MAX},
-                                {TrafficHistoryFieldDatabase.OUT_PROM},
-                                {TrafficHistoryFieldDatabase.OUT_MAX}
-                            )
-                            VALUES
-                                (%s, %s, %s, %s, %s, %s, %s, %s)
-                        """,
-                        (
-                            history.date,
-                            history.time,
-                            history.idLayer,
-                            history.typeLayer,
-                            history.inProm,
-                            history.inMax,
-                            history.outProm,
-                            history.outMax
-                        )
+                cursor.copy_from(
+                    file=self.__create_buffer(traffic),
+                    table=TableNameDatabase.TRAFFIC_HISTORY.lower(),
+                    sep=';',
+                    columns=(
+                        TrafficHistoryFieldDatabase.DATE.lower(),
+                        TrafficHistoryFieldDatabase.TIME.lower(),
+                        TrafficHistoryFieldDatabase.ID_LAYER.lower(),
+                        TrafficHistoryFieldDatabase.TYPE_LAYER.lower(),
+                        TrafficHistoryFieldDatabase.IN_PROM.lower(),
+                        TrafficHistoryFieldDatabase.IN_MAX.lower(),
+                        TrafficHistoryFieldDatabase.OUT_PROM.lower(),
+                        TrafficHistoryFieldDatabase.OUT_MAX.lower()
                     )
-                    connection.commit()
+                )
+                connection.commit()
                 self.__database.close_connection()
         except Exception as e:
             log.error(f"Failed to insert traffic histories. {e}")
