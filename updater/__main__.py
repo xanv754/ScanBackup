@@ -1,5 +1,5 @@
 import click
-from multiprocessing import Pool, Process
+from multiprocessing import Process
 from updater import (
     BordeUpdaterHandler,
     BrasUpdaterHandler,

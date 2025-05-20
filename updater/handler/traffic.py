@@ -1,5 +1,5 @@
 from typing import List
-from datetime import datetime
+from datetime import datetime, timedelta
 from database import MongoTrafficHistoryQuery, PostgresTrafficHistoryQuery
 from model import TrafficHistoryModel
 from updater import UpdaterHandler
@@ -13,7 +13,9 @@ class TrafficHistoryUpdaterHandler(UpdaterHandler):
         try:
             if filepath:
                 traffic: List[TrafficHistoryModel] = []
-                if not date: date = datetime.now().strftime("%Y-%m-%d")
+                if not date: 
+                    date = datetime.now() - timedelta(days=1)
+                    date = date.strftime("%Y-%m-%d")
                 with open(filepath, "r") as file:
                     lines = file.readlines()
                     for line in lines[1:]:
