@@ -125,6 +125,7 @@ class TrafficHandler:
             if self.__error_connection: raise Exception("An error occurred while connecting to the database. The method has skipped.")
             if not Validate.layer_type(layer_type): raise Exception("Invalid parameter: name layer.")
             date = datetime.now().date()
+            date = date - timedelta(days=1)
             df_traffic = pd.DataFrame()
             dates = [(date - timedelta(days=i)).strftime("%Y-%m-%d") for i in range(day_before)]
             for date in dates:
