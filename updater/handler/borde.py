@@ -5,7 +5,7 @@ from datetime import datetime
 from constants.group import ModelBordeType, LayerType
 from constants.path import DataPath
 from database import MongoBordeQuery, PostgresBordeQuery
-from model import BordeModel, TrafficHistoryModel
+from model import BordeModel, TrafficHistoryModel, BordeFieldModel
 from updater import UpdaterHandler, TrafficHistoryUpdaterHandler
 from utils.log import log
 
@@ -13,58 +13,29 @@ from utils.log import log
 class BordeUpdaterHandler(UpdaterHandler):
     """Border data updater handler."""
 
-    def __load_database(self, data: List[Tuple[BordeModel, List[TrafficHistoryModel]]]) -> bool:
-        """Load the data obtained in the principal database."""
+    def __load_database(self, data: List[Tuple[BordeModel, List[TrafficHistoryModel]]], db_backup: bool = False) -> bool:
+        """Load the data obtained in the database."""
         failed = False
         try:
-            database = MongoBordeQuery()
+            if db_backup: database = PostgresBordeQuery()
+            else: database = MongoBordeQuery()
             historyHandler = TrafficHistoryUpdaterHandler()
             for interface, traffic in data:
                 try:
                     data_interface = database.get_interface(interface.name)
-                    if not data_interface:
+                    if data_interface.empty:
                         response = database.new_interface(interface)
                         if not response:
                             raise Exception(f"Failed to insert new interface of Border layer: {interface.name}")
                         else:
                             data_interface = database.get_interface(interface.name)
-                            if not data_interface:
+                            if data_interface.empty:
                                 raise Exception(f"Failed to get new interface of Border layer: {interface.name}")
                     for new_traffic in traffic:
-                        new_traffic.idLayer = str(data_interface.id)
+                        new_traffic.idLayer = str(data_interface[BordeFieldModel.id].iloc[0])
                         new_traffic.typeLayer = LayerType.BORDE
-                    response = historyHandler.load_data(data=traffic, mongo=True)
-                    if not response:
-                        raise Exception(f"Failed to insert histories traffic of an interface of Border layer: {interface.name}")
-                except Exception as e:
-                    log.error(f"Failed to insert new interface or histories traffic of Border layer. {e}")
-                    continue
-        except Exception as e:
-            log.error(f"Failed to load data of Border layer. {e}")
-            failed = True
-        return not failed
-        
-    def __load_backup_database(self, data: List[Tuple[BordeModel, List[TrafficHistoryModel]]]) -> bool:
-        """Load the data obtained in the secundary database."""
-        failed = False
-        try:
-            database = PostgresBordeQuery()
-            historyHandler = TrafficHistoryUpdaterHandler()
-            for interface, traffic in data:
-                try:
-                    data_interface = database.get_interface(interface.name)
-                    if not data_interface:
-                        response = database.new_interface(interface)
-                        if not response:
-                            raise Exception(f"Failed to insert new interface of Border layer: {interface.name}")
-                        else:
-                            data_interface = database.get_interface(interface.name)
-                            if not data_interface:
-                                raise Exception(f"Failed to get new interface of Border layer: {interface.name}")
-                    for new_traffic in traffic:
-                        new_traffic.idLayer = str(data_interface.id)
-                        new_traffic.typeLayer = LayerType.BORDE
-                    response = historyHandler.load_data(data=traffic, postgres=True)
+                    if db_backup: response = historyHandler.load_data(data=traffic, postgres=True)
+                    else: response = historyHandler.load_data(data=traffic, mongo=True)
                     if not response:
                         raise Exception(f"Failed to insert histories traffic of an interface of Border layer: {interface.name}")
                 except Exception as e:
@@ -114,7 +85,7 @@ class BordeUpdaterHandler(UpdaterHandler):
     def load_data(self, data: List[Tuple[BordeModel, List[TrafficHistoryModel]]]) -> bool:
         try:
             load_mongo = Process(target=self.__load_database, args=(data,))
-            load_postgres = Process(target=self.__load_backup_database, args=(data,))
+            load_postgres = Process(target=self.__load_database, args=(data, True))
             load_mongo.start()
             load_postgres.start()
             load_mongo.join()

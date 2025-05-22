@@ -8,7 +8,7 @@ from database.constant.fields import (
     RaiFieldDatabase,
     TrafficHistoryFieldDatabase
 )
-from model import BordeModel, BrasModel, CachingModel, RaiModel, TrafficHistoryModel
+from model import BordeFieldModel, BrasFieldModel, CachingFieldModel, RaiFieldModel, TrafficHistoryFieldModel
 
 
 class BordeResponseTrasform:
@@ -33,11 +33,11 @@ class BordeResponseTrasform:
             buffer.write(line)
         buffer.seek(0)
         df = pd.read_csv(buffer, sep=';', header=None, names=[
-            BordeFieldDatabase.ID,
-            BordeFieldDatabase.NAME,
-            BordeFieldDatabase.MODEL,
-            BordeFieldDatabase.CAPACITY,
-            BordeFieldDatabase.CREATE_AT
+            BordeFieldModel.id,
+            BordeFieldModel.name,
+            BordeFieldModel.model,
+            BordeFieldModel.capacity,
+            BordeFieldModel.createAt
         ])
         return df
     
@@ -60,11 +60,11 @@ class BordeResponseTrasform:
             buffer.write(line)
         buffer.seek(0)
         df = pd.read_csv(buffer, sep=';', header=None, names=[
-            BordeFieldDatabase.ID,
-            BordeFieldDatabase.NAME,
-            BordeFieldDatabase.MODEL,
-            BordeFieldDatabase.CAPACITY,
-            BordeFieldDatabase.CREATE_AT
+            BordeFieldModel.id,
+            BordeFieldModel.name,
+            BordeFieldModel.model,
+            BordeFieldModel.capacity,
+            BordeFieldModel.createAt
         ])
         return df
     
@@ -91,11 +91,11 @@ class BrasResponseTrasform:
             buffer.write(line)
         buffer.seek(0)
         df = pd.read_csv(buffer, sep=';', header=None, names=[
-            BrasFieldDatabase.ID,
-            BrasFieldDatabase.NAME,
-            BrasFieldDatabase.TYPE,
-            BrasFieldDatabase.CAPACITY,
-            BrasFieldDatabase.CREATE_AT
+            BrasFieldModel.id,
+            BrasFieldModel.name,
+            BrasFieldModel.type,
+            BrasFieldModel.capacity,
+            BrasFieldModel.createAt
         ])
         return df
     
@@ -118,10 +118,11 @@ class BrasResponseTrasform:
             buffer.write(line)
         buffer.seek(0)
         df = pd.read_csv(buffer, sep=';', header=None, names=[
-            RaiFieldDatabase.ID,
-            RaiFieldDatabase.NAME,
-            RaiFieldDatabase.CAPACITY,
-            RaiFieldDatabase.CREATE_AT
+            BrasFieldModel.id,
+            BrasFieldModel.name,
+            BrasFieldModel.type,
+            BrasFieldModel.capacity,
+            BrasFieldModel.createAt
         ])
         return df
 
@@ -148,11 +149,11 @@ class CachingResponseTrasform:
             buffer.write(line)
         buffer.seek(0)
         df = pd.read_csv(buffer, sep=';', header=None, names=[
-            CachingFieldDatabase.ID,
-            CachingFieldDatabase.NAME,
-            CachingFieldDatabase.SERVICE,
-            CachingFieldDatabase.CAPACITY,
-            CachingFieldDatabase.CREATE_AT
+            CachingFieldModel.id,
+            CachingFieldModel.name,
+            CachingFieldModel.service,
+            CachingFieldModel.capacity,
+            CachingFieldModel.createAt
         ])
         return df
     
@@ -175,11 +176,11 @@ class CachingResponseTrasform:
             buffer.write(line)
         buffer.seek(0)
         df = pd.read_csv(buffer, sep=';', header=None, names=[
-            CachingFieldDatabase.ID,
-            CachingFieldDatabase.NAME,
-            CachingFieldDatabase.SERVICE,
-            CachingFieldDatabase.CAPACITY,
-            CachingFieldDatabase.CREATE_AT
+            CachingFieldModel.id,
+            CachingFieldModel.name,
+            CachingFieldModel.service,
+            CachingFieldModel.capacity,
+            CachingFieldModel.createAt
         ])
         return df
     
@@ -205,10 +206,10 @@ class RaiResponseTrasform:
             buffer.write(line)
         buffer.seek(0)
         df = pd.read_csv(buffer, sep=';', header=None, names=[
-            RaiFieldDatabase.ID,
-            RaiFieldDatabase.NAME,
-            RaiFieldDatabase.CAPACITY,
-            RaiFieldDatabase.CREATE_AT
+            RaiFieldModel.id,
+            RaiFieldModel.name,
+            RaiFieldModel.capacity,
+            RaiFieldModel.createAt
         ])
         return df
     
@@ -230,10 +231,10 @@ class RaiResponseTrasform:
             buffer.write(line)
         buffer.seek(0)
         df = pd.read_csv(buffer, sep=';', header=None, names=[
-            RaiFieldDatabase.ID,
-            RaiFieldDatabase.NAME,
-            RaiFieldDatabase.CAPACITY,
-            RaiFieldDatabase.CREATE_AT
+            RaiFieldModel.id,
+            RaiFieldModel.name,
+            RaiFieldModel.capacity,
+            RaiFieldModel.createAt
         ])
         return df
 
@@ -263,14 +264,14 @@ class TrafficHistoryResponseTrasform:
             buffer.write(line)
         buffer.seek(0)
         df = pd.read_csv(buffer, sep=';', header=None, names=[
-            TrafficHistoryFieldDatabase.DATE,
-            TrafficHistoryFieldDatabase.TIME,
-            TrafficHistoryFieldDatabase.ID_LAYER,
-            TrafficHistoryFieldDatabase.TYPE_LAYER,
-            TrafficHistoryFieldDatabase.IN_PROM,
-            TrafficHistoryFieldDatabase.IN_MAX,
-            TrafficHistoryFieldDatabase.OUT_PROM,
-            TrafficHistoryFieldDatabase.OUT_MAX
+            TrafficHistoryFieldModel.date,
+            TrafficHistoryFieldModel.time,
+            TrafficHistoryFieldModel.idLayer,
+            TrafficHistoryFieldModel.typeLayer,
+            TrafficHistoryFieldModel.inProm,
+            TrafficHistoryFieldModel.inMax,
+            TrafficHistoryFieldModel.outProm,
+            TrafficHistoryFieldModel.outMax
         ])
         return df
     
@@ -296,13 +297,13 @@ class TrafficHistoryResponseTrasform:
             buffer.write(line)
         buffer.seek(0)
         df = pd.read_csv(buffer, sep=';', header=None, names=[
-            TrafficHistoryFieldDatabase.DATE,
-            TrafficHistoryFieldDatabase.TIME,
-            TrafficHistoryFieldDatabase.ID_LAYER,
-            TrafficHistoryFieldDatabase.TYPE_LAYER,
-            TrafficHistoryFieldDatabase.IN_PROM,
-            TrafficHistoryFieldDatabase.IN_MAX,
-            TrafficHistoryFieldDatabase.OUT_PROM,
-            TrafficHistoryFieldDatabase.OUT_MAX
+            TrafficHistoryFieldModel.date,
+            TrafficHistoryFieldModel.time,
+            TrafficHistoryFieldModel.idLayer,
+            TrafficHistoryFieldModel.typeLayer,
+            TrafficHistoryFieldModel.inProm,
+            TrafficHistoryFieldModel.inMax,
+            TrafficHistoryFieldModel.outProm,
+            TrafficHistoryFieldModel.outMax
         ])
         return df

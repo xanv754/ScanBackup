@@ -1,4 +1,4 @@
-from model import LayerModel
+from model import LayerModel, LayerFieldModel
 
 
 class BordeModel(LayerModel):
@@ -6,3 +6,10 @@ class BordeModel(LayerModel):
 
     model: str
     capacity: int
+
+
+class BordeFieldModel(LayerFieldModel):
+    """Borde field model."""
+
+    model: str = "model"
+    capacity: str = "capacity"

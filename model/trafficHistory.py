@@ -12,3 +12,16 @@ class TrafficHistoryModel(BaseModel):
     inMax: int
     outProm: int
     outMax: int
+
+
+class TrafficHistoryFieldModel:
+    """Traffic field model of layers history."""
+    
+    date: str = "date"
+    time: str = "time"
+    idLayer: str = "idLayer"
+    typeLayer: str = "typeLayer"
+    inProm: str = "inProm"
+    inMax: str = "inMax"
+    outProm: str = "outProm"
+    outMax: str = "outMax"

@@ -1,5 +1,6 @@
 from io import StringIO
 from typing import List
+from pandas import DataFrame
 from database import (
     TableNameDatabase,
     TrafficHistoryFieldDatabase,
@@ -116,7 +117,7 @@ class PostgresTrafficHistoryQuery(TrafficHistoryQuery):
                 result = cursor.fetchone()
                 if result:
                     data = TrafficHistoryResponseTrasform.default_model_postgres([result])
-                    if data: traffic = data[0]
+                    if not data.empty: traffic = data[0]
                 self.__database.close_connection()
             return traffic
         except Exception as e:

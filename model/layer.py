@@ -7,3 +7,11 @@ class LayerModel(BaseModel):
     id: str | None
     name: str
     createAt: str
+
+
+class LayerFieldModel:
+    """Layer field model."""
+
+    id: str = "id"
+    name: str = "name"
+    createAt: str = "createAt"

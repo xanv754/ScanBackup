@@ -3,7 +3,9 @@ class BrasFieldDatabase:
     NAME = "name"
     TYPE = "type"
     CAPACITY = "capacity"
+    SCAN = "scan"
     CREATE_AT = "createAt"
+    UPDATE_AT = "updateAt"
 
 
 class BordeFieldDatabase:
@@ -11,7 +13,9 @@ class BordeFieldDatabase:
     NAME = "name"
     MODEL = "model"
     CAPACITY = "capacity"
+    SCAN = "scan"
     CREATE_AT = "createAt"
+    UPDATE_AT = "updateAt"
 
 
 class CachingFieldDatabase:
@@ -19,14 +23,18 @@ class CachingFieldDatabase:
     NAME = "name"
     SERVICE = "service"
     CAPACITY = "capacity"
+    SCAN = "scan"
     CREATE_AT = "createAt"
+    UPDATE_AT = "updateAt"
 
 
 class RaiFieldDatabase:
     ID = "id"
     NAME = "name"
     CAPACITY = "capacity"
+    SCAN = "scan"
     CREATE_AT = "createAt"
+    UPDATE_AT = "updateAt"
 
 
 class TrafficHistoryFieldDatabase:

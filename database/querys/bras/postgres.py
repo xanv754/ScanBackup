@@ -1,4 +1,5 @@
 from typing import List
+from pandas import DataFrame
 from database import (
     TableNameDatabase,
     BrasFieldDatabase,
@@ -67,7 +68,7 @@ class PostgresBrasQuery(BrasQuery):
 
     def get_interface(self, brasname: str, type: str):
         try:
-            interface: BrasModel | None = None
+            interface: DataFrame = DataFrame()
             self.__database.open_connection()
             if self.__database.connected:
                 cursor = self.__database.get_cursor()
@@ -87,16 +88,16 @@ class PostgresBrasQuery(BrasQuery):
                 result = cursor.fetchone()
                 if result: 
                     data = BrasResponseTrasform.default_model_postgres([result])
-                    if data: interface = data[0]
+                    if not data.empty: interface = data
                 self.__database.close_connection()
             return interface
         except Exception as e:
             log.error(f"Failed to get bras. {e}")
-            return None
+            return DataFrame()
 
     def get_interfaces(self):
         try:
-            interfaces: List[BrasModel] = []
+            interfaces: DataFrame = DataFrame()
             self.__database.open_connection()
             if self.__database.connected:
                 cursor = self.__database.get_cursor()
@@ -114,4 +115,4 @@ class PostgresBrasQuery(BrasQuery):
             return interfaces
         except Exception as e:
             log.error(f"Failed to get bras. {e}")
-            return []
+            return DataFrame()

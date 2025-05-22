@@ -14,7 +14,7 @@ from database import (
     TRAFFIC_HISTORY_SCHEMA_POSTGRES,
     IP_HISTORY_SCHEMA_POSTGRES
 )
-from utils import log
+from utils.log import log
 
 class PostgresDatabase(Database):
     __connection: psycopg2.extensions.connection

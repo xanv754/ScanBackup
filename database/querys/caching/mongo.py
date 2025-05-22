@@ -1,4 +1,5 @@
 from typing import List
+from pandas import DataFrame
 from database import (
     TableNameDatabase,
     CachingFieldDatabase,
@@ -52,23 +53,23 @@ class MongoCachingQuery(CachingQuery):
 
     def get_interface(self, name: str):
         try:
-            interface: CachingModel | None = None
+            interface: DataFrame = DataFrame()
             self.__database.open_connection()
             if self.__database.connected:
                 collection = self.__database.get_cursor(table=TableNameDatabase.CACHING)
                 result = collection.find_one({CachingFieldDatabase.NAME: name})
                 if result:
                     data = CachingResponseTrasform.default_model_mongo([result])
-                    if data: interface = data[0]
+                    if not data.empty: interface = data
                 self.__database.close_connection()
             return interface
         except Exception as e:
             log.error(f"Failed to get interface. {e}")
-            return None
+            return DataFrame()
 
     def get_interfaces(self):
         try:
-            interfaces: List[CachingModel] = []
+            interfaces: DataFrame = DataFrame()
             self.__database.open_connection()
             if self.__database.connected:
                 collection = self.__database.get_cursor(table=TableNameDatabase.CACHING)
@@ -78,4 +79,4 @@ class MongoCachingQuery(CachingQuery):
             return interfaces
         except Exception as e:
             log.error(f"Failed to get all interfaces. {e}")
-            return []
+            return DataFrame()

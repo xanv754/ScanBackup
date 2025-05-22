@@ -1,4 +1,5 @@
 from typing import List
+from pandas import DataFrame
 from database import (
     TableNameDatabase,
     RaiFieldDatabase,
@@ -52,7 +53,7 @@ class MongoRaiQuery(RaiQuery):
 
     def get_interface(self, name: str):
         try:
-            interface: RaiModel | None = None
+            interface: DataFrame = DataFrame()
             self.__database.open_connection()
             if self.__database.connected:
                 collection = self.__database.get_cursor(table=TableNameDatabase.RAI)
@@ -60,16 +61,16 @@ class MongoRaiQuery(RaiQuery):
                 self.__database.close_connection()
                 if result:
                     data = RaiResponseTrasform.default_model_mongo([result])
-                    if data: interface = data[0]
+                    if not data.empty: interface = data
                 self.__database.close_connection()
             return interface
         except Exception as e:
             log.error(f"Failed to get interface. {e}")
-            return None
+            return DataFrame()
 
     def get_interfaces(self):
         try:
-            interfaces: List[RaiModel] = []
+            interfaces: DataFrame = DataFrame()
             self.__database.open_connection()
             if self.__database.connected:
                 collection = self.__database.get_cursor(table=TableNameDatabase.RAI)
@@ -79,4 +80,4 @@ class MongoRaiQuery(RaiQuery):
             return interfaces
         except Exception as e:
             log.error(f"Failed to get all interfaces. {e}")
-            return []
+            return DataFrame()

@@ -1,4 +1,5 @@
 from typing import List
+from pandas import DataFrame
 from database import (
     TableNameDatabase,
     TrafficHistoryFieldDatabase,
@@ -65,7 +66,7 @@ class MongoTrafficHistoryQuery(TrafficHistoryQuery):
         
     def get_traffic(self, date: str, time: str, id_layer: str):
         try:
-            traffic: TrafficHistoryModel | None = None
+            traffic: DataFrame = DataFrame()
             self.__database.open_connection()
             if self.__database.connected:
                 collection = self.__database.get_cursor(table=TableNameDatabase.TRAFFIC_HISTORY)
@@ -76,16 +77,16 @@ class MongoTrafficHistoryQuery(TrafficHistoryQuery):
                 })
                 if result:
                     data = TrafficHistoryResponseTrasform.default_model_mongo([result])
-                    if data: traffic = data[0]
+                    if not data.empty: traffic = data
                 self.__database.close_connection()
             return traffic
         except Exception as e:
             log.error(f"Failed to get traffic. {e}")
-            return None
+            return DataFrame()
         
     def get_traffic_layer_by_date(self, layer_type: str, date: str):
         try:
-            traffic: List[TrafficHistoryModel] = []
+            traffic: DataFrame = DataFrame()
             self.__database.open_connection()
             if self.__database.connected:
                 collection = self.__database.get_cursor(table=TableNameDatabase.TRAFFIC_HISTORY)
@@ -98,4 +99,4 @@ class MongoTrafficHistoryQuery(TrafficHistoryQuery):
             return traffic
         except Exception as e:
             log.error(f"Failed to get traffic. {e}")
-            return []
+            return DataFrame()
