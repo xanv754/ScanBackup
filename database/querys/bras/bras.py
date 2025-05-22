@@ -1,5 +1,5 @@
-from typing import List
 from abc import ABC, abstractmethod
+from pandas import DataFrame
 from model import BrasModel
 
 
@@ -33,7 +33,7 @@ class BrasQuery(ABC):
         pass
 
     @abstractmethod
-    def get_interface(self, brasname: str, type: str) -> BrasModel | None :
+    def get_interface(self, brasname: str, type: str) -> DataFrame:
         """Get bras.
 
         Parameters
@@ -50,7 +50,7 @@ class BrasQuery(ABC):
         pass
 
     @abstractmethod
-    def get_interfaces(self) -> List[BrasModel]:
+    def get_interfaces(self) -> DataFrame:
         """Get all bras.
 
         Returns

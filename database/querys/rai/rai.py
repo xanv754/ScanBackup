@@ -1,5 +1,5 @@
-from typing import List
 from abc import ABC, abstractmethod
+from pandas import DataFrame
 from model import RaiModel
 
 
@@ -33,7 +33,7 @@ class RaiQuery(ABC):
         pass
 
     @abstractmethod
-    def get_interface(self, name: str) -> RaiModel | None :
+    def get_interface(self, name: str) -> DataFrame:
         """Get interface.
 
         Parameters
@@ -48,7 +48,7 @@ class RaiQuery(ABC):
         pass
 
     @abstractmethod
-    def get_interfaces(self) -> List[RaiModel]:
+    def get_interfaces(self) -> DataFrame:
         """Get all interfaces to rai layer.
 
         Returns

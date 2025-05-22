@@ -22,10 +22,10 @@ class CachingHandler:
         """Get all interfaces of caching layer."""
         try:
             if self.__error_connection: raise Exception("An error occurred while connecting to the database. The method has skipped.")
-            interfaces = self.caching_query.get_interfaces()
-            df = pd.DataFrame([data.model_dump(exclude={HeaderDataFrame.CREATE_AT}) for data in interfaces])
+            df_interfaces = self.caching_query.get_interfaces()
+            df_interfaces.drop(columns=[HeaderDataFrame.CREATE_AT], inplace=True)
         except Exception as e:
             log.error(f"Caching handler. Failed to get all interfaces of caching layer. {e}")
             return pd.DataFrame()
         else:
-            return df
+            return df_interfaces

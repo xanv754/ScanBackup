@@ -1,5 +1,5 @@
-from typing import List
 from abc import ABC, abstractmethod
+from pandas import DataFrame
 from model import BordeModel
 
 
@@ -33,21 +33,17 @@ class BordeQuery(ABC):
         pass
 
     @abstractmethod
-    def get_interface(self, name: str) -> BordeModel | None :
+    def get_interface(self, name: str) -> DataFrame:
         """Get interface.
 
         Parameters
         ----------
         name : str
             Name interface.
-
-        Returns
-        -------
-            Interface information. If the interface does not exist, returns None.
         """
         pass
 
     @abstractmethod
-    def get_interfaces(self) -> List[BordeModel]:
+    def get_interfaces(self) -> DataFrame:
         """Get all interfaces."""
         pass

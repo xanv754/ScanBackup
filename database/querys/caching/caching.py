@@ -1,5 +1,5 @@
-from typing import List
 from abc import ABC, abstractmethod
+from pandas import DataFrame
 from model import CachingModel
 
 
@@ -33,7 +33,7 @@ class CachingQuery(ABC):
         pass
 
     @abstractmethod
-    def get_interface(self, name: str) -> CachingModel | None :
+    def get_interface(self, name: str) -> DataFrame:
         """Get interface.
 
         Parameters
@@ -48,7 +48,7 @@ class CachingQuery(ABC):
         pass
 
     @abstractmethod
-    def get_interfaces(self) -> List[CachingModel]:
+    def get_interfaces(self) -> DataFrame:
         """Get all interfaces to caching layer.
 
         Returns
