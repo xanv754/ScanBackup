@@ -22,12 +22,13 @@ class ConfigurationHandler:
         try:
             if not hasattr(self, "__initialized"):
                 self.__initialized = True
-                if os.path.exists(".env.development"):
-                    env = dotenv_values(".env.development")
-                elif os.path.exists(".env.production"):
-                    env = dotenv_values(".env.production")
-                elif os.path.exists(".env"):
-                    env = dotenv_values(".env")
+                base_path = os.path.abspath(__file__).split("/utils")[0]
+                if os.path.exists(f"{base_path}/.env.development"):
+                    env = dotenv_values(f"{base_path}/.env.development")
+                elif os.path.exists(f"{base_path}/.env.production"):
+                    env = dotenv_values(f"{base_path}/.env.production")
+                elif os.path.exists(f"{base_path}/.env"):
+                    env = dotenv_values(f"{base_path}/.env")
                 else:
                     raise FileNotFoundError("No file with environment variables found")
                 uri_postgres = env.get("URI_POSTGRES")
