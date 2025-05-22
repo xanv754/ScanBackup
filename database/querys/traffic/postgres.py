@@ -95,7 +95,7 @@ class PostgresTrafficHistoryQuery(TrafficHistoryQuery):
         
     def get_traffic(self, date: str, time: str, id_layer: str):
         try:
-            traffic: TrafficHistoryModel | None = None
+            traffic: DataFrame = DataFrame()
             self.__database.open_connection()
             if self.__database.connected:
                 cursor = self.__database.get_cursor()
@@ -117,16 +117,16 @@ class PostgresTrafficHistoryQuery(TrafficHistoryQuery):
                 result = cursor.fetchone()
                 if result:
                     data = TrafficHistoryResponseTrasform.default_model_postgres([result])
-                    if not data.empty: traffic = data[0]
+                    if not data.empty: traffic = data
                 self.__database.close_connection()
             return traffic
         except Exception as e:
             log.error(f"Failed to get traffic. {e}")
-            return None
+            return DataFrame()
 
     def get_traffic_layer_by_date(self, layer_type: str, date: str):
         try:
-            traffic: List[TrafficHistoryModel] = []
+            traffic: DataFrame = DataFrame()
             self.__database.open_connection()
             if self.__database.connected:
                 cursor = self.__database.get_cursor()
@@ -148,4 +148,4 @@ class PostgresTrafficHistoryQuery(TrafficHistoryQuery):
             return traffic
         except Exception as e:
             log.error(f"Failed to get traffic. {e}")
-            return []
+            return DataFrame()

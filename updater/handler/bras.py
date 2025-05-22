@@ -13,7 +13,7 @@ from utils.log import log
 class BrasUpdaterHandler(UpdaterHandler):
     """Bras data updater handler."""
 
-    def __load_database(self, data: List[Tuple[BrasModel, List[TrafficHistoryModel]]], db_backup: bool = False) -> bool:
+    def _load_database(self, data: List[Tuple[BrasModel, List[TrafficHistoryModel]]], db_backup: bool = False) -> bool:
         """Load the data obtained in the principal database."""
         failed = False
         try:
@@ -85,8 +85,8 @@ class BrasUpdaterHandler(UpdaterHandler):
 
     def load_data(self, data: List[Tuple[BrasModel, List[TrafficHistoryModel]]]) -> bool:
         try:
-            load_mongo = Process(target=self.__load_database, args=(data,))
-            load_postgres = Process(target=self.__load_database, args=(data, True))
+            load_mongo = Process(target=self._load_database, args=(data,))
+            load_postgres = Process(target=self._load_database, args=(data, True))
             load_mongo.start()
             load_postgres.start()
             load_mongo.join()
