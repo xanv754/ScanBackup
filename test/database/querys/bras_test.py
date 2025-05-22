@@ -2,7 +2,7 @@ import unittest
 import random
 from datetime import datetime
 from database import BrasFieldDatabase, MongoBrasQuery, PostgresBrasQuery
-from model import BrasModel
+from model import BrasModel, BrasFieldModel
 from test import DatabasePostgresTest, DatabaseMongoTest, LayerTypeTest, BrasTypeTest
 
 
@@ -17,7 +17,7 @@ def get_example_interface() -> BrasModel:
     )
 
 
-class TestBrasQueryMongo(unittest.TestCase):
+class TestMongo(unittest.TestCase):
     test_database: DatabaseMongoTest = DatabaseMongoTest()
 
     def test_insert(self):
@@ -37,8 +37,8 @@ class TestBrasQueryMongo(unittest.TestCase):
         interface = database.get_interface(brasname=example_interface.name, type=example_interface.type)
         self.test_database.clean(table=LayerTypeTest.BRAS)
 
-        self.assertIsNotNone(interface)
-        self.assertEqual(interface.name, example_interface.name)
+        self.assertFalse(interface.empty)
+        self.assertEqual(interface[BrasFieldModel.name].iloc[0], example_interface.name)
 
     def test_get_all(self):
         """Test get all interfaces of Bras layer in the MongoDB."""
@@ -48,10 +48,10 @@ class TestBrasQueryMongo(unittest.TestCase):
         interfaces = database.get_interfaces()
         self.test_database.clean(table=LayerTypeTest.BRAS)
         
-        self.assertIsNotNone(interfaces)
+        self.assertFalse(interfaces.empty)
 
 
-class TestBrasQueryPostgres(unittest.TestCase):
+class TestPostgres(unittest.TestCase):
     test_database: DatabasePostgresTest = DatabasePostgresTest()
 
     def create_table(self) -> None:
@@ -96,7 +96,7 @@ class TestBrasQueryPostgres(unittest.TestCase):
         )
         return example_interface
 
-    def test_insert_interface(self):
+    def test_insert(self):
         """Test insert a new interface of Bras layer in the PostgreSQL."""
         example_interface = get_example_interface()
         database = PostgresBrasQuery()
@@ -112,8 +112,8 @@ class TestBrasQueryPostgres(unittest.TestCase):
         interface = database.get_interface(brasname=example_interface.name, type=example_interface.type)
         self.test_database.clean(table=LayerTypeTest.BRAS)
         
-        self.assertIsNotNone(interface)
-        self.assertEqual(interface.name, example_interface.name)
+        self.assertFalse(interface.empty)
+        self.assertEqual(interface[BrasFieldModel.name].iloc[0], example_interface.name)
 
     def test_get_all(self):
         """Test get all interfaces of Bras layer in the PostgreSQL."""
@@ -122,7 +122,7 @@ class TestBrasQueryPostgres(unittest.TestCase):
         interfaces = database.get_interfaces()
         self.test_database.clean(table=LayerTypeTest.BRAS)
         
-        self.assertIsNotNone(interfaces)
+        self.assertFalse(interfaces.empty)
 
 
 if __name__ == "__main__":

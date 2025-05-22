@@ -2,7 +2,7 @@ import random
 import unittest
 from datetime import datetime
 from database import TrafficHistoryFieldDatabase, MongoTrafficHistoryQuery, PostgresTrafficHistoryQuery
-from model import TrafficHistoryModel
+from model import TrafficHistoryModel, TrafficHistoryFieldModel
 from test import DatabasePostgresTest, DatabaseMongoTest, LayerTypeTest
 
 def get_example_traffic() -> TrafficHistoryModel:
@@ -18,7 +18,7 @@ def get_example_traffic() -> TrafficHistoryModel:
         typeLayer=LayerTypeTest.BORDE
     )
 
-class TestTrafficQueryMongo(unittest.TestCase):
+class TestMongo(unittest.TestCase):
     test_database: DatabaseMongoTest = DatabaseMongoTest()
 
     def test_insert(self):
@@ -42,10 +42,10 @@ class TestTrafficQueryMongo(unittest.TestCase):
         )
         self.test_database.clean(table=LayerTypeTest.TRAFFIC_HISTORY)
 
-        self.assertIsNotNone(response)
-        self.assertEqual(response.date, example_traffic.date)
-        self.assertEqual(response.time, example_traffic.time)
-        self.assertEqual(response.idLayer, example_traffic.idLayer)
+        self.assertFalse(response.empty)
+        self.assertEqual(response[TrafficHistoryFieldModel.date].iloc[0], example_traffic.date)
+        self.assertEqual(response[TrafficHistoryFieldModel.time].iloc[0], example_traffic.time)
+        self.assertEqual(str(response[TrafficHistoryFieldModel.idLayer].iloc[0]), example_traffic.idLayer)
 
     def test_get_by_layer_and_date(self):
         """Test get all traffic history of a type layer by date in MongoDB."""
@@ -58,11 +58,11 @@ class TestTrafficQueryMongo(unittest.TestCase):
         )
         self.test_database.clean(table=LayerTypeTest.TRAFFIC_HISTORY)
 
-        self.assertIsNotNone(interface)
-        self.assertEqual(interface[0].date, example_traffic.date)
-        self.assertEqual(interface[0].typeLayer, example_traffic.typeLayer)
+        self.assertFalse(interface.empty)
+        self.assertEqual(interface[TrafficHistoryFieldModel.date].iloc[0], example_traffic.date)
+        self.assertEqual(interface[TrafficHistoryFieldModel.typeLayer].iloc[0], example_traffic.typeLayer)
 
-class TestTrafficQueryPostgres(unittest.TestCase):
+class TestPostgres(unittest.TestCase):
     test_database: DatabasePostgresTest = DatabasePostgresTest()
 
     def create_table(self) -> None:
@@ -137,10 +137,10 @@ class TestTrafficQueryPostgres(unittest.TestCase):
         )
         self.test_database.clean(table=LayerTypeTest.TRAFFIC_HISTORY)
 
-        self.assertIsNotNone(response)
-        self.assertEqual(response.date, example_traffic.date)
-        self.assertEqual(response.time, example_traffic.time)
-        self.assertEqual(response.idLayer, example_traffic.idLayer)
+        self.assertFalse(response.empty)
+        self.assertEqual(response[TrafficHistoryFieldModel.date].iloc[0], example_traffic.date)
+        self.assertEqual(response[TrafficHistoryFieldModel.time].iloc[0], example_traffic.time)
+        self.assertEqual(str(response[TrafficHistoryFieldModel.idLayer].iloc[0]), example_traffic.idLayer)
 
     def test_get_by_layer_and_date(self):
         """Test get all traffic history of a type layer by date in PostgreSQL."""
@@ -152,9 +152,9 @@ class TestTrafficQueryPostgres(unittest.TestCase):
         )
         self.test_database.clean(table=LayerTypeTest.TRAFFIC_HISTORY)
         
-        self.assertIsNotNone(interface)
-        self.assertEqual(interface[0].date, example_traffic.date)
-        self.assertEqual(interface[0].typeLayer, example_traffic.typeLayer)
+        self.assertFalse(interface.empty)
+        self.assertEqual(interface[TrafficHistoryFieldModel.date].iloc[0], example_traffic.date)
+        self.assertEqual(interface[TrafficHistoryFieldModel.typeLayer].iloc[0], example_traffic.typeLayer)
 
 
 if __name__ == "__main__":

@@ -2,7 +2,7 @@ import unittest
 import random
 from datetime import datetime
 from database import CachingFieldDatabase, MongoCachingQuery, PostgresCachingQuery
-from model import CachingModel
+from model import CachingModel, CachingFieldModel
 from test import DatabasePostgresTest, DatabaseMongoTest, LayerTypeTest
 
 
@@ -17,10 +17,10 @@ def get_example_interface() -> CachingModel:
     )
 
 
-class TestCachingQueryMongo(unittest.TestCase):
+class TestMongo(unittest.TestCase):
     test_database: DatabaseMongoTest = DatabaseMongoTest()
 
-    def test_insert_interface(self):
+    def test_insert(self):
         """Test insert a new interface of Caching layer in the MongoDB."""
         example_interface = get_example_interface()
         database = MongoCachingQuery() 
@@ -29,7 +29,7 @@ class TestCachingQueryMongo(unittest.TestCase):
 
         self.assertTrue(response)
 
-    def test_get_interface(self):
+    def test_get(self):
         """Test get an interface of Caching layer in the MongoDB."""
         example_interface = get_example_interface()
         self.test_database.insert(table=LayerTypeTest.CACHING, data=example_interface.model_dump())
@@ -37,8 +37,8 @@ class TestCachingQueryMongo(unittest.TestCase):
         interface = database.get_interface(name=example_interface.name)
         self.test_database.clean(table=LayerTypeTest.CACHING)
         
-        self.assertIsNotNone(interface)
-        self.assertEqual(interface.name, example_interface.name)
+        self.assertFalse(interface.empty)
+        self.assertEqual(interface[CachingFieldModel.name].iloc[0], example_interface.name)
 
     def test_get_all(self):
         """Test get all interfaces of Caching layer in the MongoDB."""
@@ -51,7 +51,7 @@ class TestCachingQueryMongo(unittest.TestCase):
         self.assertIsNotNone(interfaces)
 
 
-class TestCachingQueryPostgres(unittest.TestCase):
+class TestPostgres(unittest.TestCase):
     test_database: DatabasePostgresTest = DatabasePostgresTest()
 
     def create_table(self) -> None:
@@ -90,7 +90,7 @@ class TestCachingQueryPostgres(unittest.TestCase):
         )
         return example_interface
 
-    def test_insert_interface(self):
+    def test_insert(self):
         """Test insert a new interface of Caching layer in the PostgreSQL."""
         example_interface = get_example_interface()
         database = PostgresCachingQuery()
@@ -106,8 +106,8 @@ class TestCachingQueryPostgres(unittest.TestCase):
         interface = database.get_interface(name=example_interface.name)
         self.test_database.clean(table=LayerTypeTest.CACHING)
         
-        self.assertIsNotNone(interface)
-        self.assertEqual(interface.name, example_interface.name)
+        self.assertFalse(interface.empty)
+        self.assertEqual(interface[CachingFieldModel.name].iloc[0], example_interface.name)
 
     def test_get_all(self):
         """Test get all interfaces of Caching layer in the PostgreSQL."""
@@ -116,7 +116,7 @@ class TestCachingQueryPostgres(unittest.TestCase):
         interfaces = database.get_interfaces()
         self.test_database.clean(table=LayerTypeTest.CACHING)
         
-        self.assertIsNotNone(interfaces)
+        self.assertFalse(interfaces.empty)
 
 
 if __name__ == "__main__":

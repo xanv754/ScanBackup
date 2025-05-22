@@ -1,8 +1,9 @@
 import os
+import shutil
 import traceback
 import psycopg2
 from typing import List
-from datetime import datetime
+from datetime import datetime, timedelta
 from abc import ABC, abstractmethod
 from dotenv import dotenv_values
 from pymongo import MongoClient
@@ -168,12 +169,16 @@ class FileDataTest(ABC):
 
     def create_file(self) -> None:
         """Create a file with example data."""
+        if os.path.isdir(f"{os.path.realpath("./")}/test/data"):
+            shutil.rmtree(f"{os.path.realpath("./")}/test/data")
         os.makedirs(self.folder, exist_ok=True)
+        date = datetime.now() - timedelta(days=1)
+        date = date.strftime("%Y-%m-%d")
         with open(self.filepath, "w") as file:
             file.write("Fecha Hora InPro OutPro InMax OutMax\n")
-            file.write(f"{datetime.now().strftime("%Y-%m-%d")} 17:35:00 11617614 2296806 11890501 2323927\n")
-            file.write(f"{datetime.now().strftime("%Y-%m-%d")} 20:55:00 3515418 2152241 3605922 2243843\n")
-            file.write(f"{datetime.now().strftime("%Y-%m-%d")} 23:50:00 2824666 2263704 3462229 2338423\n")
+            file.write(f"{date} 17:35:00 11617614 2296806 11890501 2323927\n")
+            file.write(f"{date} 20:55:00 3515418 2152241 3605922 2243843\n")
+            file.write(f"{date} 23:50:00 2824666 2263704 3462229 2338423\n")
     
     def delete_file(self) -> None:
         """Delete the example file."""

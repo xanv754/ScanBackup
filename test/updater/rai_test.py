@@ -25,7 +25,10 @@ class TestHistoryUpdater(unittest.TestCase):
         data_example.create_file()
         raiHandler = RaiUpdaterHandler()
         data = raiHandler.get_data(filepath=data_example.folder)
-        response = raiHandler.load_data(data=data)
+        response_mongo = raiHandler._load_database(data=data)
+        response_postgres = raiHandler._load_database(data=data, db_backup=True)
+        if response_mongo and response_postgres: response = True
+        else: response = False
         rai_records = self.test_database_mongo.get(table=LayerTypeTest.RAI, condition={RaiFieldDatabase.NAME: "INTERFACE_TEST_1"})
 
         data_example.delete_file()

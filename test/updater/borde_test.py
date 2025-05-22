@@ -4,11 +4,11 @@ from updater import BordeUpdaterHandler
 from test import FileBordeDataTest, DatabaseMongoTest, DatabasePostgresTest, LayerTypeTest, ModelBordeTypeTest
 
 
-class TestHistoryUpdater(unittest.TestCase):
+class TestUpdater(unittest.TestCase):
     test_database_mongo: DatabaseMongoTest = DatabaseMongoTest()
     test_database_postgres: DatabasePostgresTest = DatabasePostgresTest()
 
-    def test_get_data(self):
+    def test_get(self):
         """Test get all data from border files."""
         data_example = FileBordeDataTest(filename=f"{ModelBordeTypeTest.CISCO}%INTERFACE_TEST_1%10")
         data_example.create_file()
@@ -20,13 +20,16 @@ class TestHistoryUpdater(unittest.TestCase):
         self.assertEqual(type(data), list)
         self.assertTrue(data)
 
-    def test_load_data(self):
+    def test_load(self):
         """Test load all data from border files."""
         data_example = FileBordeDataTest(filename=f"{ModelBordeTypeTest.CISCO}%INTERFACE_TEST_1%10")
         data_example.create_file()
         borderHandler = BordeUpdaterHandler()
         data = borderHandler.get_data(filepath=data_example.folder)
-        response = borderHandler.load_data(data=data)
+        response_mongo = borderHandler._load_database(data=data)
+        response_postgres = borderHandler._load_database(data=data, db_backup=True)
+        if response_mongo and response_postgres: response = True
+        else: response = False
         borde_records = self.test_database_mongo.get(table=LayerTypeTest.BORDE, condition={BordeFieldDatabase.NAME: "INTERFACE_TEST_1"})
 
         data_example.delete_file()

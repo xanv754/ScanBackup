@@ -2,7 +2,7 @@ import unittest
 import random
 from datetime import datetime
 from database import RaiFieldDatabase, MongoRaiQuery, PostgresRaiQuery
-from model import RaiModel
+from model import RaiModel, RaiFieldModel
 from test import DatabasePostgresTest, DatabaseMongoTest, LayerTypeTest
 
 
@@ -16,10 +16,10 @@ def get_example_interface() -> RaiModel:
     )
 
 
-class TestRaiQueryMongo(unittest.TestCase):
+class TestMongo(unittest.TestCase):
     test_database: DatabaseMongoTest = DatabaseMongoTest()
 
-    def test_insert_interface(self):
+    def test_insert(self):
         """Test insert a new interface of Rai layer in the MongoDB."""
         example_interface = get_example_interface()
         database = MongoRaiQuery() 
@@ -28,7 +28,7 @@ class TestRaiQueryMongo(unittest.TestCase):
 
         self.assertTrue(response)
 
-    def test_get_interface(self):
+    def test_get(self):
         """Test get an interface of Rai layer in the MongoDB."""
         example_interface = get_example_interface()
         self.test_database.insert(table=LayerTypeTest.RAI, data=example_interface.model_dump())
@@ -36,8 +36,8 @@ class TestRaiQueryMongo(unittest.TestCase):
         interface = database.get_interface(name=example_interface.name)
         self.test_database.clean(table=LayerTypeTest.RAI)
         
-        self.assertIsNotNone(interface)
-        self.assertEqual(interface.name, example_interface.name)
+        self.assertFalse(interface.empty)
+        self.assertEqual(interface[RaiFieldModel.name].iloc[0], example_interface.name)
 
     def test_get_all(self):
         """Test get all interfaces of Rai layer in the MongoDB."""
@@ -47,10 +47,10 @@ class TestRaiQueryMongo(unittest.TestCase):
         interfaces = database.get_interfaces()
         self.test_database.clean(table=LayerTypeTest.RAI)
         
-        self.assertIsNotNone(interfaces)
+        self.assertFalse(interfaces.empty)
 
 
-class TestRaiQueryPostgres(unittest.TestCase):
+class TestPostgres(unittest.TestCase):
     test_database: DatabasePostgresTest = DatabasePostgresTest()
 
     def create_table(self) -> None:
@@ -86,7 +86,7 @@ class TestRaiQueryPostgres(unittest.TestCase):
         )
         return example_interface
 
-    def test_insert_interface(self):
+    def test_insert(self):
         """Test insert a new interface of Rai layer in the PostgreSQL."""
         example_interface = get_example_interface()
         database = PostgresRaiQuery()
@@ -102,8 +102,8 @@ class TestRaiQueryPostgres(unittest.TestCase):
         interface = database.get_interface(name=example_interface.name)
         self.test_database.clean(table=LayerTypeTest.RAI)
         
-        self.assertIsNotNone(interface)
-        self.assertEqual(interface.name, example_interface.name)
+        self.assertFalse(interface.empty)
+        self.assertEqual(interface[RaiFieldModel.name].iloc[0], example_interface.name)
 
     def test_get_all(self):
         """Test get all interfaces of Rai layer in the PostgreSQL."""
@@ -112,7 +112,7 @@ class TestRaiQueryPostgres(unittest.TestCase):
         interfaces = database.get_interfaces()
         self.test_database.clean(table=LayerTypeTest.RAI)
         
-        self.assertIsNotNone(interfaces)
+        self.assertFalse(interfaces.empty)
 
 
 if __name__ == "__main__":

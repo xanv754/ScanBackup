@@ -26,7 +26,10 @@ class TestHistoryUpdater(unittest.TestCase):
         data_example.create_file()
         brasHandler = BrasUpdaterHandler()
         data = brasHandler.get_data(filepath=data_example.folder)
-        response = brasHandler.load_data(data=data)
+        response_mongo = brasHandler._load_database(data=data)
+        response_postgres = brasHandler._load_database(data=data, db_backup=True)
+        if response_mongo and response_postgres: response = True
+        else: response = False
         bras_records = self.test_database_mongo.get(table=LayerTypeTest.BRAS, condition={BrasFieldDatabase.NAME: "INTERFACE_TEST_1"})
 
         data_example.delete_file()

@@ -26,7 +26,10 @@ class TestHistoryUpdater(unittest.TestCase):
         data_example.create_file()
         cachingHandler = CachingUpdaterHandler()
         data = cachingHandler.get_data(filepath=data_example.folder)
-        response = cachingHandler.load_data(data=data)
+        response_mongo = cachingHandler._load_database(data=data)
+        response_postgres = cachingHandler._load_database(data=data, db_backup=True)
+        if response_mongo and response_postgres: response = True
+        else: response = False
         caching_records = self.test_database_mongo.get(table=LayerTypeTest.CACHING, condition={CachingFieldDatabase.NAME: "INTERFACE_TEST_1"})
 
         data_example.delete_file()

@@ -1,6 +1,6 @@
 import random
 import unittest
-from datetime import datetime
+from datetime import datetime, timedelta
 from constants.header import HeaderDataFrame
 from database import TrafficHistoryFieldDatabase, BordeFieldDatabase, BrasFieldDatabase, CachingFieldDatabase, RaiFieldDatabase
 from model import TrafficHistoryModel, BordeModel, BrasModel, CachingModel, RaiModel
@@ -20,8 +20,11 @@ def get_example_interface_borde() -> BordeModel:
 
 def get_example_interface_traffic() -> TrafficHistoryModel:
     """Get example interface of traffic history of borde layer."""
+    date = datetime.now().date()
+    date = date - timedelta(days=1)
+    date = date.strftime("%Y-%m-%d")
     return TrafficHistoryModel(
-        date=datetime.now().strftime("%Y-%m-%d"),
+        date=date,
         time="00:00:00",
         inProm=20,
         inMax=30,

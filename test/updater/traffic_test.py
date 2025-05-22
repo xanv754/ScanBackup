@@ -5,11 +5,11 @@ from updater import TrafficHistoryUpdaterHandler
 from test import FileCachingDataTest, DatabaseMongoTest, DatabasePostgresTest, LayerTypeTest
 
 
-class TestTrafficHistoryUpdater(unittest.TestCase):
+class TestUpdater(unittest.TestCase):
     test_database_mongo: DatabaseMongoTest = DatabaseMongoTest()
     test_database_postgres: DatabasePostgresTest = DatabasePostgresTest()
 
-    def test_get_data(self):
+    def test_get(self):
         """Test to get data from history files."""
         data_example = FileCachingDataTest(filename="SERVICE%INTERFACE_TEST_1%22.5")
         data_example.create_file()
@@ -21,7 +21,7 @@ class TestTrafficHistoryUpdater(unittest.TestCase):
         self.assertEqual(type(data), list)
         self.assertTrue(data)
 
-    def test_load_data(self):
+    def test_load(self):
         """Test load all data from border files."""
         data_example = FileCachingDataTest(filename="SERVICE%INTERFACE_TEST_1%22.5")
         data_example.create_file()
