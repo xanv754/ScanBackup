@@ -1,6 +1,6 @@
 import unittest
 from database import PostgresDatabaseFactory, MongoDatabaseFactory
-from utils import ConfigurationHandler
+from utils.config import ConfigurationHandler
 
 
 class TestDatabaseMongo(unittest.TestCase):
