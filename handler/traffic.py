@@ -126,19 +126,20 @@ class TrafficHandler:
             if not Validate.layer_type(layer_type): raise Exception("Invalid parameter: name layer.")
             date = datetime.now().date()
             date = date - timedelta(days=1)
-            df_traffic = pd.DataFrame()
             dates = [(date - timedelta(days=i)).strftime("%Y-%m-%d") for i in range(day_before)]
-            df = pd.DataFrame()
+            data = pd.DataFrame()
             for date in dates:
-                traffic: List[TrafficHistoryModel] = self.traffic_query.get_traffic_layer_by_date(layer_type=layer_type, date=date)
-                if df.empty: df = pd.DataFrame([data.model_dump() for data in traffic])
-                else: df = pd.concat([df, pd.DataFrame([data.model_dump() for data in traffic])])
-            if not df.empty:
-                df = self.__insert_name_layer(df=df, layer_type=layer_type)
-                if not df_traffic.empty: df_traffic = pd.concat([df_traffic, df])
-                else: df_traffic = df
-            df_traffic = df_traffic.reset_index(drop=True)
-            return df_traffic
+                traffic = self.traffic_query.get_traffic_layer_by_date(layer_type=layer_type, date=date)
+                if data.empty: data = traffic
+                else: data = pd.concat([data, traffic])
+            if not data.empty: data = self.__insert_name_layer(df=data, layer_type=layer_type)
+            data = data.reset_index(drop=True)
+            return data
         except Exception as e:
             log.error(f"Traffic handler. Failed to get traffic layer by days before. {e}")
             return pd.DataFrame()
+        
+
+if __name__ == "__main__":
+    handler = TrafficHandler()
+    print(handler.get_traffic_layer_by_days_before(layer_type=LayerType.BORDE, day_before=3))
