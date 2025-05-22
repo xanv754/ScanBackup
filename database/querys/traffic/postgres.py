@@ -19,7 +19,7 @@ class PostgresTrafficHistoryQuery(TrafficHistoryQuery):
     __instance: "PostgresTrafficHistoryQuery | None" = None
     __database: PostgresDatabase
 
-    def __new__(cls) -> "PostgresTrafficHistoryQuery":
+    def __new__(cls):
         if not cls.__instance:
             cls.__instance = super(PostgresTrafficHistoryQuery, cls).__new__(cls)
         return cls.__instance
@@ -47,7 +47,7 @@ class PostgresTrafficHistoryQuery(TrafficHistoryQuery):
         buffer.seek(0)
         return buffer
 
-    def set_database(self, uri: str) -> None:
+    def set_database(self, uri: str):
         """Set the connection database.
 
         Parameters
@@ -63,7 +63,7 @@ class PostgresTrafficHistoryQuery(TrafficHistoryQuery):
         except Exception as e:
             log.error(f"Failed to connect to Postgres database. {e}")
 
-    def new_traffic(self, traffic: List[TrafficHistoryModel]) -> bool:
+    def new_traffic(self, traffic: List[TrafficHistoryModel]):
         try:
             self.__database.open_connection()
             if self.__database.connected:
@@ -92,7 +92,7 @@ class PostgresTrafficHistoryQuery(TrafficHistoryQuery):
         else:
             return True
         
-    def get_traffic(self, date: str, time: str, id_layer: str) -> TrafficHistoryModel | None:
+    def get_traffic(self, date: str, time: str, id_layer: str):
         try:
             traffic: TrafficHistoryModel | None = None
             self.__database.open_connection()
@@ -123,7 +123,7 @@ class PostgresTrafficHistoryQuery(TrafficHistoryQuery):
             log.error(f"Failed to get traffic. {e}")
             return None
 
-    def get_traffic_layer_by_date(self, layer_type: str, date: str) -> List[TrafficHistoryModel]:
+    def get_traffic_layer_by_date(self, layer_type: str, date: str):
         try:
             traffic: List[TrafficHistoryModel] = []
             self.__database.open_connection()

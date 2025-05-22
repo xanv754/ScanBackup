@@ -26,7 +26,7 @@ class MongoCachingQuery(CachingQuery):
             log.error(f"Failed to connect to MongoDB database. {e}")
 
 
-    def set_database(self, uri: str) -> None:
+    def set_database(self, uri: str):
         try:
             if self.__database.connected:
                 self.__database.close_connection()
@@ -35,7 +35,7 @@ class MongoCachingQuery(CachingQuery):
         except Exception as e:
             log.error(f"Failed to connect to MongoDB database. {e}")
 
-    def new_interface(self, new: CachingModel) -> bool:
+    def new_interface(self, new: CachingModel):
         try:
             status_insert = False
             self.__database.open_connection()
@@ -50,7 +50,7 @@ class MongoCachingQuery(CachingQuery):
             log.error(f"Failed to create new interface. {e}")
             return False
 
-    def get_interface(self, name: str) -> CachingModel | None:
+    def get_interface(self, name: str):
         try:
             interface: CachingModel | None = None
             self.__database.open_connection()
@@ -66,7 +66,7 @@ class MongoCachingQuery(CachingQuery):
             log.error(f"Failed to get interface. {e}")
             return None
 
-    def get_interfaces(self) -> List[CachingModel]:
+    def get_interfaces(self):
         try:
             interfaces: List[CachingModel] = []
             self.__database.open_connection()

@@ -27,7 +27,7 @@ class MongoTrafficHistoryQuery(TrafficHistoryQuery):
             log.error(f"Failed to connect to MongoDB database. {e}")
 
 
-    def set_database(self, uri: str) -> None:
+    def set_database(self, uri: str):
         """Set the connection database.
 
         Parameters
@@ -43,7 +43,7 @@ class MongoTrafficHistoryQuery(TrafficHistoryQuery):
         except Exception as e:
             log.error(f"Failed to connect to MongoDB database. {e}")
 
-    def new_traffic(self, traffic: List[TrafficHistoryModel]) -> bool:
+    def new_traffic(self, traffic: List[TrafficHistoryModel]):
         try:
             status_insert = False
             traffic_json: List[dict] = []
@@ -63,7 +63,7 @@ class MongoTrafficHistoryQuery(TrafficHistoryQuery):
             log.error(f"Failed to insert histories traffic. {e}")
             return False
         
-    def get_traffic(self, date: str, time: str, id_layer: str) -> TrafficHistoryModel | None:
+    def get_traffic(self, date: str, time: str, id_layer: str):
         try:
             traffic: TrafficHistoryModel | None = None
             self.__database.open_connection()
@@ -83,7 +83,7 @@ class MongoTrafficHistoryQuery(TrafficHistoryQuery):
             log.error(f"Failed to get traffic. {e}")
             return None
         
-    def get_traffic_layer_by_date(self, layer_type: str, date: str) -> List[TrafficHistoryModel]:
+    def get_traffic_layer_by_date(self, layer_type: str, date: str):
         try:
             traffic: List[TrafficHistoryModel] = []
             self.__database.open_connection()

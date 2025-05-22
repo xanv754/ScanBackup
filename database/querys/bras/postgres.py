@@ -26,7 +26,7 @@ class PostgresBrasQuery(BrasQuery):
         except Exception as e:
             log.error(f"Failed to connect to Postgres database. {e}")
 
-    def set_database(self, uri: str) -> None:
+    def set_database(self, uri: str):
         try:
             if self.__database.connected:
                 self.__database.close_connection()
@@ -35,7 +35,7 @@ class PostgresBrasQuery(BrasQuery):
         except Exception as e:
             log.error(f"Failed to connect to Postgres database. {e}")
 
-    def new_interface(self, new: BrasModel) -> bool:
+    def new_interface(self, new: BrasModel):
         try:
             status_insert = False
             self.__database.open_connection()
@@ -65,7 +65,7 @@ class PostgresBrasQuery(BrasQuery):
             log.error(f"Failed to create new bras. {e}")
             return False
 
-    def get_interface(self, brasname: str, type: str) -> BrasModel | None:
+    def get_interface(self, brasname: str, type: str):
         try:
             interface: BrasModel | None = None
             self.__database.open_connection()
@@ -94,7 +94,7 @@ class PostgresBrasQuery(BrasQuery):
             log.error(f"Failed to get bras. {e}")
             return None
 
-    def get_interfaces(self) -> List[BrasModel]:
+    def get_interfaces(self):
         try:
             interfaces: List[BrasModel] = []
             self.__database.open_connection()

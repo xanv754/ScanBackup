@@ -27,7 +27,7 @@ class MongoBordeQuery(BordeQuery):
             log.error(f"Failed to connect to MongoDB database. {e}")
 
 
-    def set_database(self, uri: str) -> None:
+    def set_database(self, uri: str):
         try:
             if self.__database.connected:
                 self.__database.close_connection()
@@ -37,7 +37,7 @@ class MongoBordeQuery(BordeQuery):
         except Exception as e:
             log.error(f"Failed to connect to MongoDB database. {e}")
 
-    def new_interface(self, new: BordeModel) -> bool:
+    def new_interface(self, new: BordeModel):
         try:
             status_insert = False
             self.__database.open_connection()
@@ -53,7 +53,7 @@ class MongoBordeQuery(BordeQuery):
         else:
             return status_insert
 
-    def get_interface(self, name: str) -> BordeModel | None:
+    def get_interface(self, name: str):
         try:
             interface: BordeModel | None = None
             self.__database.open_connection()
@@ -69,7 +69,7 @@ class MongoBordeQuery(BordeQuery):
             log.error(f"Failed to get interface. {e}")
             return None
         
-    def get_interfaces(self) -> List[BordeModel]:
+    def get_interfaces(self):
         try:
             interfaces: List[BordeModel] = []
             self.__database.open_connection()
