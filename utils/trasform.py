@@ -26,10 +26,10 @@ class BordeResponseTrasform:
         buffer: StringIO = StringIO()
         for interface in data:
             line = str(interface["_id"]) + ';'
-            line += interface[BordeFieldDatabase.NAME] + ';'
-            line += interface[BordeFieldDatabase.MODEL] + ';'
-            line += interface[BordeFieldDatabase.CAPACITY] + ';'
-            line += interface[BordeFieldDatabase.CREATE_AT] + '\n'
+            line += str(interface[BordeFieldDatabase.NAME]) + ';'
+            line += str(interface[BordeFieldDatabase.MODEL]) + ';'
+            line += str(interface[BordeFieldDatabase.CAPACITY]) + ';'
+            line += str(interface[BordeFieldDatabase.CREATE_AT]) + '\n'
             buffer.write(line)
         buffer.seek(0)
         df = pd.read_csv(buffer, sep=';', header=None, names=[
@@ -53,9 +53,9 @@ class BordeResponseTrasform:
         buffer: StringIO = StringIO()
         for interface in data:
             line = str(interface[0]) + ';'
-            line += interface[1] + ';'
-            line += interface[2] + ';'
-            line += interface[3] + ';'
+            line += str(interface[1]) + ';'
+            line += str(interface[2]) + ';'
+            line += str(interface[3]) + ';'
             line += interface[4].strftime("%Y-%m-%d") + '\n'
             buffer.write(line)
         buffer.seek(0)
@@ -84,10 +84,10 @@ class BrasResponseTrasform:
         buffer: StringIO = StringIO()
         for interface in data:
             line = str(interface["_id"]) + ';'
-            line += interface[BrasFieldDatabase.NAME] + ';'
-            line += interface[BrasFieldDatabase.TYPE] + ';'
-            line += interface[BrasFieldDatabase.CAPACITY] + ';'
-            line += interface[BrasFieldDatabase.CREATE_AT] + '\n'
+            line += str(interface[BrasFieldDatabase.NAME]) + ';'
+            line += str(interface[BrasFieldDatabase.TYPE]) + ';'
+            line += str(interface[BrasFieldDatabase.CAPACITY]) + ';'
+            line += str(interface[BrasFieldDatabase.CREATE_AT]) + '\n'
             buffer.write(line)
         buffer.seek(0)
         df = pd.read_csv(buffer, sep=';', header=None, names=[
@@ -111,9 +111,9 @@ class BrasResponseTrasform:
         buffer: StringIO = StringIO()
         for interface in data:
             line = str(interface[0]) + ';'
-            line += interface[1] + ';'
-            line += interface[2] + ';'
-            line += interface[3] + ';'
+            line += str(interface[1]) + ';'
+            line += str(interface[2]) + ';'
+            line += str(interface[3]) + ';'
             line += interface[4].strftime("%Y-%m-%d") + '\n'
             buffer.write(line)
         buffer.seek(0)
@@ -141,10 +141,10 @@ class CachingResponseTrasform:
         buffer: StringIO = StringIO()
         for interface in data:
             line = str(interface["_id"]) + ';'
-            line += interface[CachingFieldDatabase.NAME] + ';'
-            line += interface[CachingFieldDatabase.SERVICE] + ';'
-            line += interface[CachingFieldDatabase.CAPACITY] + ';'
-            line += interface[CachingFieldDatabase.CREATE_AT] + '\n'
+            line += str(interface[CachingFieldDatabase.NAME]) + ';'
+            line += str(interface[CachingFieldDatabase.SERVICE]) + ';'
+            line += str(interface[CachingFieldDatabase.CAPACITY]) + ';'
+            line += str(interface[CachingFieldDatabase.CREATE_AT]) + '\n'
             buffer.write(line)
         buffer.seek(0)
         df = pd.read_csv(buffer, sep=';', header=None, names=[
@@ -168,9 +168,9 @@ class CachingResponseTrasform:
         buffer: StringIO = StringIO()
         for interface in data:
             line = str(interface[0]) + ';'
-            line += interface[1] + ';'
-            line += interface[2] + ';'
-            line += interface[3] + ';'
+            line += str(interface[1]) + ';'
+            line += str(interface[2]) + ';'
+            line += str(interface[3]) + ';'
             line += interface[4].strftime("%Y-%m-%d") + '\n'
             buffer.write(line)
         buffer.seek(0)
@@ -199,9 +199,9 @@ class RaiResponseTrasform:
         buffer: StringIO = StringIO()
         for interface in data:
             line = str(interface["_id"]) + ';'
-            line += interface[RaiFieldDatabase.NAME] + ';'
-            line += interface[RaiFieldDatabase.CAPACITY] + ';'
-            line += interface[RaiFieldDatabase.CREATE_AT] + '\n'
+            line += str(interface[RaiFieldDatabase.NAME]) + ';'
+            line += str(interface[RaiFieldDatabase.CAPACITY]) + ';'
+            line += str(interface[RaiFieldDatabase.CREATE_AT]) + '\n'
             buffer.write(line)
         buffer.seek(0)
         df = pd.read_csv(buffer, sep=';', header=None, names=[
@@ -224,8 +224,8 @@ class RaiResponseTrasform:
         buffer: StringIO = StringIO()
         for interface in data:
             line = str(interface[0]) + ';'
-            line += interface[1] + ';'
-            line += interface[2] + ';'
+            line += str(interface[1]) + ';'
+            line += str(interface[2]) + ';'
             line += interface[3].strftime("%Y-%m-%d") + '\n'
             buffer.write(line)
         buffer.seek(0)
@@ -255,7 +255,7 @@ class TrafficHistoryResponseTrasform:
             line = str(interface[TrafficHistoryFieldDatabase.DATE]) + ';'
             line += str(interface[TrafficHistoryFieldDatabase.TIME]) + ';'
             line += str(interface[TrafficHistoryFieldDatabase.ID_LAYER]) + ';'
-            line += interface[TrafficHistoryFieldDatabase.TYPE_LAYER] + ';'
+            line += str(interface[TrafficHistoryFieldDatabase.TYPE_LAYER]) + ';'
             line += str(interface[TrafficHistoryFieldDatabase.IN_PROM]) + ';'
             line += str(interface[TrafficHistoryFieldDatabase.IN_MAX]) + ';'
             line += str(interface[TrafficHistoryFieldDatabase.OUT_PROM]) + ';'
@@ -288,7 +288,7 @@ class TrafficHistoryResponseTrasform:
             line = interface[0].strftime("%Y-%m-%d") + ';'
             line += interface[1].strftime("%H:%M:%S") + ';'
             line += str(interface[2]) + ';'
-            line += interface[3] + ';'
+            line += str(interface[3]) + ';'
             line += str(interface[4]) + ';'
             line += str(interface[5]) + ';'
             line += str(interface[6]) + ';'

@@ -138,8 +138,3 @@ class TrafficHandler:
         except Exception as e:
             log.error(f"Traffic handler. Failed to get traffic layer by days before. {e}")
             return pd.DataFrame()
-        
-
-if __name__ == "__main__":
-    handler = TrafficHandler()
-    print(handler.get_traffic_layer_by_days_before(layer_type=LayerType.BORDE, day_before=3))
