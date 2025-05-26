@@ -1,6 +1,5 @@
 import click
 from controllers.summary import SummaryController
-from utils.validate import Validate
 
 
 @click.group()
@@ -12,11 +11,20 @@ def cli():
     pass
 
 
-@cli.command(help="Get the day's summary report.")
+@cli.command(help="Get a summary report of the current day's data.")
 @click.option("--date", required=False, help="Date to get data. Format YYYY-MM-DD")
 def diary(date: str):
-    """Get the day's summary report."""
-    SummaryController.summary_diary_today()
+    SummaryController.summary_diary_current()
+
+
+@cli.command(help="Get a summary of the current fortnight's data.")
+def fortnight():
+    SummaryController.summary_fortnight_current()
+
+
+@cli.command(help="Obtain a summary of the current month's data.")
+def monthly():
+    SummaryController.summary_monthly_current()
 
 
 if __name__ == "__main__":
