@@ -85,11 +85,11 @@ class BordeUpdaterHandler(UpdaterHandler):
     def load_data(self, data: List[Tuple[BordeModel, List[TrafficHistoryModel]]]) -> bool:
         try:
             load_mongo = Process(target=self._load_database, args=(data,))
-            load_postgres = Process(target=self._load_database, args=(data, True))
+            # load_postgres = Process(target=self._load_database, args=(data, True))
             load_mongo.start()
-            load_postgres.start()
+            # load_postgres.start()
             load_mongo.join()
-            load_postgres.join()
+            # load_postgres.join()
         except Exception as e:
             log.error(f"Failed to load data of Border layer. {e}")
             return False
