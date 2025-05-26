@@ -19,7 +19,16 @@ class SummaryController:
             df_data_caching = pool.apply(traffic.get_traffic_layer_by_days_before, args=(LayerType.CACHING, 1))
             df_data_rai = pool.apply(traffic.get_traffic_layer_by_days_before, args=(LayerType.RAI, 1))
 
-            # df_summary_rai = calculate(df_data_rai)
+
+    @staticmethod
+    def summary_weekly_current() -> dict:
+        """Get a summary of the current weekly's data."""
+        traffic = TrafficHandler()
+        with Pool(processes=4) as pool:
+            df_data_borde = pool.apply(traffic.get_traffic_layer_by_days_before, args=(LayerType.BORDE, 7))
+            df_data_bras = pool.apply(traffic.get_traffic_layer_by_days_before, args=(LayerType.BRAS, 7))
+            df_data_caching = pool.apply(traffic.get_traffic_layer_by_days_before, args=(LayerType.CACHING, 7))
+            df_data_rai = pool.apply(traffic.get_traffic_layer_by_days_before, args=(LayerType.RAI, 7))
 
     @staticmethod
     def summary_fortnight_current() -> dict:
@@ -43,6 +52,8 @@ class SummaryController:
             df_data_bras = pool.apply(traffic.get_traffic_layer_by_days_before, args=(LayerType.BRAS, days))
             df_data_caching = pool.apply(traffic.get_traffic_layer_by_days_before, args=(LayerType.CACHING, days))
             df_data_rai = pool.apply(traffic.get_traffic_layer_by_days_before, args=(LayerType.RAI, days))
+
+            # df_summary_rai = calculate(df_data_rai)
 
 
 if __name__ == "__main__":

@@ -16,11 +16,13 @@ def cli():
 def diary(date: str):
     SummaryController.summary_diary_current()
 
-
 @cli.command(help="Get a summary of the current fortnight's data.")
 def fortnight():
     SummaryController.summary_fortnight_current()
 
+@cli.command(help="Get a summary of the current weekly's data.")
+def weekly():
+    SummaryController.summary_weekly_current()
 
 @cli.command(help="Obtain a summary of the current month's data.")
 def monthly():
