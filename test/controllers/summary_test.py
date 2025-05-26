@@ -53,7 +53,7 @@ class TestController(unittest.TestCase):
     def test_get_summary_diary(self):
         """Test get summary diary of borde layer."""
         self.insert_borde_traffic()
-        data = SummaryController.summary_diary_today()
+        data = SummaryController.summary_diary_current()
         df_data_borde = data[LayerTypeTest.BORDE]
         df_data_columns = df_data_borde.columns.to_list()
         neccesary_columns = [
