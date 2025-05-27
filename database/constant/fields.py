@@ -54,3 +54,13 @@ class IPHistoryFieldDatabase:
     BRAS_NAME = "Bras"
     IN_PROM = "inProm"
     IN_MAX = "inMax"
+
+
+class DailyReportFieldDatabase:
+    DATE = "date"
+    ID_LAYER = "idLayer"
+    TYPE_LAYER = "typeLayer"
+    IN_PROM = "inProm"
+    OUT_PROM = "outProm"
+    IN_MAX = "inMax"
+    OUT_MAX = "outMax"

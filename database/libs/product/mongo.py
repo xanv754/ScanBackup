@@ -8,7 +8,8 @@ from database import (
     CACHING_SCHEMA_MONGO,
     RAI_SCHEMA_MONGO,
     TRAFFIC_HISTORY_SCHEMA_MONGO,
-    IP_HISTORY_SCHEMA_MONGO
+    IP_HISTORY_SCHEMA_MONGO, 
+    DAILY_REPORT_SCHEMA_MONGO
 )
 from utils.log import log
 
@@ -81,6 +82,11 @@ class MongoDatabase(Database):
                     TableNameDatabase.IP_HISTORY,
                     validator=IP_HISTORY_SCHEMA_MONGO
                 )
+            if not self.__check_collection(TableNameDatabase.DAILY_REPORT):
+                self.__connection.create_collection(
+                    TableNameDatabase.DAILY_REPORT,
+                    validator=DAILY_REPORT_SCHEMA_MONGO
+                )
             self.close_connection()
         except Exception as e:
             log.error(f"Failed to migrate MongoDB database. {e}")
@@ -109,6 +115,9 @@ class MongoDatabase(Database):
             ip_history_collection: Collection = self.__connection[TableNameDatabase.IP_HISTORY]
             ip_history_collection.delete_many({})
             ip_history_collection.drop()
+            daily_report_collection: Collection = self.__connection[TableNameDatabase.DAILY_REPORT]
+            daily_report_collection.delete_many({})
+            daily_report_collection.drop()
             self.close_connection()
         except Exception as e:
             log.error(f"Failed to rollback MongoDB database. {e}")

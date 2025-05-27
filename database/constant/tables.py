@@ -7,3 +7,4 @@ class TableNameDatabase:
     RAI = "RAI"
     TRAFFIC_HISTORY = "TRAFFIC_HISTORY"
     IP_HISTORY = "IP_HISTORY"
+    DAILY_REPORT = "DAILY_REPORT"

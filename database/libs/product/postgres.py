@@ -12,7 +12,8 @@ from database import (
     RAI_SECUENCE_SCHEMA_POSTGRES,
     RAI_SCHEMA_POSTGRES,
     TRAFFIC_HISTORY_SCHEMA_POSTGRES,
-    IP_HISTORY_SCHEMA_POSTGRES
+    IP_HISTORY_SCHEMA_POSTGRES,
+    DAILY_REPORT_SCHEMA_POSTGRES
 )
 from utils.log import log
 
@@ -115,6 +116,7 @@ class PostgresDatabase(Database):
             cursor.execute(RAI_SCHEMA_POSTGRES)
             cursor.execute(TRAFFIC_HISTORY_SCHEMA_POSTGRES)
             cursor.execute(IP_HISTORY_SCHEMA_POSTGRES)
+            cursor.execute(DAILY_REPORT_SCHEMA_POSTGRES)
             self.__connection.commit()
             self.close_connection()
         except Exception as e:
@@ -133,6 +135,7 @@ class PostgresDatabase(Database):
             cursor.execute(f"DROP TABLE IF EXISTS {TableNameDatabase.RAI}")
             cursor.execute(f"DROP TABLE IF EXISTS {TableNameDatabase.TRAFFIC_HISTORY}")
             cursor.execute(f"DROP TABLE IF EXISTS {TableNameDatabase.IP_HISTORY}")
+            cursor.execute(f"DROP TABLE IF EXISTS {TableNameDatabase.DAILY_REPORT}")
             self.__connection.commit()
             self.close_connection()
         except Exception as e:
