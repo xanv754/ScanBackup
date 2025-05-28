@@ -7,10 +7,10 @@ class DailyReportModel(BaseModel):
     date: str
     idLayer: str
     typeLayer: str
-    inProm: float
-    outProm: float
-    inMax: float
-    outMax: float
+    inProm: int
+    outProm: int
+    inMax: int
+    outMax: int
 
 
 class DailyReportFieldModel:
