@@ -7,7 +7,7 @@ class UpdaterHandler(ABC):
 
     @abstractmethod
     def get_data(self, filepath: str | None = None, date: str | None = None) -> List:
-        """Get data from files.
+        """Get data to be loaded in the database.
 
         Parameters
         ----------

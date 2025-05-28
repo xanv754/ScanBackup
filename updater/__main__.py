@@ -1,10 +1,12 @@
 import click
 from multiprocessing import Process
+from constants.group import LayerType
 from updater import (
     BordeUpdaterHandler,
     BrasUpdaterHandler,
     CachingUpdaterHandler,
-    RaiUpdaterHandler
+    RaiUpdaterHandler, 
+    DailyReportUpdaterHandler
 )
 from utils.log import log
 
@@ -45,6 +47,16 @@ def load_rai(date: str | None) -> None:
     except Exception as e:
         log.error(f"Failed to load data of Rai layer. {e}")
 
+def load_daily_report(layer_type: str, date: str | None) -> None:
+    try:
+        dailyReportHandler = DailyReportUpdaterHandler()
+        if date:
+            dailyReportHandler.generate_report(layer_type=layer_type, date=date)
+        else:
+            dailyReportHandler.generate_report(layer_type=layer_type)
+    except Exception as e:
+        log.error(f"Failed to load data of Daily report layer. {e}")
+
 
 @click.group
 def cli():
@@ -74,6 +86,24 @@ def data(date: str):
         log.error(f"Data upload failed. {e}")
     finally:
         log.info("Updater data finished")
+    # try:
+    #     log.info("Generating daily reports...")
+    #     borde = Process(target=load_daily_report, args=(LayerType.BORDE, date))
+    #     borde.start()
+    #     bras = Process(target=load_daily_report, args=(LayerType.BRAS, date))
+    #     bras.start()
+    #     caching = Process(target=load_daily_report, args=(LayerType.CACHING, date))
+    #     caching.start()
+    #     rai = Process(target=load_daily_report, args=(LayerType.RAI, date))
+    #     rai.start()
+    #     borde.join()
+    #     bras.join()
+    #     caching.join()
+    #     rai.join()
+    # except Exception as e:
+    #     log.error(f"Daily report generation failed. {e}")
+    # finally:
+    #     log.info("Generating daily reports finished")
 
 
 if __name__ == "__main__":

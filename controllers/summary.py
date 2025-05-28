@@ -2,7 +2,7 @@ from calendar import monthrange
 from datetime import datetime
 from multiprocessing import Pool
 from constants.group import LayerType
-from handler import TrafficHandler
+from handler import TrafficHandler, DailyReportHandler
 from utils.calculate import calculate
 
 
@@ -14,10 +14,12 @@ class SummaryController:
         """Get a summary of the current day's data."""
         traffic = TrafficHandler()
         with Pool(processes=4) as pool:
-            df_data_borde = pool.apply(traffic.get_traffic_layer_by_days_before, args=(LayerType.BORDE, 1))
-            df_data_bras = pool.apply(traffic.get_traffic_layer_by_days_before, args=(LayerType.BRAS, 1))
-            df_data_caching = pool.apply(traffic.get_traffic_layer_by_days_before, args=(LayerType.CACHING, 1))
-            df_data_rai = pool.apply(traffic.get_traffic_layer_by_days_before, args=(LayerType.RAI, 1))
+            df_data_borde = pool.apply(traffic.get_traffic_layer_by_days_ago, args=(LayerType.BORDE, 1))
+            df_data_bras = pool.apply(traffic.get_traffic_layer_by_days_ago, args=(LayerType.BRAS, 1))
+            df_data_caching = pool.apply(traffic.get_traffic_layer_by_days_ago, args=(LayerType.CACHING, 1))
+            df_data_rai = pool.apply(traffic.get_traffic_layer_by_days_ago, args=(LayerType.RAI, 1))
+
+            # TODO: Calculate prom and max prom
 
 
     @staticmethod
@@ -25,20 +27,24 @@ class SummaryController:
         """Get a summary of the current weekly's data."""
         traffic = TrafficHandler()
         with Pool(processes=4) as pool:
-            df_data_borde = pool.apply(traffic.get_traffic_layer_by_days_before, args=(LayerType.BORDE, 7))
-            df_data_bras = pool.apply(traffic.get_traffic_layer_by_days_before, args=(LayerType.BRAS, 7))
-            df_data_caching = pool.apply(traffic.get_traffic_layer_by_days_before, args=(LayerType.CACHING, 7))
-            df_data_rai = pool.apply(traffic.get_traffic_layer_by_days_before, args=(LayerType.RAI, 7))
+            df_data_borde = pool.apply(traffic.get_traffic_layer_by_days_ago, args=(LayerType.BORDE, 7))
+            df_data_bras = pool.apply(traffic.get_traffic_layer_by_days_ago, args=(LayerType.BRAS, 7))
+            df_data_caching = pool.apply(traffic.get_traffic_layer_by_days_ago, args=(LayerType.CACHING, 7))
+            df_data_rai = pool.apply(traffic.get_traffic_layer_by_days_ago, args=(LayerType.RAI, 7))
+
+            # TODO: Calculate prom and max prom
 
     @staticmethod
     def summary_fortnight_current() -> dict:
         """Get a summary of the current fortnight's data."""
         traffic = TrafficHandler()
         with Pool(processes=4) as pool:
-            df_data_borde = pool.apply(traffic.get_traffic_layer_by_days_before, args=(LayerType.BORDE, 15))
-            df_data_bras = pool.apply(traffic.get_traffic_layer_by_days_before, args=(LayerType.BRAS, 15))
-            df_data_caching = pool.apply(traffic.get_traffic_layer_by_days_before, args=(LayerType.CACHING, 15))
-            df_data_rai = pool.apply(traffic.get_traffic_layer_by_days_before, args=(LayerType.RAI, 15))
+            df_data_borde = pool.apply(traffic.get_traffic_layer_by_days_ago, args=(LayerType.BORDE, 15))
+            df_data_bras = pool.apply(traffic.get_traffic_layer_by_days_ago, args=(LayerType.BRAS, 15))
+            df_data_caching = pool.apply(traffic.get_traffic_layer_by_days_ago, args=(LayerType.CACHING, 15))
+            df_data_rai = pool.apply(traffic.get_traffic_layer_by_days_ago, args=(LayerType.RAI, 15))
+
+            # TODO: Calculate prom and max prom
 
     @staticmethod
     def summary_monthly_current() -> dict:
@@ -48,13 +54,10 @@ class SummaryController:
         days = monthrange(current_year, current_month)[1]
         traffic = TrafficHandler()
         with Pool(processes=4) as pool:
-            df_data_borde = pool.apply(traffic.get_traffic_layer_by_days_before, args=(LayerType.BORDE, days))
-            df_data_bras = pool.apply(traffic.get_traffic_layer_by_days_before, args=(LayerType.BRAS, days))
-            df_data_caching = pool.apply(traffic.get_traffic_layer_by_days_before, args=(LayerType.CACHING, days))
-            df_data_rai = pool.apply(traffic.get_traffic_layer_by_days_before, args=(LayerType.RAI, days))
+            df_data_borde = pool.apply(traffic.get_traffic_layer_by_days_ago, args=(LayerType.BORDE, days))
+            df_data_bras = pool.apply(traffic.get_traffic_layer_by_days_ago, args=(LayerType.BRAS, days))
+            df_data_caching = pool.apply(traffic.get_traffic_layer_by_days_ago, args=(LayerType.CACHING, days))
+            df_data_rai = pool.apply(traffic.get_traffic_layer_by_days_ago, args=(LayerType.RAI, days))
 
+            # TODO: Calculate prom and max prom
             # df_summary_rai = calculate(df_data_rai)
-
-
-if __name__ == "__main__":
-    SummaryController.summary_diary_current()
