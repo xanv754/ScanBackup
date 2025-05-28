@@ -35,7 +35,7 @@ def get_example_interface_traffic() -> TrafficHistoryModel:
     )
 
 
-class TestHandlerMongo(unittest.TestCase):
+class TestMongo(unittest.TestCase):
     test_database: DatabaseMongoTest = DatabaseMongoTest()
 
     def insert_borde_traffic(self) -> TrafficHistoryModel:
@@ -48,11 +48,11 @@ class TestHandlerMongo(unittest.TestCase):
         self.test_database.insert(table=LayerTypeTest.TRAFFIC_HISTORY, data=example_traffic.model_dump())
         return example_traffic
 
-    def test_get_layer_borde(self):
-        """Test get all traffic history of a borde layer by a 1 day."""
+    def test_get_by_days_ago(self):
+        """Test get all traffic history of a borde layer from a certain number of days ago."""
         example_traffic = self.insert_borde_traffic()
         trafficHandler = TrafficHandler()
-        data = trafficHandler.get_traffic_layer_by_days_before(
+        data = trafficHandler.get_traffic_layer_by_days_ago(
             layer_type=example_traffic.typeLayer,
             day_before=1
         )
@@ -74,8 +74,34 @@ class TestHandlerMongo(unittest.TestCase):
         self.assertFalse(data.empty)
         self.assertEqual(data_columns, neccesary_columns)
 
+    def test_get_by_day(self):
+        """Test get all traffic history of a borde layer from a certain date."""
+        example_traffic = self.insert_borde_traffic()
+        trafficHandler = TrafficHandler()
+        data = trafficHandler.get_traffic_layer_by_day(
+            layer_type=example_traffic.typeLayer,
+            date=example_traffic.date
+        )
+        data_columns = data.columns.to_list()
+        neccesary_columns = [
+            HeaderDataFrame.INTERFACE,
+            HeaderDataFrame.TYPE, 
+            HeaderDataFrame.CAPACITY,
+            HeaderDataFrame.DATE, 
+            HeaderDataFrame.TIME,
+            HeaderDataFrame.IN_PROM, 
+            HeaderDataFrame.OUT_PROM, 
+            HeaderDataFrame.IN_MAX, 
+            HeaderDataFrame.OUT_MAX
+        ]
+        self.test_database.clean(table=LayerTypeTest.BORDE)
+        self.test_database.clean(table=LayerTypeTest.TRAFFIC_HISTORY)
+        
+        self.assertFalse(data.empty)
+        self.assertEqual(data_columns, neccesary_columns)
 
-class TestHandlerPostgres(unittest.TestCase):
+
+class TestPostgres(unittest.TestCase):
     test_database: DatabasePostgresTest = DatabasePostgresTest()
 
     def create_table(self) -> None:
@@ -170,13 +196,39 @@ class TestHandlerPostgres(unittest.TestCase):
         )
         return example_traffic
     
-    def test_get_layer_borde(self):
-        """Test get all traffic history of a borde layer by a 1 day."""
+    def test_get_by_days_ago(self):
+        """Test get all traffic history of a borde layer from a certain number of days ago."""
         example_traffic = self.insert_borde_traffic()
         trafficHandler = TrafficHandler(db_backup=True)
-        data = trafficHandler.get_traffic_layer_by_days_before(
+        data = trafficHandler.get_traffic_layer_by_days_ago(
             layer_type=example_traffic.typeLayer,
             day_before=1
+        )
+        data_columns = data.columns.to_list()
+        neccesary_columns = [
+            HeaderDataFrame.INTERFACE,
+            HeaderDataFrame.TYPE, 
+            HeaderDataFrame.CAPACITY,
+            HeaderDataFrame.DATE, 
+            HeaderDataFrame.TIME,
+            HeaderDataFrame.IN_PROM, 
+            HeaderDataFrame.OUT_PROM, 
+            HeaderDataFrame.IN_MAX, 
+            HeaderDataFrame.OUT_MAX
+        ]
+        self.test_database.clean(table=LayerTypeTest.BORDE)
+        self.test_database.clean(table=LayerTypeTest.TRAFFIC_HISTORY)
+        
+        self.assertFalse(data.empty)
+        self.assertEqual(data_columns, neccesary_columns)
+
+    def test_get_by_day(self):
+        """Test get all traffic history of a borde layer from a certain date."""
+        example_traffic = self.insert_borde_traffic()
+        trafficHandler = TrafficHandler(db_backup=True)
+        data = trafficHandler.get_traffic_layer_by_day(
+            layer_type=example_traffic.typeLayer,
+            date=example_traffic.date
         )
         data_columns = data.columns.to_list()
         neccesary_columns = [
