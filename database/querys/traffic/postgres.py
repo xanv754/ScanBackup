@@ -17,21 +17,14 @@ from utils.log import log
 class PostgresTrafficHistoryQuery(TrafficHistoryQuery):
     """Postgres query class for history traffic table."""
 
-    __instance: "PostgresTrafficHistoryQuery | None" = None
     __database: PostgresDatabase
-
-    def __new__(cls):
-        if not cls.__instance:
-            cls.__instance = super(PostgresTrafficHistoryQuery, cls).__new__(cls)
-        return cls.__instance
 
     def __init__(self):
         try:
-            if not hasattr(self, "__initialized"):
-                self.__initialized = True
-                config = ConfigurationHandler()
-                database = PostgresDatabaseFactory().get_database(uri=config.uri_postgres)
-                self.__database = database
+            config = ConfigurationHandler()
+            factory = PostgresDatabaseFactory()
+            database = factory.get_database(uri=config.uri_postgres)
+            self.__database = database
         except Exception as e:
             log.error(f"Failed to connect to Postgres database. {e}")
 
@@ -49,13 +42,6 @@ class PostgresTrafficHistoryQuery(TrafficHistoryQuery):
         return buffer
 
     def set_database(self, uri: str):
-        """Set the connection database.
-
-        Parameters
-        ----------
-        uri : str
-            New URI to connection database.
-        """
         try:
             if self.__database.connected:
                 self.__database.close_connection()

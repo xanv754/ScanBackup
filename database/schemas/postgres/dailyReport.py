@@ -13,7 +13,6 @@ DAILY_REPORT_SCHEMA = f"""
         CONSTRAINT {TableNameDatabase.DAILY_REPORT}_pkey PRIMARY KEY (
             {DailyReportFieldDatabase.DATE}, 
             {DailyReportFieldDatabase.ID_LAYER},
-            {DailyReportFieldDatabase.TYPE_LAYER}
         )
     )
 """

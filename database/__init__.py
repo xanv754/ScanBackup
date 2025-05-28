@@ -47,3 +47,6 @@ from database.querys.rai.postgres import PostgresRaiQuery
 from database.querys.traffic.traffic import TrafficHistoryQuery
 from database.querys.traffic.mongo import MongoTrafficHistoryQuery
 from database.querys.traffic.postgres import PostgresTrafficHistoryQuery
+from database.querys.reports.daily.daily import DailyReportQuery
+from database.querys.reports.daily.mongo import MongoDailyReportQuery
+from database.querys.reports.daily.postgres import PostgresDailyReportQuery

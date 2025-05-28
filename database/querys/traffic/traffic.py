@@ -8,6 +8,17 @@ class TrafficHistoryQuery(ABC):
     """Query class for history traffic table."""
 
     @abstractmethod
+    def set_database(self, uri: str) -> None:
+        """Set the connection database.
+        
+        Parameters
+        ----------
+        uri : str
+            New URI to connection database.
+        """
+        pass
+
+    @abstractmethod
     def new_traffic(self, traffic: List[TrafficHistoryModel]) -> bool:
         """Register new traffic histories.
 
@@ -37,7 +48,7 @@ class TrafficHistoryQuery(ABC):
 
         Returns
         -------
-            Traffic information. If the traffic does not exist, returns None.
+            Traffic information. If the traffic does not exist, returns a empty DataFrame.
         """
         pass
 
@@ -54,6 +65,6 @@ class TrafficHistoryQuery(ABC):
 
         Returns
         -------
-            List of traffic history model.
+            Traffic information. If the traffic does not exist, returns a empty DataFrame.
         """
         pass

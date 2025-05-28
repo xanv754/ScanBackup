@@ -2,13 +2,15 @@ import pandas as pd
 from io import StringIO
 from typing import List, Tuple
 from database.constant.fields import (
-    BordeFieldDatabase, 
-    BrasFieldDatabase,
-    CachingFieldDatabase,
-    RaiFieldDatabase,
-    TrafficHistoryFieldDatabase
+    BordeFieldDatabase, BrasFieldDatabase,
+    CachingFieldDatabase, RaiFieldDatabase,
+    TrafficHistoryFieldDatabase, DailyReportFieldDatabase
 )
-from model import BordeFieldModel, BrasFieldModel, CachingFieldModel, RaiFieldModel, TrafficHistoryFieldModel
+from model import (
+    BordeFieldModel, BrasFieldModel, 
+    CachingFieldModel, RaiFieldModel, 
+    TrafficHistoryFieldModel, DailyReportFieldModel
+)
 
 
 class BordeResponseTrasform:
@@ -305,5 +307,72 @@ class TrafficHistoryResponseTrasform:
             TrafficHistoryFieldModel.inMax,
             TrafficHistoryFieldModel.outProm,
             TrafficHistoryFieldModel.outMax
+        ])
+        return df
+
+
+class DailyReportResponseTrasform:
+    """Class to transform response of databases."""
+
+    @staticmethod
+    def default_model_mongo(data: List[dict]) -> pd.DataFrame:
+        """Transform response of mongo database.
+        
+        Parameters
+        ----------
+        data : List[dict]
+            Data daily report.
+        """
+        buffer: StringIO = StringIO()
+        for interface in data:
+            line = str(interface["_id"]) + ';'
+            line += str(interface[DailyReportFieldDatabase.DATE]) + ';'
+            line += str(interface[DailyReportFieldDatabase.ID_LAYER]) + ';'
+            line += str(interface[DailyReportFieldDatabase.TYPE_LAYER]) + ';'
+            line += str(interface[DailyReportFieldDatabase.IN_PROM]) + ';'
+            line += str(interface[DailyReportFieldDatabase.OUT_PROM]) + ';'
+            line += str(interface[DailyReportFieldDatabase.IN_MAX]) + ';'
+            line += str(interface[DailyReportFieldDatabase.OUT_MAX]) + '\n'
+            buffer.write(line)
+        buffer.seek(0)
+        df = pd.read_csv(buffer, sep=';', header=None, names=[
+            DailyReportFieldModel.date,
+            DailyReportFieldModel.idLayer,
+            DailyReportFieldModel.typeLayer,
+            DailyReportFieldModel.inProm,
+            DailyReportFieldModel.outProm,
+            DailyReportFieldModel.inMax,
+            DailyReportFieldModel.outMax
+        ])
+        return df
+    
+    @staticmethod
+    def default_model_postgres(data: List[Tuple]) -> pd.DataFrame:
+        """Transform response of postgres database.
+        
+        Parameters
+        ----------
+        data : List[Tuple]
+            Data daily report.
+        """
+        buffer: StringIO = StringIO()
+        for interface in data:
+            line = interface[0].strftime("%Y-%m-%d") + ';'
+            line += str(interface[1]) + ';'
+            line += str(interface[2]) + ';'
+            line += str(interface[3]) + ';'
+            line += str(interface[4]) + ';'
+            line += str(interface[5]) + ';'
+            line += str(interface[6]) + '\n'
+            buffer.write(line)
+        buffer.seek(0)
+        df = pd.read_csv(buffer, sep=';', header=None, names=[
+            DailyReportFieldModel.date,
+            DailyReportFieldModel.idLayer,
+            DailyReportFieldModel.typeLayer,
+            DailyReportFieldModel.inProm,
+            DailyReportFieldModel.outProm,
+            DailyReportFieldModel.inMax,
+            DailyReportFieldModel.outMax
         ])
         return df

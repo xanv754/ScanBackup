@@ -29,13 +29,6 @@ class MongoTrafficHistoryQuery(TrafficHistoryQuery):
 
 
     def set_database(self, uri: str):
-        """Set the connection database.
-
-        Parameters
-        ----------
-        uri : str
-            New URI to connection database.
-        """
         try:
             if self.__database.connected:
                 self.__database.close_connection()
@@ -57,7 +50,6 @@ class MongoTrafficHistoryQuery(TrafficHistoryQuery):
                     status_insert = response.acknowledged
                     self.__database.close_connection()
                 else:
-                    log.warning(f"Traffic histories of {traffic[0].typeLayer} to insert is empty.")
                     status_insert = True
             return status_insert
         except Exception as e:
