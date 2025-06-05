@@ -1,17 +1,8 @@
 import pandas as pd
-from typing import List
 from datetime import datetime, timedelta
-from constants.group import LayerType
 from constants.header import HeaderDataFrame
-from database import (
-    BordeQuery, MongoBordeQuery, PostgresBordeQuery,
-    BrasQuery, MongoBrasQuery, PostgresBrasQuery,
-    CachingQuery, MongoCachingQuery, PostgresCachingQuery,
-    RaiQuery, MongoRaiQuery, PostgresRaiQuery,
-    TrafficHistoryQuery, MongoTrafficHistoryQuery, PostgresTrafficHistoryQuery
-)
-from model import TrafficHistoryModel
-from handler import BordeHandler, BrasHandler, CachingHandler, RaiHandler
+from database import TrafficHistoryQuery, MongoTrafficHistoryQuery, PostgresTrafficHistoryQuery
+from handler import LayerHandler
 from utils.validate import Validate
 from utils.log import log
 
@@ -21,26 +12,12 @@ class TrafficHandler:
     __error_connection: bool = False
     __db_backup: bool = False
     traffic_query: TrafficHistoryQuery
-    borde_query: BordeQuery
-    bras_query: BrasQuery
-    caching_query: CachingQuery
-    rai_query: RaiQuery
 
     def __init__(self, db_backup: bool = False):
         try:
-            if not db_backup: 
-                self.traffic_query = MongoTrafficHistoryQuery()
-                self.borde_query = MongoBordeQuery()
-                self.bras_query = MongoBrasQuery()
-                self.caching_query = MongoCachingQuery()
-                self.rai_query = MongoRaiQuery()
-            else: 
-                self.__db_backup = True
-                self.traffic_query = PostgresTrafficHistoryQuery()
-                self.borde_query = PostgresBordeQuery()
-                self.bras_query = PostgresBrasQuery()
-                self.caching_query = PostgresCachingQuery()
-                self.rai_query = PostgresRaiQuery()
+            self.__db_backup = db_backup
+            if not db_backup: self.traffic_query = MongoTrafficHistoryQuery()
+            else: self.traffic_query = PostgresTrafficHistoryQuery()
         except Exception as e:
             log.error(f"Traffic handler. Failed connecting to the database. {e}")
             self.__error_connection = True
@@ -88,19 +65,9 @@ class TrafficHandler:
         """Insert interface name each interface of a layer in a dataframe."""
         try:
             df_traffic = df.copy()
-            if not df_traffic.empty and layer_type == LayerType.BORDE:
-                borde_handler = BordeHandler(db_backup=self.__db_backup)
-                df_layer = borde_handler.get_all_interfaces()
-            elif not df_traffic.empty and layer_type == LayerType.BRAS:
-                bras_handler = BrasHandler(db_backup=self.__db_backup)
-                df_layer = bras_handler.get_all_interfaces()
-            elif not df_traffic.empty and layer_type == LayerType.CACHING:
-                caching_handler = CachingHandler(db_backup=self.__db_backup)
-                df_layer = caching_handler.get_all_interfaces()
-            elif not df_traffic.empty and layer_type == LayerType.RAI:
-                rai_handler = RaiHandler(db_backup=self.__db_backup)
-                df_layer = rai_handler.get_all_interfaces()
-            elif not df_traffic.empty: raise Exception(f"Layer handler not found: {layer_type}")
+            if not df_traffic.empty:
+                layer_handler = LayerHandler(db_backup=self.__db_backup)
+                df_layer = layer_handler.get_all_interfaces(layer_type=layer_type)
             if df_layer.empty: raise Exception(f"Data of layer not found: {layer_type}")
             df_traffic.rename(columns={HeaderDataFrame.ID_LAYER: HeaderDataFrame.ID}, inplace=True)
             df_traffic = df_traffic.merge(df_layer, how="inner", on=HeaderDataFrame.ID)
