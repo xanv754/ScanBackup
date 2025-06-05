@@ -21,6 +21,19 @@ class HeaderDataFrame:
     USE = "use (%)"
 
 
+header_report_dialy = [
+    HeaderDataFrame.INTERFACE,
+    HeaderDataFrame.TYPE,
+    HeaderDataFrame.DATE,
+    HeaderDataFrame.CAPACITY,
+    HeaderDataFrame.IN_PROM,
+    HeaderDataFrame.OUT_PROM,
+    HeaderDataFrame.IN_MAX,
+    HeaderDataFrame.OUT_MAX,
+    HeaderDataFrame.USE
+]
+
+
 header_dataframe = [
     HeaderDataFrame.INTERFACE,
     HeaderDataFrame.TYPE, 
