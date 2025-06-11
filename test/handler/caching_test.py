@@ -26,7 +26,7 @@ class TestMongoCachingHandler(unittest.TestCase):
         """Test get all interfaces of caching layer converted in a dataframe."""
         example_interface = get_example_interface()
         self.test_database.insert(table=LayerTypeTest.CACHING, data=example_interface.model_dump())
-        cachingHandler = CachingHandler()
+        cachingHandler = CachingHandler(uri=self.test_database.uri)
         data = cachingHandler.get_all_interfaces()
         data_columns = data.columns.to_list()
         neccesary_columns = [
@@ -83,7 +83,7 @@ class TestHandlerPostgres(unittest.TestCase):
     def test_get_all(self):
         """Test get all interfaces of caching layer converted in a dataframe."""
         self.insert()
-        bordeHandler = CachingHandler(db_backup=True)
+        bordeHandler = CachingHandler(db_backup=True, uri=self.test_database.uri)
         data = bordeHandler.get_all_interfaces()
         data_columns = data.columns.to_list()
         neccesary_columns = [

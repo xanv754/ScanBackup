@@ -51,7 +51,7 @@ class TestMongo(unittest.TestCase):
     def test_get_by_days_ago(self):
         """Test get all traffic history of a borde layer from a certain number of days ago."""
         example_traffic = self.insert_borde_traffic()
-        trafficHandler = TrafficHandler()
+        trafficHandler = TrafficHandler(uri=self.test_database.uri)
         data = trafficHandler.get_traffic_layer_by_days_ago(
             layer_type=example_traffic.typeLayer,
             day_before=1
@@ -77,7 +77,7 @@ class TestMongo(unittest.TestCase):
     def test_get_by_day(self):
         """Test get all traffic history of a borde layer from a certain date."""
         example_traffic = self.insert_borde_traffic()
-        trafficHandler = TrafficHandler()
+        trafficHandler = TrafficHandler(uri=self.test_database.uri)
         data = trafficHandler.get_traffic_layer_by_day(
             layer_type=example_traffic.typeLayer,
             date=example_traffic.date
@@ -199,7 +199,7 @@ class TestPostgres(unittest.TestCase):
     def test_get_by_days_ago(self):
         """Test get all traffic history of a borde layer from a certain number of days ago."""
         example_traffic = self.insert_borde_traffic()
-        trafficHandler = TrafficHandler(db_backup=True)
+        trafficHandler = TrafficHandler(db_backup=True, uri=self.test_database.uri)
         data = trafficHandler.get_traffic_layer_by_days_ago(
             layer_type=example_traffic.typeLayer,
             day_before=1
@@ -225,7 +225,7 @@ class TestPostgres(unittest.TestCase):
     def test_get_by_day(self):
         """Test get all traffic history of a borde layer from a certain date."""
         example_traffic = self.insert_borde_traffic()
-        trafficHandler = TrafficHandler(db_backup=True)
+        trafficHandler = TrafficHandler(db_backup=True, uri=self.test_database.uri)
         data = trafficHandler.get_traffic_layer_by_day(
             layer_type=example_traffic.typeLayer,
             date=example_traffic.date

@@ -50,7 +50,7 @@ class TestMongo(unittest.TestCase):
     def test_get_layer_borde(self):
         """Test get all daily report of a borde layer by a 1 day."""
         self.insert()
-        daily_report_handler = DailyReportHandler()
+        daily_report_handler = DailyReportHandler(uri=self.test_database.uri)
         data = daily_report_handler.get_daily_report_by_days_before(
             layer_type=LayerTypeTest.BORDE,
             day_before=1
@@ -197,7 +197,7 @@ class TestPostgres(unittest.TestCase):
     def test_get_layer_borde(self):
         """Test get all daily report of a borde layer by a 1 day."""
         self.insert()
-        daily_report_handler = DailyReportHandler(db_backup=True)
+        daily_report_handler = DailyReportHandler(db_backup=True, uri=self.test_database.uri)
         data = daily_report_handler.get_daily_report_by_days_before(
             layer_type=LayerTypeTest.BORDE,
             day_before=1
