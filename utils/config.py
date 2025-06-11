@@ -25,6 +25,8 @@ class ConfigurationHandler:
                 base_path = os.path.abspath(__file__).split("/utils")[0]
                 if os.path.exists(f"{base_path}/.env.development"):
                     env = dotenv_values(f"{base_path}/.env.development")
+                elif os.path.exists(f"{base_path}/.env.test"):
+                    env = dotenv_values(f"{base_path}/.env.test")
                 elif os.path.exists(f"{base_path}/.env.production"):
                     env = dotenv_values(f"{base_path}/.env.production")
                 elif os.path.exists(f"{base_path}/.env"):

@@ -9,4 +9,4 @@ URI_MONGO="mongodb://user:password@server:port/name_database"
 URI_POSTGRES="postgres://user:password@server:port/name_database"
 ```
 
-> *Nota*: Para ejecutar las **pruebas unitarias** o trabajar en desarrollo, se recomienda un archivo `.env.development` con las variables de entorno.
+> *Nota*: Para ejecutar las **pruebas unitarias** es necesario un archivo `.env.test` con las variables de entorno. Si se desea trabajar en el entorno de desarrollo, se debe usar el archivo `.env.development`.
