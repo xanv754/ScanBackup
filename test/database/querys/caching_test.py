@@ -23,7 +23,7 @@ class TestMongo(unittest.TestCase):
     def test_insert(self):
         """Test insert a new interface of Caching layer in the MongoDB."""
         example_interface = get_example_interface()
-        database = MongoCachingQuery() 
+        database = MongoCachingQuery(uri=self.test_database.uri)
         response = database.new_interface(new=example_interface)
         self.test_database.clean(table=LayerTypeTest.CACHING)
 
@@ -33,7 +33,7 @@ class TestMongo(unittest.TestCase):
         """Test get an interface of Caching layer in the MongoDB."""
         example_interface = get_example_interface()
         self.test_database.insert(table=LayerTypeTest.CACHING, data=example_interface.model_dump())
-        database = MongoCachingQuery()
+        database = MongoCachingQuery(uri=self.test_database.uri)
         interface = database.get_interface(name=example_interface.name)
         self.test_database.clean(table=LayerTypeTest.CACHING)
         
@@ -44,7 +44,7 @@ class TestMongo(unittest.TestCase):
         """Test get all interfaces of Caching layer in the MongoDB."""
         example_interface = get_example_interface()
         self.test_database.insert(table=LayerTypeTest.CACHING, data=example_interface.model_dump())
-        database = MongoCachingQuery()
+        database = MongoCachingQuery(uri=self.test_database.uri)
         interfaces = database.get_interfaces()
         self.test_database.clean(table=LayerTypeTest.CACHING)
         
@@ -93,7 +93,7 @@ class TestPostgres(unittest.TestCase):
     def test_insert(self):
         """Test insert a new interface of Caching layer in the PostgreSQL."""
         example_interface = get_example_interface()
-        database = PostgresCachingQuery()
+        database = PostgresCachingQuery(uri=self.test_database.uri)
         response = database.new_interface(new=example_interface)
         self.test_database.clean(table=LayerTypeTest.CACHING)
 
@@ -102,7 +102,7 @@ class TestPostgres(unittest.TestCase):
     def test_get(self):
         """Test get an interface of Caching layer in the PostgreSQL."""
         example_interface = self.insert()
-        database = PostgresCachingQuery()
+        database = PostgresCachingQuery(uri=self.test_database.uri)
         interface = database.get_interface(name=example_interface.name)
         self.test_database.clean(table=LayerTypeTest.CACHING)
         
@@ -112,7 +112,7 @@ class TestPostgres(unittest.TestCase):
     def test_get_all(self):
         """Test get all interfaces of Caching layer in the PostgreSQL."""
         self.insert()
-        database = PostgresCachingQuery()
+        database = PostgresCachingQuery(uri=self.test_database.uri)
         interfaces = database.get_interfaces()
         self.test_database.clean(table=LayerTypeTest.CACHING)
         

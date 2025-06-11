@@ -18,11 +18,13 @@ class MongoTrafficHistoryQuery(TrafficHistoryQuery):
 
     __database: MongoDatabase
 
-    def __init__(self):
+    def __init__(self, uri: str | None = None):
         try:
-            config = ConfigurationHandler()
+            if not uri:
+                config = ConfigurationHandler()
+                uri = config.uri_mongo
             factory = MongoDatabaseFactory()
-            database = factory.get_database(uri=config.uri_mongo)
+            database = factory.get_database(uri=uri)
             self.__database = database
         except Exception as e:
             log.error(f"Failed to connect to MongoDB database. {e}")

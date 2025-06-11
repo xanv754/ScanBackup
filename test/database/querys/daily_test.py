@@ -56,7 +56,7 @@ class TestMongo(unittest.TestCase):
 
     def test_insert(self):
         """Test insert a new daily report in the MongoDB."""
-        database = MongoDailyReportQuery()
+        database = MongoDailyReportQuery(uri=self.test_database.uri)
         response = database.new_report(data=get_dialy_report())
         self.test_database.clean(table=LayerTypeTest.DAILY_REPORT)
 
@@ -65,7 +65,7 @@ class TestMongo(unittest.TestCase):
     def test_get(self):
         """Test get a daily report in the MongoDB."""
         example_report = self.insert()[0]
-        database = MongoDailyReportQuery()
+        database = MongoDailyReportQuery(uri=self.test_database.uri)
         response = database.get_report(
             layer_type=example_report[DailyReportFieldModel.typeLayer],
             date=example_report[DailyReportFieldModel.date]
@@ -152,7 +152,7 @@ class TestPostgres(unittest.TestCase):
     def test_insert(self):
         """Test insert a new daily report in the PostgreSQL."""
         self.create_table()
-        database = PostgresDailyReportQuery()
+        database = PostgresDailyReportQuery(uri=self.test_database.uri)
         response = database.new_report(data=get_dialy_report())
         self.test_database.clean(table=LayerTypeTest.DAILY_REPORT)
 
@@ -161,7 +161,7 @@ class TestPostgres(unittest.TestCase):
     def test_get(self):
         """Test get a daily report in the PostgreSQL."""
         example_report = self.insert()[0]
-        database = PostgresDailyReportQuery()
+        database = PostgresDailyReportQuery(uri=self.test_database.uri)
         response = database.get_report(
             layer_type=example_report[DailyReportFieldModel.typeLayer],
             date=example_report[DailyReportFieldModel.date]

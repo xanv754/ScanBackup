@@ -23,7 +23,7 @@ class TestMongo(unittest.TestCase):
     def test_insert(self):
         """Test insert a new interface of Bras layer in the MongoDB."""
         example_interface = get_example_interface()
-        database = MongoBrasQuery()
+        database = MongoBrasQuery(uri=self.test_database.uri)
         response = database.new_interface(new=example_interface)
         self.test_database.clean(table=LayerTypeTest.BRAS)
 
@@ -33,7 +33,7 @@ class TestMongo(unittest.TestCase):
         """Test get an interface of Bras layer in the MongoDB."""
         example_interface = get_example_interface()
         self.test_database.insert(table=LayerTypeTest.BRAS, data=example_interface.model_dump())
-        database = MongoBrasQuery()
+        database = MongoBrasQuery(uri=self.test_database.uri)
         interface = database.get_interface(brasname=example_interface.name, type=example_interface.type)
         self.test_database.clean(table=LayerTypeTest.BRAS)
 
@@ -44,7 +44,7 @@ class TestMongo(unittest.TestCase):
         """Test get all interfaces of Bras layer in the MongoDB."""
         example_interface = get_example_interface()
         self.test_database.insert(table=LayerTypeTest.BRAS, data=example_interface.model_dump())
-        database = MongoBrasQuery()
+        database = MongoBrasQuery(uri=self.test_database.uri)
         interfaces = database.get_interfaces()
         self.test_database.clean(table=LayerTypeTest.BRAS)
         
@@ -99,7 +99,7 @@ class TestPostgres(unittest.TestCase):
     def test_insert(self):
         """Test insert a new interface of Bras layer in the PostgreSQL."""
         example_interface = get_example_interface()
-        database = PostgresBrasQuery()
+        database = PostgresBrasQuery(uri=self.test_database.uri)
         response = database.new_interface(new=example_interface)
         self.test_database.clean(table=LayerTypeTest.BRAS)
 
@@ -108,7 +108,7 @@ class TestPostgres(unittest.TestCase):
     def test_get(self):
         """Test get an interface of Bras layer in the PostgreSQL."""
         example_interface = self.insert()
-        database = PostgresBrasQuery()
+        database = PostgresBrasQuery(uri=self.test_database.uri)
         interface = database.get_interface(brasname=example_interface.name, type=example_interface.type)
         self.test_database.clean(table=LayerTypeTest.BRAS)
         
@@ -118,7 +118,7 @@ class TestPostgres(unittest.TestCase):
     def test_get_all(self):
         """Test get all interfaces of Bras layer in the PostgreSQL."""
         self.insert()
-        database = PostgresBrasQuery()
+        database = PostgresBrasQuery(uri=self.test_database.uri)
         interfaces = database.get_interfaces()
         self.test_database.clean(table=LayerTypeTest.BRAS)
         

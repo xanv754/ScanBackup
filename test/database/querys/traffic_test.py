@@ -24,7 +24,7 @@ class TestMongo(unittest.TestCase):
     def test_insert(self):
         """Test insert a new traffic of a layer in the MongoDB."""
         new_traffic = get_example_traffic()
-        database = MongoTrafficHistoryQuery()
+        database = MongoTrafficHistoryQuery(uri=self.test_database.uri)
         response = database.new_traffic(traffic=[new_traffic])
         self.test_database.clean(table=LayerTypeTest.TRAFFIC_HISTORY)
 
@@ -34,7 +34,7 @@ class TestMongo(unittest.TestCase):
         """Test get a traffic of a layer in the MongoDB."""
         example_traffic = get_example_traffic()
         self.test_database.insert(table=LayerTypeTest.TRAFFIC_HISTORY, data=example_traffic.model_dump())
-        database = MongoTrafficHistoryQuery()
+        database = MongoTrafficHistoryQuery(uri=self.test_database.uri)
         response = database.get_traffic(
             date=example_traffic.date, 
             time=example_traffic.time, 
@@ -51,7 +51,7 @@ class TestMongo(unittest.TestCase):
         """Test get all traffic history of a type layer by date in MongoDB."""
         example_traffic = get_example_traffic()
         self.test_database.insert(table=LayerTypeTest.TRAFFIC_HISTORY, data=example_traffic.model_dump())
-        database = MongoTrafficHistoryQuery()
+        database = MongoTrafficHistoryQuery(uri=self.test_database.uri)
         interface = database.get_traffic_layer_by_date(
             layer_type=example_traffic.typeLayer, 
             date=example_traffic.date
@@ -120,7 +120,7 @@ class TestPostgres(unittest.TestCase):
     def test_insert(self):
         """Test insert a new traffic of a layer in the PostgreSQL."""
         example_traffic = get_example_traffic()
-        database = PostgresTrafficHistoryQuery()
+        database = PostgresTrafficHistoryQuery(uri=self.test_database.uri)
         response = database.new_traffic(traffic=[example_traffic])
         self.test_database.clean(table=LayerTypeTest.TRAFFIC_HISTORY)
 
@@ -129,7 +129,7 @@ class TestPostgres(unittest.TestCase):
     def test_get(self):
         """Test get a traffic of a layer in the PostgreSQL."""
         example_traffic = self.insert()
-        database = PostgresTrafficHistoryQuery()
+        database = PostgresTrafficHistoryQuery(uri=self.test_database.uri)
         response = database.get_traffic(
             date=example_traffic.date, 
             time=example_traffic.time, 
@@ -145,7 +145,7 @@ class TestPostgres(unittest.TestCase):
     def test_get_by_layer_and_date(self):
         """Test get all traffic history of a type layer by date in PostgreSQL."""
         example_traffic = self.insert()
-        database = PostgresTrafficHistoryQuery()
+        database = PostgresTrafficHistoryQuery(uri=self.test_database.uri)
         interface = database.get_traffic_layer_by_date(
             layer_type=example_traffic.typeLayer, 
             date=example_traffic.date

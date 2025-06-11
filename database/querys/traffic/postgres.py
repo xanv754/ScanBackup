@@ -19,11 +19,13 @@ class PostgresTrafficHistoryQuery(TrafficHistoryQuery):
 
     __database: PostgresDatabase
 
-    def __init__(self):
+    def __init__(self, uri: str | None = None):
         try:
-            config = ConfigurationHandler()
+            if not uri:
+                config = ConfigurationHandler()
+                uri = config.uri_postgres
             factory = PostgresDatabaseFactory()
-            database = factory.get_database(uri=config.uri_postgres)
+            database = factory.get_database(uri=uri)
             self.__database = database
         except Exception as e:
             log.error(f"Failed to connect to Postgres database. {e}")

@@ -3,8 +3,8 @@ import shutil
 import traceback
 import psycopg2
 from typing import List
-from datetime import datetime, timedelta
 from abc import ABC, abstractmethod
+from datetime import datetime, timedelta
 from dotenv import dotenv_values
 from pymongo import MongoClient
 from constants.group import ModelBordeType as ModelBordeTypeTest
@@ -36,10 +36,8 @@ class DatabaseTest(ABC):
 class DatabaseMongoTest(DatabaseTest):
     def __init__(self):
         try:
-            if os.path.exists(".env.development"): env = dotenv_values(".env.development")
-            elif os.path.exists(".env.production"): env = dotenv_values(".env.production")
-            elif os.path.exists(".env"): env = dotenv_values(".env")
-            else: raise FileNotFoundError("No file with environment variables found")
+            if os.path.exists(".env.test"): env = dotenv_values(".env.test")
+            else: raise FileNotFoundError("No file `env.test` with environment variables found")
             uri_mongo = env.get("URI_MONGO")
             if uri_mongo: self.uri = uri_mongo
             else: raise Exception("Failed to obtain configuration. URI MongoDB variable not found in enviroment file")
@@ -98,24 +96,22 @@ class DatabasePostgresTest(DatabaseTest):
 
     def __init__(self):
         try:
-            if os.path.exists(".env.development"): env = dotenv_values(".env.development")
-            elif os.path.exists(".env.production"): env = dotenv_values(".env.production")
-            elif os.path.exists(".env"): env = dotenv_values(".env")
-            else: raise FileNotFoundError("No file with environment variables found")
+            if os.path.exists(".env.test"): env = dotenv_values(".env.test")
+            else: raise FileNotFoundError("No file `env.test` with environment variables found")
             uri_postgres = env.get("URI_POSTGRES")
-            if uri_postgres: self.uri_postgres = uri_postgres
+            if uri_postgres: self.uri = uri_postgres
             else: raise Exception("Failed to obtain configuration. URI PostgreSQL variable not found in enviroment file")
         except Exception as e:
             traceback.print_exc(e)
             exit(1)
         else:
-            name_db = self.uri_postgres.split("/")[-1]
+            name_db = self.uri.split("/")[-1]
             self.name_db = name_db
 
     def create(self, table: str, query: str) -> None:
         try:
             if not self.__table_created:
-                database = psycopg2.connect(self.uri_postgres)
+                database = psycopg2.connect(self.uri)
                 cursor = database.cursor()
                 cursor.execute(f"CREATE TABLE IF NOT EXISTS {table} {query}")
                 database.commit()
@@ -128,7 +124,7 @@ class DatabasePostgresTest(DatabaseTest):
 
     def clean(self, table: str) -> None:
         try:
-            database = psycopg2.connect(self.uri_postgres)
+            database = psycopg2.connect(self.uri)
             cursor = database.cursor()
             cursor.execute(f"DELETE FROM {table}")
             database.commit()
@@ -139,7 +135,7 @@ class DatabasePostgresTest(DatabaseTest):
 
     def insert(self, table: str, query: str) -> bool:
         try:
-            database = psycopg2.connect(self.uri_postgres)
+            database = psycopg2.connect(self.uri)
             cursor = database.cursor()
             cursor.execute(f"INSERT INTO {table} {query}")
             database.commit()
@@ -152,7 +148,7 @@ class DatabasePostgresTest(DatabaseTest):
 
     def get(self, name_collection: str, condition: str) -> List[tuple]:
         try:
-            database = psycopg2.connect(self.uri_postgres)
+            database = psycopg2.connect(self.uri)
             cursor = database.cursor()
             cursor.execute(f"SELECT * FROM {name_collection} WHERE {condition}")
             result = cursor.fetchall()
