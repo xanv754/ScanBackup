@@ -25,21 +25,21 @@ class DailyReportHandler:
     caching_query: CachingQuery
     rai_query: RaiQuery
 
-    def __init__(self, db_backup: bool = False):
+    def __init__(self, db_backup: bool = False, uri: str | None = None):
         try:
             if not db_backup: 
-                self.report_query = MongoDailyReportQuery()
-                self.borde_query = MongoBordeQuery()
-                self.bras_query = MongoBrasQuery()
-                self.caching_query = MongoCachingQuery()
-                self.rai_query = MongoRaiQuery()
+                self.report_query = MongoDailyReportQuery(uri=uri)
+                self.borde_query = MongoBordeQuery(uri=uri)
+                self.bras_query = MongoBrasQuery(uri=uri)
+                self.caching_query = MongoCachingQuery(uri=uri)
+                self.rai_query = MongoRaiQuery(uri=uri)
             else: 
                 self.__db_backup = True
-                self.report_query = PostgresDailyReportQuery()
-                self.borde_query = PostgresBordeQuery()
-                self.bras_query = PostgresBrasQuery()
-                self.caching_query = PostgresCachingQuery()
-                self.rai_query = PostgresRaiQuery()
+                self.report_query = PostgresDailyReportQuery(uri=uri)
+                self.borde_query = PostgresBordeQuery(uri=uri)
+                self.bras_query = PostgresBrasQuery(uri=uri)
+                self.caching_query = PostgresCachingQuery(uri=uri)
+                self.rai_query = PostgresRaiQuery(uri=uri)
         except Exception as e:
             log.error(f"Traffic handler. Failed connecting to the database. {e}")
             self.__error_connection = True

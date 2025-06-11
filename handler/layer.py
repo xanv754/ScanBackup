@@ -20,18 +20,18 @@ class LayerHandler:
     caching_query: CachingQuery
     rai_query: RaiQuery
 
-    def __init__(self, db_backup: bool = False):
+    def __init__(self, db_backup: bool = False, uri: str | None = None):
         try:
             if not db_backup: 
-                self.borde_query = MongoBordeQuery()
-                self.bras_query = MongoBrasQuery()
-                self.caching_query = MongoCachingQuery()
-                self.rai_query = MongoRaiQuery()
+                self.borde_query = MongoBordeQuery(uri=uri)
+                self.bras_query = MongoBrasQuery(uri=uri)
+                self.caching_query = MongoCachingQuery(uri=uri)
+                self.rai_query = MongoRaiQuery(uri=uri)
             else: 
-                self.borde_query = PostgresBordeQuery()
-                self.bras_query = PostgresBrasQuery()
-                self.caching_query = PostgresCachingQuery()
-                self.rai_query = PostgresRaiQuery()
+                self.borde_query = PostgresBordeQuery(uri=uri)
+                self.bras_query = PostgresBrasQuery(uri=uri)
+                self.caching_query = PostgresCachingQuery(uri=uri)
+                self.rai_query = PostgresRaiQuery(uri=uri)
         except Exception as e:
             log.error(f"Borde handler. Failed connecting to the database. {e}")
             self.__error_connection = True

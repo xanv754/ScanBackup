@@ -10,10 +10,10 @@ class CachingHandler:
     __error_connection: bool = False
     caching_query: CachingQuery
 
-    def __init__(self, db_backup: bool = False):
+    def __init__(self, db_backup: bool = False, uri: str | None = None):
         try:
-            if not db_backup: self.caching_query = MongoCachingQuery()
-            else: self.caching_query = PostgresCachingQuery()
+            if not db_backup: self.caching_query = MongoCachingQuery(uri=uri)
+            else: self.caching_query = PostgresCachingQuery(uri=uri)
         except Exception as e:
             log.error(f"Caching handler. Failed connecting to the database. {e}")
             self.__error_connection = True

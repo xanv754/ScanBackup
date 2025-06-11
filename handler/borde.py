@@ -10,10 +10,10 @@ class BordeHandler:
     __error_connection: bool = False
     borde_query: BordeQuery
 
-    def __init__(self, db_backup: bool = False):
+    def __init__(self, db_backup: bool = False, uri: str | None = None):
         try:
-            if not db_backup: self.borde_query = MongoBordeQuery()
-            else: self.borde_query = PostgresBordeQuery()
+            if not db_backup: self.borde_query = MongoBordeQuery(uri=uri)
+            else: self.borde_query = PostgresBordeQuery(uri=uri)
         except Exception as e:
             log.error(f"Borde handler. Failed connecting to the database. {e}")
             self.__error_connection = True

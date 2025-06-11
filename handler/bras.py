@@ -9,10 +9,10 @@ class BrasHandler:
     __error_connection: bool = False
     bras_query: BrasQuery
 
-    def __init__(self, db_backup: bool = False):
+    def __init__(self, db_backup: bool = False, uri: str | None = None):
         try:
-            if not db_backup: self.bras_query = MongoBrasQuery()
-            else: self.bras_query = PostgresBrasQuery()
+            if not db_backup: self.bras_query = MongoBrasQuery(uri=uri)
+            else: self.bras_query = PostgresBrasQuery(uri=uri)
         except Exception as e:
             log.export(f"Bras handler. Failed connecting to the database. {e}")
             self.__error_connection = True

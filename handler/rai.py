@@ -10,11 +10,11 @@ class RaiHandler:
     __error_connection: bool = False
     rai_query: RaiQuery
 
-    def __init__(self, db_backup: bool = False):
+    def __init__(self, db_backup: bool = False, uri: str | None = None):
         try:
             if not db_backup: 
-                self.rai_query = MongoRaiQuery()
-            else: self.rai_query = PostgresRaiQuery()
+                self.rai_query = MongoRaiQuery(uri=uri)
+            else: self.rai_query = PostgresRaiQuery(uri=uri)
         except Exception as e:
             log.error(f"Rai handler. Failed connecting to the database. {e}")
             self.__error_connection = True

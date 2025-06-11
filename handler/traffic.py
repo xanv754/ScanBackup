@@ -13,11 +13,11 @@ class TrafficHandler:
     __db_backup: bool = False
     traffic_query: TrafficHistoryQuery
 
-    def __init__(self, db_backup: bool = False):
+    def __init__(self, db_backup: bool = False, uri: str | None = None):
         try:
             self.__db_backup = db_backup
-            if not db_backup: self.traffic_query = MongoTrafficHistoryQuery()
-            else: self.traffic_query = PostgresTrafficHistoryQuery()
+            if not db_backup: self.traffic_query = MongoTrafficHistoryQuery(uri=uri)
+            else: self.traffic_query = PostgresTrafficHistoryQuery(uri=uri)
         except Exception as e:
             log.error(f"Traffic handler. Failed connecting to the database. {e}")
             self.__error_connection = True
