@@ -12,7 +12,7 @@ DAILY_REPORT_SCHEMA = f"""
         {DailyReportFieldDatabase.OUT_MAX} REAL NOT NULL,
         CONSTRAINT {TableNameDatabase.DAILY_REPORT}_pkey PRIMARY KEY (
             {DailyReportFieldDatabase.DATE}, 
-            {DailyReportFieldDatabase.ID_LAYER},
+            {DailyReportFieldDatabase.ID_LAYER}
         )
     )
 """
