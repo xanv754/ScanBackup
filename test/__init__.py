@@ -6,7 +6,14 @@ from typing import List
 from abc import ABC, abstractmethod
 from datetime import datetime, timedelta
 from dotenv import dotenv_values
+from pydantic import BaseModel
 from pymongo import MongoClient
+from database import (
+    BordeFieldDatabase, BrasFieldDatabase, CachingFieldDatabase, RaiFieldDatabase,
+    TrafficHistoryFieldDatabase, IPHistoryFieldDatabase, DailyReportFieldDatabase,
+    TableNameDatabase
+)
+from model import BordeModel
 from constants.group import ModelBordeType as ModelBordeTypeTest
 from constants.group import BrasType as BrasTypeTest
 from database.constant.tables import TableNameDatabase as LayerTypeTest
@@ -165,8 +172,8 @@ class FileDataTest(ABC):
 
     def create_file(self) -> None:
         """Create a file with example data."""
-        if os.path.isdir(f"{os.path.realpath("./")}/test/data"):
-            shutil.rmtree(f"{os.path.realpath("./")}/test/data")
+        if os.path.isdir(f"{os.path.abspath(__file__).split('/test')[0]}/test/data"):
+            shutil.rmtree(f"{os.path.abspath(__file__).split('/test')[0]}/test/data")
         os.makedirs(self.folder, exist_ok=True)
         date = datetime.now() - timedelta(days=1)
         date = date.strftime("%Y-%m-%d")
@@ -186,70 +193,245 @@ class FileDataTest(ABC):
     @classmethod
     def delete_father_folder(cls) -> None:
         """Delete the father folder."""
-        if os.path.isdir(f"{os.path.realpath("./")}/test/data/SCAN"):
-            os.rmdir(f"{os.path.realpath("./")}/test/data/SCAN")
-        if os.path.isdir(f"{os.path.realpath("./")}/test/data"):
-            os.rmdir(f"{os.path.realpath("./")}/test/data")
+        if os.path.isdir(f"{os.path.abspath(__file__).split('/test')[0]}/test/data/SCAN"):
+            os.rmdir(f"{os.path.abspath(__file__).split('/test')[0]}/test/data/SCAN")
+        if os.path.isdir(f"{os.path.abspath(__file__).split('/test')[0]}/test/data"):
+            os.rmdir(f"{os.path.abspath(__file__).split('/test')[0]}/test/data")
 
 
 class FileBordeDataTest(FileDataTest):
     def __init__(self, filename: str):
-        filepath = f"{os.path.realpath("./")}/test/data/SCAN/Borde/{filename}"
+        filepath = f"{os.path.abspath(__file__).split('/test')[0]}/test/data/SCAN/Borde/{filename}"
         self.filepath = filepath
         self.folder = os.path.dirname(filepath)
 
  
 class FileBrasDataTest(FileDataTest):
     def __init__(self, filename: str):
-        filepath = f"{os.path.realpath("./")}/test/data/SCAN/Bras/{filename}"
+        filepath = f"{os.path.abspath(__file__).split('/test')[0]}/test/data/SCAN/Bras/{filename}"
         self.filepath = filepath
         self.folder = os.path.dirname(filepath)
 
 
 class FileCachingDataTest(FileDataTest):
     def __init__(self, filename: str):
-        filepath = f"{os.path.realpath("./")}/test/data/SCAN/Caching/{filename}"
+        filepath = f"{os.path.abspath(__file__).split('/test')[0]}/test/data/SCAN/Caching/{filename}"
         self.filepath = filepath
         self.folder = os.path.dirname(filepath)
 
 
 class FileRaiDataTest(FileDataTest):
     def __init__(self, filename: str):
-        filepath = f"{os.path.realpath("./")}/test/data/SCAN/RAI/{filename}"
+        filepath = f"{os.path.abspath(__file__).split('/test')[0]}/test/data/SCAN/RAI/{filename}"
         self.filepath = filepath
         self.folder = os.path.dirname(filepath)
 
 
+class FileDailyReportTest:
+    filepath: str
+    folder: str
+
+    def __init__(self, filename: str):
+        filepath = f"{os.path.abspath(__file__).split('/test')[0]}/test/data/SCAN/Reportes-Diarios/{filename}"
+        self.filepath = filepath
+        self.folder = os.path.dirname(filepath)
+
+    def create_file(self) -> None:
+        """Create a file with example data."""
+        if os.path.isdir(f"{os.path.abspath(__file__).split('/test')[0]}/test/data"):
+            shutil.rmtree(f"{os.path.abspath(__file__).split('/test')[0]}/test/data")
+        os.makedirs(self.folder, exist_ok=True)
+        date = datetime.now() - timedelta(days=1)
+        date = date.strftime("%Y-%m-%d")
+        with open(self.filepath, "w") as file:
+            file.write("Interfaz Tipo Fecha Capacidad In Out In-Max Out-Max Uso-%\n")
+            file.write(f"Interfaz-1 HUAWEI {date} 10 11617614 2296806 11890501 2323927 98\n")
+            file.write(f"Interfaz-2 HUAWEI {date} 10 3515418 2152241 3605922 2243843 60\n")
+            file.write(f"Interfaz-3 HUAWEI {date} 10 2824666 2263704 3462229 2338423 50\n")
+
+    def delete_file(self) -> None:
+        """Delete the example file."""
+        if os.path.isfile(self.filepath):
+            os.remove(self.filepath)
+            if os.path.isdir(self.folder):
+                os.rmdir(self.folder)
+
+    @classmethod
+    def delete_father_folder(cls) -> None:
+        """Delete the father folder."""
+        if os.path.isdir(f"{os.path.abspath(__file__).split('/test')[0]}/test/data/SCAN"):
+            os.rmdir(f"{os.path.abspath(__file__).split('/test')[0]}/test/data/SCAN")
+        if os.path.isdir(f"{os.path.abspath(__file__).split('/test')[0]}/test/data"):
+            os.rmdir(f"{os.path.abspath(__file__).split('/test')[0]}/test/data")
+
+
+class Database(ABC):
+    uri: str
+    name_db: str
+    db_backup: bool
+
+    def clean(self) -> None:
+        """Clean all registers in the database."""
+        try:
+            if self.db_backup:
+                database = psycopg2.connect(self.uri)
+                cursor = database.cursor()
+                cursor.execute(f"DELETE FROM {self.name_db}")
+                database.commit()
+                database.close()
+            else:
+                client = MongoClient(self.uri)
+                database = client[self.name_db]
+                collection = database[self.name_db]
+                collection.delete_many({})
+                client.close()
+        except Exception as e:
+            traceback.print_exc(e)
+            exit(1)
+
+    @abstractmethod
+    def create_table(self):
+        """Insert a new register in the database."""
+        pass
+
+    @abstractmethod
+    def insert(self, data: BaseModel) -> None:
+        """Insert a new register in the database."""
+        pass
+
+    @abstractmethod
+    def get(self, id: int) -> list:
+        """Get one or more registers from the database."""
+        pass
+
+class DatabaseBorderTest(Database):
+    def __init__(self, db_backup: bool = False):
+        try:
+            if os.path.exists(".env.test"): env = dotenv_values(".env.test")
+            else: raise FileNotFoundError("No file `env.test` with environment variables found")
+            uri_mongo = env.get("URI_MONGO")
+            if uri_mongo: self.uri = uri_mongo
+            else: raise Exception("Failed to obtain configuration. URI MongoDB variable not found in enviroment file")
+            self.db_backup = db_backup
+            self.name_db = "BORDE"
+        except Exception as e:
+            traceback.print_exc(e)
+            exit(1)
+
+    def create_table(self) -> None:
+        try:
+            if self.db_backup:
+                database = psycopg2.connect(self.uri)
+                cursor = database.cursor()
+                cursor.execute(f"""
+                    CREATE TABLE IF NOT EXISTS {self.name_db} (
+                        {BordeFieldDatabase.ID} NUMERIC PRIMARY KEY,
+                        {BordeFieldDatabase.NAME} VARCHAR(100) NOT NULL,
+                        {BordeFieldDatabase.MODEL} VARCHAR(15) NOT NULL,
+                        {BordeFieldDatabase.CAPACITY} SMALLINT NOT NULL,
+                        {BordeFieldDatabase.CREATE_AT} DATE DEFAULT CURRENT_DATE
+                        CONSTRAINT {self.name_db}_unique UNIQUE ({BordeFieldDatabase.NAME}, {BordeFieldDatabase.MODEL})
+                    )"""
+                )
+                database.commit()
+                database.close()
+        except Exception as e:
+            traceback.print_exc(e)
+            exit(1)
+
+    def insert(self, data: BordeModel) -> None:
+        try:
+            if self.db_backup:
+                database = psycopg2.connect(self.uri)
+                cursor = database.cursor()
+                cursor.execute(f"""
+                    INSERT INTO {self.name_db} (
+                        {BordeFieldDatabase.ID},
+                        {BordeFieldDatabase.NAME},
+                        {BordeFieldDatabase.MODEL},
+                        {BordeFieldDatabase.CAPACITY}
+                    ) VALUES ( %s, %s, %s, %s )
+                """, (data.id, data.name, data.model, data.capacity))
+                database.commit()
+                database.close()
+            else:
+                client = MongoClient(self.uri)
+                database = client[self.name_db]
+                collection = database[self.name_db]
+                collection.insert_one(data.model_dump())
+                client.close()
+        except Exception as e:
+            traceback.print_exc(e)
+            exit(1)
+
+    def get(self, id: int) -> list:
+        try:
+            if self.db_backup:
+                database = psycopg2.connect(self.uri)
+                cursor = database.cursor()
+                cursor.execute(f"""
+                    SELECT * 
+                    FROM {self.name_db} 
+                    WHERE {BordeFieldDatabase.ID} = %s""", (id,)
+                )
+                result = cursor.fetchone()
+                database.close()
+                return result
+            else:
+                client = MongoClient(self.uri)
+                database = client[self.name_db]
+                collection = database[self.name_db]
+                result = collection.find_one({BordeFieldDatabase.ID: id})
+                client.close()
+                return result
+        except Exception as e:
+            traceback.print_exc(e)
+            return []
+
+
 if __name__ == "__main__":
-    mongo = DatabaseMongoTest()
-    inserted = mongo.insert(table="unittest", data={"name": "test"})
-    response = mongo.get(table="unittest", condition={"_id": inserted["_id"], "name": "test"})
-    mongo.clean(table="unittest")
+    borde_example = BordeModel(id=None, name="INTERFACE_TEST_1", model="CISCO", capacity=10, createAt=datetime.now().strftime("%Y-%m-%d"))
+    mongo = DatabaseBorderTest()
+    mongo.create_table()
+    mongo.insert(data=borde_example)
+    response = mongo.get(id=1)
+    print(response)
+    mongo.clean()
 
-    postgres = DatabasePostgresTest()
-    postgres.create(table="unittest", query="(id SERIAL PRIMARY KEY, name VARCHAR(30) NOT NULL)")
-    inserted = postgres.insert(table="unittest", query="(name) VALUES ('test')")
-    response = postgres.get(name_collection="unittest", condition="name = 'test'")
-    postgres.clean(table="unittest")
+    # postgres = DatabaseBorderTest(db_backup=True)
+    # postgres.create_table()
+    # postgres.insert(data=borde_example)
+    # response = postgres.get(id=1)
+    # postgres.clean()
+    # mongo = DatabaseMongoTest()
+    # inserted = mongo.insert(table="unittest", data={"name": "test"})
+    # response = mongo.get(table="unittest", condition={"_id": inserted["_id"], "name": "test"})
+    # mongo.clean(table="unittest")
 
-    filename_borde = f"{ModelBordeTypeTest.CISCO}%INTERFACE_TEST_1%10"
-    borde_data_example = FileBordeDataTest(filename_borde)
-    borde_data_example.create_file()
-    borde_data_example.delete_file()
+    # postgres = DatabasePostgresTest()
+    # postgres.create(table="unittest", query="(id SERIAL PRIMARY KEY, name VARCHAR(30) NOT NULL)")
+    # inserted = postgres.insert(table="unittest", query="(name) VALUES ('test')")
+    # response = postgres.get(name_collection="unittest", condition="name = 'test'")
+    # postgres.clean(table="unittest")
 
-    filename_bras = f"{BrasTypeTest.UPLINK}%INTERFACE_TEST_1%10"
-    bras_data_example = FileBrasDataTest(filename_bras)
-    bras_data_example.create_file()
-    bras_data_example.delete_file()
+    # filename_borde = f"{ModelBordeTypeTest.CISCO}%INTERFACE_TEST_1%10"
+    # borde_data_example = FileBordeDataTest(filename_borde)
+    # borde_data_example.create_file()
+    # borde_data_example.delete_file()
 
-    filename_caching = f"SERVICIO%INTERFACE_TEST_1%22.5"
-    caching_data_example = FileCachingDataTest(filename_caching)
-    caching_data_example.create_file()
-    caching_data_example.delete_file()
+    # filename_bras = f"{BrasTypeTest.UPLINK}%INTERFACE_TEST_1%10"
+    # bras_data_example = FileBrasDataTest(filename_bras)
+    # bras_data_example.create_file()
+    # bras_data_example.delete_file()
 
-    filename_rai = f"DEDICADO%INTERFACE_TEST_1%0.04"
-    rai_data_example = FileRaiDataTest(filename_rai)
-    rai_data_example.create_file()
-    rai_data_example.delete_file()
+    # filename_caching = f"SERVICIO%INTERFACE_TEST_1%22.5"
+    # caching_data_example = FileCachingDataTest(filename_caching)
+    # caching_data_example.create_file()
+    # caching_data_example.delete_file()
 
-    FileDataTest.delete_father_folder()
+    # filename_rai = f"DEDICADO%INTERFACE_TEST_1%0.04"
+    # rai_data_example = FileRaiDataTest(filename_rai)
+    # rai_data_example.create_file()
+    # rai_data_example.delete_file()
+
+    # FileDataTest.delete_father_folder()
