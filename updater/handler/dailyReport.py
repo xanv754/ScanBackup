@@ -45,12 +45,12 @@ class DailyReportUpdaterHandler(UpdaterHandler):
             if not filepath: filepath = DataPath.SCAN_REPORT_DIALY
             if not os.path.exists(filepath) or not os.path.isdir(filepath):
                 raise FileNotFoundError("Daily report folder not found.")
-            datas = List[pd.DataFrame] = []
+            datas: List[pd.DataFrame] = []
             files = [filename for filename in os.listdir(filepath)]
             for filename in files:
                 try:
-                    layer = filename.split("_")[1].upper()
-                    df = pd.read_csv(filename, sep=" ", names=header_report_dialy, index_col=False)
+                    layer = filename.replace(".", "_").split("_")[1].upper().strip()
+                    df = pd.read_csv(f"{filepath}/{filename}", sep=" ", names=header_report_dialy, index_col=False)
                     if date: df = df[df[HeaderDataFrame.DATE] == date]
                     df[HeaderDataFrame.TYPE_LAYER] = layer
                     datas.append(df)
