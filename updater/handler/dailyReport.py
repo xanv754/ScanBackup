@@ -2,12 +2,10 @@ import os
 import pandas as pd
 from typing import List
 from multiprocessing import Process
-from constants.group import ModelBordeType, LayerType
 from constants.path import DataPath
 from constants.header import HeaderDataFrame, header_report_dialy
-from datetime import datetime, timedelta
 from database import MongoDailyReportQuery, PostgresDailyReportQuery
-from handler import TrafficHandler, LayerHandler
+from handler import LayerHandler
 from updater.update import UpdaterHandler
 from utils.log import log
 
@@ -18,7 +16,7 @@ class DailyReportUpdaterHandler(UpdaterHandler):
     def _load_database(self, data: List[pd.DataFrame], db_backup: bool = False, uri: str | None = None) -> bool:
         """Load the data obtained in the database."""
         failed = False
-        layer_handler = LayerHandler(db_backup=db_backup)
+        layer_handler = LayerHandler(db_backup=db_backup, uri=uri)
         try:
             if db_backup: database = PostgresDailyReportQuery(uri=uri)
             else: database = MongoDailyReportQuery(uri=uri)
@@ -27,9 +25,17 @@ class DailyReportUpdaterHandler(UpdaterHandler):
                     layer_type = df[HeaderDataFrame.TYPE_LAYER][0]
                     df = df.drop(columns=[HeaderDataFrame.CAPACITY])
                     df_interfaces = layer_handler.get_all_interfaces(layer_type=layer_type)
+                    df_interfaces.rename(columns={
+                        HeaderDataFrame.NAME: HeaderDataFrame.INTERFACE,
+                        HeaderDataFrame.MODEL: HeaderDataFrame.TYPE,
+                        HeaderDataFrame.SERVICE: HeaderDataFrame.TYPE
+                    }, inplace=True)
                     if df_interfaces.empty: raise Exception(f"Data of layer not found: {layer_type}")
                     df = df.merge(df_interfaces, how="inner", on=[HeaderDataFrame.INTERFACE, HeaderDataFrame.TYPE])
                     df = df.drop(columns=[HeaderDataFrame.INTERFACE, HeaderDataFrame.TYPE, HeaderDataFrame.CAPACITY])
+                    df.rename(columns={
+                        HeaderDataFrame.ID: HeaderDataFrame.ID_LAYER
+                    }, inplace=True)
                     status_insert = database.new_report(data=df)
                     if not status_insert: raise Exception(f"Failed to insert daily report of {layer_type} into database.")
                 except Exception as e:
@@ -42,7 +48,7 @@ class DailyReportUpdaterHandler(UpdaterHandler):
 
     def get_data(self, filepath: str | None = None, date: str | None = None) -> List[pd.DataFrame]:
         try:
-            if not filepath: filepath = DataPath.SCAN_REPORT_DIALY
+            if not filepath: filepath = DataPath.SCAN_REPORT_DAILY
             if not os.path.exists(filepath) or not os.path.isdir(filepath):
                 raise FileNotFoundError("Daily report folder not found.")
             datas: List[pd.DataFrame] = []
@@ -50,7 +56,7 @@ class DailyReportUpdaterHandler(UpdaterHandler):
             for filename in files:
                 try:
                     layer = filename.replace(".", "_").split("_")[1].upper().strip()
-                    df = pd.read_csv(f"{filepath}/{filename}", sep=" ", names=header_report_dialy, index_col=False)
+                    df = pd.read_csv(f"{filepath}/{filename}", sep=";", names=header_report_dialy, index_col=False, skiprows=1)
                     if date: df = df[df[HeaderDataFrame.DATE] == date]
                     df[HeaderDataFrame.TYPE_LAYER] = layer
                     datas.append(df)
@@ -63,7 +69,7 @@ class DailyReportUpdaterHandler(UpdaterHandler):
         else:
             return datas
         
-    def load_data(self, data: List[pd.DataFrame], mongo: bool = False, postgres: bool = False) -> bool:
+    def load_data(self, data: List[pd.DataFrame]) -> bool:
         try:
             load_mongo = Process(target=self._load_database, args=(data,))
             # load_postgres = Process(target=self._load_database, args=(data, True))

@@ -27,19 +27,19 @@ DAILY_REPORT_SCHEMA ={
                 "description": "Type of the layer"
             },
             DailyReportFieldDatabase.IN_PROM: {
-                "bsonType": ["int", "long"],
+                "bsonType": ["int", "long", "double"],
                 "description": "In prom of the traffic"
             },
             DailyReportFieldDatabase.OUT_PROM: {
-                "bsonType": ["int", "long"],
+                "bsonType": ["int", "long", "double"],
                 "description": "Out prom of the traffic"
             },
             DailyReportFieldDatabase.IN_MAX: {
-                "bsonType": ["int", "long"],
+                "bsonType": ["int", "long", "double"],
                 "description": "In max of the traffic"
             },
             DailyReportFieldDatabase.OUT_MAX: {
-                "bsonType": ["int", "long"],
+                "bsonType": ["int", "long", "double"],
                 "description": "Out max of the traffic"
             }
         }
