@@ -54,6 +54,7 @@ class LayerHandler:
                 df_interfaces = self.rai_query.get_interfaces()
                 df_interfaces.drop(columns=[HeaderDataFrame.CREATE_AT], inplace=True)
             else: raise Exception(f"Layer handler not found: {layer_type}")
+            df_interfaces[HeaderDataFrame.ID] = df_interfaces[HeaderDataFrame.ID].astype(str)
         except Exception as e:
             log.error(f"Borde handler. Failed to get all interfaces of borde layer. {e}")
             return pd.DataFrame()

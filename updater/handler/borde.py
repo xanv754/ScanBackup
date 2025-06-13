@@ -13,12 +13,12 @@ from utils.log import log
 class BordeUpdaterHandler(UpdaterHandler):
     """Border data updater handler."""
 
-    def _load_database(self, data: List[Tuple[BordeModel, List[TrafficHistoryModel]]], db_backup: bool = False) -> bool:
+    def _load_database(self, data: List[Tuple[BordeModel, List[TrafficHistoryModel]]], db_backup: bool = False, uri: str | None = None) -> bool:
         """Load the data obtained in the database."""
         failed = False
         try:
-            if db_backup: database = PostgresBordeQuery()
-            else: database = MongoBordeQuery()
+            if db_backup: database = PostgresBordeQuery(uri=uri)
+            else: database = MongoBordeQuery(uri=uri)
             historyHandler = TrafficHistoryUpdaterHandler()
             for interface, traffic in data:
                 try:
@@ -34,8 +34,8 @@ class BordeUpdaterHandler(UpdaterHandler):
                     for new_traffic in traffic:
                         new_traffic.idLayer = str(data_interface[BordeFieldModel.id].iloc[0])
                         new_traffic.typeLayer = LayerType.BORDE
-                    if db_backup: response = historyHandler.load_data(data=traffic, postgres=True)
-                    else: response = historyHandler.load_data(data=traffic, mongo=True)
+                    if db_backup: response = historyHandler.load_data(data=traffic, postgres=True, uri=uri)
+                    else: response = historyHandler.load_data(data=traffic, mongo=True, uri=uri)
                     if not response:
                         raise Exception(f"Failed to insert histories traffic of an interface of Border layer: {interface.name}")
                 except Exception as e:

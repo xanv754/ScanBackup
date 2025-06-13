@@ -38,11 +38,11 @@ class TrafficHistoryUpdaterHandler(UpdaterHandler):
             log.error(f"Failed to get data of history traffic. {e}")
             return []
 
-    def load_data(self, data: List[TrafficHistoryModel], mongo: bool = False, postgres: bool = False) -> bool:
+    def load_data(self, data: List[TrafficHistoryModel], mongo: bool = False, postgres: bool = False, uri: str | None = None) -> bool:
         failed = False
         if mongo and len(data) > 0:
             try:
-                mongo_database = MongoTrafficHistoryQuery()
+                mongo_database = MongoTrafficHistoryQuery(uri=uri)
                 response = mongo_database.new_traffic(traffic=data)
                 if not response:
                     raise Exception(f"Failed to insert histories traffic of {data[0].typeLayer} into mongo database.")
@@ -51,7 +51,7 @@ class TrafficHistoryUpdaterHandler(UpdaterHandler):
                 failed = True
         if postgres and len(data) > 0:
             try:
-                postgres_database = PostgresTrafficHistoryQuery()
+                postgres_database = PostgresTrafficHistoryQuery(uri=uri)
                 response = postgres_database.new_traffic(traffic=data)
                 if not response:
                     raise Exception(f"Failed to insert histories traffic of {data[0].typeLayer} into postgres database.")

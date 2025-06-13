@@ -13,12 +13,12 @@ from utils.log import log
 class CachingUpdaterHandler(UpdaterHandler):
     """Caching data updater handler."""
 
-    def _load_database(self, data: List[Tuple[CachingModel, List[TrafficHistoryModel]]], db_backup: bool = False) -> bool:
+    def _load_database(self, data: List[Tuple[CachingModel, List[TrafficHistoryModel]]], db_backup: bool = False, uri: str | None = None) -> bool:
         """Load the data obtained in the principal database."""
         failed = False
         try:
-            if db_backup: database = PostgresCachingQuery()
-            else: database = MongoCachingQuery()
+            if db_backup: database = PostgresCachingQuery(uri=uri)
+            else: database = MongoCachingQuery(uri=uri)
             historyHandler = TrafficHistoryUpdaterHandler()
             for interface, traffic in data:
                 try:
@@ -34,8 +34,8 @@ class CachingUpdaterHandler(UpdaterHandler):
                     for new_traffic in traffic:
                         new_traffic.idLayer = str(data_interface[CachingFieldModel.id].iloc[0])
                         new_traffic.typeLayer = LayerType.CACHING
-                    if db_backup: response = historyHandler.load_data(data=traffic, postgres=True)
-                    else: response = historyHandler.load_data(data=traffic, mongo=True)
+                    if db_backup: response = historyHandler.load_data(data=traffic, postgres=True, uri=uri)
+                    else: response = historyHandler.load_data(data=traffic, mongo=True, uri=uri)
                     if not response:
                         raise Exception(f"Failed to insert histories traffic of an interface of Caching layer: {interface.name}")
                 except Exception as e:

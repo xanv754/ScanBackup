@@ -97,6 +97,7 @@ class TrafficHandler:
             data = pd.DataFrame()
             for date in dates:
                 traffic = self.traffic_query.get_traffic_layer_by_date(layer_type=layer_type, date=date)
+                traffic[HeaderDataFrame.ID_LAYER] = traffic[HeaderDataFrame.ID_LAYER].astype(str)
                 if data.empty: data = traffic
                 else: data = pd.concat([data, traffic])
             if not data.empty: data = self.__insert_name_layer(df=data, layer_type=layer_type)
@@ -125,6 +126,7 @@ class TrafficHandler:
             else:
                 if not Validate.date(date): raise Exception("Invalid parameter: date.")
             traffic = self.traffic_query.get_traffic_layer_by_date(layer_type=layer_type, date=date)
+            traffic[HeaderDataFrame.ID_LAYER] = traffic[HeaderDataFrame.ID_LAYER].astype(str)
             if not traffic.empty: traffic = self.__insert_name_layer(df=traffic, layer_type=layer_type)
             traffic = traffic.reset_index(drop=True)
             return traffic

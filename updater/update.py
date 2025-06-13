@@ -19,7 +19,7 @@ class UpdaterHandler(ABC):
         pass
 
     @abstractmethod
-    def load_data(self, data: List, mongo: bool = False, postgres: bool = False) -> bool:
+    def load_data(self, data: List, mongo: bool = False, postgres: bool = False, uri: str | None = None) -> bool | None:
         """Load data in the database.
         
         Parameters
@@ -30,5 +30,7 @@ class UpdaterHandler(ABC):
             Insert data in mongo database.
         postgres : bool
             Insert data in postgres database.
+        uri : str | None
+            URI to connect to the database.
         """
         pass

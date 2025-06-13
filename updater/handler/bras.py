@@ -13,12 +13,12 @@ from utils.log import log
 class BrasUpdaterHandler(UpdaterHandler):
     """Bras data updater handler."""
 
-    def _load_database(self, data: List[Tuple[BrasModel, List[TrafficHistoryModel]]], db_backup: bool = False) -> bool:
+    def _load_database(self, data: List[Tuple[BrasModel, List[TrafficHistoryModel]]], db_backup: bool = False, uri: str | None = None) -> bool:
         """Load the data obtained in the principal database."""
         failed = False
         try:
-            if db_backup: database = PostgresBrasQuery()
-            else: database = MongoBrasQuery()
+            if db_backup: database = PostgresBrasQuery(uri=uri)
+            else: database = MongoBrasQuery(uri=uri)
             historyHandler = TrafficHistoryUpdaterHandler()
             for bras, traffic in data:
                 try:
@@ -34,8 +34,8 @@ class BrasUpdaterHandler(UpdaterHandler):
                     for new_traffic in traffic:
                         new_traffic.idLayer = str(data_bras[BrasFieldModel.id].iloc[0])
                         new_traffic.typeLayer = LayerType.BRAS
-                    if db_backup: response = historyHandler.load_data(data=traffic, postgres=True)
-                    else: response = historyHandler.load_data(data=traffic, mongo=True)
+                    if db_backup: response = historyHandler.load_data(data=traffic, postgres=True, uri=uri)
+                    else: response = historyHandler.load_data(data=traffic, mongo=True, uri=uri)
                     if not response:
                         raise Exception(f"Failed to insert histories traffic of an bras: {bras.name} {bras.type}")
                 except Exception as e:

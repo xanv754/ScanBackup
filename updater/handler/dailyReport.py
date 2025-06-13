@@ -15,13 +15,13 @@ from utils.log import log
 class DailyReportUpdaterHandler(UpdaterHandler):
     """Daily report data updater handler."""
 
-    def _load_database(self, data: List[pd.DataFrame], db_backup: bool = False) -> bool:
+    def _load_database(self, data: List[pd.DataFrame], db_backup: bool = False, uri: str | None = None) -> bool:
         """Load the data obtained in the database."""
         failed = False
         layer_handler = LayerHandler(db_backup=db_backup)
         try:
-            if db_backup: database = PostgresDailyReportQuery()
-            else: database = MongoDailyReportQuery()
+            if db_backup: database = PostgresDailyReportQuery(uri=uri)
+            else: database = MongoDailyReportQuery(uri=uri)
             for df in data:
                 try:
                     layer_type = df[HeaderDataFrame.TYPE_LAYER][0]
