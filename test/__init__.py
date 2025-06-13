@@ -137,13 +137,14 @@ class Database(ABC):
         else:
             self.create_table()
 
-    def clean(self) -> None:
+    def clean(self, border: bool = False) -> None:
         """Clean all registers in the database."""
         try:
             if self.db_backup:
                 database = psycopg2.connect(self.uri)
                 cursor = database.cursor()
                 cursor.execute(f"DELETE FROM {self.table}")
+                if border: cursor.execute(f"DELETE FROM {LayerType.BORDE}")
                 database.commit()
                 database.close()
             else:
@@ -151,6 +152,9 @@ class Database(ABC):
                 database = client[self.name_db]
                 collection = database[self.table]
                 collection.delete_many({})
+                if border: 
+                    collection = database[LayerType.BORDE]
+                    collection.delete_many({})
                 client.close()
         except Exception as e:
             traceback.print_exc(e)
@@ -162,7 +166,7 @@ class Database(ABC):
         pass
 
     @abstractmethod
-    def transform_model(self, data: dict | tuple) -> BaseModel | None:
+    def transform_model(self, data: list[dict | tuple]) -> list[BaseModel]:
         """Transform data to model."""
         pass
 
@@ -172,14 +176,40 @@ class Database(ABC):
         pass
 
     @abstractmethod
-    def insert(self, data: BaseModel) -> None:
+    def insert(self, data: BaseModel, id: str | None = None) -> None:
         """Insert a new register in the database."""
         pass
 
     @abstractmethod
     def get(self, id: int) -> list:
-        """Get one or more registers from the database."""
+        """Get one registers from the database."""
         pass
+
+    def get_all(self) -> list[BaseModel]:
+        """Get all registers from the database."""
+        try:
+            if self.db_backup:
+                database = psycopg2.connect(self.uri)
+                cursor = database.cursor()
+                cursor.execute(f"""
+                    SELECT * 
+                    FROM {self.table}
+                """)
+                result = cursor.fetchall()
+                result = self.transform_model(result)
+                database.close()
+            else:
+                client = MongoClient(self.uri)
+                database = client[self.name_db]
+                collection = database[self.table]
+                result = collection.find()
+                result = self.transform_model(result)
+                client.close()
+            return result
+        except Exception as e:
+            traceback.print_exc(e)
+            return []
+
 
 class DatabaseBorderTest(Database):
     def __init__(self, db_backup: bool = False):
@@ -194,13 +224,18 @@ class DatabaseBorderTest(Database):
             createAt=datetime.now().strftime("%Y-%m-%d")
         )
 
-    def transform_model(self, data: dict | tuple) -> BordeModel | None:
-        if isinstance(data, dict):
-            return BordeModel(**data)
-        elif isinstance(data, tuple):
-            return BordeModel(id=str(data[0]), name=data[1], model=data[2], capacity=data[3], createAt=data[4].strftime("%Y-%m-%d"))
-        else:
-            return None
+    def transform_model(self, data: list[dict | tuple]) -> list[BordeModel]:
+        data_model = []
+        for value in data:
+            if isinstance(value, dict):
+                data_model.append(
+                    BordeModel(id=str(value["_id"]), name=value["name"], model=value["model"], capacity=value["capacity"], createAt=value["createAt"])
+                )
+            elif isinstance(value, tuple):
+                data_model.append(
+                    BordeModel(id=str(value[0]), name=value[1], model=value[2], capacity=value[3], createAt=value[4].strftime("%Y-%m-%d"))
+                )
+        return data_model
 
     def create_table(self) -> None:
         try:
@@ -223,10 +258,10 @@ class DatabaseBorderTest(Database):
             traceback.print_exc(e)
             exit(1)
 
-    def insert(self, data: BordeModel | None = None) -> BordeModel:
+    def insert(self, data: BordeModel | None = None, id: str | None = None) -> BordeModel:
         try:
-            if data is None:
-                data = self.get_exampĺe()
+            if data is None: data = self.get_exampĺe()
+            if id: data.id = id
             if self.db_backup:
                 database = psycopg2.connect(self.uri)
                 cursor = database.cursor()
@@ -244,7 +279,11 @@ class DatabaseBorderTest(Database):
                 client = MongoClient(self.uri)
                 database = client[self.name_db]
                 collection = database[self.table]
-                collection.insert_one(data.model_dump())
+                data = data.model_dump()
+                if id: 
+                    data.pop("id")
+                    data["_id"] = id
+                collection.insert_one(data)
                 client.close()
         except Exception as e:
             traceback.print_exc(e)
@@ -270,10 +309,13 @@ class DatabaseBorderTest(Database):
                 collection = database[self.table]
                 result = collection.find_one({BordeFieldDatabase.ID: id})
                 client.close()
-            return self.transform_model(result)
+            return self.transform_model(result)[0]
         except Exception as e:
             traceback.print_exc(e)
             return []
+        
+    def get_all(self) -> list[BordeModel]:
+        return super().get_all()
 
 
 class DatabaseBrasTest(Database):
@@ -289,13 +331,18 @@ class DatabaseBrasTest(Database):
             createAt=datetime.now().strftime("%Y-%m-%d")
         )
 
-    def transform_model(self, data: dict | tuple) -> BrasModel | None:
-        if isinstance(data, dict):
-            return BrasModel(**data)
-        elif isinstance(data, tuple):
-            return BrasModel(id=str(data[0]), name=data[1], type=data[2], capacity=data[3], createAt=data[4].strftime("%Y-%m-%d"))
-        else:
-            return None
+    def transform_model(self, data: list[dict | tuple]) -> BrasModel | None:
+        data_model = []
+        for value in data:
+            if isinstance(value, dict):
+                data_model.append(
+                    BrasModel(id=str(value["_id"]), name=value["name"], type=value["type"], capacity=value["capacity"], createAt=value["createAt"])
+                )
+            elif isinstance(value, tuple):
+                data_model.append(
+                    BrasModel(id=str(data[0]), name=data[1], type=data[2], capacity=data[3], createAt=data[4].strftime("%Y-%m-%d"))
+                )
+        return data_model
 
     def create_table(self) -> None:
         try:
@@ -320,8 +367,7 @@ class DatabaseBrasTest(Database):
 
     def insert(self, data: BrasModel | None = None) -> BrasModel:
         try:
-            if data is None:
-                data = self.get_exampĺe()
+            if data is None: data = self.get_exampĺe()
             if self.db_backup:
                 database = psycopg2.connect(self.uri)
                 cursor = database.cursor()
@@ -365,10 +411,13 @@ class DatabaseBrasTest(Database):
                 collection = database[self.table]
                 result = collection.find_one({BrasFieldDatabase.ID: id})
                 client.close()
-            return self.transform_model(result)
+            return self.transform_model(result)[0]
         except Exception as e:
             traceback.print_exc(e)
             return []
+        
+    def get_all(self) -> list[BrasModel]:
+        return super().get_all()
 
 
 class DatabaseCachingTest(Database):
@@ -385,12 +434,17 @@ class DatabaseCachingTest(Database):
         )
 
     def transform_model(self, data: dict | tuple) -> CachingModel | None:
-        if isinstance(data, dict):
-            return CachingModel(**data)
-        elif isinstance(data, tuple):
-            return CachingModel(id=str(data[0]), name=data[1], service=data[2], capacity=data[3], createAt=data[4].strftime("%Y-%m-%d"))
-        else:
-            return None
+        data_model = []
+        for value in data:
+            if isinstance(value, dict):
+                data_model.append(
+                    CachingModel(id=str(value["_id"]), name=value["name"], service=value["service"], capacity=value["capacity"], createAt=value["createAt"])
+                )
+            elif isinstance(value, tuple):
+                data_model.append(
+                    CachingModel(id=str(data[0]), name=data[1], service=data[2], capacity=data[3], createAt=data[4].strftime("%Y-%m-%d"))
+                )
+        return data_model
 
     def create_table(self) -> None:
         try:
@@ -415,8 +469,7 @@ class DatabaseCachingTest(Database):
 
     def insert(self, data: CachingModel | None = None) -> CachingModel:
         try:
-            if data is None:
-                data = self.get_exampĺe()
+            if data is None: data = self.get_exampĺe()
             if self.db_backup:
                 database = psycopg2.connect(self.uri)
                 cursor = database.cursor()
@@ -460,10 +513,13 @@ class DatabaseCachingTest(Database):
                 collection = database[self.table]
                 result = collection.find_one({CachingFieldDatabase.ID: id})
                 client.close()
-            return self.transform_model(result)
+            return self.transform_model(result)[0]
         except Exception as e:
             traceback.print_exc(e)
             return []
+    
+    def get_all(self) -> list[CachingModel]:
+        return super().get_all()
         
 
 class DatabaseRaiTest(Database):
@@ -479,12 +535,17 @@ class DatabaseRaiTest(Database):
         )
 
     def transform_model(self, data: dict | tuple) -> RaiModel | None:
-        if isinstance(data, dict):
-            return RaiModel(**data)
-        elif isinstance(data, tuple):
-            return RaiModel(id=str(data[0]), name=data[1], capacity=data[2], createAt=data[3].strftime("%Y-%m-%d"))
-        else:
-            return None
+        data_model = []
+        for value in data:
+            if isinstance(value, dict):
+                data_model.append(
+                    RaiModel(id=str(value["_id"]), name=value["name"], capacity=value["capacity"], createAt=value["createAt"])
+                )
+            elif isinstance(value, tuple):
+                data_model.append(
+                    RaiModel(id=str(data[0]), name=data[1], capacity=data[2], createAt=data[3].strftime("%Y-%m-%d"))
+                )
+        return data_model
 
     def create_table(self) -> None:
         try:
@@ -508,8 +569,7 @@ class DatabaseRaiTest(Database):
 
     def insert(self, data: RaiModel | None = None) -> RaiModel:
         try:
-            if data is None:
-                data = self.get_exampĺe()
+            if data is None: data = self.get_exampĺe()
             if self.db_backup:
                 database = psycopg2.connect(self.uri)
                 cursor = database.cursor()
@@ -552,10 +612,13 @@ class DatabaseRaiTest(Database):
                 collection = database[self.table]
                 result = collection.find_one({RaiFieldDatabase.ID: id})
                 client.close()
-            return self.transform_model(result)
+            return self.transform_model(result)[0]
         except Exception as e:
             traceback.print_exc(e)
             return []
+    
+    def get_all(self) -> list[RaiModel]:
+        return super().get_all()
         
 
 class DatabaseTrafficTest(Database):
@@ -564,10 +627,10 @@ class DatabaseTrafficTest(Database):
 
     def get_exampĺe(self) -> TrafficHistoryModel | None:
         return TrafficHistoryModel(
-            date=datetime.now().strftime("%Y-%m-%d"),
-            time=datetime.now().strftime("%H:%M:%S"),
+            date=(datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d"),
+            time=(datetime.now() - timedelta(days=1)).strftime("%H:%M:%S"),
             idLayer=str(random.randint(0, 1000)),
-            typeLayer=random.choice([LayerType.BORDE, LayerType.BRAS, LayerType.CACHING, LayerType.RAI]),
+            typeLayer=LayerType.BORDE,
             inProm=random.randint(1, 100),
             outProm=random.randint(1, 100),
             inMax=random.randint(1, 100),
@@ -575,21 +638,35 @@ class DatabaseTrafficTest(Database):
         )
 
     def transform_model(self, data: dict | tuple) -> TrafficHistoryModel | None:
-        if isinstance(data, dict):
-            return TrafficHistoryModel(**data)
-        elif isinstance(data, tuple):
-            return TrafficHistoryModel(
-                date=data[0].strftime("%Y-%m-%d"),
-                time=data[1].strftime("%H:%M:%S"),
-                idLayer=str(data[2]),
-                typeLayer=data[3],
-                inProm=data[4],
-                outProm=data[5],
-                inMax=data[6],
-                outMax=data[7]
-            )
-        else:
-            return None
+        data_model = []
+        for value in data:
+            if isinstance(value, dict):
+                data_model.append(
+                    TrafficHistoryModel(
+                        date=value["date"],
+                        time=value["time"],
+                        idLayer=str(value["idLayer"]),
+                        typeLayer=value["typeLayer"],
+                        inProm=value["inProm"],
+                        outProm=value["outProm"],
+                        inMax=value["inMax"],
+                        outMax=value["outMax"]
+                    )
+                )
+            elif isinstance(value, tuple):
+                data_model.append(
+                    TrafficHistoryModel(
+                        date=value[0].strftime("%Y-%m-%d"),
+                        time=value[1].strftime("%H:%M:%S"),
+                        idLayer=str(value[2]),
+                        typeLayer=value[3],
+                        inProm=value[4],
+                        outProm=value[5],
+                        inMax=value[6],
+                        outMax=value[7]
+                    )
+                )
+        return data_model
 
     def create_table(self) -> None:
         try:
@@ -622,9 +699,11 @@ class DatabaseTrafficTest(Database):
 
     def insert(self, data: TrafficHistoryModel | None = None) -> TrafficHistoryModel:
         try:
-            if data is None:
-                data = self.get_exampĺe()
+            if data is None: data = self.get_exampĺe()
+            query_borde = DatabaseBorderTest(db_backup=self.db_backup)
             if self.db_backup:
+                interface_borde = query_borde.insert()
+                data.idLayer = str(interface_borde.id)
                 database = psycopg2.connect(self.uri)
                 cursor = database.cursor()
                 cursor.execute(f"""
@@ -646,6 +725,7 @@ class DatabaseTrafficTest(Database):
                 database = client[self.name_db]
                 collection = database[self.table]
                 collection.insert_one(data.model_dump())
+                query_borde.insert(id=data.idLayer)
                 client.close()
         except Exception as e:
             traceback.print_exc(e)
@@ -677,10 +757,13 @@ class DatabaseTrafficTest(Database):
                     TrafficHistoryFieldDatabase.TYPE_LAYER: typeLayer
                 })
                 client.close()
-            return self.transform_model(result)
+            return self.transform_model(result)[0]
         except Exception as e:
             traceback.print_exc(e)
             return []
+        
+    def get_all(self) -> list[TrafficHistoryModel]:
+        return super().get_all()
         
 
 class DatabaseDailyTest(Database):
@@ -689,9 +772,9 @@ class DatabaseDailyTest(Database):
 
     def get_exampĺe(self) -> DailyReportModel | None:
         return DailyReportModel(
-            date=datetime.now().strftime("%Y-%m-%d"),
+            date=(datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d"),
             idLayer=str(random.randint(1, 100)),
-            typeLayer=random.choice([LayerType.BORDE, LayerType.BRAS, LayerType.CACHING, LayerType.RAI]),
+            typeLayer=LayerType.BORDE,
             inProm=random.randint(1, 100),
             outProm=random.randint(1, 100),
             inMax=random.randint(1, 100),
@@ -699,20 +782,33 @@ class DatabaseDailyTest(Database):
         )
 
     def transform_model(self, data: dict | tuple) -> DailyReportModel | None:
-        if isinstance(data, dict):
-            return DailyReportModel(**data)
-        elif isinstance(data, tuple):
-            return DailyReportModel(
-                date=data[0].strftime("%Y-%m-%d"),
-                idLayer=str(data[1]),
-                typeLayer=data[2],
-                inProm=data[3],
-                outProm=data[4],
-                inMax=data[5],
-                outMax=data[6]
-            )
-        else:
-            return None
+        data_model = []
+        for value in data:
+            if isinstance(value, dict):
+                data_model.append(
+                    DailyReportModel(
+                        date=value["date"],
+                        idLayer=str(value["idLayer"]),
+                        typeLayer=value["typeLayer"],
+                        inProm=value["inProm"],
+                        outProm=value["outProm"],
+                        inMax=value["inMax"],
+                        outMax=value["outMax"]
+                    )
+                )
+            elif isinstance(value, tuple):
+                data_model.append(
+                    DailyReportModel(
+                        date=value[0].strftime("%Y-%m-%d"),
+                        idLayer=str(value[1]),
+                        typeLayer=value[2],
+                        inProm=value[3],
+                        outProm=value[4],
+                        inMax=value[5],
+                        outMax=value[6]
+                    )
+                )
+        return data_model
 
     def create_table(self) -> None:
         try:
@@ -742,9 +838,11 @@ class DatabaseDailyTest(Database):
 
     def insert(self, data: DailyReportModel | None = None) -> DailyReportModel:
         try:
-            if data is None:
-                data = self.get_exampĺe()
+            if data is None: data = self.get_exampĺe()
+            query_borde = DatabaseBorderTest(db_backup=self.db_backup)
             if self.db_backup:
+                interface_borde = query_borde.insert()
+                data.idLayer = str(interface_borde.id)
                 database = psycopg2.connect(self.uri)
                 cursor = database.cursor()
                 cursor.execute(f"""
@@ -765,6 +863,7 @@ class DatabaseDailyTest(Database):
                 database = client[self.name_db]
                 collection = database[self.table]
                 collection.insert_one(data.model_dump())
+                query_borde.insert(id=data.idLayer)
                 client.close()
         except Exception as e:
             traceback.print_exc(e)
@@ -796,10 +895,13 @@ class DatabaseDailyTest(Database):
                     DailyReportFieldDatabase.TYPE_LAYER: typeLayer
                 })
                 client.close()
-            return self.transform_model(result)
+            return self.transform_model(result)[0]
         except Exception as e:
             traceback.print_exc(e)
             return []
+        
+    def get_all(self) -> list[DailyReportModel]:
+        return super().get_all()
 
 
 if __name__ == "__main__":
