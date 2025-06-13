@@ -1,5 +1,6 @@
 import os
 import pandas as pd
+from datetime import datetime, timedelta
 from typing import List
 from multiprocessing import Process
 from constants.path import DataPath
@@ -48,6 +49,9 @@ class DailyReportUpdaterHandler(UpdaterHandler):
 
     def get_data(self, filepath: str | None = None, date: str | None = None) -> List[pd.DataFrame]:
         try:
+            if not date: 
+                date = datetime.now() - timedelta(days=1)
+                date = date.strftime("%Y-%m-%d")
             if not filepath: filepath = DataPath.SCAN_REPORT_DAILY
             if not os.path.exists(filepath) or not os.path.isdir(filepath):
                 raise FileNotFoundError("Daily report folder not found.")
@@ -56,8 +60,8 @@ class DailyReportUpdaterHandler(UpdaterHandler):
             for filename in files:
                 try:
                     layer = filename.replace(".", "_").split("_")[1].upper().strip()
-                    df = pd.read_csv(f"{filepath}/{filename}", sep=";", names=header_report_dialy, index_col=False, skiprows=1)
-                    if date: df = df[df[HeaderDataFrame.DATE] == date]
+                    df = pd.read_csv(f"{filepath}/{filename}", sep=" ", names=header_report_dialy, index_col=False, skiprows=1)
+                    df = df[df[HeaderDataFrame.DATE] == date]
                     df[HeaderDataFrame.TYPE_LAYER] = layer
                     datas.append(df)
                 except Exception as e:
