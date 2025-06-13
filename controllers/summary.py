@@ -4,23 +4,41 @@ from multiprocessing import Pool
 from constants.group import LayerType
 from handler import TrafficHandler, DailyReportHandler
 from utils.calculate import calculate
+from utils.translate import Translate
+from utils.excel import ExcelExport
 
 
 class SummaryController:
     """Controller to manage summary data."""
 
     @staticmethod
-    def summary_diary_current() -> dict:
+    def summary_diary_current() -> bool:
         """Get a summary of the current day's data."""
-        traffic = TrafficHandler()
-        with Pool(processes=4) as pool:
-            df_data_borde = pool.apply(traffic.get_traffic_layer_by_days_ago, args=(LayerType.BORDE, 1))
-            df_data_bras = pool.apply(traffic.get_traffic_layer_by_days_ago, args=(LayerType.BRAS, 1))
-            df_data_caching = pool.apply(traffic.get_traffic_layer_by_days_ago, args=(LayerType.CACHING, 1))
-            df_data_rai = pool.apply(traffic.get_traffic_layer_by_days_ago, args=(LayerType.RAI, 1))
+        try:
+            daily_traffic = DailyReportHandler()
+            with Pool(processes=4) as pool:
+                df_data_borde = pool.apply(daily_traffic.get_daily_report_by_days_before, args=(LayerType.BORDE, 1))
+                df_data_bras = pool.apply(daily_traffic.get_daily_report_by_days_before, args=(LayerType.BRAS, 1))
+                df_data_caching = pool.apply(daily_traffic.get_daily_report_by_days_before, args=(LayerType.CACHING, 1))
+                df_data_rai = pool.apply(daily_traffic.get_daily_report_by_days_before, args=(LayerType.RAI, 1))
 
-            # TODO: Calculate prom and max prom
+                df_data_borde = Translate.header(df_data_borde)
+                df_data_bras = Translate.header(df_data_bras)
+                df_data_caching = Translate.header(df_data_caching)
+                df_data_rai = Translate.header(df_data_rai)
 
+                data = {
+                    LayerType.BORDE: df_data_borde,
+                    LayerType.BRAS: df_data_bras,
+                    LayerType.CACHING: df_data_caching,
+                    LayerType.RAI: df_data_rai
+                }
+            excel = ExcelExport(filename="Resumen_Diario", data=data)
+            excel.export()
+        except:
+            return False
+        else:
+            return True
 
     @staticmethod
     def summary_weekly_current() -> dict:

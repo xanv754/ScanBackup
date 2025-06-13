@@ -38,9 +38,9 @@ class ExcelExport:
             max_column = sheet.max_column
             max_row = sheet.max_row
 
-            sheet.column_dimensions[cells[1]].width = 15
+            sheet.column_dimensions[cells[1]].width = 50
             for column in range(2, max_column + 1):
-                sheet.column_dimensions[cells[column]].width = 10
+                sheet.column_dimensions[cells[column]].width = 13
 
             bg = PatternFill(fill_type="solid", start_color=Color(rgb="16365C"), end_color=Color(rgb="16365C"))
             font = Font(bold=True, color=Color(rgb="FFFFFF"))
