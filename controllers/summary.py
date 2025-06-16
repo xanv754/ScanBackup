@@ -41,41 +41,106 @@ class SummaryController:
             return True
 
     @staticmethod
-    def summary_weekly_current() -> dict:
+    def summary_weekly_current() -> bool:
         """Get a summary of the current weekly's data."""
-        traffic = TrafficHandler()
-        with Pool(processes=4) as pool:
-            df_data_borde = pool.apply(traffic.get_traffic_layer_by_days_ago, args=(LayerType.BORDE, 7))
-            df_data_bras = pool.apply(traffic.get_traffic_layer_by_days_ago, args=(LayerType.BRAS, 7))
-            df_data_caching = pool.apply(traffic.get_traffic_layer_by_days_ago, args=(LayerType.CACHING, 7))
-            df_data_rai = pool.apply(traffic.get_traffic_layer_by_days_ago, args=(LayerType.RAI, 7))
+        try:
+            traffic = TrafficHandler()
+            with Pool(processes=4) as pool:
+                df_data_borde = pool.apply(traffic.get_traffic_layer_by_days_ago, args=(LayerType.BORDE, 7))
+                df_data_bras = pool.apply(traffic.get_traffic_layer_by_days_ago, args=(LayerType.BRAS, 7))
+                df_data_caching = pool.apply(traffic.get_traffic_layer_by_days_ago, args=(LayerType.CACHING, 7))
+                df_data_rai = pool.apply(traffic.get_traffic_layer_by_days_ago, args=(LayerType.RAI, 7))
 
-            # TODO: Calculate prom and max prom
+                df_data_borde = calculate(df_data_borde)
+                df_data_bras = calculate(df_data_bras)
+                df_data_caching = calculate(df_data_caching)
+                df_data_rai = calculate(df_data_rai)
 
+                df_data_borde = Translate.header(df_data_borde)
+                df_data_bras = Translate.header(df_data_bras)
+                df_data_caching = Translate.header(df_data_caching)
+                df_data_rai = Translate.header(df_data_rai)
+
+                data = {
+                    LayerType.BORDE: df_data_borde,
+                    LayerType.BRAS: df_data_bras,
+                    LayerType.CACHING: df_data_caching,
+                    LayerType.RAI: df_data_rai
+                }
+            excel = ExcelExport(filename="Resumen_Semanal", data=data)
+            excel.export()
+        except:
+            return False
+        else:
+            return True
+        
     @staticmethod
-    def summary_fortnight_current() -> dict:
+    def summary_fortnight_current() -> bool:
         """Get a summary of the current fortnight's data."""
-        traffic = TrafficHandler()
-        with Pool(processes=4) as pool:
-            df_data_borde = pool.apply(traffic.get_traffic_layer_by_days_ago, args=(LayerType.BORDE, 15))
-            df_data_bras = pool.apply(traffic.get_traffic_layer_by_days_ago, args=(LayerType.BRAS, 15))
-            df_data_caching = pool.apply(traffic.get_traffic_layer_by_days_ago, args=(LayerType.CACHING, 15))
-            df_data_rai = pool.apply(traffic.get_traffic_layer_by_days_ago, args=(LayerType.RAI, 15))
+        try:
+            traffic = TrafficHandler()
+            with Pool(processes=4) as pool:
+                df_data_borde = pool.apply(traffic.get_traffic_layer_by_days_ago, args=(LayerType.BORDE, 15))
+                df_data_bras = pool.apply(traffic.get_traffic_layer_by_days_ago, args=(LayerType.BRAS, 15))
+                df_data_caching = pool.apply(traffic.get_traffic_layer_by_days_ago, args=(LayerType.CACHING, 15))
+                df_data_rai = pool.apply(traffic.get_traffic_layer_by_days_ago, args=(LayerType.RAI, 15))
 
-            # TODO: Calculate prom and max prom
+                df_data_borde = calculate(df_data_borde)
+                df_data_bras = calculate(df_data_bras)
+                df_data_caching = calculate(df_data_caching)
+                df_data_rai = calculate(df_data_rai)
+
+                df_data_borde = Translate.header(df_data_borde)
+                df_data_bras = Translate.header(df_data_bras)
+                df_data_caching = Translate.header(df_data_caching)
+                df_data_rai = Translate.header(df_data_rai)
+
+                data = {
+                    LayerType.BORDE: df_data_borde,
+                    LayerType.BRAS: df_data_bras,
+                    LayerType.CACHING: df_data_caching,
+                    LayerType.RAI: df_data_rai
+                }
+            excel = ExcelExport(filename="Resumen_Quincenal", data=data)
+            excel.export()
+        except:
+            return False
+        else:
+            return True
 
     @staticmethod
-    def summary_monthly_current() -> dict:
+    def summary_monthly_current() -> bool:
         """Get a summary of the current month's data."""
-        current_year = datetime.now().year
-        current_month = datetime.now().month
-        days = monthrange(current_year, current_month)[1]
-        traffic = TrafficHandler()
-        with Pool(processes=4) as pool:
-            df_data_borde = pool.apply(traffic.get_traffic_layer_by_days_ago, args=(LayerType.BORDE, days))
-            df_data_bras = pool.apply(traffic.get_traffic_layer_by_days_ago, args=(LayerType.BRAS, days))
-            df_data_caching = pool.apply(traffic.get_traffic_layer_by_days_ago, args=(LayerType.CACHING, days))
-            df_data_rai = pool.apply(traffic.get_traffic_layer_by_days_ago, args=(LayerType.RAI, days))
+        try:
+            current_year = datetime.now().year
+            current_month = datetime.now().month
+            days = monthrange(current_year, current_month)[1]
+            traffic = TrafficHandler()
+            with Pool(processes=4) as pool:
+                df_data_borde = pool.apply(traffic.get_traffic_layer_by_days_ago, args=(LayerType.BORDE, days))
+                df_data_bras = pool.apply(traffic.get_traffic_layer_by_days_ago, args=(LayerType.BRAS, days))
+                df_data_caching = pool.apply(traffic.get_traffic_layer_by_days_ago, args=(LayerType.CACHING, days))
+                df_data_rai = pool.apply(traffic.get_traffic_layer_by_days_ago, args=(LayerType.RAI, days))
 
-            # TODO: Calculate prom and max prom
-            # df_summary_rai = calculate(df_data_rai)
+                df_data_borde = calculate(df_data_borde)
+                df_data_bras = calculate(df_data_bras)
+                df_data_caching = calculate(df_data_caching)
+                df_data_rai = calculate(df_data_rai)
+
+                df_data_borde = Translate.header(df_data_borde)
+                df_data_bras = Translate.header(df_data_bras)
+                df_data_caching = Translate.header(df_data_caching)
+                df_data_rai = Translate.header(df_data_rai)
+
+                data = {
+                    LayerType.BORDE: df_data_borde,
+                    LayerType.BRAS: df_data_bras,
+                    LayerType.CACHING: df_data_caching,
+                    LayerType.RAI: df_data_rai
+                }
+            excel = ExcelExport(filename="Resumen_Mensual", data=data)
+            excel.export()
+        except:
+            return False
+        else:
+            return True

@@ -50,6 +50,7 @@ header_dataframe = [
 header_summary = [
     HeaderDataFrame.INTERFACE,
     HeaderDataFrame.CAPACITY,
+    HeaderDataFrame.TYPE,
     HeaderDataFrame.IN_PROM,
     HeaderDataFrame.OUT_PROM,
     HeaderDataFrame.IN_MAX_PROM,
