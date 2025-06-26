@@ -80,7 +80,7 @@ def data(date: str):
         log.info("Starting updater daily report...")
         dailyReportHandler = DailyReportUpdaterHandler()
         if date: reports = dailyReportHandler.get_data(date=date)
-        else: reports =dailyReportHandler.get_data()
+        else: reports = dailyReportHandler.get_data()
         status_operation = dailyReportHandler.load_data(data=reports)
         if not status_operation: raise Exception()
     except Exception as e:
