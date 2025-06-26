@@ -24,7 +24,7 @@ class DailyReportUpdaterHandler(UpdaterHandler):
             else: database = MongoDailyReportQuery(uri=uri)
             for df in data:
                 try:
-                    layer_type = df[HeaderDataFrame.TYPE_LAYER][0]
+                    layer_type = df[HeaderDataFrame.TYPE_LAYER].iloc[0]
                     df = df.drop(columns=[HeaderDataFrame.CAPACITY])
                     df_interfaces = layer_handler.get_all_interfaces(layer_type=layer_type)
                     df_interfaces.rename(columns={
