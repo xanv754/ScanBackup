@@ -1,7 +1,6 @@
 # Files
 data/*
 sources/*
-routines/*.sh
 test/correcciondata
 test/data/*
 test/calculos/*
