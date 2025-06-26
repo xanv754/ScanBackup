@@ -34,7 +34,7 @@ log.info("Starting to generate the daily report...")
 try:
     for capa in layers_BBIP_SCAN:
         ruta_data_scan = os.path.join(ruta_scan_dir, capa)
-        ruta_data_reporte = os.path.join(ruta_reporte_dir, f"Resumen_{capa}.csv")  # Ruta del archivo específico
+        ruta_data_reporte = os.path.join(ruta_reporte_dir, f"Resumen_{capa}.csv")
 
         # TODO: Eliminar encabezados magic strings
         if os.path.exists(ruta_data_reporte): 
