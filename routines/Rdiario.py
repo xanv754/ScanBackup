@@ -28,8 +28,7 @@ from utils.log import log
 ruta_base = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ruta_scan_dir = os.path.join(ruta_base, "data", "SCAN")
 ruta_reporte_dir = os.path.join(ruta_base, "data", "SCAN", "Reportes-Diarios")
-# ayer = (datetime.now(timezone.utc) - timedelta(days=1)).strftime('%Y-%m-%d')
-ayer = "2025-06-11"
+ayer = (datetime.now(timezone.utc) - timedelta(days=1)).strftime('%Y-%m-%d')
 
 log.info("Starting to generate the daily report...")
 try:
