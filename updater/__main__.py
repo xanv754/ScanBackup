@@ -89,5 +89,22 @@ def data(date: str):
         log.info("Updater daily report finished")
 
 
+@cli.command(help="Upload daily reports obtained to database")
+@click.option("--date", required=False, help="Date to upload data. Format YYYY-MM-DD")
+def daily(date: str):
+    try:
+        if not date: date = None
+        log.info("Starting updater daily report...")
+        dailyReportHandler = DailyReportUpdaterHandler()
+        if date: reports = dailyReportHandler.get_data(date=date)
+        else: reports = dailyReportHandler.get_data()
+        status_operation = dailyReportHandler.load_data(data=reports)
+        if not status_operation: raise Exception()
+    except Exception as e:
+        log.error(f"Daily report generation failed. {e}")
+    finally:
+        log.info("Updater daily report finished")
+
+
 if __name__ == "__main__":
     cli()
