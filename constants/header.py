@@ -20,6 +20,7 @@ class HeaderDataFrame:
     OUT_MAX_PROM = "outMaxProm"
     USE = "use (%)"
 
+# Interfaz Tipo Fecha Capacidad In Out In-Max Out-Max Uso-%
 
 header_report_dialy = [
     HeaderDataFrame.INTERFACE,

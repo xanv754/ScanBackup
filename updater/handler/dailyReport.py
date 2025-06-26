@@ -6,6 +6,7 @@ from multiprocessing import Process
 from constants.path import DataPath
 from constants.header import HeaderDataFrame, header_report_dialy
 from database import MongoDailyReportQuery, PostgresDailyReportQuery
+from constants.group import LayerType
 from handler import LayerHandler
 from updater.update import UpdaterHandler
 from utils.log import log
@@ -32,7 +33,10 @@ class DailyReportUpdaterHandler(UpdaterHandler):
                         HeaderDataFrame.SERVICE: HeaderDataFrame.TYPE
                     }, inplace=True)
                     if df_interfaces.empty: raise Exception(f"Data of layer not found: {layer_type}")
-                    df = df.merge(df_interfaces, how="inner", on=[HeaderDataFrame.INTERFACE, HeaderDataFrame.TYPE])
+                    if layer_type == LayerType.RAI:
+                        df = df.merge(df_interfaces, how="inner", on=[HeaderDataFrame.INTERFACE])
+                    else:
+                        df = df.merge(df_interfaces, how="inner", on=[HeaderDataFrame.INTERFACE, HeaderDataFrame.TYPE])
                     df = df.drop(columns=[HeaderDataFrame.INTERFACE, HeaderDataFrame.TYPE, HeaderDataFrame.CAPACITY])
                     df.rename(columns={
                         HeaderDataFrame.ID: HeaderDataFrame.ID_LAYER

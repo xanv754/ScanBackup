@@ -28,7 +28,8 @@ from utils.log import log
 ruta_base = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ruta_scan_dir = os.path.join(ruta_base, "data", "SCAN")
 ruta_reporte_dir = os.path.join(ruta_base, "data", "SCAN", "Reportes-Diarios")
-ayer = (datetime.now(timezone.utc) - timedelta(days=1)).strftime('%Y-%m-%d')
+# ayer = (datetime.now(timezone.utc) - timedelta(days=1)).strftime('%Y-%m-%d')
+ayer = "2025-06-11"
 
 log.info("Starting to generate the daily report...")
 try:
@@ -66,9 +67,9 @@ try:
 
             valores = {
                 'Interfaz': interfaz,
+                'Tipo': tipo,
                 'Fecha': ayer,
                 'Capacidad': capacidad,
-                'Tipo': tipo,
                 'In': in_promedio,
                 'Out': out_promedio,
                 'In-Max': inmax_promedio,
