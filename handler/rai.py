@@ -1,6 +1,6 @@
 import pandas as pd
-from constants.header import HeaderDataFrame
-from database import RaiQuery, RaiMongoQuery, PostgresRaiQuery
+from constants import header_bbip
+from database import BBIPQuery, RaiMongoQuery
 from utils.log import log
 
 
@@ -8,13 +8,11 @@ class RaiHandler:
     """Class to get data of rai layer."""
 
     __error_connection: bool = False
-    rai_query: RaiQuery
+    rai_query: BBIPQuery
 
-    def __init__(self, db_backup: bool = False, uri: str | None = None):
+    def __init__(self, uri: str | None = None):
         try:
-            if not db_backup: 
-                self.rai_query = RaiMongoQuery(uri=uri)
-            else: self.rai_query = PostgresRaiQuery(uri=uri)
+            self.rai_query = RaiMongoQuery(uri=uri)
         except Exception as e:
             log.error(f"Rai handler. Failed connecting to the database. {e}")
             self.__error_connection = True
@@ -22,11 +20,11 @@ class RaiHandler:
     def get_all_interfaces(self) -> pd.DataFrame:
         """Get all interfaces of rai layer."""
         try:
-            if self.__error_connection: raise Exception("An error occurred while connecting to the database. The method has skipped.")
+            if self.__error_connection: 
+                raise Exception("An error occurred while connecting to the database. The method has skipped.")
             df_interfaces = self.rai_query.get_interfaces()
-            df_interfaces.drop(columns=[HeaderDataFrame.CREATE_AT], inplace=True)
         except Exception as e:
             log.error(f"rai handler. Failed to get all interfaces of rai layer. {e}")
-            return pd.DataFrame()
+            return pd.DataFrame(columns=header_bbip)
         else:
             return df_interfaces

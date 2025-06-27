@@ -1,18 +1,17 @@
 import pandas as pd
-from constants.header import HeaderDataFrame
-from database import BrasQuery, BrasMongoQuery, PostgresBrasQuery
+from constants import header_bbip
+from database import BBIPQuery, BrasMongoQuery
 from utils.log import log
 
 
 class BrasHandler:
     """Class to get data of bras layer."""
     __error_connection: bool = False
-    bras_query: BrasQuery
+    bras_query: BBIPQuery
 
-    def __init__(self, db_backup: bool = False, uri: str | None = None):
+    def __init__(self, uri: str | None = None):
         try:
-            if not db_backup: self.bras_query = BrasMongoQuery(uri=uri)
-            else: self.bras_query = PostgresBrasQuery(uri=uri)
+            self.bras_query = BrasMongoQuery(uri=uri)
         except Exception as e:
             log.export(f"Bras handler. Failed connecting to the database. {e}")
             self.__error_connection = True
@@ -20,11 +19,11 @@ class BrasHandler:
     def get_all_interfaces(self) -> pd.DataFrame:
         """Get all interfaces of bras layer."""
         try:
-            if self.__error_connection: raise Exception("An error occurred while connecting to the database. The method has skipped.")
+            if self.__error_connection: 
+                raise Exception("An error occurred while connecting to the database. The method has skipped.")
             df_interfaces = self.bras_query.get_interfaces()
-            df_interfaces.drop(columns=[HeaderDataFrame.CREATE_AT], inplace=True)
         except Exception as e:
             log.export(f"Bras handler. Failed to get all interfaces of bras layer. {e}")
-            return pd.DataFrame()
+            return pd.DataFrame(columns=header_bbip)
         else:
             return df_interfaces

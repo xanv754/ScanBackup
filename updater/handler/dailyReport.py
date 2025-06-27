@@ -7,7 +7,7 @@ from constants.path import DataPath
 from constants.header import HeaderDataFrame, header_report_dialy
 from database import DailyReportMongoQuery, PostgresDailyReportQuery
 from constants.group import LayerType
-from handler import LayerHandler
+from handler import BBIPHandler
 from updater.update import UpdaterHandler
 from utils.log import log
 
@@ -18,7 +18,7 @@ class DailyReportUpdaterHandler(UpdaterHandler):
     def _load_database(self, data: List[pd.DataFrame], db_backup: bool = False, uri: str | None = None) -> bool:
         """Load the data obtained in the database."""
         failed = False
-        layer_handler = LayerHandler(db_backup=db_backup, uri=uri)
+        layer_handler = BBIPHandler(db_backup=db_backup, uri=uri)
         try:
             if db_backup: database = PostgresDailyReportQuery(uri=uri)
             else: database = DailyReportMongoQuery(uri=uri)

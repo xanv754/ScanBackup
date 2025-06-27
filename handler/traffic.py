@@ -2,7 +2,7 @@ import pandas as pd
 from datetime import datetime, timedelta
 from constants.header import HeaderDataFrame
 from database import TrafficHistoryQuery, MongoTrafficHistoryQuery, PostgresTrafficHistoryQuery
-from handler import LayerHandler
+from handler import BBIPHandler
 from utils.validate import Validate
 from utils.log import log
 
@@ -66,7 +66,7 @@ class TrafficHandler:
         try:
             df_traffic = df.copy()
             if not df_traffic.empty:
-                layer_handler = LayerHandler(db_backup=self.__db_backup)
+                layer_handler = BBIPHandler(db_backup=self.__db_backup)
                 df_layer = layer_handler.get_all_interfaces(layer_type=layer_type)
             if df_layer.empty: raise Exception(f"Data of layer not found: {layer_type}")
             df_traffic.rename(columns={HeaderDataFrame.ID_LAYER: HeaderDataFrame.ID}, inplace=True)
