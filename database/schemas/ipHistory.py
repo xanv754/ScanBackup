@@ -1,34 +1,34 @@
-from database import IPHistoryFieldDatabase
+from constants import IPBrasHistoryFieldName
 
 
 IP_HISTORY_SCHEMA ={
     "$jsonSchema": {
         "bsonType": "object",
         "required": [
-            IPHistoryFieldDatabase.DATE,
-            IPHistoryFieldDatabase.TIME,
-            IPHistoryFieldDatabase.BRAS_NAME,
-            IPHistoryFieldDatabase.IN_PROM,
-            IPHistoryFieldDatabase.IN_MAX,
+            IPBrasHistoryFieldName.DATE,
+            IPBrasHistoryFieldName.TIME,
+            IPBrasHistoryFieldName.BRAS_NAME,
+            IPBrasHistoryFieldName.IN_PROM,
+            IPBrasHistoryFieldName.IN_MAX,
         ],
         "properties": {
-            IPHistoryFieldDatabase.DATE: {
+            IPBrasHistoryFieldName.DATE: {
                 "bsonType": "string",
                 "description": "Date of the traffic"
             },
-            IPHistoryFieldDatabase.TIME: {
+            IPBrasHistoryFieldName.TIME: {
                 "bsonType": "string",
                 "description": "Hour of the traffic"
             },
-            IPHistoryFieldDatabase.BRAS_NAME: {
+            IPBrasHistoryFieldName.BRAS_NAME: {
                 "bsonType": "string",
                 "description": "Name of Bras"
             },
-            IPHistoryFieldDatabase.IN_PROM: {
+            IPBrasHistoryFieldName.IN_PROM: {
                 "bsonType": ["int", "long"],
                 "description": "In prom of the traffic"
             },
-            IPHistoryFieldDatabase.IN_MAX: {
+            IPBrasHistoryFieldName.IN_MAX: {
                 "bsonType": ["int", "long"],
                 "description": "In max of the traffic"
             }

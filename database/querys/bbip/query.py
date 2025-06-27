@@ -1,10 +1,10 @@
 from abc import ABC, abstractmethod
 from pandas import DataFrame
-from model import BordeModel
+from model import BBIPModel
 
 
-class BordeQuery(ABC):
-    """Query class for borde table."""
+class BBIPQuery(ABC):
+    """Query class for BBIP data."""
     
     @abstractmethod
     def set_database(self, uri: str) -> None:
@@ -18,13 +18,13 @@ class BordeQuery(ABC):
         pass
 
     @abstractmethod
-    def new_interface(self, new: BordeModel) -> bool:
+    def new_interface(self, new: BBIPModel) -> bool:
         """Register new interface.
 
         Parameters
         ----------
-        new : BordeModel
-            New interface of borde to register.
+        new : BBIPModel
+            New interface of BBIP to register.
 
         Returns
         -------

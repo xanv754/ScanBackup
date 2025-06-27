@@ -1,23 +1,9 @@
 import psycopg2
 from psycopg2 import sql
-from database import (
-    TableNameDatabase,
-    Database,
-    BORDE_SECUENCE_SCHEMA_POSTGRES,
-    BORDE_SCHEMA_POSTGRES,
-    BRAS_SECUENCE_SCHEMA_POSTGRES,
-    BRAS_SCHEMA_POSTGRES,
-    CACHING_SECUENCE_SCHEMA_POSTGRES,
-    CACHING_SCHEMA_POSTGRES,
-    RAI_SECUENCE_SCHEMA_POSTGRES,
-    RAI_SCHEMA_POSTGRES,
-    TRAFFIC_HISTORY_SCHEMA_POSTGRES,
-    IP_HISTORY_SCHEMA_POSTGRES,
-    DAILY_REPORT_SCHEMA_POSTGRES
-)
+from database import Database
 from utils.log import log
 
-class PostgresDatabase(Database):
+class DatabasePostgreSQL(Database):
     __connection: psycopg2.extensions.connection
     __cursor: psycopg2.extensions.cursor
     __uri: str
@@ -102,21 +88,10 @@ class PostgresDatabase(Database):
         self.__connection.close()
         self.connected = False
 
-    def migration(self) -> bool:
+    def initialize(self) -> bool:
         try:
             self.open_connection()
             cursor = self.__cursor
-            cursor.execute(BORDE_SECUENCE_SCHEMA_POSTGRES)
-            cursor.execute(BORDE_SCHEMA_POSTGRES)
-            cursor.execute(BRAS_SECUENCE_SCHEMA_POSTGRES)
-            cursor.execute(BRAS_SCHEMA_POSTGRES)
-            cursor.execute(CACHING_SECUENCE_SCHEMA_POSTGRES)
-            cursor.execute(CACHING_SCHEMA_POSTGRES)
-            cursor.execute(RAI_SECUENCE_SCHEMA_POSTGRES)
-            cursor.execute(RAI_SCHEMA_POSTGRES)
-            cursor.execute(TRAFFIC_HISTORY_SCHEMA_POSTGRES)
-            cursor.execute(IP_HISTORY_SCHEMA_POSTGRES)
-            cursor.execute(DAILY_REPORT_SCHEMA_POSTGRES)
             self.__connection.commit()
             self.close_connection()
         except Exception as e:
@@ -125,17 +100,10 @@ class PostgresDatabase(Database):
         else:
             return True
 
-    def rollback(self) -> bool:
+    def drop(self) -> bool:
         try:
             self.open_connection()
             cursor = self.__cursor
-            cursor.execute(f"DROP TABLE IF EXISTS {TableNameDatabase.BORDE}")
-            cursor.execute(f"DROP TABLE IF EXISTS {TableNameDatabase.BRAS}")
-            cursor.execute(f"DROP TABLE IF EXISTS {TableNameDatabase.CACHING}")
-            cursor.execute(f"DROP TABLE IF EXISTS {TableNameDatabase.RAI}")
-            cursor.execute(f"DROP TABLE IF EXISTS {TableNameDatabase.TRAFFIC_HISTORY}")
-            cursor.execute(f"DROP TABLE IF EXISTS {TableNameDatabase.IP_HISTORY}")
-            cursor.execute(f"DROP TABLE IF EXISTS {TableNameDatabase.DAILY_REPORT}")
             self.__connection.commit()
             self.close_connection()
         except Exception as e:

@@ -3,11 +3,11 @@ from datetime import datetime, timedelta
 from constants.group import LayerType
 from constants.header import HeaderDataFrame
 from database import (
-    BordeQuery, MongoBordeQuery, PostgresBordeQuery,
-    BrasQuery, MongoBrasQuery, PostgresBrasQuery,
-    CachingQuery, MongoCachingQuery, PostgresCachingQuery,
-    RaiQuery, MongoRaiQuery, PostgresRaiQuery,
-    DailyReportQuery, MongoDailyReportQuery, PostgresDailyReportQuery
+    BordeQuery, BordeMongoQuery, PostgresBordeQuery,
+    BrasQuery, BrasMongoQuery, PostgresBrasQuery,
+    CachingQuery, CachingMongoQuery, PostgresCachingQuery,
+    RaiQuery, RaiMongoQuery, PostgresRaiQuery,
+    DailyReportQuery, DailyReportMongoQuery, PostgresDailyReportQuery
 )
 from handler import BordeHandler, BrasHandler, CachingHandler, RaiHandler
 from utils.validate import Validate
@@ -28,11 +28,11 @@ class DailyReportHandler:
     def __init__(self, db_backup: bool = False, uri: str | None = None):
         try:
             if not db_backup: 
-                self.report_query = MongoDailyReportQuery(uri=uri)
-                self.borde_query = MongoBordeQuery(uri=uri)
-                self.bras_query = MongoBrasQuery(uri=uri)
-                self.caching_query = MongoCachingQuery(uri=uri)
-                self.rai_query = MongoRaiQuery(uri=uri)
+                self.report_query = DailyReportMongoQuery(uri=uri)
+                self.borde_query = BordeMongoQuery(uri=uri)
+                self.bras_query = BrasMongoQuery(uri=uri)
+                self.caching_query = CachingMongoQuery(uri=uri)
+                self.rai_query = RaiMongoQuery(uri=uri)
             else: 
                 self.__db_backup = True
                 self.report_query = PostgresDailyReportQuery(uri=uri)

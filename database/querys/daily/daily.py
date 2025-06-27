@@ -1,28 +1,25 @@
 from typing import List
 from pandas import DataFrame
-from database import (
-    TableNameDatabase,
-    DailyReportFieldDatabase,
-    MongoDatabaseFactory,
-    MongoDatabase,
-    DailyReportQuery
-)
-from utils.trasform import DailyReportResponseTrasform
+from constants import TableName, DailyReportFieldName, header_daily_report
+from database.libs.product.mongo import DatabaseMongo
+from database.libs.factory.mongo import DatabaseMongoFactory
+from database.querys.daily.query import DailyReportQuery
+from database.utils.adapter import DailyReportResponseAdapter
 from utils.config import ConfigurationHandler
 from utils.log import log
 
 
-class MongoDailyReportQuery(DailyReportQuery):
+class DailyReportMongoQuery(DailyReportQuery):
     """Mongo query class for daily reports table."""
 
-    __database: MongoDatabase
+    __database: DatabaseMongo
 
     def __init__(self, uri: str | None = None):
         try:
             if not uri:
                 config = ConfigurationHandler()
                 uri = config.uri_mongo
-            factory = MongoDatabaseFactory()
+            factory = DatabaseMongoFactory()
             database = factory.get_database(uri=uri)
             self.__database = database
         except Exception as e:
@@ -33,7 +30,7 @@ class MongoDailyReportQuery(DailyReportQuery):
         try:
             if self.__database.connected:
                 self.__database.close_connection()
-            new_database = MongoDatabaseFactory().get_database(uri=uri)
+            new_database = DatabaseMongoFactory().get_database(uri=uri)
             self.__database = new_database
         except Exception as e:
             log.error(f"Failed to connect to MongoDB database. {e}")
@@ -45,7 +42,7 @@ class MongoDailyReportQuery(DailyReportQuery):
             self.__database.open_connection()
             if self.__database.connected:
                 if data_json:
-                    collection = self.__database.get_cursor(table=TableNameDatabase.DAILY_REPORT)
+                    collection = self.__database.get_cursor(table=TableName.DAILY_REPORT)
                     response = collection.insert_many(data_json)
                     status_insert = response.acknowledged
                     self.__database.close_connection()
@@ -58,19 +55,19 @@ class MongoDailyReportQuery(DailyReportQuery):
         
     def get_report(self, layer_type: str, date: str):
         try:
-            traffic: DataFrame = DataFrame()
+            traffic: DataFrame = DataFrame(columns=header_daily_report)
             self.__database.open_connection()
             if self.__database.connected:
-                collection = self.__database.get_cursor(table=TableNameDatabase.DAILY_REPORT)
+                collection = self.__database.get_cursor(table=TableName.DAILY_REPORT)
                 result = collection.find({
-                    DailyReportFieldDatabase.DATE: date,
-                    DailyReportFieldDatabase.TYPE_LAYER: layer_type
+                    DailyReportFieldName.DATE: date,
+                    DailyReportFieldName.TYPE_LAYER: layer_type
                 })
                 if result:
-                    data = DailyReportResponseTrasform.default_model_mongo(result)
+                    data = DailyReportResponseAdapter.to_dataframe(result)
                     if not data.empty: traffic = data
                 self.__database.close_connection()
             return traffic
         except Exception as e:
             log.error(f"Failed to get daily report. {e}")
-            return DataFrame()
+            return DataFrame(columns=header_daily_report)

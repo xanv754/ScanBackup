@@ -4,7 +4,7 @@ from typing import List, Tuple
 from datetime import datetime
 from constants.group import ModelBordeType, LayerType
 from constants.path import DataPath
-from database import MongoBordeQuery, PostgresBordeQuery
+from database import BordeMongoQuery, PostgresBordeQuery
 from model import BordeModel, TrafficHistoryModel, BordeFieldModel
 from updater import UpdaterHandler, TrafficHistoryUpdaterHandler
 from utils.log import log
@@ -18,7 +18,7 @@ class BordeUpdaterHandler(UpdaterHandler):
         failed = False
         try:
             if db_backup: database = PostgresBordeQuery(uri=uri)
-            else: database = MongoBordeQuery(uri=uri)
+            else: database = BordeMongoQuery(uri=uri)
             historyHandler = TrafficHistoryUpdaterHandler()
             for interface, traffic in data:
                 try:

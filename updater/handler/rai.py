@@ -4,7 +4,7 @@ from typing import List, Tuple
 from datetime import datetime
 from constants.group import LayerType
 from constants.path import DataPath
-from database import MongoRaiQuery, PostgresRaiQuery
+from database import RaiMongoQuery, PostgresRaiQuery
 from model import RaiModel, TrafficHistoryModel, RaiFieldModel
 from updater import UpdaterHandler, TrafficHistoryUpdaterHandler
 from utils.log import log
@@ -18,7 +18,7 @@ class RaiUpdaterHandler(UpdaterHandler):
         failed = False
         try:
             if db_backup: database = PostgresRaiQuery(uri=uri)
-            else: database = MongoRaiQuery(uri=uri)
+            else: database = RaiMongoQuery(uri=uri)
             historyHandler = TrafficHistoryUpdaterHandler()
             for interface, traffic in data:
                 try:

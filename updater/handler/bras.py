@@ -4,7 +4,7 @@ from typing import List, Tuple
 from datetime import datetime
 from constants.group import BrasType, LayerType
 from constants.path import DataPath
-from database import MongoBrasQuery, PostgresBrasQuery
+from database import BrasMongoQuery, PostgresBrasQuery
 from model import BrasModel, TrafficHistoryModel, BrasFieldModel
 from updater import UpdaterHandler, TrafficHistoryUpdaterHandler
 from utils.log import log
@@ -18,7 +18,7 @@ class BrasUpdaterHandler(UpdaterHandler):
         failed = False
         try:
             if db_backup: database = PostgresBrasQuery(uri=uri)
-            else: database = MongoBrasQuery(uri=uri)
+            else: database = BrasMongoQuery(uri=uri)
             historyHandler = TrafficHistoryUpdaterHandler()
             for bras, traffic in data:
                 try:

@@ -1,6 +1,6 @@
 import pandas as pd
 from constants.header import HeaderDataFrame
-from database import CachingQuery, MongoCachingQuery, PostgresCachingQuery
+from database import CachingQuery, CachingMongoQuery, PostgresCachingQuery
 from utils.log import log
 
 
@@ -12,7 +12,7 @@ class CachingHandler:
 
     def __init__(self, db_backup: bool = False, uri: str | None = None):
         try:
-            if not db_backup: self.caching_query = MongoCachingQuery(uri=uri)
+            if not db_backup: self.caching_query = CachingMongoQuery(uri=uri)
             else: self.caching_query = PostgresCachingQuery(uri=uri)
         except Exception as e:
             log.error(f"Caching handler. Failed connecting to the database. {e}")

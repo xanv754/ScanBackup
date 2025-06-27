@@ -1,28 +1,24 @@
-from typing import List
 from pandas import DataFrame
-from database import (
-    TableNameDatabase,
-    BrasFieldDatabase,
-    MongoDatabaseFactory,
-    MongoDatabase,
-    BrasQuery
-)
-from model import BrasModel
-from utils.trasform import BrasResponseTrasform
+from constants import TableName, BBIPFieldName, header_bbip
+from database.libs.product.mongo import DatabaseMongo
+from database.libs.factory.mongo import DatabaseMongoFactory
+from database.querys.bbip.query import BBIPQuery
+from database.utils.adapter import BBIPResponseAdapter
+from model import BBIPModel
 from utils.config import ConfigurationHandler
 from utils.log import log
 
-class MongoBrasQuery(BrasQuery):
+class BrasMongoQuery(BBIPQuery):
     """Mongo query class for bras table."""
 
-    __database: MongoDatabase
+    __database: DatabaseMongo
 
     def __init__(self, uri: str | None = None):
         try:
             if not uri:
                 config = ConfigurationHandler()
                 uri = config.uri_mongo
-            factory = MongoDatabaseFactory()
+            factory = DatabaseMongoFactory()
             database = factory.get_database(uri=uri)
             self.__database = database
         except Exception as e:
@@ -33,18 +29,18 @@ class MongoBrasQuery(BrasQuery):
         try:
             if self.__database.connected:
                 self.__database.close_connection()
-            new_database = MongoDatabaseFactory().get_database(uri=uri)
+            new_database = DatabaseMongoFactory().get_database(uri=uri)
             self.__database = new_database
         except Exception as e:
             log.error(f"Failed to connect to MongoDB database. {e}")
 
-    def new_interface(self, new: BrasModel):
+    def new_interface(self, new: BBIPModel):
         try:
             status_insert = False
             self.__database.open_connection()
             if self.__database.connected:
-                collection = self.__database.get_cursor(table=TableNameDatabase.BRAS)
-                data = new.model_dump(exclude={BrasFieldDatabase.ID})
+                collection = self.__database.get_cursor(table=TableName.BRAS)
+                data = new.model_dump()
                 response = collection.insert_one(data)
                 status_insert = response.acknowledged
                 self.__database.close_connection()
@@ -55,33 +51,33 @@ class MongoBrasQuery(BrasQuery):
 
     def get_interface(self, brasname: str, type: str):
         try:
-            interface: DataFrame = DataFrame()
+            interface: DataFrame = DataFrame(columns=header_bbip)
             self.__database.open_connection()
             if self.__database.connected:
-                collection = self.__database.get_cursor(table=TableNameDatabase.BRAS)
+                collection = self.__database.get_cursor(table=TableName.BRAS)
                 result = collection.find_one({
-                    BrasFieldDatabase.NAME: brasname,
-                    BrasFieldDatabase.TYPE: type
+                    BBIPFieldName.NAME: brasname,
+                    BBIPFieldName.TYPE: type
                 })
                 if result:
-                    data = BrasResponseTrasform.default_model_mongo([result])
+                    data = BBIPResponseAdapter.to_dataframe([result])
                     if not data.empty: interface = data
                 self.__database.close_connection()
             return interface
         except Exception as e:
             log.error(f"Failed to get bras. {e}")
-            return DataFrame()
+            return DataFrame(columns=header_bbip)
         
     def get_interfaces(self):
         try:
             interfaces: DataFrame = DataFrame()
             self.__database.open_connection()
             if self.__database.connected:
-                collection = self.__database.get_cursor(table=TableNameDatabase.BRAS)
+                collection = self.__database.get_cursor(table=TableName.BRAS)
                 result = collection.find()
-                if result: interfaces = BrasResponseTrasform.default_model_mongo(result) 
+                if result: interfaces = BBIPResponseAdapter.to_dataframe(result) 
                 self.__database.close_connection()
             return interfaces
         except Exception as e:
             log.error(f"Failed to get bras. {e}")
-            return DataFrame()
+            return DataFrame(columns=header_bbip)

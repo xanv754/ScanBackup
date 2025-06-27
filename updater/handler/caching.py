@@ -4,7 +4,7 @@ from typing import List, Tuple
 from datetime import datetime
 from constants.group import LayerType
 from constants.path import DataPath
-from database import MongoCachingQuery, PostgresCachingQuery
+from database import CachingMongoQuery, PostgresCachingQuery
 from model import CachingModel, TrafficHistoryModel, CachingFieldModel
 from updater import UpdaterHandler, TrafficHistoryUpdaterHandler
 from utils.log import log
@@ -18,7 +18,7 @@ class CachingUpdaterHandler(UpdaterHandler):
         failed = False
         try:
             if db_backup: database = PostgresCachingQuery(uri=uri)
-            else: database = MongoCachingQuery(uri=uri)
+            else: database = CachingMongoQuery(uri=uri)
             historyHandler = TrafficHistoryUpdaterHandler()
             for interface, traffic in data:
                 try:

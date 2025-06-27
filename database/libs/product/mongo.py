@@ -1,25 +1,23 @@
 from pymongo import MongoClient
 from pymongo.collection import Collection
-from database import (
-    TableNameDatabase,
-    Database,
-    BORDE_SCHEMA_MONGO,
-    BRAS_SCHEMA_MONGO,
-    CACHING_SCHEMA_MONGO,
-    RAI_SCHEMA_MONGO,
-    TRAFFIC_HISTORY_SCHEMA_MONGO,
-    IP_HISTORY_SCHEMA_MONGO, 
-    DAILY_REPORT_SCHEMA_MONGO
-)
+from constants import TableName
+from database.libs.product.database import Database
+from database.schemas.borde import BORDE_SCHEMA as BORDE_SCHEMA_MONGO
+from database.schemas.bras import BRAS_SCHEMA as BRAS_SCHEMA_MONGO
+from database.schemas.caching import CACHING_SCHEMA as CACHING_SCHEMA_MONGO
+from database.schemas.rai import RAI_SCHEMA as RAI_SCHEMA_MONGO
+from database.schemas.ipHistory import IP_HISTORY_SCHEMA as IP_HISTORY_SCHEMA_MONGO
+from database.schemas.dailyReport import DAILY_REPORT_SCHEMA as DAILY_REPORT_SCHEMA_MONGO
 from utils.log import log
 
-class MongoDatabase(Database):
+
+class DatabaseMongo(Database):
     __client: MongoClient
     __connection: MongoClient
     __uri: str
     connected: bool = False
 
-    def __init__(self, uri: str) -> "MongoDatabase":
+    def __init__(self, uri: str) -> "DatabaseMongo":
         self.__uri = uri
 
     def __check_collection(self, name: str) -> bool:
@@ -49,42 +47,37 @@ class MongoDatabase(Database):
         self.__client.close()
         self.connected = False
 
-    def migration(self) -> bool:
+    def initialize(self) -> bool:
         try:
             self.open_connection()
-            if not self.__check_collection(TableNameDatabase.BORDE):
+            if not self.__check_collection(TableName.BORDE):
                 self.__connection.create_collection(
-                    TableNameDatabase.BORDE,
+                    TableName.BORDE,
                     validator=BORDE_SCHEMA_MONGO
                 )
-            if not self.__check_collection(TableNameDatabase.BRAS):
+            if not self.__check_collection(TableName.BRAS):
                 self.__connection.create_collection(
-                    TableNameDatabase.BRAS,
+                    TableName.BRAS,
                     validator=BRAS_SCHEMA_MONGO
                 )
-            if not self.__check_collection(TableNameDatabase.CACHING):
+            if not self.__check_collection(TableName.CACHING):
                 self.__connection.create_collection(
-                    TableNameDatabase.CACHING,
+                    TableName.CACHING,
                     validator=CACHING_SCHEMA_MONGO
                 )
-            if not self.__check_collection(TableNameDatabase.RAI):
+            if not self.__check_collection(TableName.RAI):
                 self.__connection.create_collection(
-                    TableNameDatabase.RAI,
+                    TableName.RAI,
                     validator=RAI_SCHEMA_MONGO
                 )
-            if not self.__check_collection(TableNameDatabase.TRAFFIC_HISTORY):
+            if not self.__check_collection(TableName.IP_BRAS_HISTORY):
                 self.__connection.create_collection(
-                    TableNameDatabase.TRAFFIC_HISTORY,
-                    validator=TRAFFIC_HISTORY_SCHEMA_MONGO
-                )
-            if not self.__check_collection(TableNameDatabase.IP_HISTORY):
-                self.__connection.create_collection(
-                    TableNameDatabase.IP_HISTORY,
+                    TableName.IP_BRAS_HISTORY,
                     validator=IP_HISTORY_SCHEMA_MONGO
                 )
-            if not self.__check_collection(TableNameDatabase.DAILY_REPORT):
+            if not self.__check_collection(TableName.DAILY_REPORT):
                 self.__connection.create_collection(
-                    TableNameDatabase.DAILY_REPORT,
+                    TableName.DAILY_REPORT,
                     validator=DAILY_REPORT_SCHEMA_MONGO
                 )
             self.close_connection()
@@ -94,28 +87,25 @@ class MongoDatabase(Database):
         else:
             return True
 
-    def rollback(self) -> bool:
+    def drop(self) -> bool:
         try:
             self.open_connection()
-            borde_collection: Collection = self.__connection[TableNameDatabase.BORDE]
+            borde_collection: Collection = self.__connection[TableName.BORDE]
             borde_collection.delete_many({})
             borde_collection.drop()
-            bras_collection: Collection = self.__connection[TableNameDatabase.BRAS]
+            bras_collection: Collection = self.__connection[TableName.BRAS]
             bras_collection.delete_many({})
             bras_collection.drop()
-            caching_collection: Collection = self.__connection[TableNameDatabase.CACHING]
+            caching_collection: Collection = self.__connection[TableName.CACHING]
             caching_collection.delete_many({})
             caching_collection.drop()
-            rai_collection: Collection = self.__connection[TableNameDatabase.RAI]
+            rai_collection: Collection = self.__connection[TableName.RAI]
             rai_collection.delete_many({})
             rai_collection.drop()
-            traffic_history_collection: Collection = self.__connection[TableNameDatabase.TRAFFIC_HISTORY]
-            traffic_history_collection.delete_many({})
-            traffic_history_collection.drop()
-            ip_history_collection: Collection = self.__connection[TableNameDatabase.IP_HISTORY]
+            ip_history_collection: Collection = self.__connection[TableName.IP_BRAS_HISTORY]
             ip_history_collection.delete_many({})
             ip_history_collection.drop()
-            daily_report_collection: Collection = self.__connection[TableNameDatabase.DAILY_REPORT]
+            daily_report_collection: Collection = self.__connection[TableName.DAILY_REPORT]
             daily_report_collection.delete_many({})
             daily_report_collection.drop()
             self.close_connection()

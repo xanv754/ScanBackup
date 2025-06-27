@@ -5,7 +5,7 @@ from typing import List
 from multiprocessing import Process
 from constants.path import DataPath
 from constants.header import HeaderDataFrame, header_report_dialy
-from database import MongoDailyReportQuery, PostgresDailyReportQuery
+from database import DailyReportMongoQuery, PostgresDailyReportQuery
 from constants.group import LayerType
 from handler import LayerHandler
 from updater.update import UpdaterHandler
@@ -21,7 +21,7 @@ class DailyReportUpdaterHandler(UpdaterHandler):
         layer_handler = LayerHandler(db_backup=db_backup, uri=uri)
         try:
             if db_backup: database = PostgresDailyReportQuery(uri=uri)
-            else: database = MongoDailyReportQuery(uri=uri)
+            else: database = DailyReportMongoQuery(uri=uri)
             for df in data:
                 try:
                     layer_type = df[HeaderDataFrame.TYPE_LAYER].iloc[0]

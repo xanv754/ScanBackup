@@ -1,28 +1,24 @@
-from typing import List
 from pandas import DataFrame
-from database import (
-    TableNameDatabase,
-    CachingFieldDatabase,
-    MongoDatabaseFactory,
-    MongoDatabase,
-    CachingQuery
-)
-from model import CachingModel
-from utils.trasform import CachingResponseTrasform
+from constants import TableName, BBIPFieldName, header_bbip
+from database.libs.product.mongo import DatabaseMongo
+from database.libs.factory.mongo import DatabaseMongoFactory
+from database.querys.bbip.query import BBIPQuery
+from database.utils.adapter import BBIPResponseAdapter
+from model import BBIPModel
 from utils.config import ConfigurationHandler
 from utils.log import log
 
-class MongoCachingQuery(CachingQuery):
+class CachingMongoQuery(BBIPQuery):
     """Mongo query class for caching table."""
 
-    __database: MongoDatabase
+    __database: DatabaseMongo
 
     def __init__(self, uri: str | None = None):
         try:
             if not uri:
                 config = ConfigurationHandler()
                 uri = config.uri_mongo
-            factory = MongoDatabaseFactory()
+            factory = DatabaseMongoFactory()
             database = factory.get_database(uri=uri)
             self.__database = database
         except Exception as e:
@@ -33,18 +29,18 @@ class MongoCachingQuery(CachingQuery):
         try:
             if self.__database.connected:
                 self.__database.close_connection()
-            new_database = MongoDatabaseFactory().get_database(uri=uri)
+            new_database = DatabaseMongoFactory().get_database(uri=uri)
             self.__database = new_database
         except Exception as e:
             log.error(f"Failed to connect to MongoDB database. {e}")
 
-    def new_interface(self, new: CachingModel):
+    def new_interface(self, new: BBIPModel):
         try:
             status_insert = False
             self.__database.open_connection()
             if self.__database.connected:
-                collection = self.__database.get_cursor(table=TableNameDatabase.CACHING)
-                data = new.model_dump(exclude={CachingFieldDatabase.ID})
+                collection = self.__database.get_cursor(table=TableName.CACHING)
+                data = new.model_dump()
                 response = collection.insert_one(data)
                 status_insert = response.acknowledged
                 self.__database.close_connection()
@@ -55,30 +51,30 @@ class MongoCachingQuery(CachingQuery):
 
     def get_interface(self, name: str):
         try:
-            interface: DataFrame = DataFrame()
+            interface: DataFrame = DataFrame(columns=header_bbip)
             self.__database.open_connection()
             if self.__database.connected:
-                collection = self.__database.get_cursor(table=TableNameDatabase.CACHING)
-                result = collection.find_one({CachingFieldDatabase.NAME: name})
+                collection = self.__database.get_cursor(table=TableName.CACHING)
+                result = collection.find_one({BBIPFieldName.NAME: name})
                 if result:
-                    data = CachingResponseTrasform.default_model_mongo([result])
+                    data = BBIPResponseAdapter.to_dataframe([result])
                     if not data.empty: interface = data
                 self.__database.close_connection()
             return interface
         except Exception as e:
             log.error(f"Failed to get interface. {e}")
-            return DataFrame()
+            return DataFrame(columns=header_bbip)
 
     def get_interfaces(self):
         try:
             interfaces: DataFrame = DataFrame()
             self.__database.open_connection()
             if self.__database.connected:
-                collection = self.__database.get_cursor(table=TableNameDatabase.CACHING)
+                collection = self.__database.get_cursor(table=TableName.CACHING)
                 result = collection.find()
-                if result: interfaces = CachingResponseTrasform.default_model_mongo(result)
+                if result: interfaces = BBIPResponseAdapter.to_dataframe(result)
                 self.__database.close_connection()
             return interfaces
         except Exception as e:
             log.error(f"Failed to get all interfaces. {e}")
-            return DataFrame()
+            return DataFrame(columns=header_bbip)

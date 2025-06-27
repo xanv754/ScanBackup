@@ -1,5 +1,5 @@
 import unittest
-from database import MongoBordeQuery, PostgresBordeQuery
+from database import BordeMongoQuery, PostgresBordeQuery
 from model import BordeFieldModel
 from test import DatabaseBorderTest
 
@@ -11,7 +11,7 @@ class Query(unittest.TestCase):
     def test_insert(self):
         """Test insert a new interface of Borde layer in the database."""
         example_interface = self.mongo_db_test.get_exampĺe()
-        database = MongoBordeQuery(uri=self.mongo_db_test.uri)
+        database = BordeMongoQuery(uri=self.mongo_db_test.uri)
         response = database.new_interface(new=example_interface)
         self.mongo_db_test.clean()
         self.assertTrue(response)
@@ -25,7 +25,7 @@ class Query(unittest.TestCase):
     def test_get(self):
         """Test get an interface of Borde layer in the database."""
         example_interface = self.mongo_db_test.insert()
-        database = MongoBordeQuery(uri=self.mongo_db_test.uri)
+        database = BordeMongoQuery(uri=self.mongo_db_test.uri)
         interface = database.get_interface(name=example_interface.name)
         print(interface)
         self.mongo_db_test.clean()
@@ -43,7 +43,7 @@ class Query(unittest.TestCase):
     def test_get_all(self):
         """Test get all interfaces of Borde layer in the database."""
         self.mongo_db_test.insert()
-        database = MongoBordeQuery(uri=self.mongo_db_test.uri)
+        database = BordeMongoQuery(uri=self.mongo_db_test.uri)
         interfaces = database.get_interfaces()
         print(interfaces)
         self.mongo_db_test.clean()

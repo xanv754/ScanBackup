@@ -1,6 +1,6 @@
 import unittest
 import pandas as pd
-from database import MongoDailyReportQuery, PostgresDailyReportQuery
+from database import DailyReportMongoQuery, PostgresDailyReportQuery
 from model import DailyReportFieldModel
 from test import DatabaseDailyTest, DailyReportModel
 
@@ -25,7 +25,7 @@ class Query(unittest.TestCase):
     def test_insert(self):
         """Test insert a new daily report in the MongoDB."""
         example_report = self.model_to_dataframe(self.mongo_db_test.get_exampĺe())
-        database = MongoDailyReportQuery(uri=self.mongo_db_test.uri)
+        database = DailyReportMongoQuery(uri=self.mongo_db_test.uri)
         response = database.new_report(data=example_report)
         self.mongo_db_test.clean()
         self.assertTrue(response)
@@ -39,7 +39,7 @@ class Query(unittest.TestCase):
     def test_get(self):
         """Test get a daily report in the MongoDB."""
         example_report = self.mongo_db_test.insert()
-        database = MongoDailyReportQuery(uri=self.mongo_db_test.uri)
+        database = DailyReportMongoQuery(uri=self.mongo_db_test.uri)
         response = database.get_report(
             layer_type=example_report.typeLayer,
             date=example_report.date
