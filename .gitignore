@@ -1,6 +1,7 @@
 # Files
 data/*
 sources/*
+routines/tmp/*
 test/correcciondata
 test/data/*
 test/calculos/*
