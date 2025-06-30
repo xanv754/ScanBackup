@@ -6,37 +6,38 @@ from utils.log import log
 
 @click.group()
 def cli():
-    """CPGRD Database
+    """SysGRD - Base de Datos.
 
-    CLI to controller database operations. Use with caution.
+    Interfaz de línea de comandos para el manejo de operaciones de la base
+    de datos del sistema.
     """
     pass
 
 
-@cli.command(help="Perfom database migrations.")
-def migration():
+@cli.command(help="Crea una nueva base de datos en MondoDB para el sistema.")
+def start():
     config = ConfigurationHandler()
-    log.info("Starting migrations...")
+    log.info("Inicialización de la base de datos...")
     uri_mongo = config.uri_mongo
     mongo_database = DatabaseMongoFactory().get_database(uri=uri_mongo)
     mongo_status = mongo_database.initialize()
     if mongo_status: 
-        log.info("Migrations successfully completed")
+        log.info("Inicialización de la base de datos completada exitosamente")
     else:
-        log.error("Migrations completed not successfully")
+        log.error("Inicialización de la base de datos fallida")
 
 
-@cli.command(help="Rollback database operations.")
-def rollback():
+@cli.command(help="Destruye la base de datos en MondoDB con toda su información. Esta acción no se puede deshacer.")
+def drop():
     config = ConfigurationHandler()
-    log.info("Starting rollback...")
+    log.info("Inicio de la destrucción de la base de datos...")
     uri_mongo = config.uri_mongo
     mongo_database = DatabaseMongoFactory().get_database(uri=uri_mongo)
     mongo_status = mongo_database.drop()
     if mongo_status:
-        log.info("Rollback successfully completed")
+        log.info("Destrucción de la base de datos completada exitosamente")
     else:
-        log.error("Rollback completed not successfully")
+        log.error("Destrucción de la base de datos fallida")
 
 
 if __name__ == "__main__":
