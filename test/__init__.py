@@ -125,8 +125,6 @@ class DatabaseBBIPTest(ABC):
         except Exception as e:
             traceback.print_exc(e)
             exit(1)
-        else:
-            self.create_table()
 
     def clean(self, border: bool = False) -> None:
         """Clean all registers in the database."""
@@ -437,14 +435,38 @@ if __name__ == "__main__":
 
     borde = DatabaseBorderTest()
     example = borde.insert()
-    borde.get(interface=example.name)
+    print(example)
+    search = borde.get(interface=example.name)
+    print(search)
     borde.clean()
 
+    bras = DatabaseBrasTest()
+    example = bras.insert()
+    print(example)
+    search = bras.get(interface=example.name)
+    print(search)
+    bras.clean()
+
+    caching = DatabaseCachingTest()
+    example = caching.insert()
+    print(example)
+    search = caching.get(interface=example.name)
+    print(search)
+    caching.clean()
+
+    rai = DatabaseRaiTest()
+    example = rai.insert()
+    print(example)
+    search = rai.get(interface=example.name)
+    print(search)
+    rai.clean()
 
     data_scan = FileBordeDataTest(filename="CISCO%INTERFACE_TEST_1%10")
     data_scan.create_file()
     data_scan.delete_file()
+    data_scan.delete_father_folder()
 
     data_daily_report = FileDailyReportTest(filename="Resumen_Borde.csv")
     data_daily_report.create_file()
     data_daily_report.delete_file()
+    data_daily_report.delete_father_folder()
