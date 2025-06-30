@@ -41,7 +41,7 @@ class RaiMongoQuery(BBIPQuery):
             self.__database.open_connection()
             if self.__database.connected:
                 collection = self.__database.get_cursor(table=TableName.RAI)
-                response = collection.insert_many(data)
+                response = collection.insert_many([json.model_dump() for json in data])
                 status_insert = response.acknowledged
                 self.__database.close_connection()
             return status_insert
