@@ -12,7 +12,7 @@ class Query(unittest.TestCase):
         """Test insert a new interface of Rai layer in the database."""
         example_interface = self.mongo_db_test.get_exampĺe()
         database = RaiMongoQuery(uri=self.mongo_db_test.uri)
-        response = database.new_interface(new=example_interface)
+        response = database.new_interface(data=example_interface)
         self.mongo_db_test.clean()
         self.assertTrue(response)
 

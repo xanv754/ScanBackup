@@ -1,5 +1,7 @@
+from typing import List
 from abc import ABC, abstractmethod
 from pandas import DataFrame
+from model import DailyReportModel
 
 
 class DailyReportQuery(ABC):
@@ -17,13 +19,13 @@ class DailyReportQuery(ABC):
         pass
 
     @abstractmethod
-    def new_report(self, data: DataFrame) -> bool:
+    def new_report(self, data: List[DailyReportModel]) -> bool:
         """Register new daily report.
 
         Parameters
         ----------
-        data : DataFrame
-            Data of daily report.
+        data : List[DailyReportModel]
+            List of data daily report.
         Returns
         -------
             Insertion status. If True, the daily report has been registered correctly. Otherwise returns False.

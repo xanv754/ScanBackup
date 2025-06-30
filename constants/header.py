@@ -20,45 +20,6 @@ class HeaderDataFrame:
     OUT_MAX_PROM = "outMaxProm"
     USE = "use (%)"
 
-# Interfaz Tipo Fecha Capacidad In Out In-Max Out-Max Uso-%
-
-header_report_dialy = [
-    HeaderDataFrame.INTERFACE,
-    HeaderDataFrame.TYPE,
-    HeaderDataFrame.DATE,
-    HeaderDataFrame.CAPACITY,
-    HeaderDataFrame.IN_PROM,
-    HeaderDataFrame.OUT_PROM,
-    HeaderDataFrame.IN_MAX,
-    HeaderDataFrame.OUT_MAX,
-    HeaderDataFrame.USE
-]
-
-
-header_dataframe = [
-    HeaderDataFrame.INTERFACE,
-    HeaderDataFrame.TYPE, 
-    HeaderDataFrame.CAPACITY,
-    HeaderDataFrame.DATE, 
-    HeaderDataFrame.TIME,
-    HeaderDataFrame.IN_PROM, 
-    HeaderDataFrame.OUT_PROM, 
-    HeaderDataFrame.IN_MAX, 
-    HeaderDataFrame.OUT_MAX
-]
-
-
-header_summary = [
-    HeaderDataFrame.INTERFACE,
-    HeaderDataFrame.CAPACITY,
-    HeaderDataFrame.TYPE,
-    HeaderDataFrame.IN_PROM,
-    HeaderDataFrame.OUT_PROM,
-    HeaderDataFrame.IN_MAX_PROM,
-    HeaderDataFrame.OUT_MAX_PROM,
-    HeaderDataFrame.USE
-]
-
 
 class HeaderBBIP:
     """Header of the Backbone IP dataframe."""
@@ -69,6 +30,8 @@ class HeaderBBIP:
     TIME = "time"
     IN_PROM = "inProm"
     IN_MAX = "inMax"
+    OUT_PROM = "outProm"
+    OUT_MAX = "outMax"
 
 
 header_bbip = [
@@ -78,9 +41,19 @@ header_bbip = [
     HeaderBBIP.DATE,
     HeaderBBIP.TIME,
     HeaderBBIP.IN_PROM,
-    HeaderBBIP.IN_MAX
+    HeaderBBIP.IN_MAX,
+    HeaderBBIP.OUT_PROM,
+    HeaderBBIP.OUT_MAX
 ]
 
+header_upload_data = [
+    HeaderBBIP.DATE,
+    HeaderBBIP.TIME,
+    HeaderBBIP.IN_PROM,
+    HeaderBBIP.IN_MAX,
+    HeaderBBIP.OUT_PROM,
+    HeaderBBIP.OUT_MAX
+]
 
 class HeaderIPBras:
     """Header of the Backbone IP dataframe."""

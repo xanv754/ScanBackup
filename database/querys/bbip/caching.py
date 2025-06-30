@@ -1,3 +1,4 @@
+from typing import List
 from pandas import DataFrame
 from constants import TableName, BBIPFieldName, header_bbip
 from database.libs.product.mongo import DatabaseMongo
@@ -34,14 +35,13 @@ class CachingMongoQuery(BBIPQuery):
         except Exception as e:
             log.error(f"Failed to connect to MongoDB database. {e}")
 
-    def new_interface(self, new: BBIPModel):
+    def new_interface(self, data: List[BBIPModel]):
         try:
             status_insert = False
             self.__database.open_connection()
             if self.__database.connected:
                 collection = self.__database.get_cursor(table=TableName.CACHING)
-                data = new.model_dump()
-                response = collection.insert_one(data)
+                response = collection.insert_many(data)
                 status_insert = response.acknowledged
                 self.__database.close_connection()
             return status_insert

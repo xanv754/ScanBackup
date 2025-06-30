@@ -5,6 +5,7 @@ from database.libs.product.mongo import DatabaseMongo
 from database.libs.factory.mongo import DatabaseMongoFactory
 from database.querys.daily.query import DailyReportQuery
 from database.utils.adapter import DailyReportResponseAdapter
+from model import DailyReportModel
 from utils.config import ConfigurationHandler
 from utils.log import log
 
@@ -35,19 +36,15 @@ class DailyReportMongoQuery(DailyReportQuery):
         except Exception as e:
             log.error(f"Failed to connect to MongoDB database. {e}")
 
-    def new_report(self, data: DataFrame):
+    def new_report(self, data: List[DailyReportModel]):
         try:
             status_insert = False
-            data_json: List[dict] = data.to_dict(orient="records")
             self.__database.open_connection()
             if self.__database.connected:
-                if data_json:
-                    collection = self.__database.get_cursor(table=TableName.DAILY_REPORT)
-                    response = collection.insert_many(data_json)
-                    status_insert = response.acknowledged
-                    self.__database.close_connection()
-                else:
-                    status_insert = True
+                collection = self.__database.get_cursor(table=TableName.DAILY_REPORT)
+                response = collection.insert_many(data)
+                status_insert = response.acknowledged
+                self.__database.close_connection()
             return status_insert
         except Exception as e:
             log.error(f"Failed to insert a daily report. {e}")

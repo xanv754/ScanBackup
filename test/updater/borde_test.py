@@ -22,7 +22,7 @@ class Test(unittest.TestCase):
         self.data_example.create_file()
 
         borderHandler = BordeUpdaterHandler()
-        data = borderHandler.get_data(filepath=self.data_example.folder)
+        data = borderHandler.get_data(folderpath=self.data_example.folder)
         print(data)
         self.assertEqual(type(data), list)
         self.assertTrue(data)
@@ -34,7 +34,7 @@ class Test(unittest.TestCase):
         self.data_example.create_file()
 
         borderHandler = BordeUpdaterHandler()
-        data = borderHandler.get_data(filepath=self.data_example.folder)
+        data = borderHandler.get_data(folderpath=self.data_example.folder)
         status_operation = borderHandler._load_database(data=data, uri=self.mongo_borde_db_test.uri)
         self.assertTrue(status_operation)
         data_mongo = self.mongo_borde_db_test.get_all()

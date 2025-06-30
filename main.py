@@ -1,5 +1,5 @@
 import click
-from controllers.summary import SummaryController
+from reports.summary import SummaryController
 from utils.log import log
 
 @click.group()

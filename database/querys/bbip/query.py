@@ -1,3 +1,4 @@
+from typing import List
 from abc import ABC, abstractmethod
 from pandas import DataFrame
 from model import BBIPModel
@@ -18,13 +19,13 @@ class BBIPQuery(ABC):
         pass
 
     @abstractmethod
-    def new_interface(self, new: BBIPModel) -> bool:
+    def new_interface(self, data: List[BBIPModel]) -> bool:
         """Register new interface.
 
         Parameters
         ----------
-        new : BBIPModel
-            New interface of BBIP to register.
+        data : List[BBIPModel]
+            List of new interfaces of BBIP to register.
 
         Returns
         -------

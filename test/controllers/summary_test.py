@@ -2,7 +2,7 @@ import unittest
 import random
 from datetime import datetime
 from constants.header import HeaderDataFrame
-from controllers import SummaryController
+from reports import SummaryController
 from model import BordeModel, TrafficHistoryModel
 from test import DatabaseMongoTest, DatabasePostgresTest, LayerTypeTest, ModelBordeTypeTest
 

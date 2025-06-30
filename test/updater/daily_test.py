@@ -39,7 +39,7 @@ class Test(unittest.TestCase):
         self.bras_report_example.create_file()
 
         daily_handler = DailyReportUpdaterHandler()
-        data = daily_handler.get_data(filepath=self.borde_report_example.folder)
+        data = daily_handler.get_data(folderpath=self.borde_report_example.folder)
         print(data)
         self.assertEqual(type(data), list)
         self.assertEqual(len(data), 2)
@@ -52,7 +52,7 @@ class Test(unittest.TestCase):
         self.borde_report_example.create_file()
 
         daily_handler = DailyReportUpdaterHandler()
-        data = daily_handler.get_data(filepath=self.borde_report_example.folder)
+        data = daily_handler.get_data(folderpath=self.borde_report_example.folder)
         print(data)
 
         self.insert_interfaces(data[0])
