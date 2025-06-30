@@ -19,16 +19,17 @@ class BBIPResponseAdapter:
         """
         try:
             buffer: StringIO = StringIO()
+            line: str = ""
             for interface in data:
                 line += str(interface[BBIPFieldName.NAME]) + ';'
                 line += str(interface[BBIPFieldName.TYPE]) + ';'
-                line += float(interface[BBIPFieldName.CAPACITY]) + ';'
+                line += str(interface[BBIPFieldName.CAPACITY]) + ';'
                 line += str(interface[BBIPFieldName.DATE]) + ';'
                 line += str(interface[BBIPFieldName.TIME]) + ';'
-                line += float(interface[BBIPFieldName.IN_PROM]) + ';'
-                line += float(interface[BBIPFieldName.IN_MAX]) + ';'
-                line += float(interface[BBIPFieldName.OUT_PROM]) + ';'
-                line += float(interface[BBIPFieldName.OUT_MAX]) + '\n'
+                line += str(interface[BBIPFieldName.IN_PROM]) + ';'
+                line += str(interface[BBIPFieldName.IN_MAX]) + ';'
+                line += str(interface[BBIPFieldName.OUT_PROM]) + ';'
+                line += str(interface[BBIPFieldName.OUT_MAX]) + '\n'
                 buffer.write(line)
             buffer.seek(0)
             df = pd.read_csv(buffer, sep=';', header=None, names=header_bbip)
@@ -55,14 +56,14 @@ class DailyReportResponseAdapter:
             for interface in data:
                 line += str(interface[DailyReportFieldName.NAME]) + ';'
                 line += str(interface[DailyReportFieldName.TYPE]) + ';'
-                line += float(interface[DailyReportFieldName.CAPACITY]) + ';'
+                line += str(interface[DailyReportFieldName.CAPACITY]) + ';'
                 line += str(interface[DailyReportFieldName.DATE]) + ';'
                 line += str(interface[DailyReportFieldName.TYPE_LAYER]) + ';'
-                line += float(interface[DailyReportFieldName.IN_PROM]) + ';'
-                line += float(interface[DailyReportFieldName.OUT_PROM]) + ';'
-                line += float(interface[DailyReportFieldName.IN_MAX]) + ';'
-                line += float(interface[DailyReportFieldName.OUT_MAX]) + ';'
-                line += float(interface[DailyReportFieldName.USE]) + '\n'
+                line += str(interface[DailyReportFieldName.IN_PROM]) + ';'
+                line += str(interface[DailyReportFieldName.OUT_PROM]) + ';'
+                line += str(interface[DailyReportFieldName.IN_MAX]) + ';'
+                line += str(interface[DailyReportFieldName.OUT_MAX]) + ';'
+                line += str(interface[DailyReportFieldName.USE]) + '\n'
                 buffer.write(line)
             buffer.seek(0)
             df = pd.read_csv(buffer, sep=';', header=None, names=header_daily_report)
