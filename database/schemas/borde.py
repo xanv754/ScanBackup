@@ -25,7 +25,7 @@ BORDE_SCHEMA = {
                 "description": "Model of the Borde layer"
             },
             BBIPFieldName.CAPACITY: {
-                "bsonType": "int",
+                "bsonType": ["int", "long", "double"],
                 "description": "Capacity of the Borde layer"
             },
             BBIPFieldName.DATE: {
@@ -37,19 +37,19 @@ BORDE_SCHEMA = {
                 "description": "Hour of the traffic"
             },
             BBIPFieldName.IN_PROM: {
-                "bsonType": ["int", "long"],
+                "bsonType": ["int", "long", "double"],
                 "description": "In prom of the traffic"
             },
             BBIPFieldName.OUT_PROM: {
-                "bsonType": ["int", "long"],
+                "bsonType": ["int", "long", "double"],
                 "description": "Out prom of the traffic"
             },
             BBIPFieldName.IN_MAX: {
-                "bsonType": ["int", "long"],
+                "bsonType": ["int", "long", "double"],
                 "description": "In max of the traffic"
             },
             BBIPFieldName.OUT_MAX: {
-                "bsonType": ["int", "long"],
+                "bsonType": ["int", "long", "double"],
                 "description": "Out max of the traffic"
             }
         }
