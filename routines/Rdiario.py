@@ -21,7 +21,7 @@ Detalles de Proceso:
 import os
 import pandas as pd
 from datetime import datetime, timedelta, timezone
-from constants.path import layers_BBIP_SCAN
+from constants.layers import layers_BBIP_SCAN
 from utils.log import log
 
 

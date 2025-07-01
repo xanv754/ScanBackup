@@ -1,22 +1,5 @@
 from os import path
 
-class LayerNames:
-    """All layers names."""
-
-    BORDER = "Borde"
-    BRAS = "Bras"
-    CACHING = "Caching"
-    IP_BRAS = "IPBras"
-    RAI = "RAI"
-
-
-layers_BBIP_SCAN = [
-    LayerNames.BORDER,
-    LayerNames.BRAS,
-    LayerNames.CACHING,
-    LayerNames.RAI
-]
-
 
 class DataPath:
     """All paths of the data system."""

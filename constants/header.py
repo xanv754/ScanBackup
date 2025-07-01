@@ -1,26 +1,3 @@
-class HeaderDataFrame:
-    """Header of the traffic dataframe."""
-    ID = "id"
-    NAME = "name"
-    INTERFACE = "interface"
-    CAPACITY = "capacity"
-    MODEL = "model"
-    TYPE = "type"
-    SERVICE = "service"
-    CREATE_AT = "createAt"
-    DATE = "date"
-    TIME = "time"
-    ID_LAYER = "idLayer"
-    TYPE_LAYER = "typeLayer"
-    IN_PROM = "inProm"
-    OUT_PROM = "outProm"
-    IN_MAX = "inMax"
-    OUT_MAX = "outMax"
-    IN_MAX_PROM = "inMaxProm"
-    OUT_MAX_PROM = "outMaxProm"
-    USE = "use (%)"
-
-
 class HeaderBBIP:
     """Header of the Backbone IP dataframe."""
     NAME = "name"
@@ -38,7 +15,7 @@ class HeaderIPBras:
     """Header of the Backbone IP dataframe."""
     DATE = "date"
     TIME = "time"
-    BRAS_NAME = "Bras"
+    BRAS_NAME = "BrasName"
     IN_PROM = "inProm"
     IN_MAX = "inMax"
 
@@ -53,8 +30,8 @@ class HeaderDailyReport:
     TYPE_LAYER = "typeLayer"
     IN_PROM = "inProm"
     OUT_PROM = "outProm"
-    IN_MAX = "inMax"
-    OUT_MAX = "outMax"
+    IN_MAX = "inMaxProm"
+    OUT_MAX = "outMaxProm"
     USE = "use"
 
 

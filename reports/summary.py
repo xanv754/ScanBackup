@@ -1,146 +1,112 @@
-from calendar import monthrange
-from datetime import datetime
-from multiprocessing import Pool
-from constants.group import LayerType
-from handler import TrafficHandler, DailyReportHandler
+from pandas import DataFrame
+from constants import LayerName, HeaderDailyReport
+from handler import BBIPHandler
 from utils.calculate import calculate
-from utils.translate import Translate
 from utils.excel import ExcelExport
+from utils.log import log
 
-
-class SummaryController:
+class SummaryReportBBIP:
     """Controller to manage summary data."""
 
-    @staticmethod
-    def summary_diary_current() -> bool:
-        """Get a summary of the current day's data."""
+    def __get_data_layers(self, df_data: DataFrame) -> tuple[DataFrame, DataFrame, DataFrame, DataFrame]:
+        df_borde = df_data[df_data[HeaderDailyReport.TYPE_LAYER] == LayerName.BORDE]
+        df_borde = df_borde.drop(columns=[HeaderDailyReport.TYPE_LAYER])
+        df_bras = df_data[df_data[HeaderDailyReport.TYPE_LAYER] == LayerName.BRAS]
+        df_bras = df_bras.drop(columns=[HeaderDailyReport.TYPE_LAYER])
+        df_caching = df_data[df_data[HeaderDailyReport.TYPE_LAYER] == LayerName.CACHING]
+        df_caching = df_caching.drop(columns=[HeaderDailyReport.TYPE_LAYER])
+        df_rai = df_data[df_data[HeaderDailyReport.TYPE_LAYER] == LayerName.RAI]
+        df_rai = df_rai.drop(columns=[HeaderDailyReport.TYPE_LAYER])
+        return df_borde, df_bras, df_caching, df_rai
+
+    def summary_diary(self, date: str | None = None) -> bool:
         try:
-            daily_traffic = DailyReportHandler()
-            with Pool(processes=4) as pool:
-                df_data_borde = pool.apply(daily_traffic.get_daily_report_by_days_before, args=(LayerType.BORDE, 1))
-                df_data_bras = pool.apply(daily_traffic.get_daily_report_by_days_before, args=(LayerType.BRAS, 1))
-                df_data_caching = pool.apply(daily_traffic.get_daily_report_by_days_before, args=(LayerType.CACHING, 1))
-                df_data_rai = pool.apply(daily_traffic.get_daily_report_by_days_before, args=(LayerType.RAI, 1))
-
-                df_data_borde = Translate.header(df_data_borde)
-                df_data_bras = Translate.header(df_data_bras)
-                df_data_caching = Translate.header(df_data_caching)
-                df_data_rai = Translate.header(df_data_rai)
-
-                data = {
-                    LayerType.BORDE: df_data_borde,
-                    LayerType.BRAS: df_data_bras,
-                    LayerType.CACHING: df_data_caching,
-                    LayerType.RAI: df_data_rai
-                }
+            handler = BBIPHandler()
+            if date: df_data = handler.get_all_daily_report_by_date(date=date)
+            else: df_data = handler.get_all_daily_report_by_date()
+            df_borde, df_bras, df_caching, df_rai = self.__get_data_layers(df_data=df_data)
+            data = {
+                LayerName.BORDE: df_borde,
+                LayerName.BRAS: df_bras,
+                LayerName.CACHING: df_caching,
+                LayerName.RAI: df_rai
+            }
             excel = ExcelExport(filename="Resumen_Diario", data=data)
             excel.export()
-        except:
-            return False
-        else:
-            return True
-
-    @staticmethod
-    def summary_weekly_current() -> bool:
-        """Get a summary of the current weekly's data."""
-        try:
-            traffic = TrafficHandler()
-            with Pool(processes=4) as pool:
-                df_data_borde = pool.apply(traffic.get_traffic_layer_by_days_ago, args=(LayerType.BORDE, 7))
-                df_data_bras = pool.apply(traffic.get_traffic_layer_by_days_ago, args=(LayerType.BRAS, 7))
-                df_data_caching = pool.apply(traffic.get_traffic_layer_by_days_ago, args=(LayerType.CACHING, 7))
-                df_data_rai = pool.apply(traffic.get_traffic_layer_by_days_ago, args=(LayerType.RAI, 7))
-
-                df_data_borde = calculate(df_data_borde)
-                df_data_bras = calculate(df_data_bras)
-                df_data_caching = calculate(df_data_caching)
-                df_data_rai = calculate(df_data_rai)
-
-                df_data_borde = Translate.header(df_data_borde)
-                df_data_bras = Translate.header(df_data_bras)
-                df_data_caching = Translate.header(df_data_caching)
-                df_data_rai = Translate.header(df_data_rai)
-
-                data = {
-                    LayerType.BORDE: df_data_borde,
-                    LayerType.BRAS: df_data_bras,
-                    LayerType.CACHING: df_data_caching,
-                    LayerType.RAI: df_data_rai
-                }
-            excel = ExcelExport(filename="Resumen_Semanal", data=data)
-            excel.export()
-        except:
+        except Exception as e:
+            log.error(f"Failed to get summary report of diary. {e}")
             return False
         else:
             return True
         
-    @staticmethod
-    def summary_fortnight_current() -> bool:
-        """Get a summary of the current fortnight's data."""
+    def summary_weekly(self, literal: bool = False) -> bool:
         try:
-            traffic = TrafficHandler()
-            with Pool(processes=4) as pool:
-                df_data_borde = pool.apply(traffic.get_traffic_layer_by_days_ago, args=(LayerType.BORDE, 15))
-                df_data_bras = pool.apply(traffic.get_traffic_layer_by_days_ago, args=(LayerType.BRAS, 15))
-                df_data_caching = pool.apply(traffic.get_traffic_layer_by_days_ago, args=(LayerType.CACHING, 15))
-                df_data_rai = pool.apply(traffic.get_traffic_layer_by_days_ago, args=(LayerType.RAI, 15))
-
-                df_data_borde = calculate(df_data_borde)
-                df_data_bras = calculate(df_data_bras)
-                df_data_caching = calculate(df_data_caching)
-                df_data_rai = calculate(df_data_rai)
-
-                df_data_borde = Translate.header(df_data_borde)
-                df_data_bras = Translate.header(df_data_bras)
-                df_data_caching = Translate.header(df_data_caching)
-                df_data_rai = Translate.header(df_data_rai)
-
-                data = {
-                    LayerType.BORDE: df_data_borde,
-                    LayerType.BRAS: df_data_bras,
-                    LayerType.CACHING: df_data_caching,
-                    LayerType.RAI: df_data_rai
-                }
-            excel = ExcelExport(filename="Resumen_Quincenal", data=data)
+            handler = BBIPHandler()
+            if literal: df_data = handler.get_all_daily_data_by_days_before(day_before=8)
+            else: df_data = handler.get_all_daily_data_on_week()
+            df_borde, df_bras, df_caching, df_rai = self.__get_data_layers(df_data=df_data)
+            df_borde = calculate(df=df_borde)
+            df_bras = calculate(df=df_bras)
+            df_caching = calculate(df=df_caching)
+            df_rai = calculate(df=df_rai)
+            data = {
+                LayerName.BORDE: df_borde,
+                LayerName.BRAS: df_bras,
+                LayerName.CACHING: df_caching,
+                LayerName.RAI: df_rai
+            }
+            excel = ExcelExport(filename="Resumen_Semanal", data=data)
             excel.export()
-        except:
+        except Exception as e:
+            log.error(f"Failed to get summary report of weekly. {e}")
             return False
         else:
             return True
-
-    @staticmethod
-    def summary_monthly_current() -> bool:
-        """Get a summary of the current month's data."""
+        
+    def summary_fortnight(self, literal: bool = False) -> bool:
         try:
-            current_year = datetime.now().year
-            current_month = datetime.now().month
-            days = monthrange(current_year, current_month)[1]
-            traffic = TrafficHandler()
-            with Pool(processes=4) as pool:
-                df_data_borde = pool.apply(traffic.get_traffic_layer_by_days_ago, args=(LayerType.BORDE, days))
-                df_data_bras = pool.apply(traffic.get_traffic_layer_by_days_ago, args=(LayerType.BRAS, days))
-                df_data_caching = pool.apply(traffic.get_traffic_layer_by_days_ago, args=(LayerType.CACHING, days))
-                df_data_rai = pool.apply(traffic.get_traffic_layer_by_days_ago, args=(LayerType.RAI, days))
-
-                df_data_borde = calculate(df_data_borde)
-                df_data_bras = calculate(df_data_bras)
-                df_data_caching = calculate(df_data_caching)
-                df_data_rai = calculate(df_data_rai)
-
-                df_data_borde = Translate.header(df_data_borde)
-                df_data_bras = Translate.header(df_data_bras)
-                df_data_caching = Translate.header(df_data_caching)
-                df_data_rai = Translate.header(df_data_rai)
-
-                data = {
-                    LayerType.BORDE: df_data_borde,
-                    LayerType.BRAS: df_data_bras,
-                    LayerType.CACHING: df_data_caching,
-                    LayerType.RAI: df_data_rai
-                }
+            handler = BBIPHandler()
+            if literal: df_data = handler.get_all_daily_data_by_days_before(day_before=16)
+            else: df_data = handler.get_all_daily_data_by_first_month(date_to=16)
+            df_borde, df_bras, df_caching, df_rai = self.__get_data_layers(df_data=df_data)
+            df_borde = calculate(df=df_borde)
+            df_bras = calculate(df=df_bras)
+            df_caching = calculate(df=df_caching)
+            df_rai = calculate(df=df_rai)
+            data = {
+                LayerName.BORDE: df_borde,
+                LayerName.BRAS: df_bras,
+                LayerName.CACHING: df_caching,
+                LayerName.RAI: df_rai
+            }
+            excel = ExcelExport(filename="Resumen_Quincenal", data=data)
+            excel.export()
+        except Exception as e:
+            log.error(f"Failed to get summary report of fortnightly. {e}")
+            return False
+        else:
+            return True
+        
+    def summary_monthly(self, literal: bool = False) -> bool:
+        try:
+            handler = BBIPHandler()
+            if literal: df_data = handler.get_all_daily_data_by_days_before(day_before=30)
+            else: df_data = handler.get_all_daily_data_by_first_month()
+            df_borde, df_bras, df_caching, df_rai = self.__get_data_layers(df_data=df_data)
+            df_borde = calculate(df=df_borde)
+            df_bras = calculate(df=df_bras)
+            df_caching = calculate(df=df_caching)
+            df_rai = calculate(df=df_rai)
+            data = {
+                LayerName.BORDE: df_borde,
+                LayerName.BRAS: df_bras,
+                LayerName.CACHING: df_caching,
+                LayerName.RAI: df_rai
+            }
             excel = ExcelExport(filename="Resumen_Mensual", data=data)
             excel.export()
-        except:
+        except Exception as e:
+            log.error(f"Failed to get summary report of monthly. {e}")
             return False
         else:
             return True

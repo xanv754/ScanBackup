@@ -18,7 +18,7 @@ class BrasHandler(ScanHandler):
             self.bras_query = BrasMongoQuery(uri=uri)
             self.daily_query = DailyReportMongoQuery(uri=uri)
         except Exception as e:
-            log.export(f"Bras handler. Failed connecting to the database. {e}")
+            log.error(f"Bras handler. Failed connecting to the database. {e}")
             self.__error_connection = True
 
     def get_all_interfaces(self):
@@ -27,7 +27,7 @@ class BrasHandler(ScanHandler):
                 raise Exception("An error occurred while connecting to the database. The method has skipped.")
             df_interfaces = self.bras_query.get_interfaces()
         except Exception as e:
-            log.export(f"Bras handler. Failed to get all interfaces of bras layer. {e}")
+            log.error(f"Bras handler. Failed to get all interfaces of bras layer. {e}")
             return pd.DataFrame(columns=header_bbip)
         else:
             return df_interfaces
@@ -48,10 +48,11 @@ class BrasHandler(ScanHandler):
         try:
             if self.__error_connection: 
                 raise Exception("An error occurred while connecting to the database. The method has skipped.")
+            if date and not Validate.date(date): raise Exception("The date is not valid.")
             if not date: date = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
             df_daily_report = self.daily_query.get_report(layer_type=LayerName.BRAS, date=date)
         except Exception as e:
-            log.export(f"Bras handler. Failed to get all daily report of bras layer. {e}")
+            log.error(f"Bras handler. Failed to get all daily report of bras layer. {e}")
             return pd.DataFrame(columns=header_daily_report)
         else:
             return df_daily_report

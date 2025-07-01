@@ -1,1 +1,1 @@
-from reports.summary import SummaryController
+from reports.summary import SummaryReportBBIP

@@ -55,7 +55,7 @@ class Handler(unittest.TestCase):
         self.daily_db_test.insert(rai=True)
         
         handler = BBIPHandler(uri=self.daily_db_test.uri)
-        data = handler.get_all_daily_report()
+        data = handler.get_all_daily_report_by_date()
         print(data)
         self.assertFalse(data.empty)    
 
@@ -69,7 +69,7 @@ class Handler(unittest.TestCase):
         self.daily_db_test.insert(rai=True)
 
         handler = BBIPHandler(uri=self.daily_db_test.uri)
-        data = handler.get_all_daily_report_by_days_before(day_before=1)
+        data = handler.get_all_daily_data_by_days_before(day_before=1)
         print(data)
         self.assertFalse(data.empty)
 

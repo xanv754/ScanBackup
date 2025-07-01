@@ -5,6 +5,7 @@ from openpyxl import load_workbook
 from openpyxl.styles.colors import Color
 from openpyxl.styles import Font, PatternFill, Border, Side
 from constants.cells import cells
+from utils.translate import Translate
 
 class ExcelExport:
     """Class to export data to excel."""
@@ -40,16 +41,16 @@ class ExcelExport:
 
             sheet.column_dimensions[cells[1]].width = 50
             for column in range(2, max_column + 1):
-                sheet.column_dimensions[cells[column]].width = 13
+                sheet.column_dimensions[cells[column]].width = 16
 
             bg = PatternFill(fill_type="solid", start_color=Color(rgb="16365C"), end_color=Color(rgb="16365C"))
-            font = Font(bold=True, color=Color(rgb="FFFFFF"))
+            font = Font(name="Liberation Sans", size=11, bold=True, color=Color(rgb="FFFFFF"))
             for column in range(1, max_column + 1):
                 sheet.cell(row=1, column=column).font = font
                 sheet.cell(row=1, column=column).fill = bg
                 sheet.cell(row=1, column=column).border = border
 
-            font = Font(bold=False, color=Color(rgb="000000"))
+            font = Font(name="Liberation Sans", bold=False, color=Color(rgb="000000"))
             for row in range(2, max_row + 1):
                 for column in range(1, max_column + 1):
                     sheet.cell(row=row, column=column).font = font
@@ -61,6 +62,7 @@ class ExcelExport:
         """Export data to excel."""
         with pd.ExcelWriter(self.filepath, engine="openpyxl") as writer:
             for layer_type, df in self.data.items():
+                df = Translate.header(df)
                 df.to_excel(writer, sheet_name=layer_type, index=False)
         self.__set_styles()
 
