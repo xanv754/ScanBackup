@@ -167,26 +167,18 @@ class DatabaseBBIPTest(ABC):
                     TableName.IP_BRAS_HISTORY,
                     validator=IP_HISTORY_SCHEMA_MONGO
                 )
-            if not self.__check_collection(TableName.DAILY_REPORT, database):
-                database.create_collection(
-                    TableName.DAILY_REPORT,
-                    validator=DAILY_REPORT_SCHEMA_MONGO
-                )
             client.close()
         except Exception as e:
             traceback.print_exc(e)
             exit(1)
 
-    def clean(self, border: bool = False) -> None:
+    def clean(self) -> None:
         """Clean all registers in the database."""
         try:
             client = MongoClient(self.uri)
             database = client[self.name_db]
             collection = database[self.table]
             collection.delete_many({})
-            if border: 
-                collection = database[LayerName.BORDE]
-                collection.delete_many({})
             client.close()
         except Exception as e:
             traceback.print_exc(e)
@@ -370,7 +362,7 @@ class DatabaseRaiTest(DatabaseBBIPTest):
         return super().get_all()
 
 
-class DatabaseDailyTest(DatabaseBBIPTest):
+class DatabaseDailyTest():
     uri: str
     name_db: str
     table: str
@@ -384,29 +376,44 @@ class DatabaseDailyTest(DatabaseBBIPTest):
             else: raise Exception("Failed to obtain configuration. URI MongoDB variable not found in enviroment file")
             name_db = self.uri.split("/")[-1]
             self.name_db = name_db
+            self.__start_db()
             self.table = TableName.DAILY_REPORT
         except Exception as e:
             traceback.print_exc(e)
             exit(1)
-        else:
-            self.create_table()
 
-    def clean(self, border: bool = False) -> None:
-        """Clean all registers in the database."""
+    def __check_collection(self, name: str, client: MongoClient) -> bool:
+        """Check if the collection exists."""
+        collection_list = client.list_collection_names()
+        return name in collection_list
+    
+    def __start_db(self) -> None:
+        """Start the database."""
         try:
             client = MongoClient(self.uri)
             database = client[self.name_db]
-            collection = database[self.table]
-            collection.delete_many({})
-            if border: 
-                collection = database[LayerName.BORDE]
-                collection.delete_many({})
+            if not self.__check_collection(TableName.DAILY_REPORT, database):
+                database.create_collection(
+                    TableName.DAILY_REPORT,
+                    validator=DAILY_REPORT_SCHEMA_MONGO
+                )
             client.close()
         except Exception as e:
             traceback.print_exc(e)
             exit(1)
 
-    @abstractmethod
+    def clean(self) -> None:
+        """Clean all registers in the daily report collection."""
+        try:
+            client = MongoClient(self.uri)
+            database = client[self.name_db]
+            collection = database[TableName.DAILY_REPORT]
+            collection.delete_many({})
+            client.close()
+        except Exception as e:
+            traceback.print_exc(e)
+            exit(1)
+
     def get_exampĺe(self) -> DailyReportModel:
         """Get an example of data."""
         return DailyReportModel(
@@ -432,6 +439,7 @@ class DatabaseDailyTest(DatabaseBBIPTest):
                     type=json[DailyReportFieldName.TYPE],
                     capacity=json[DailyReportFieldName.CAPACITY],
                     date=json[DailyReportFieldName.DATE],
+                    typeLayer=LayerName.BORDE,
                     inProm=json[DailyReportFieldName.IN_PROM],
                     inMax=json[DailyReportFieldName.IN_MAX],
                     outProm=json[DailyReportFieldName.OUT_PROM],
@@ -440,9 +448,10 @@ class DatabaseDailyTest(DatabaseBBIPTest):
             )
         return new_data
 
-    def insert(self, data: DailyReportModel) -> DailyReportModel:
+    def insert(self, data: DailyReportModel | None = None) -> DailyReportModel:
         """Insert a new register in the database."""
         try:
+            if data is None: data = self.get_exampĺe()
             client = MongoClient(self.uri)
             database = client[self.name_db]
             collection = database[self.table]

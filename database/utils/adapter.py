@@ -53,6 +53,7 @@ class DailyReportResponseAdapter:
         """
         try:
             buffer: StringIO = StringIO()
+            line: str = ""
             for interface in data:
                 line += str(interface[DailyReportFieldName.NAME]) + ';'
                 line += str(interface[DailyReportFieldName.TYPE]) + ';'
