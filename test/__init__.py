@@ -6,6 +6,11 @@ from abc import ABC, abstractmethod
 from datetime import datetime, timedelta
 from dotenv import dotenv_values
 from pymongo import MongoClient
+from database import (
+    BORDE_SCHEMA_MONGO, BRAS_SCHEMA_MONGO,
+    CACHING_SCHEMA_MONGO, RAI_SCHEMA_MONGO,
+    IP_HISTORY_SCHEMA_MONGO, DAILY_REPORT_SCHEMA_MONGO
+)
 from model import BBIPModel, IPBrasModel, DailyReportModel
 from constants import (
     LayerName, TableName, 
@@ -121,7 +126,53 @@ class DatabaseBBIPTest(ABC):
             else: raise Exception("Failed to obtain configuration. URI MongoDB variable not found in enviroment file")
             name_db = self.uri.split("/")[-1]
             self.name_db = name_db
+            self.__start_db()
             self.table = table
+        except Exception as e:
+            traceback.print_exc(e)
+            exit(1)
+
+    def __check_collection(self, name: str, client: MongoClient) -> bool:
+        """Check if the collection exists."""
+        collection_list = client.list_collection_names()
+        return name in collection_list
+    
+    def __start_db(self) -> None:
+        """Start the database."""
+        try:
+            client = MongoClient(self.uri)
+            database = client[self.name_db]
+            if not self.__check_collection(TableName.BORDE, database):
+                database.create_collection(
+                    TableName.BORDE,
+                    validator=BORDE_SCHEMA_MONGO
+                )
+            if not self.__check_collection(TableName.BRAS, database):
+                database.create_collection(
+                    TableName.BRAS,
+                    validator=BRAS_SCHEMA_MONGO
+                )
+            if not self.__check_collection(TableName.CACHING, database):
+                database.create_collection(
+                    TableName.CACHING,
+                    validator=CACHING_SCHEMA_MONGO
+                )
+            if not self.__check_collection(TableName.RAI, database):
+                database.create_collection(
+                    TableName.RAI,
+                    validator=RAI_SCHEMA_MONGO
+                )
+            if not self.__check_collection(TableName.IP_BRAS_HISTORY, database):
+                database.create_collection(
+                    TableName.IP_BRAS_HISTORY,
+                    validator=IP_HISTORY_SCHEMA_MONGO
+                )
+            if not self.__check_collection(TableName.DAILY_REPORT, database):
+                database.create_collection(
+                    TableName.DAILY_REPORT,
+                    validator=DAILY_REPORT_SCHEMA_MONGO
+                )
+            client.close()
         except Exception as e:
             traceback.print_exc(e)
             exit(1)
