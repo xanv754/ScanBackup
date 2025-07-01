@@ -23,7 +23,7 @@ class RaiUpdaterHandler(UpdaterHandler):
                 try:
                     type = filename.split("%")[0]
                     interface = filename.split("%")[1]
-                    capacity = float(filename.split("%")[2])
+                    capacity = filename.split("%")[2]
                     df_data = pd.read_csv(f"{folderpath}/{filename}", sep=" ", header=None, names=header_upload_scan_data)
                     df_data = df_data[df_data[HeaderBBIP.DATE] == date]
                     if not df_data.empty:
@@ -44,8 +44,8 @@ class RaiUpdaterHandler(UpdaterHandler):
     def load_data(self, data: pd.DataFrame, uri: str | None = None) -> bool:
         try:
             if data.empty: 
-                log.warning("The system received empty data Rai whten it updated.")
-                return True
+                log.warning("The system received empty data Rai when it updated.")
+                return False
             query = RaiMongoQuery(uri=uri)
             data_json = data.to_dict(orient="records")
             try:

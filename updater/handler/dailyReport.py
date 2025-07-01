@@ -41,8 +41,8 @@ class DailyReportUpdaterHandler(UpdaterHandler):
     def load_data(self, data: pd.DataFrame, uri: str | None = None) -> bool:
         try:
             if data.empty: 
-                log.warning("The system received empty data daily report whten it updated.")
-                return True
+                log.warning("The system received empty data daily report when it updated.")
+                return False
             query = DailyReportMongoQuery(uri=uri)
             data_json = data.to_dict(orient="records")
             try:
