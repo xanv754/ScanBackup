@@ -12,7 +12,7 @@ from utils.log import log
 class DailyReportUpdaterHandler(UpdaterHandler):
     """Daily report data updater handler."""
 
-    def get_data(self, folderpath: str | None = None, date: str | None = None) -> pd.DataFrame:
+    def get_data(self, folderpath: str | None = None, date: str | None = None, force: bool = False) -> pd.DataFrame:
         try:
             if not folderpath: folderpath = DataPath.SCAN_REPORT_DAILY
             if not os.path.exists(folderpath) or not os.path.isdir(folderpath):
@@ -24,7 +24,7 @@ class DailyReportUpdaterHandler(UpdaterHandler):
                 try:
                     layer = filename.replace(".", "_").split("_")[1].upper().strip()
                     df = pd.read_csv(f"{folderpath}/{filename}", sep=" ", names=header_upload_daily_data, index_col=False, skiprows=1)
-                    df = df[df[HeaderDailyReport.DATE] == date]
+                    if not force: df = df[df[HeaderDailyReport.DATE] == date]
                     if not df.empty:
                         df[HeaderDailyReport.TYPE_LAYER] = layer
                         if df_data.empty: df_data = df

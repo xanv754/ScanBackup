@@ -11,7 +11,7 @@ from utils.log import log
 class CachingUpdaterHandler(UpdaterHandler):
     """Caching data updater handler."""
 
-    def get_data(self, folderpath: str | None = None, date: str | None = None) -> pd.DataFrame:
+    def get_data(self, folderpath: str | None = None, date: str | None = None, force: bool = False) -> pd.DataFrame:
         try:
             if not folderpath: folderpath = DataPath.SCAN_DATA_CACHING
             if not os.path.exists(folderpath) or not os.path.isdir(folderpath):
@@ -25,7 +25,7 @@ class CachingUpdaterHandler(UpdaterHandler):
                     interface = filename.split("%")[1]
                     capacity = filename.split("%")[2]
                     df_data = pd.read_csv(f"{folderpath}/{filename}", sep=" ", header=None, names=header_upload_scan_data)
-                    df_data = df_data[df_data[HeaderBBIP.DATE] == date]
+                    if not force: df_data = df_data[df_data[HeaderBBIP.DATE] == date]
                     if not df_data.empty:
                         df_data[HeaderBBIP.NAME] = interface
                         df_data[HeaderBBIP.CAPACITY] = capacity

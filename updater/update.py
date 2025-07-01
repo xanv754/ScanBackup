@@ -6,7 +6,7 @@ from pandas import DataFrame
 class UpdaterHandler(ABC):
     """System data updater handler"""
     @abstractmethod
-    def get_data(self, folderpath: str | None = None, date: str | None = None) -> List:
+    def get_data(self, folderpath: str | None = None, date: str | None = None, force: bool = False) -> List:
         """Get data to be loaded in the database.
 
         Parameters
@@ -15,6 +15,8 @@ class UpdaterHandler(ABC):
             Path to the file to be read.
         date : str | None
             Date to be used for filtering.
+        force : bool. Default False
+            If this is true, as much data as possible will be uploaded, regardless of the dates.
         """
         pass
 
