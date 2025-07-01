@@ -13,7 +13,6 @@ def cli():
 
 
 @cli.command(help="Obtiene el reporte diario.")
-@click.option("--date", required=False, help="Date to get data. Format YYYY-MM-DD")
 def diario(date: str):
     log.info("Obteniendo resumen diario...")
     status_operation = SummaryController.summary_diary_current()

@@ -1,6 +1,5 @@
 import click
 from multiprocessing import Process
-from constants.group import LayerType
 from updater import (
     BordeUpdaterHandler,
     BrasUpdaterHandler,
@@ -16,7 +15,9 @@ def load_borde(date: str | None) -> None:
         borderHandler = BordeUpdaterHandler()
         if date: data_borde = borderHandler.get_data(date=date)
         else: data_borde = borderHandler.get_data()
-        borderHandler.load_data(data=data_borde)
+        status_operation = borderHandler.load_data(data=data_borde)
+        if status_operation: log.info("Data de borde cargado exitosamente")
+        else: log.error("Data de borde cargado fallida")
     except Exception as e:
         log.error(f"Failed to load data of Border layer. {e}")
 
@@ -25,7 +26,9 @@ def load_bras(date: str | None) -> None:
         brasHandler = BrasUpdaterHandler()
         if date: data_bras = brasHandler.get_data(date=date)
         else: data_bras = brasHandler.get_data()
-        brasHandler.load_data(data=data_bras)
+        status_operation = brasHandler.load_data(data=data_bras)
+        if status_operation: log.info("Data de bras cargado exitosamente")        
+        else: log.error("Data de bras cargado fallida")
     except Exception as e:
         log.error(f"Failed to load data of Bras layer. {e}")
 
@@ -34,7 +37,9 @@ def load_caching(date: str | None) -> None:
         cachingHandler = CachingUpdaterHandler()
         if date: data_caching = cachingHandler.get_data(date=date)
         else: data_caching = cachingHandler.get_data()
-        cachingHandler.load_data(data=data_caching)
+        status_operation = cachingHandler.load_data(data=data_caching)
+        if status_operation: log.info("Data de caching cargado exitosamente")
+        else: log.error("Data de caching cargado fallida")
     except Exception as e:
         log.error(f"Failed to load data of Caching layer. {e}")
 
@@ -43,22 +48,28 @@ def load_rai(date: str | None) -> None:
         raiHandler = RaiUpdaterHandler()
         if date: data_rai = raiHandler.get_data(date=date)
         else: data_rai = raiHandler.get_data()
-        raiHandler.load_data(data=data_rai)
+        status_operation = raiHandler.load_data(data=data_rai)
+        if status_operation: log.info("Data de rai cargado exitosamente")
+        else: log.error("Data de rai cargado fallida")
     except Exception as e:
         log.error(f"Failed to load data of Rai layer. {e}")
 
 
 @click.group
 def cli():
-    """CLI Updater Database"""
+    """SysGRD - Actualizador.
+
+    Interfaz de línea de comandos para el manejo de operaciones para
+    actualizar la data del sistema.
+    """
     pass
 
 
-@cli.command(help="Upload data obtained to database")
-@click.option("--date", required=False, help="Date to upload data. Format YYYY-MM-DD")
+@cli.command(help="Carga la data de SCAN en el sistema.")
+@click.option("--date", required=False, help="Fecha para cargar los datos. Formato YYYY-MM-DD")
 def data(date: str):
     try:
-        log.info("Starting updater data...")
+        log.info("Inicio de actualización de datos del sistema...")
         if not date: date = None
         borde = Process(target=load_borde, args=(date,))
         borde.start()
@@ -73,37 +84,39 @@ def data(date: str):
         caching.join()
         rai.join()
     except Exception as e:
-        log.error(f"Data upload failed. {e}")
+        log.error(f"Actualización de datos fallida. {e}")
     finally:
-        log.info("Updater data finished")
+        log.info("Actualización del sistema finalizada")
     try:
-        log.info("Starting updater daily report...")
+        log.info("Inicio de actualización de reportes diarios del sistema...")
         dailyReportHandler = DailyReportUpdaterHandler()
         if date: reports = dailyReportHandler.get_data(date=date)
         else: reports = dailyReportHandler.get_data()
         status_operation = dailyReportHandler.load_data(data=reports)
         if not status_operation: raise Exception()
+        else: log.info("Actualización de reportes diarios cargado exitosamente")
     except Exception as e:
-        log.error(f"Daily report generation failed. {e}")
+        log.error(f"Actualización de reportes diarios fallida. {e}")
     finally:
-        log.info("Updater daily report finished")
+        log.info("Actualización de reportes diarios finalizada")
 
 
-@cli.command(help="Upload daily reports obtained to database")
-@click.option("--date", required=False, help="Date to upload data. Format YYYY-MM-DD")
+@cli.command(help="Carga la data de los reportes diarios en el sistema.")
+@click.option("--date", required=False, help="Fecha para cargar los datos. Formato YYYY-MM-DD")
 def daily(date: str):
     try:
         if not date: date = None
-        log.info("Starting updater daily report...")
+        log.info("Inicio de actualización de reportes diarios del sistema...")
         dailyReportHandler = DailyReportUpdaterHandler()
         if date: reports = dailyReportHandler.get_data(date=date)
         else: reports = dailyReportHandler.get_data()
         status_operation = dailyReportHandler.load_data(data=reports)
         if not status_operation: raise Exception()
+        else: log.info("Actualización de reportes diarios cargado exitosamente")
     except Exception as e:
-        log.error(f"Daily report generation failed. {e}")
+        log.error(f"Actualización de reportes diarios fallida. {e}")
     finally:
-        log.info("Updater daily report finished")
+        log.info("Actualización de reportes diarios finalizada")
 
 
 if __name__ == "__main__":
