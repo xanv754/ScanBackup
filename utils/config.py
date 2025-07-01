@@ -33,11 +33,6 @@ class ConfigurationHandler:
                     env = dotenv_values(f"{base_path}/.env")
                 else:
                     raise FileNotFoundError("No file with environment variables found")
-                uri_postgres = env.get("URI_POSTGRES")
-                if uri_postgres: 
-                    self.uri_postgres = uri_postgres
-                else:
-                    log.warning(message=f"Failed to obtain configuration. URI PostgreSQL variable not found in enviroment file", path=__file__, err=True)
                 uri_mongo = env.get("URI_MONGO")
                 if uri_mongo: 
                     self.uri_mongo = uri_mongo

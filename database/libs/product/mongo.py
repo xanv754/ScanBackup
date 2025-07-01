@@ -1,6 +1,6 @@
-from pymongo import MongoClient
+from pymongo import MongoClient, ASCENDING
 from pymongo.collection import Collection
-from constants import TableName
+from constants import TableName, BBIPFieldName, IPBrasHistoryFieldName, DailyReportFieldName
 from database.libs.product.database import Database
 from database.schemas.borde import BORDE_SCHEMA as BORDE_SCHEMA_MONGO
 from database.schemas.bras import BRAS_SCHEMA as BRAS_SCHEMA_MONGO
@@ -55,30 +55,95 @@ class DatabaseMongo(Database):
                     TableName.BORDE,
                     validator=BORDE_SCHEMA_MONGO
                 )
+                collection = self.__connection[TableName.BORDE]
+                collection.create_index(
+                    [
+                        (BBIPFieldName.NAME, ASCENDING),
+                        (BBIPFieldName.TYPE, ASCENDING),
+                        (BBIPFieldName.DATE, ASCENDING)
+                        (BBIPFieldName.TIME, ASCENDING)
+                    ],
+                    unique=True,
+                    name="unique_borde_index"
+                )
             if not self.__check_collection(TableName.BRAS):
                 self.__connection.create_collection(
                     TableName.BRAS,
                     validator=BRAS_SCHEMA_MONGO
+                )
+                collection = self.__connection[TableName.BRAS]
+                collection.create_index(
+                    [
+                        (BBIPFieldName.NAME, ASCENDING),
+                        (BBIPFieldName.TYPE, ASCENDING),
+                        (BBIPFieldName.DATE, ASCENDING)
+                        (BBIPFieldName.TIME, ASCENDING)
+                    ],
+                    unique=True,
+                    name="unique_bras_index"
                 )
             if not self.__check_collection(TableName.CACHING):
                 self.__connection.create_collection(
                     TableName.CACHING,
                     validator=CACHING_SCHEMA_MONGO
                 )
+                collection = self.__connection[TableName.CACHING]
+                collection.create_index(
+                    [
+                        (BBIPFieldName.NAME, ASCENDING),
+                        (BBIPFieldName.TYPE, ASCENDING),
+                        (BBIPFieldName.DATE, ASCENDING)
+                        (BBIPFieldName.TIME, ASCENDING)
+                    ],
+                    unique=True,
+                    name="unique_caching_index"
+                )
             if not self.__check_collection(TableName.RAI):
                 self.__connection.create_collection(
                     TableName.RAI,
                     validator=RAI_SCHEMA_MONGO
+                )
+                collection = self.__connection[TableName.RAI]
+                collection.create_index(
+                    [
+                        (BBIPFieldName.NAME, ASCENDING),
+                        (BBIPFieldName.TYPE, ASCENDING),
+                        (BBIPFieldName.DATE, ASCENDING)
+                        (BBIPFieldName.TIME, ASCENDING)
+                    ],
+                    unique=True,
+                    name="unique_rai_index"
                 )
             if not self.__check_collection(TableName.IP_BRAS_HISTORY):
                 self.__connection.create_collection(
                     TableName.IP_BRAS_HISTORY,
                     validator=IP_HISTORY_SCHEMA_MONGO
                 )
+                collection = self.__connection[TableName.IP_BRAS_HISTORY]
+                collection.create_index(
+                    [
+                        (IPBrasHistoryFieldName.BRAS_NAME, ASCENDING),
+                        (IPBrasHistoryFieldName.DATE, ASCENDING),
+                        (IPBrasHistoryFieldName.TIME, ASCENDING)
+                    ],
+                    unique=True,
+                    name="unique_ip_history_index"
+                )
             if not self.__check_collection(TableName.DAILY_REPORT):
                 self.__connection.create_collection(
                     TableName.DAILY_REPORT,
                     validator=DAILY_REPORT_SCHEMA_MONGO
+                )
+                collection = self.__connection[TableName.DAILY_REPORT]
+                collection.create_index(
+                    [
+                        (DailyReportFieldName.NAME, ASCENDING),
+                        (DailyReportFieldName.TYPE_LAYER, ASCENDING),
+                        (DailyReportFieldName.TYPE, ASCENDING),
+                        (DailyReportFieldName.DATE, ASCENDING)
+                    ],
+                    unique=True,
+                    name="unique_daily_report_index"
                 )
             self.close_connection()
         except Exception as e:
