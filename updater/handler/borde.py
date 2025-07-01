@@ -1,7 +1,7 @@
 import os
 import pandas as pd
-from datetime import datetime
-from constants import DataPath, HeaderBBIP, header_bbip, header_upload_data
+from datetime import datetime, timedelta
+from constants import DataPath, HeaderBBIP, header_bbip, header_upload_scan_data
 from database import BordeMongoQuery
 from model import BBIPModel
 from updater.update import UpdaterHandler
@@ -16,7 +16,7 @@ class BordeUpdaterHandler(UpdaterHandler):
             if not folderpath: folderpath = DataPath.SCAN_DATA_BORDER
             if not os.path.exists(folderpath) or not os.path.isdir(folderpath):
                 raise FileNotFoundError("Borde folder not found.")
-            if not date: date = datetime.now().strftime("%Y-%m-%d")
+            if not date: date = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
             files = [filename for filename in os.listdir(folderpath)]
             df_to_upload = pd.DataFrame(columns=header_bbip)
             for filename in files:
@@ -24,7 +24,7 @@ class BordeUpdaterHandler(UpdaterHandler):
                     type = filename.split("%")[0]
                     interface = filename.split("%")[1]
                     capacity = int(filename.split("%")[2])
-                    df_data = pd.read_csv(f"{folderpath}/{filename}", sep=" ", header=None, names=header_upload_data)
+                    df_data = pd.read_csv(f"{folderpath}/{filename}", sep=" ", header=None, names=header_upload_scan_data)
                     df_data = df_data[df_data[HeaderBBIP.DATE] == date]
                     if not df_data.empty:
                         df_data[HeaderBBIP.NAME] = interface
@@ -47,8 +47,6 @@ class BordeUpdaterHandler(UpdaterHandler):
                 log.warning("The system received empty data Borde whten it updated.")
                 return True
             query = BordeMongoQuery(uri=uri)
-            if not query.connected:
-                raise Exception("An error occurred while connecting to the database. Borde updater system has suspended.")
             data_json = data.to_dict(orient="records")
             try:
                 json = [BBIPModel(**item) for item in data_json]

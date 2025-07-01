@@ -46,7 +46,7 @@ header_bbip = [
     HeaderBBIP.OUT_MAX
 ]
 
-header_upload_data = [
+header_upload_scan_data = [
     HeaderBBIP.DATE,
     HeaderBBIP.TIME,
     HeaderBBIP.IN_PROM,
@@ -84,7 +84,7 @@ class HeaderDailyReport:
     OUT_PROM = "outProm"
     IN_MAX = "inMax"
     OUT_MAX = "outMax"
-    USE = "use (%)"
+    USE = "use"
 
 
 header_daily_report = [
@@ -93,6 +93,18 @@ header_daily_report = [
     HeaderDailyReport.CAPACITY,
     HeaderDailyReport.DATE,
     HeaderDailyReport.TYPE_LAYER,
+    HeaderDailyReport.IN_PROM,
+    HeaderDailyReport.OUT_PROM,
+    HeaderDailyReport.IN_MAX,
+    HeaderDailyReport.OUT_MAX,
+    HeaderDailyReport.USE
+]
+
+header_upload_daily_data = [
+    HeaderDailyReport.NAME,
+    HeaderDailyReport.TYPE,
+    HeaderDailyReport.CAPACITY,
+    HeaderDailyReport.DATE,
     HeaderDailyReport.IN_PROM,
     HeaderDailyReport.OUT_PROM,
     HeaderDailyReport.IN_MAX,

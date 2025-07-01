@@ -2,7 +2,7 @@ import os
 import pandas as pd
 from datetime import datetime, timedelta
 from typing import List
-from constants import DataPath, LayerName, HeaderDailyReport, header_daily_report
+from constants import DataPath, HeaderDailyReport, header_daily_report, header_upload_daily_data
 from database import DailyReportMongoQuery
 from model import DailyReportModel
 from updater.update import UpdaterHandler
@@ -23,14 +23,14 @@ class DailyReportUpdaterHandler(UpdaterHandler):
             for filename in files:
                 try:
                     layer = filename.replace(".", "_").split("_")[1].upper().strip()
-                    df = pd.read_csv(f"{folderpath}/{filename}", sep=" ", names=header_daily_report, index_col=False, skiprows=1)
+                    df = pd.read_csv(f"{folderpath}/{filename}", sep=" ", names=header_upload_daily_data, index_col=False, skiprows=1)
                     df = df[df[HeaderDailyReport.DATE] == date]
                     if not df.empty:
                         df[HeaderDailyReport.TYPE_LAYER] = layer
                         if df_data.empty: df_data = df
                         else: df_data = pd.concat([df_data, df], axis=0)
                 except Exception as e:
-                    log.error(f"Something went wrong to load data: {filename}. {e}")
+                    log.error(f"Something went wrong to get data: {filename}. {e}")
                     continue
         except Exception as e:
             log.error(f"Failed to get data of daily report. {e}")
@@ -44,8 +44,6 @@ class DailyReportUpdaterHandler(UpdaterHandler):
                 log.warning("The system received empty data daily report whten it updated.")
                 return True
             query = DailyReportMongoQuery(uri=uri)
-            if not query.connected:
-                raise Exception("An error occurred while connecting to the database. Daily report updater system has suspended.")
             data_json = data.to_dict(orient="records")
             try:
                 json = [DailyReportModel(**item) for item in data_json]

@@ -1,4 +1,5 @@
 import os
+import shutil
 import random
 import traceback
 from typing import List
@@ -31,16 +32,12 @@ class FileDataTest(ABC):
         """Delete the example file."""
         if os.path.isfile(self.filepath):
             os.remove(self.filepath)
-            if os.path.isdir(self.folder):
-                os.rmdir(self.folder)
+            shutil.rmtree(self.folder)
 
     @classmethod
     def delete_father_folder(cls) -> None:
         """Delete the father folder."""
-        if os.path.isdir(f"{os.path.abspath(__file__).split('/test')[0]}/test/data/SCAN"):
-            os.rmdir(f"{os.path.abspath(__file__).split('/test')[0]}/test/data/SCAN")
-        if os.path.isdir(f"{os.path.abspath(__file__).split('/test')[0]}/test/data"):
-            os.rmdir(f"{os.path.abspath(__file__).split('/test')[0]}/test/data")
+        shutil.rmtree(f"{os.path.abspath(__file__).split('/test')[0]}/test/data")
 
 
 class FileDataSCANTest(FileDataTest):
@@ -48,8 +45,7 @@ class FileDataSCANTest(FileDataTest):
     def create_file(self) -> None:
         """Create a file with example data."""
         try:
-            date = datetime.now() - timedelta(days=1)
-            date = date.strftime("%Y-%m-%d")
+            date = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
             with open(self.filepath, "w") as file:
                 file.write("Fecha Hora InPro OutPro InMax OutMax\n")
                 file.write(f"{date} 17:35:00 11617614 2296806 11890501 2323927\n")
@@ -100,13 +96,12 @@ class FileDailyReportTest(FileDataTest):
     def create_file(self) -> None:
         """Create a file with example data."""
         try:
-            date = datetime.now() - timedelta(days=1)
-            date = date.strftime("%Y-%m-%d")
+            date = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
             with open(self.filepath, "w") as file:
-                file.write("Interfaz Tipo Fecha Capacidad In Out In-Max Out-Max Uso-%\n")
-                file.write(f"Interfaz-1 HUAWEI {date} 10 11617614 2296806 11890501 2323927 98\n")
-                file.write(f"Interfaz-2 HUAWEI {date} 10 3515418 2152241 3605922 2243843 60\n")
-                file.write(f"Interfaz-3 HUAWEI {date} 10 2824666 2263704 3462229 2338423 50\n")
+                file.write("Interfaz Tipo Capacidad Fecha In Out In-Max Out-Max Uso-%\n")
+                file.write(f"Interfaz-1 HUAWEI 10 {date} 11617614 2296806 11890501 2323927 98\n")
+                file.write(f"Interfaz-2 HUAWEI 10 {date} 3515418 2152241 3605922 2243843 60\n")
+                file.write(f"Interfaz-3 HUAWEI 10 {date} 2824666 2263704 3462229 2338423 50\n")
         except Exception as e:
             traceback.print_exc(e)
             exit(1)
@@ -443,7 +438,8 @@ class DatabaseDailyTest():
                     inProm=json[DailyReportFieldName.IN_PROM],
                     inMax=json[DailyReportFieldName.IN_MAX],
                     outProm=json[DailyReportFieldName.OUT_PROM],
-                    outMax=json[DailyReportFieldName.OUT_MAX]
+                    outMax=json[DailyReportFieldName.OUT_MAX],
+                    use=json[DailyReportFieldName.USE]
                 )
             )
         return new_data
