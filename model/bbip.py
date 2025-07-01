@@ -9,16 +9,16 @@ class BBIPModel(BaseModel):
     capacity: int | float
     date: str
     time: str
-    inProm: float
+    inValue: float
     inMax: float
-    outProm: float
+    outValue: float
     outMax: float
 
 
 class IPBrasModel:
     """Data model of the IP Bras."""
 
-    bras_name: str
+    brasname: str
     date: str
     time: str
     inProm: float

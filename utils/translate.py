@@ -24,9 +24,9 @@ class Translate:
                     new_columns.append("Hora")
                 elif column == HeaderBBIP.TYPE_LAYER:
                     new_columns.append("Capa")
-                elif column == HeaderBBIP.IN_PROM:
+                elif column == HeaderBBIP.IN_VALUE:
                     new_columns.append("In Prom")
-                elif column == HeaderBBIP.OUT_PROM:
+                elif column == HeaderBBIP.OUT_VALUE:
                     new_columns.append("Out Prom")
                 elif column == HeaderBBIP.IN_MAX:
                     new_columns.append("In Max")

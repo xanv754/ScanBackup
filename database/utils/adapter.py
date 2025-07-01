@@ -26,9 +26,9 @@ class BBIPResponseAdapter:
                 line += str(interface[BBIPFieldName.CAPACITY]) + ';'
                 line += str(interface[BBIPFieldName.DATE]) + ';'
                 line += str(interface[BBIPFieldName.TIME]) + ';'
-                line += str(interface[BBIPFieldName.IN_PROM]) + ';'
+                line += str(interface[BBIPFieldName.IN_VALUE]) + ';'
                 line += str(interface[BBIPFieldName.IN_MAX]) + ';'
-                line += str(interface[BBIPFieldName.OUT_PROM]) + ';'
+                line += str(interface[BBIPFieldName.OUT_VALUE]) + ';'
                 line += str(interface[BBIPFieldName.OUT_MAX]) + '\n'
                 buffer.write(line)
             buffer.seek(0)

@@ -195,9 +195,9 @@ class DatabaseBBIPTest(ABC):
                     capacity=json[BBIPFieldName.CAPACITY],
                     date=json[BBIPFieldName.DATE],
                     time=json[BBIPFieldName.TIME],
-                    inProm=json[BBIPFieldName.IN_PROM],
+                    inProm=json[BBIPFieldName.IN_VALUE],
                     inMax=json[BBIPFieldName.IN_MAX],
-                    outProm=json[BBIPFieldName.OUT_PROM],
+                    outProm=json[BBIPFieldName.OUT_VALUE],
                     outMax=json[BBIPFieldName.OUT_MAX]
                 )
             )
@@ -431,8 +431,8 @@ class DatabaseDailyTest():
             typeLayer=typeLayer,
             inProm=random.randint(1, 100),
             outProm=random.randint(1, 100),
-            inMax=random.randint(1, 100),
-            outMax=random.randint(1, 100),
+            inMaxProm=random.randint(1, 100),
+            outMaxProm=random.randint(1, 100),
             use=random.randint(1, 100)
         )
 
@@ -448,9 +448,9 @@ class DatabaseDailyTest():
                     date=json[DailyReportFieldName.DATE],
                     typeLayer=json[DailyReportFieldName.TYPE_LAYER],
                     inProm=json[DailyReportFieldName.IN_PROM],
-                    inMax=json[DailyReportFieldName.IN_MAX],
+                    inMaxProm=json[DailyReportFieldName.IN_MAX],
                     outProm=json[DailyReportFieldName.OUT_PROM],
-                    outMax=json[DailyReportFieldName.OUT_MAX],
+                    outMaxProm=json[DailyReportFieldName.OUT_MAX],
                     use=json[DailyReportFieldName.USE]
                 )
             )

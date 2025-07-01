@@ -10,9 +10,9 @@ CACHING_SCHEMA ={
             BBIPFieldName.CAPACITY,
             BBIPFieldName.DATE,
             BBIPFieldName.TIME,
-            BBIPFieldName.IN_PROM,
+            BBIPFieldName.IN_VALUE,
             BBIPFieldName.IN_MAX,
-            BBIPFieldName.OUT_PROM,
+            BBIPFieldName.OUT_VALUE,
             BBIPFieldName.OUT_MAX
         ],
         "properties": {
@@ -36,11 +36,11 @@ CACHING_SCHEMA ={
                 "bsonType": "string",
                 "description": "Hour of the traffic"
             },
-            BBIPFieldName.IN_PROM: {
+            BBIPFieldName.IN_VALUE: {
                 "bsonType": ["int", "long", "double"],
                 "description": "In prom of the traffic"
             },
-            BBIPFieldName.OUT_PROM: {
+            BBIPFieldName.OUT_VALUE: {
                 "bsonType": ["int", "long", "double"],
                 "description": "Out prom of the traffic"
             },

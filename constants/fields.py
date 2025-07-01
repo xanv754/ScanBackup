@@ -13,16 +13,16 @@ class BBIPFieldName:
     CAPACITY = "capacity"
     DATE = "date"
     TIME = "time"
-    IN_PROM = "inProm"
+    IN_VALUE = "inValue"
     IN_MAX = "inMax"
-    OUT_PROM = "outProm"
+    OUT_VALUE = "outValue"
     OUT_MAX = "outMax"
 
 
 class IPBrasHistoryFieldName:
     DATE = "date"
     TIME = "time"
-    BRAS_NAME = "Bras"
+    BRAS_NAME = "Brasname"
     IN_PROM = "inProm"
     IN_MAX = "inMax"
 
@@ -35,6 +35,6 @@ class DailyReportFieldName:
     TYPE_LAYER = "typeLayer"
     IN_PROM = "inProm"
     OUT_PROM = "outProm"
-    IN_MAX = "inMax"
-    OUT_MAX = "outMax"
+    IN_MAX = "inMaxProm"
+    OUT_MAX = "outMaxProm"
     USE = "use"

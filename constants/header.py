@@ -5,9 +5,9 @@ class HeaderBBIP:
     CAPACITY = "capacity"
     DATE = "date"
     TIME = "time"
-    IN_PROM = "inProm"
+    IN_VALUE = "inValue"
     IN_MAX = "inMax"
-    OUT_PROM = "outProm"
+    OUT_VALUE = "outValue"
     OUT_MAX = "outMax"
     TYPE_LAYER = "typeLayer"
 
@@ -41,9 +41,9 @@ header_bbip = [
     HeaderBBIP.CAPACITY,
     HeaderBBIP.DATE,
     HeaderBBIP.TIME,
-    HeaderBBIP.IN_PROM,
+    HeaderBBIP.IN_VALUE,
     HeaderBBIP.IN_MAX,
-    HeaderBBIP.OUT_PROM,
+    HeaderBBIP.OUT_VALUE,
     HeaderBBIP.OUT_MAX
 ]
 
@@ -53,9 +53,9 @@ header_all_bbip = [
     HeaderBBIP.CAPACITY,
     HeaderBBIP.DATE,
     HeaderBBIP.TIME,
-    HeaderBBIP.IN_PROM,
+    HeaderBBIP.IN_VALUE,
     HeaderBBIP.IN_MAX,
-    HeaderBBIP.OUT_PROM,
+    HeaderBBIP.OUT_VALUE,
     HeaderBBIP.OUT_MAX,
     HeaderBBIP.TYPE_LAYER
 ]
@@ -63,9 +63,9 @@ header_all_bbip = [
 header_upload_scan_data = [
     HeaderBBIP.DATE,
     HeaderBBIP.TIME,
-    HeaderBBIP.IN_PROM,
+    HeaderBBIP.IN_VALUE,
     HeaderBBIP.IN_MAX,
-    HeaderBBIP.OUT_PROM,
+    HeaderBBIP.OUT_VALUE,
     HeaderBBIP.OUT_MAX
 ]
 
