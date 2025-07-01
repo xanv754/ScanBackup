@@ -254,7 +254,7 @@ class DatabaseBorderTest(DatabaseBBIPTest):
             name=f"Interface_Test_{random.randint(1, 100)}",
             type=random.choice(["CISCO", "HUAWEI"]),
             capacity=random.randint(1, 100),
-            date=datetime.now().strftime("%Y-%m-%d"),
+            date=(datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d"),
             time=datetime.now().strftime("%H:%M:%S"),
             inProm=random.randint(1, 100),
             inMax=random.randint(1, 100),
@@ -282,7 +282,7 @@ class DatabaseBrasTest(DatabaseBBIPTest):
             name=f"Interface_Test_{random.randint(1, 100)}",
             type=random.choice(["UPLINK", "DOWNLINK"]),
             capacity=random.randint(1, 100),
-            date=datetime.now().strftime("%Y-%m-%d"),
+            date=(datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d"),
             time=datetime.now().strftime("%H:%M:%S"),
             inProm=random.randint(1, 100),
             inMax=random.randint(1, 100),
@@ -310,7 +310,7 @@ class DatabaseCachingTest(DatabaseBBIPTest):
             name=f"Interface_Test_{random.randint(1, 100)}",
             type=random.choice(["GOOGLE", "FACEBOOK", "AKAMAI", "ABATVGO"]),
             capacity=random.randint(1, 100),
-            date=datetime.now().strftime("%Y-%m-%d"),
+            date=(datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d"),
             time=datetime.now().strftime("%H:%M:%S"),
             inProm=random.randint(1, 100),
             inMax=random.randint(1, 100),
@@ -338,7 +338,7 @@ class DatabaseRaiTest(DatabaseBBIPTest):
             name=f"Interface_Test_{random.randint(1, 100)}",
             type="DEDICADO",
             capacity=random.randint(1, 100),
-            date=datetime.now().strftime("%Y-%m-%d"),
+            date=(datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d"),
             time=datetime.now().strftime("%H:%M:%S"),
             inProm=random.randint(1, 100),
             inMax=random.randint(1, 100),
@@ -409,14 +409,26 @@ class DatabaseDailyTest():
             traceback.print_exc(e)
             exit(1)
 
-    def get_exampĺe(self) -> DailyReportModel:
+    def get_exampĺe(self, borde: bool = True, bras: bool = False, caching: bool = False, rai: bool = False) -> DailyReportModel:
         """Get an example of data."""
+        if borde:
+            typeLayer = LayerName.BORDE
+            type = random.choice(["CISCO", "HUAWEI"])
+        elif bras:
+            typeLayer = LayerName.BRAS
+            type = random.choice(["UPLINK", "DOWNLINK"])
+        elif caching:
+            typeLayer = LayerName.CACHING
+            type = random.choice(["GOOGLE", "FACEBOOK", "AKAMAI", "ABATVGO"])
+        elif rai:
+            typeLayer = LayerName.RAI
+            type = "DEDICADO"
         return DailyReportModel(
             name=f"Interface_Test_{random.randint(1, 100)}",
-            type=random.choice(["CISCO", "HUAWEI"]),
+            type=type,
             capacity=random.randint(1, 100),
             date=(datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d"),
-            typeLayer=LayerName.BORDE,
+            typeLayer=typeLayer,
             inProm=random.randint(1, 100),
             outProm=random.randint(1, 100),
             inMax=random.randint(1, 100),
@@ -434,7 +446,7 @@ class DatabaseDailyTest():
                     type=json[DailyReportFieldName.TYPE],
                     capacity=json[DailyReportFieldName.CAPACITY],
                     date=json[DailyReportFieldName.DATE],
-                    typeLayer=LayerName.BORDE,
+                    typeLayer=json[DailyReportFieldName.TYPE_LAYER],
                     inProm=json[DailyReportFieldName.IN_PROM],
                     inMax=json[DailyReportFieldName.IN_MAX],
                     outProm=json[DailyReportFieldName.OUT_PROM],
@@ -444,10 +456,12 @@ class DatabaseDailyTest():
             )
         return new_data
 
-    def insert(self, data: DailyReportModel | None = None) -> DailyReportModel:
+    def insert(self, data: DailyReportModel | None = None, borde: bool = False, bras: bool = False, caching: bool = False, rai: bool = False) -> DailyReportModel:
         """Insert a new register in the database."""
         try:
-            if data is None: data = self.get_exampĺe()
+            if data is None: 
+                if not borde and not bras and not caching and not rai: borde = True
+                data = self.get_exampĺe(borde=borde, bras=bras, caching=caching, rai=rai)
             client = MongoClient(self.uri)
             database = client[self.name_db]
             collection = database[self.table]
