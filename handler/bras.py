@@ -1,11 +1,13 @@
 import pandas as pd
-from datetime import datetime
+from datetime import datetime, timedelta
 from constants import header_bbip, header_daily_report, LayerName
 from database import BBIPQuery, BrasMongoQuery, DailyReportQuery, DailyReportMongoQuery
+from handler.scan import ScanHandler
+from utils.validate import Validate
 from utils.log import log
 
 
-class BrasHandler:
+class BrasHandler(ScanHandler):
     """Class to get data of bras layer."""
     __error_connection: bool = False
     bras_query: BBIPQuery
@@ -19,8 +21,7 @@ class BrasHandler:
             log.export(f"Bras handler. Failed connecting to the database. {e}")
             self.__error_connection = True
 
-    def get_all_interfaces(self) -> pd.DataFrame:
-        """Get all interfaces of bras layer."""
+    def get_all_interfaces(self):
         try:
             if self.__error_connection: 
                 raise Exception("An error occurred while connecting to the database. The method has skipped.")
@@ -31,12 +32,23 @@ class BrasHandler:
         else:
             return df_interfaces
         
-    def get_all_daily_report(self, date: str | None = None) -> pd.DataFrame:
-        """Get all daily report of bras layer."""
+    def get_all_interfaces_by_date(self, date: str):
         try:
             if self.__error_connection: 
                 raise Exception("An error occurred while connecting to the database. The method has skipped.")
-            if not date: date = datetime.now().strftime("%Y-%m-%d")
+            if not Validate.date(date): raise Exception("The date is not valid.")
+            df_interfaces = self.bras_query.get_interfaces_by_date(date=date)
+        except Exception as e:
+            log.error(f"Bras handler. Failed to get all interfaces of bras layer. {e}")
+            return pd.DataFrame(columns=header_bbip)
+        else:
+            return df_interfaces
+        
+    def get_all_daily_report(self, date: str | None = None):
+        try:
+            if self.__error_connection: 
+                raise Exception("An error occurred while connecting to the database. The method has skipped.")
+            if not date: date = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
             df_daily_report = self.daily_query.get_report(layer_type=LayerName.BRAS, date=date)
         except Exception as e:
             log.export(f"Bras handler. Failed to get all daily report of bras layer. {e}")

@@ -1,27 +1,8 @@
-from constants.group import LayerType
+from datetime import datetime
 
 
 class Validate:
     """Class to validate parameters."""
-
-    @staticmethod
-    def layer_type(layer: str) -> bool:
-        """Validate layer type to consult in database.
-
-        Parameters
-        ----------
-        layer : str
-            Layer type to validate.
-        """
-        if ((layer == LayerType.BORDE) or 
-            (layer == LayerType.BRAS) or 
-            (layer == LayerType.CACHING) or 
-            (layer == LayerType.RAI) or 
-            (layer == LayerType.IP_HISTORY)
-        ):
-            return True
-        else:
-            return False
 
     @staticmethod
     def month(month: str) -> bool:
@@ -46,9 +27,8 @@ class Validate:
         date : str
             Date to validate.
         """
-        if "-" in date:
-            content = date.split("-")
-            if len(content) == 3:
-                if content[0].isdigit() and content[1].isdigit() and content[2].isdigit():
-                    return True
-        return False
+        try:
+            validate = datetime.strptime(date, "%Y-%m-%d").strftime("%Y-%m-%d")
+            return validate == date
+        except Exception:
+            return False

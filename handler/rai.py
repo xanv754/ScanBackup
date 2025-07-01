@@ -1,11 +1,13 @@
 import pandas as pd
-from datetime import datetime
+from datetime import datetime, timedelta
 from constants import header_bbip, header_daily_report, LayerName
 from database import BBIPQuery, RaiMongoQuery, DailyReportQuery, DailyReportMongoQuery
+from handler.scan import ScanHandler
+from utils.validate import Validate
 from utils.log import log
 
 
-class RaiHandler:
+class RaiHandler(ScanHandler):
     """Class to get data of rai layer."""
 
     __error_connection: bool = False
@@ -20,8 +22,7 @@ class RaiHandler:
             log.error(f"Rai handler. Failed connecting to the database. {e}")
             self.__error_connection = True
 
-    def get_all_interfaces(self) -> pd.DataFrame:
-        """Get all interfaces of rai layer."""
+    def get_all_interfaces(self):
         try:
             if self.__error_connection: 
                 raise Exception("An error occurred while connecting to the database. The method has skipped.")
@@ -32,12 +33,23 @@ class RaiHandler:
         else:
             return df_interfaces
         
-    def get_all_daily_report(self, date: str | None = None) -> pd.DataFrame:
-        """Get all daily report of rai layer."""
+    def get_all_interfaces_by_date(self, date: str):
         try:
             if self.__error_connection: 
                 raise Exception("An error occurred while connecting to the database. The method has skipped.")
-            if not date: date = datetime.now().strftime("%Y-%m-%d")
+            if not Validate.date(date): raise Exception("The date is not valid.")
+            df_interfaces = self.rai_query.get_interfaces_by_date(date=date)
+        except Exception as e:
+            log.error(f"Rai handler. Failed to get all interfaces of rai layer. {e}")
+            return pd.DataFrame(columns=header_bbip)
+        else:
+            return df_interfaces
+        
+    def get_all_daily_report(self, date: str | None = None):
+        try:
+            if self.__error_connection: 
+                raise Exception("An error occurred while connecting to the database. The method has skipped.")
+            if not date: date = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
             df_daily_report = self.daily_query.get_report(layer_type=LayerName.RAI, date=date)
         except Exception as e:
             log.error(f"rai handler. Failed to get all daily report of rai layer. {e}")

@@ -1,3 +1,4 @@
+from handler.scan import ScanHandler
 from handler.borde import BordeHandler
 from handler.bras import BrasHandler
 from handler.caching import CachingHandler

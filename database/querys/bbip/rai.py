@@ -79,3 +79,17 @@ class RaiMongoQuery(BBIPQuery):
         except Exception as e:
             log.error(f"Failed to get all interfaces. {e}")
             return DataFrame(columns=header_bbip)
+        
+    def get_interfaces_by_date(self, date: str):
+        try:
+            interfaces: DataFrame = DataFrame(columns=header_bbip)
+            self.__database.open_connection()
+            if self.__database.connected:
+                collection = self.__database.get_cursor(table=TableName.RAI)
+                cursor = collection.find({ BBIPFieldName.DATE: date })
+                interfaces = BBIPResponseAdapter.to_dataframe(cursor)
+                self.__database.close_connection()
+            return interfaces
+        except Exception as e:
+            log.error(f"Failed to get all interfaces by date. {e}")
+            return DataFrame(columns=header_bbip)

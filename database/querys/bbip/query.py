@@ -48,3 +48,14 @@ class BBIPQuery(ABC):
     def get_interfaces(self) -> DataFrame:
         """Get all interfaces."""
         pass
+
+    @abstractmethod
+    def get_interfaces_by_date(self, date: str) -> DataFrame:
+        """Get all interfaces by date.
+        
+        Parameters
+        ----------
+        date: str
+            Date of the data. Format: YYYY-MM-DD
+        """
+        pass
