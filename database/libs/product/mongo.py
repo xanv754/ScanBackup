@@ -60,7 +60,7 @@ class DatabaseMongo(Database):
                     [
                         (BBIPFieldName.NAME, ASCENDING),
                         (BBIPFieldName.TYPE, ASCENDING),
-                        (BBIPFieldName.DATE, ASCENDING)
+                        (BBIPFieldName.DATE, ASCENDING),
                         (BBIPFieldName.TIME, ASCENDING)
                     ],
                     unique=True,
@@ -76,7 +76,7 @@ class DatabaseMongo(Database):
                     [
                         (BBIPFieldName.NAME, ASCENDING),
                         (BBIPFieldName.TYPE, ASCENDING),
-                        (BBIPFieldName.DATE, ASCENDING)
+                        (BBIPFieldName.DATE, ASCENDING),
                         (BBIPFieldName.TIME, ASCENDING)
                     ],
                     unique=True,
@@ -92,7 +92,7 @@ class DatabaseMongo(Database):
                     [
                         (BBIPFieldName.NAME, ASCENDING),
                         (BBIPFieldName.TYPE, ASCENDING),
-                        (BBIPFieldName.DATE, ASCENDING)
+                        (BBIPFieldName.DATE, ASCENDING),
                         (BBIPFieldName.TIME, ASCENDING)
                     ],
                     unique=True,
@@ -108,7 +108,7 @@ class DatabaseMongo(Database):
                     [
                         (BBIPFieldName.NAME, ASCENDING),
                         (BBIPFieldName.TYPE, ASCENDING),
-                        (BBIPFieldName.DATE, ASCENDING)
+                        (BBIPFieldName.DATE, ASCENDING),
                         (BBIPFieldName.TIME, ASCENDING)
                     ],
                     unique=True,
