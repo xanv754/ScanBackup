@@ -18,30 +18,30 @@ def diario(date: str):
     log.info("Obteniendo resumen diario...")
     if date: status_operation = SummaryReportBBIP().summary_diary(date=date)
     else: status_operation = SummaryReportBBIP().summary_diary()
-    if not status_operation: log.error("No se pudo obtener el resumen diario")
-    else: log.info("Resumen diario obtenido")
+    if not status_operation: log.error("No se pudo generar el resumen diario")
+    else: log.info("Resumen diario generado con éxito")
 
 @cli.command(help="Obtiene el reporte semanal.")
 @click.option("--literal", required=False, help="Obtiene el resumen semanal contando los 7 días hacia atrás.")
 def semanal():
     log.info("Obteniendo resumen semanal...")
     status_operation =SummaryReportBBIP().summary_weekly()
-    if not status_operation: log.error("No se pudo obtener el resumen semanal")
-    else: log.info("Resumen semanal obtenido")
+    if not status_operation: log.error("No se pudo generar el resumen semanal")
+    else: log.info("Resumen semanal generado con éxito")
 
 @cli.command(help="Obtiene el reporte quincenal.")
 def quincenal():
     log.info("Obteniendo resumen quincenal...")
     status_operation = SummaryReportBBIP().summary_fortnight()
-    if not status_operation: log.error("No se pudo obtener el resumen quincenal")
-    else: log.info("Resumen quincenal obtenido")
+    if not status_operation: log.error("No se pudo generar el resumen quincenal")
+    else: log.info("Resumen quincenal generado con éxito")
 
 @cli.command(help="Obtiene el reporte mensual.")
 def mensual():
     log.info("Obteniendo resumen mensual...")
     status_operation =SummaryReportBBIP().summary_monthly()
-    if not status_operation: log.error("No se pudo obtener el resumen mensual")
-    else: log.info("Resumen mensual obtenido")
+    if not status_operation: log.error("No se pudo generar el resumen mensual")
+    else: log.info("Resumen mensual generado con éxito")
 
 
 if __name__ == "__main__":

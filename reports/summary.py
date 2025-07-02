@@ -31,6 +31,7 @@ class SummaryReportBBIP:
                 LayerName.CACHING: df_caching,
                 LayerName.RAI: df_rai
             }
+            log.info("Resumen diario obtenido. Exportando...")
             excel = ExcelExport(filename="Resumen_Diario", data=data)
             excel.export()
         except Exception as e:
@@ -55,6 +56,7 @@ class SummaryReportBBIP:
                 LayerName.CACHING: df_caching,
                 LayerName.RAI: df_rai
             }
+            log.info("Resumen semanal obtenido. Exportando...")
             excel = ExcelExport(filename="Resumen_Semanal", data=data)
             excel.export()
         except Exception as e:
@@ -79,6 +81,7 @@ class SummaryReportBBIP:
                 LayerName.CACHING: df_caching,
                 LayerName.RAI: df_rai
             }
+            log.info("Resumen quincenal obtenido. Exportando...")
             excel = ExcelExport(filename="Resumen_Quincenal", data=data)
             excel.export()
         except Exception as e:
@@ -103,6 +106,7 @@ class SummaryReportBBIP:
                 LayerName.CACHING: df_caching,
                 LayerName.RAI: df_rai
             }
+            log.info("Resumen mensual obtenido. Exportando...")
             excel = ExcelExport(filename="Resumen_Mensual", data=data)
             excel.export()
         except Exception as e:

@@ -6,3 +6,4 @@ from constants.header import (
 )
 from constants.layers import LayerName
 from constants.path import DataPath
+from constants.cells import cells
