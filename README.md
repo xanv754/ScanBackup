@@ -6,10 +6,13 @@ Un sistema diseñado para la recolección de datos de tráfico de todas las inte
     - [Variables de Entorno](#variables-de-entorno)
     - [Variables en Shell](#variables-en-shell)
     - [Instalación de dependencias](#instalación-de-dependencias)
+    - [Permisología de Logs](#permisología-de-logs)
 - [Ejecución de rutinas](#ejecución-de-rutinas)
     - [Recolección de datos](#recolección-de-datos)
     - [Procesamiento de datos](#procesamiento-de-datos)
     - [Almacenamiento de datos](#almacenamiento-de-datos)
+- [Mantenimiento del sistema](#mantenimiento-del-sistema)
+    - [Captura de Data](#captura-de-data)
 - [Programación de Tareas](#programación-de-tareas)
 - [Interfaz de Línea de Comandos](#interfaz-de-línea-de-comandos)
     - [Base de Datos](#base-de-datos)
@@ -54,6 +57,9 @@ El sistema requiere que se instalen las siguientes dependencias para su correcto
 pip install -r requirements.txt
 ```
 
+## Permisología de Logs
+El sistema guarda los logs en el directorio `/var/log/cgprd/`. Es necesario poder darle permisos de lectura y escritura a dicha carpeta para que el sistema pueda guardar los logs.
+
 # Rutinas de Ejecución
 El sistema se encarga de recolectar la información del tráfico en datos de cada 5 minutos de todas las interfaces de la red. Esta data, una vez obtenida, es procesada y almacenada en la base de datos del sistema.
 
@@ -81,6 +87,16 @@ python -m updater data
 Este módulo se encuentra en el mismo directorio que el sistema, en la carpeta `updater/`. Se encarga de cargar los datos de SCAN en la base de datos del sistema.
 
 > Nota: Para más información de los comandos del módulo `updater`, véase la sección [Actualización del sistema](#actualización-del-sistema).
+
+
+# Mantenimiento del sistema
+## Captura de Data
+Para poder realizar la captura de data, es necesario poder proporcionarles los links para consultar los datos. Estos links deben estar en un archivo `.txt` en el directorio `sources/SCAN/`. Dicho directorio debe estar en la misma carpeta que el sistema, específicamente en la raíz. 
+
+Estos links deben estar separados por las capas del sistema, con el siguiente formato:
+```
+link-de-acceso nombre-de-la-interfaz capacidad-de-la-interfaz tipo-de-la-interfaz
+```
 
 # Programación de Tareas
 Para la correcta ejecución de las rutinas diariamente, se debe configurar el sistema para que se ejecuten automáticamente. Para ello se debe añadir al crontab del sistema el siguiente comando:
