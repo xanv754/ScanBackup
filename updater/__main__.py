@@ -68,7 +68,7 @@ def cli():
 @cli.command(help="Carga la data de SCAN en el sistema.")
 @click.option("--date", required=False, help="Fecha para cargar los datos. Formato YYYY-MM-DD")
 @click.option("--force", is_flag=True, required=False, help="Carga todos los datos que puedan encontrarse obtenidos.")
-def data(date: str, force: bool):
+def data(date: str, force: bool = False):
     try:
         log.info("Inicio de actualización de datos del sistema...")
         if not date: date = None
