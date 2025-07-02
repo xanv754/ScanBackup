@@ -29,7 +29,7 @@ class ExcelExport:
         else:
             self.filepath = f"{home}/{filename}"
 
-    def __set_styles(self) -> None:
+    def __set_styles(self, daily: bool = False) -> None:
         """Set the styles to excel."""
         border = Border(left=Side(style="thin", color=Color(rgb="000000")), right=Side(style="thin", color=Color(rgb="000000")), top=Side(style="thin", color=Color(rgb="000000")), bottom=Side(style="thin", color=Color(rgb="000000")))
         number_format = '0.00'
@@ -57,6 +57,8 @@ class ExcelExport:
                 for column in range(1, max_column + 1):
                     sheet.cell(row=row, column=column).font = font
                     sheet.cell(row=row, column=column).border = border
+                    if not daily and cells[column] == "D": 
+                        sheet.cell(row=row, column=column).number_format = number_format
                     if (cells[column] == "E" or
                         cells[column] == "F" or
                         cells[column] == "G" or
@@ -66,14 +68,14 @@ class ExcelExport:
 
         workbook.save(self.filepath)
 
-    def export(self) -> None:
+    def export(self, daily: bool = False) -> None:
         """Export data to excel."""
         with pd.ExcelWriter(self.filepath, engine="openpyxl") as writer:
             for layer_type, df in self.data.items():
                 df.sort_values(by=[HeaderDailyReport.TYPE, HeaderDailyReport.NAME], inplace=True)
                 df = Translate.header(df)
                 df.to_excel(writer, sheet_name=layer_type, index=False)
-        self.__set_styles()
+        self.__set_styles(daily=daily)
 
 
 if __name__ == "__main__":

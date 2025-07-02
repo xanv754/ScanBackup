@@ -33,7 +33,7 @@ class SummaryReportBBIP:
             }
             log.info("Resumen diario obtenido. Exportando...")
             excel = ExcelExport(filename="Resumen_Diario", data=data)
-            excel.export()
+            excel.export(daily=True)
         except Exception as e:
             log.error(f"Failed to get summary report of diary. {e}")
             return False

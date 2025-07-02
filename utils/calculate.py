@@ -29,8 +29,8 @@ def calculate(df: pd.DataFrame, factor: int = 0.000000008022) -> pd.DataFrame:
                 HeaderDailyReport.TYPE: [type],
                 HeaderDailyReport.IN_PROM: [in_prom],
                 HeaderDailyReport.OUT_PROM: [out_prom],
-                HeaderDailyReport.IN_MAX_PROM: [in_max_prom],
-                HeaderDailyReport.OUT_MAX_PROM: [out_max_prom],
+                HeaderDailyReport.IN_MAX: [in_max_prom],
+                HeaderDailyReport.OUT_MAX: [out_max_prom],
                 HeaderDailyReport.USE: [use]
             })
             if summary_df.empty: summary_df = df_final
@@ -39,5 +39,5 @@ def calculate(df: pd.DataFrame, factor: int = 0.000000008022) -> pd.DataFrame:
         summary_df.reset_index(drop=True, inplace=True)
         return summary_df
     except Exception as error:
-        log.error(error)
+        log.error(f"Error in calculate daily reports. {error}")
         return pd.DataFrame(columns=header_daily_report)
