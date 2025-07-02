@@ -91,8 +91,8 @@ def data(date: str, force: bool):
     try:
         log.info("Inicio de actualización de reportes diarios del sistema...")
         dailyReportHandler = DailyReportUpdaterHandler()
-        if date: reports = dailyReportHandler.get_data(date=date)
-        else: reports = dailyReportHandler.get_data()
+        if date: reports = dailyReportHandler.get_data(date=date, force=force)
+        else: reports = dailyReportHandler.get_data(force=force)
         status_operation = dailyReportHandler.load_data(data=reports)
         if not status_operation: raise Exception()
         else: log.info("Actualización de reportes diarios cargado exitosamente")
@@ -105,7 +105,7 @@ def data(date: str, force: bool):
 @cli.command(help="Carga la data de los reportes diarios en el sistema.")
 @click.option("--date", required=False, help="Fecha para cargar los datos. Formato YYYY-MM-DD")
 @click.option("--force", is_flag=True, required=False, help="Carga todos los datos que puedan encontrarse obtenidos.")
-def daily(date: str, force: bool):
+def daily(date: str, force: bool = False):
     try:
         if not date: date = None
         log.info("Inicio de actualización de reportes diarios del sistema...")

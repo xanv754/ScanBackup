@@ -93,8 +93,8 @@ header_daily_report = [
 header_upload_daily_data = [
     HeaderDailyReport.NAME,
     HeaderDailyReport.TYPE,
-    HeaderDailyReport.CAPACITY,
     HeaderDailyReport.DATE,
+    HeaderDailyReport.CAPACITY,
     HeaderDailyReport.IN_PROM,
     HeaderDailyReport.OUT_PROM,
     HeaderDailyReport.IN_MAX,

@@ -98,10 +98,10 @@ class FileDailyReportTest(FileDataTest):
         try:
             date = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
             with open(self.filepath, "w") as file:
-                file.write("Interfaz Tipo Capacidad Fecha In Out In-Max Out-Max Uso-%\n")
-                file.write(f"Interfaz-1 HUAWEI 10 {date} 11617614 2296806 11890501 2323927 98\n")
-                file.write(f"Interfaz-2 HUAWEI 10 {date} 3515418 2152241 3605922 2243843 60\n")
-                file.write(f"Interfaz-3 HUAWEI 10 {date} 2824666 2263704 3462229 2338423 50\n")
+                file.write("Interfaz Tipo Fecha Capacidad In Out In-Max Out-Max Uso-%\n")
+                file.write(f"Interfaz-1 HUAWEI {date} 10 11617614 2296806 11890501 2323927 98\n")
+                file.write(f"Interfaz-2 HUAWEI {date} 10 3515418 2152241 3605922 2243843 60\n")
+                file.write(f"Interfaz-3 HUAWEI {date} 10 2824666 2263704 3462229 2338423 50\n")
         except Exception as e:
             traceback.print_exc(e)
             exit(1)
