@@ -67,7 +67,7 @@ def cli():
 
 @cli.command(help="Carga la data de SCAN en el sistema.")
 @click.option("--date", required=False, help="Fecha para cargar los datos. Formato YYYY-MM-DD")
-@click.option("--force", required=False, help="Carga todos los datos que puedan encontrarse obtenidos.")
+@click.option("--force", is_flag=True, required=False, help="Carga todos los datos que puedan encontrarse obtenidos.")
 def data(date: str, force: bool):
     try:
         log.info("Inicio de actualización de datos del sistema...")
@@ -104,7 +104,7 @@ def data(date: str, force: bool):
 
 @cli.command(help="Carga la data de los reportes diarios en el sistema.")
 @click.option("--date", required=False, help="Fecha para cargar los datos. Formato YYYY-MM-DD")
-@click.option("--force", required=False, help="Carga todos los datos que puedan encontrarse obtenidos.")
+@click.option("--force", is_flag=True, required=False, help="Carga todos los datos que puedan encontrarse obtenidos.")
 def daily(date: str, force: bool):
     try:
         if not date: date = None
