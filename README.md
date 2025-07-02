@@ -1,12 +1,245 @@
-# Sistema CPGRD
-Un sistema diseñado para la colleción de data para generación de reportes y otros archivos para la coordinación CPGRD.
+# Sistema de Gestión de Red de Datos
+Un sistema diseñado para la recolección de datos de tráfico de todas las interfaces de la red, procesamiento de la data y generación de distintos reportes para el análisis de la coordinación CPGRD.
 
-# Variables de Entorno
+## Índice
+- [Requerimientos](#requerimientos)
+    - [Variables de Entorno](#variables-de-entorno)
+    - [Variables en Shell](#variables-en-shell)
+    - [Instalación de dependencias](#instalación-de-dependencias)
+- [Ejecución de rutinas](#ejecución-de-rutinas)
+    - [Recolección de datos](#recolección-de-datos)
+    - [Procesamiento de datos](#procesamiento-de-datos)
+    - [Almacenamiento de datos](#almacenamiento-de-datos)
+- [Programación de Tareas](#programación-de-tareas)
+- [Interfaz de Línea de Comandos](#interfaz-de-línea-de-comandos)
+    - [Base de Datos](#base-de-datos)
+        - [Inicializar la base de datos](#crear-la-base-de-datos)
+        - [Eliminación de la base de datos](#borrar-la-base-de-datos)
+    - [Generación de Reportes](#generación-de-reportes)
+        - [Reporte diario](#generar-el-reporte-diario)
+        - [Reporte semanal](#generar-el-reporte-semanal)
+        - [Reporte quincenal](#generar-el-reporte-quincenal)
+        - [Reporte mensual](#generar-el-reporte-mensual)
+    - [Actualización del sistema](#actualización-del-sistema)
+        - [Carga de data](#actualización-del-sistema)
+            - [Almacenamiento de data de un día específico](#almacenamiento-de-data-de-un-día-específico)
+            - [Carga de todos los datos obtenidos](#carga-de-todos-los-datos-obtenidos)
+        - [Carga de reportes diarios](#almacenamiento-único-de-los-reportes-diarios)
+            - [Almacenamiento de reporte diario de un día específico](#almacenamiento-de-reporte-diario-de-un-día-específico)
+            - [Carga de todos los reportes diarios obtenidos](#carga-de-todos-los-reportes-diarios-obtenidos)
+- [Pruebas unitarias](#pruebas-unitarias)
+
+------------------------------------------------------------------
+
+# Requerimientos
+## Variables de Entorno
 El sistema require un archivo `.env.production` o `.env` con las siguientes variables de entorno:
 
 ```bash
 URI_MONGO="mongodb://user:password@server:port/name_database"
-URI_POSTGRES="postgres://user:password@server:port/name_database"
+```
+> *Nota*: Para ejecutar las **pruebas unitarias** es necesario un archivo `.env.test` con las variables de entorno. Si se desea trabajar en el **entorno de desarrollo**, se debe usar el archivo `.env.development`, que tiene un privilegio de uso antes que el archivo `.env.production` o `.env`. El sistema diferencia el **entorno de desarrollo** entre el **entorno de pruebas**.
+
+## Variables en Shell
+Además, el sistema requiere que se añadan las siguiente variables a nuestro archivo de shell (`.bashrc` o `.zshrc`):
+```bash
+export HOMEPROJECT="/home/SystemCGPRD" # Debe reemplazarse por la ruta del directorio del sistema
+export USERSCAN="usuario" # Debe reemplazarse por el usuario
+export PASSWORDSCAN="contraseña" # Debe reemplazarse por la contraseña
 ```
 
-> *Nota*: Para ejecutar las **pruebas unitarias** es necesario un archivo `.env.test` con las variables de entorno. Si se desea trabajar en el entorno de desarrollo, se debe usar el archivo `.env.development`.
+## Instalación de dependencias
+El sistema requiere que se instalen las siguientes dependencias para su correcto funcionamiento:
+```bash
+pip install -r requirements.txt
+```
+
+# Rutinas de Ejecución
+El sistema se encarga de recolectar la información del tráfico en datos de cada 5 minutos de todas las interfaces de la red. Esta data, una vez obtenida, es procesada y almacenada en la base de datos del sistema.
+
+El sistema tiene un orden estricto para dicha operación: recolección, procesamiento y almacenamiento de los datos. Esto se logra mediante el correcto orden de ejecución de las rutinas. Las rutinas se encuentran en el mismo directorio que el sistema, en la carpeta `routines/`.
+
+## Recolección de datos
+Para recolectar los datos de SCAN, se debe ejecutar el siguiente comando:
+```bash
+bash routines/captura-data.sh
+```
+Esto recolectará los datos de SCAN del día anterior, y los alojará en el directorio `data/SCAN` según la capa que corresponda. La carpeta `data/` se encuentra en el mismo directorio que el sistema.
+
+## Procesamiento de datos
+Para procesar los datos de SCAN y obtener la data correspondiente al reporte diario, se debe ejecutar el siguiente comando:
+```bash
+python routines/Rdiario.py
+```
+Esto procesará los datos de SCAN del día anterior, y los almacenará en el directorio `data/SCAN/Reportes-Diarios` según la capa que corresponda. La carpeta `data/` se encuentra en el mismo directorio que el sistema.
+
+## Almacenamiento de datos
+Para almacenar los datos de SCAN, se debe ejecutar el siguiente comando del módulo `updater`:
+```bash
+python -m updater data
+```
+Este módulo se encuentra en el mismo directorio que el sistema, en la carpeta `updater/`. Se encarga de cargar los datos de SCAN en la base de datos del sistema.
+
+> Nota: Para más información de los comandos del módulo `updater`, véase la sección [Actualización del sistema](#actualización-del-sistema).
+
+# Programación de Tareas
+Para la correcta ejecución de las rutinas diariamente, se debe configurar el sistema para que se ejecuten automáticamente. Para ello se debe añadir al crontab del sistema el siguiente comando:
+```bash
+PYTHONPATH="/home/SystemCGPRD" # Debe reemplazarse por la ruta del directorio del sistema
+export HOMEPROJECT="/home/SystemCGPRD" # Debe reemplazarse por la ruta del directorio del sistema
+export USERSCAN="usuario" # Debe reemplazarse por el usuario
+export PASSWORDSCAN="contraseña" # Debe reemplazarse por la contraseña
+
+00 04 * * * bash /home/SystemCGPRD/routines/captura-data.sh >> /var/log/cgprd/crontab.log 2>&1
+00 07 * * * /home/SystemCGPRD/.venv/bin/python /home/SystemCGPRD/routines/Rdiario.py
+30 07 * * * /home/SystemCGPRD/.venv/bin/python -m updater data
+```
+
+# Interfaz de Línea de Comandos
+## Base de Datos
+
+El módulo `database` contiene las funciones para la manipulación de la base de datos. Este módulo se encuentra en el mismo directorio que el sistema, en la carpeta `database/`.
+
+Puede leer la información sobre los comandos disponibles ejecutando:
+```bash
+python -m database --help
+``` 
+
+### Crear la base de datos
+Para crear una nueva base de datos, se debe ejecutar el siguiente comando:
+```bash
+python -m database main.py start
+```
+Esto creará la base de datos del sistema, así como todas las colecciones necesarias con esquemas e índices correspondientes.
+
+### Borrar la base de datos
+Para borrar la base de datos, se debe ejecutar el siguiente comando:
+```bash
+python -m database main.py drop
+```
+Esto eliminará toda la información de la base de datos de manera irreversible.
+
+## Generación de Reportes
+El módulo `reports` contiene las funciones para la generación de reportes. Estos reportes se encuentran en el mismo directorio que el sistema, en la carpeta `reports/`.
+
+Puede leer la información sobre los comandos disponibles ejecutando:
+```bash
+python main.py --help
+``` 
+o 
+
+```bash
+python main.py
+```
+
+### Generar el reporte diario
+Para generar el reporte diario, se debe ejecutar el siguiente comando:
+```bash
+python main.py diario
+```
+Esto obtendrá el reporte del día anterior y lo exportará en un archivo .xlsx llamado `Resumen_Diario.xlsx`. 
+
+> *Nota:* La ubicación predeterminada es la carpeta de descargas del sistema. Si no se encuentra dicha carpeta, se dejará el archivo el "home" del sistema.
+
+### Generar el reporte semanal
+Para generar el reporte semanal, se debe ejecutar el siguiente comando:
+```bash
+python main.py semanal
+```
+Esto generará un reporte con el promedio de datos desde el domingo de la semana hasta la fecha anterior al día en el que se está pidiendo el reporte. Este reporte será exportado un archivo .xlsx llamado `Resumen_Semanal.xlsx`. 
+
+> *Nota:* La ubicación predeterminada es la carpeta de descargas del sistema. Si no se encuentra dicha carpeta, se dejará el archivo el "home" del sistema.
+
+#### Opciones Extras
+Si se desea generar un reporte semanal con la data exacta de 7 días hacia atrás, es decir, contando desde el día anterior a la fecha en la que se está generando el reporte, hasta 7 días atrás (sin importar que se pueda obtener data de la semana pasada), se debe ejecutar el siguiente comando:
+```bash
+python main.py semanal --literal
+```
+
+### Generar el reporte quincenal
+Para generar el reporte quincenal, se debe ejecutar el siguiente comando:
+```bash
+python main.py quincenal
+```
+Esto generará un reporte con el promedio de datos desde el primer día del mes hasta el día 15 del mes (solo promediará los días en los que se obtenga información). Este reporte será exportado un archivo .xlsx llamado `Resumen_Quincenal.xlsx`. 
+
+> *Nota:* La ubicación predeterminada es la carpeta de descargas del sistema. Si no se encuentra dicha carpeta, se dejará el archivo el "home" del sistema.
+
+#### Opciones Extras
+Si se desea generar un reporte quincenal con la data exacta de 15 días hacia atrás, es decir, contando desde el día anterior a la fecha en la que se está generando el reporte, hasta 15 días atrás (sin importar que se pueda obtener data del mes pasado), se debe ejecutar el siguiente comando:
+```bash
+python main.py quincenal --literal
+```
+
+### Generar el reporte mensual
+Para generar el reporte mensual, se debe ejecutar el siguiente comando:
+```bash
+python main.py mensual
+```
+Esto generará un reporte con el promedio de datos desde el primer día del mes hasta el día 30 del mes (solo promediará los días en los que se obtenga información). Este reporte será exportado un archivo .xlsx llamado `Resumen_Mensual.xlsx`. 
+
+> *Nota:* La ubicación predeterminada es la carpeta de descargas del sistema. Si no se encuentra dicha carpeta, se dejará el archivo el "home" del sistema.
+
+#### Opciones Extras
+Si se desea generar un reporte mensual con la data exacta de 30 días hacia atrás, es decir, contando desde el día anterior a la fecha en la que se está generando el reporte, hasta 30 días atrás (sin importar que se pueda obtener data del mes pasado), se debe ejecutar el siguiente comando:
+```bash
+python main.py mensual --literal
+```
+
+## Actualización del sistema
+Puede leer la información sobre los comandos disponibles ejecutando:
+```bash
+python -m updater --help
+```
+### Almacenamiento de datos
+Para almacenar los datos de SCAN, se debe ejecutar el siguiente comando del módulo `updater`:
+```bash
+python -m updater data
+```
+Este módulo se encuentra en el mismo directorio que el sistema, en la carpeta `updater/`. Se encarga de cargar los datos de SCAN en la base de datos del sistema.
+
+#### Opciones Extras
+#### Almacenamiento de data de un día específico
+Si se tiene recolectado y procesado la data de un día distinto al día anterior, se puede mandar a almacenar con el siguiente comando:
+```bash
+python -m updater data --date yyyy-mm-dd
+```
+Donde `yyyy-mm-dd` es la fecha del día que se desea cargar escrito en dicho formato.
+
+#### Carga de todos los datos obtenidos
+Si se desea cargar todos los datos recolectados y procesados, indistintamente de la diferencia de fechas que puede contener los archivos, se puede mandar a cargar con el siguiente comando:
+```bash
+python -m updater data --force
+```
+Esto cargará todos los datos que se encuentren en los archivos en los directorios correspondientes.
+
+### Almacenamiento único de los reportes diarios
+Si se desea solo almacenar los reportes diarios que se tienen procesados, se puede mandar a almacenar con el siguiente comando:
+```bash
+python -m updater daily
+```
+
+#### Opciones Extras
+#### Almacenamiento de reporte diario de un día específico
+Si se tiene procesado la data del reporte diario de un día distinto al día anterior, se puede mandar a almacenar con el siguiente comando:
+```bash
+python -m updater daily --date yyyy-mm-dd
+```
+Donde `yyyy-mm-dd` es la fecha del día que se desea cargar escrito en dicho formato.
+
+#### Carga de todos los reportes diarios obtenidos
+Si se desea cargar todos los datos procesados de los reportes diarios, indistintamente de la diferencia de fechas que puede contener los archivos, se puede mandar a cargar con el siguiente comando:
+```bash
+python -m updater daily --force
+```
+Esto cargará todos los datos que se encuentren en los archivos en los directorios correspondientes.
+
+# Pruebas unitarias
+Para ejecutar las pruebas unitarias del sistema, se debe ejecutar los siguientes comandos:
+```bash
+python -m unittest discover -s test/querys -p "*_test.py"
+python -m unittest discover -s test/updater -p "*_test.py"
+python -m unittest discover -s test/handler -p "*_test.py"
+```
+
+> *Nota:* Tenga en cuenta que siempre puede ejecutar pruebas unitarias individualmente siguiendo la documentación oficial de Unittest de python.
