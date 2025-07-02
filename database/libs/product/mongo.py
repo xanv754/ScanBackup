@@ -66,6 +66,12 @@ class DatabaseMongo(Database):
                     unique=True,
                     name="unique_borde_index"
                 )
+                collection.create_index(
+                    [
+                        (BBIPFieldName.DATE, ASCENDING)
+                    ],
+                    name="borde_by_date_index"
+                )
             if not self.__check_collection(TableName.BRAS):
                 self.__connection.create_collection(
                     TableName.BRAS,
@@ -81,6 +87,12 @@ class DatabaseMongo(Database):
                     ],
                     unique=True,
                     name="unique_bras_index"
+                )
+                collection.create_index(
+                    [
+                        (BBIPFieldName.DATE, ASCENDING)
+                    ],
+                    name="bras_by_date_index"
                 )
             if not self.__check_collection(TableName.CACHING):
                 self.__connection.create_collection(
@@ -98,6 +110,12 @@ class DatabaseMongo(Database):
                     unique=True,
                     name="unique_caching_index"
                 )
+                collection.create_index(
+                    [
+                        (BBIPFieldName.DATE, ASCENDING)
+                    ],
+                    name="caching_by_date_index"
+                )
             if not self.__check_collection(TableName.RAI):
                 self.__connection.create_collection(
                     TableName.RAI,
@@ -114,6 +132,12 @@ class DatabaseMongo(Database):
                     unique=True,
                     name="unique_rai_index"
                 )
+                collection.create_index(
+                    [
+                        (BBIPFieldName.DATE, ASCENDING)
+                    ],
+                    name="rai_by_date_index"
+                )
             if not self.__check_collection(TableName.IP_BRAS_HISTORY):
                 self.__connection.create_collection(
                     TableName.IP_BRAS_HISTORY,
@@ -128,6 +152,12 @@ class DatabaseMongo(Database):
                     ],
                     unique=True,
                     name="unique_ip_history_index"
+                )
+                collection.create_index(
+                    [
+                        (IPBrasHistoryFieldName.DATE, ASCENDING)
+                    ],
+                    name="ip_bras_by_date_index"
                 )
             if not self.__check_collection(TableName.DAILY_REPORT):
                 self.__connection.create_collection(
@@ -144,6 +174,19 @@ class DatabaseMongo(Database):
                     ],
                     unique=True,
                     name="unique_daily_report_index"
+                )
+                collection.create_index(
+                    [
+                        (DailyReportFieldName.DATE, ASCENDING)
+                    ],
+                    name="daily_report_by_date_index"
+                )
+                collection.create_index(
+                    [
+                        (DailyReportFieldName.DATE, ASCENDING),
+                        (DailyReportFieldName.TYPE_LAYER, ASCENDING)
+                    ],
+                    name="daily_report_by_date_typelayer_index"
                 )
             self.close_connection()
         except Exception as e:
