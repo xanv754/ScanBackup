@@ -3,8 +3,9 @@ from typing import Dict
 from pathlib import Path
 from openpyxl import load_workbook
 from openpyxl.styles.colors import Color
-from openpyxl.styles import Font, PatternFill, Border, Side
-from constants.cells import cells
+from openpyxl.styles import Font, PatternFill, Border, Side, numbers
+from constants import cells, HeaderDailyReport
+from utils.translate import Translate
 
 class ExcelExport:
     """Class to export data to excel."""
@@ -28,9 +29,10 @@ class ExcelExport:
         else:
             self.filepath = f"{home}/{filename}"
 
-    def __set_styles(self) -> None:
+    def __set_styles(self, daily: bool = False) -> None:
         """Set the styles to excel."""
         border = Border(left=Side(style="thin", color=Color(rgb="000000")), right=Side(style="thin", color=Color(rgb="000000")), top=Side(style="thin", color=Color(rgb="000000")), bottom=Side(style="thin", color=Color(rgb="000000")))
+        number_format = '0.00'
 
         workbook = load_workbook(self.filepath)
         for sheetname in workbook.sheetnames:
@@ -38,31 +40,42 @@ class ExcelExport:
             max_column = sheet.max_column
             max_row = sheet.max_row
 
-            sheet.column_dimensions[cells[1]].width = 50
+            sheet.column_dimensions[cells[1]].width = 57
             for column in range(2, max_column + 1):
-                sheet.column_dimensions[cells[column]].width = 13
+                sheet.column_dimensions[cells[column]].width = 16
+                sheet.freeze_panes = cells[column] + str(2)
 
             bg = PatternFill(fill_type="solid", start_color=Color(rgb="16365C"), end_color=Color(rgb="16365C"))
-            font = Font(bold=True, color=Color(rgb="FFFFFF"))
+            font = Font(name="Liberation Sans", size=11, bold=True, color=Color(rgb="FFFFFF"))
             for column in range(1, max_column + 1):
                 sheet.cell(row=1, column=column).font = font
                 sheet.cell(row=1, column=column).fill = bg
                 sheet.cell(row=1, column=column).border = border
 
-            font = Font(bold=False, color=Color(rgb="000000"))
+            font = Font(name="Liberation Sans", bold=False, color=Color(rgb="000000"))
             for row in range(2, max_row + 1):
                 for column in range(1, max_column + 1):
                     sheet.cell(row=row, column=column).font = font
                     sheet.cell(row=row, column=column).border = border
+                    if not daily and cells[column] == "D": 
+                        sheet.cell(row=row, column=column).number_format = number_format
+                    if (cells[column] == "E" or
+                        cells[column] == "F" or
+                        cells[column] == "G" or
+                        cells[column] == "H" or
+                        cells[column] == "I"
+                    ): sheet.cell(row=row, column=column).number_format = number_format
 
         workbook.save(self.filepath)
 
-    def export(self) -> None:
+    def export(self, daily: bool = False) -> None:
         """Export data to excel."""
         with pd.ExcelWriter(self.filepath, engine="openpyxl") as writer:
             for layer_type, df in self.data.items():
+                df.sort_values(by=[HeaderDailyReport.TYPE, HeaderDailyReport.NAME], inplace=True)
+                df = Translate.header(df)
                 df.to_excel(writer, sheet_name=layer_type, index=False)
-        self.__set_styles()
+        self.__set_styles(daily=daily)
 
 
 if __name__ == "__main__":

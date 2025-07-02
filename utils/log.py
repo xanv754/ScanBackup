@@ -5,7 +5,7 @@ from rich.logging import RichHandler
 
 # TITLE_ART = art.text2art(f"{AboutConstant.TITLE_CLI.value}")
 LOGS = "/var/log/cgprd"
-LOG_FORMAT = "%(asctime)s %(levelname)s (%(filename)s) %(message)s"
+LOG_FORMAT = "%(asctime)s %(levelname)s %(message)s"
 DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 FORMATTER = logging.Formatter(LOG_FORMAT, DATE_FORMAT)
 

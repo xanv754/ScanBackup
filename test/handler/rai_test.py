@@ -1,34 +1,29 @@
 import unittest
-from constants.header import HeaderDataFrame
 from handler import RaiHandler
-from test import DatabaseRaiTest
+from test import DatabaseRaiTest, DatabaseDailyTest
 
 
 class Handler(unittest.TestCase):
-    mongo_db_test: DatabaseRaiTest = DatabaseRaiTest()
-    postgres_db_test: DatabaseRaiTest = DatabaseRaiTest(db_backup=True)
+    interface_db_test: DatabaseRaiTest = DatabaseRaiTest()
+    daily_db_test: DatabaseDailyTest = DatabaseDailyTest()
 
-    def test_get_all_interfaces(self):
+    def test_get_interfaces(self):
         """Test get all interfaces of rai layer converted in a dataframe."""
-        neccesary_columns = [ HeaderDataFrame.ID, HeaderDataFrame.NAME, HeaderDataFrame.CAPACITY ]
-
-        self.mongo_db_test.insert()
-        raiHandler = RaiHandler(uri=self.mongo_db_test.uri)
-        data = raiHandler.get_all_interfaces()
+        self.interface_db_test.insert()
+        handler = RaiHandler(uri=self.interface_db_test.uri)
+        data = handler.get_all_interfaces()
         print(data)
-        data_columns = data.columns.to_list()
-        self.mongo_db_test.clean()
+        self.interface_db_test.clean()
         self.assertFalse(data.empty)
-        self.assertEqual(data_columns, neccesary_columns)
 
-        self.postgres_db_test.insert()
-        raiHandler = RaiHandler(db_backup=True, uri=self.postgres_db_test.uri)
-        data = raiHandler.get_all_interfaces()
+    def test_get_daily_report(self):
+        """Test get all daily report of rai layer converted in a dataframe."""
+        self.daily_db_test.insert(rai=True)
+        handler = RaiHandler(uri=self.daily_db_test.uri)
+        data = handler.get_all_daily_report()
         print(data)
-        data_columns = data.columns.to_list()
-        self.postgres_db_test.clean()
+        self.daily_db_test.clean()
         self.assertFalse(data.empty)
-        self.assertEqual(data_columns, neccesary_columns)
 
 
 if __name__ == "__main__":

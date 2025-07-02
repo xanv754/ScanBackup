@@ -23,21 +23,21 @@ class Database(ABC):
         pass
 
     @abstractmethod
-    def migration(self) -> bool:
-        """Run migrations.
+    def initialize(self) -> bool:
+        """Initialize the database.
 
         Returns
         -------
-        Operation status. If True, the migrations have been executed correctly. Otherwise returns False.
+        Operation status. If True, the initialize database have been executed correctly. Otherwise returns False.
         """
         pass
 
     @abstractmethod
-    def rollback(self) -> bool:
-        """Run rollback migrations.
+    def drop(self) -> bool:
+        """Drop data from the database.
 
         Returns
         -------
-        Operation status. If True, the rollback migrations have been executed correctly. Otherwise returns False.
+        Operation status. If True, the drop database have been executed correctly. Otherwise returns False.
         """
         pass

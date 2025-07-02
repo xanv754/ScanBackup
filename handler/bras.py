@@ -1,30 +1,58 @@
 import pandas as pd
-from constants.header import HeaderDataFrame
-from database import BrasQuery, MongoBrasQuery, PostgresBrasQuery
+from datetime import datetime, timedelta
+from constants import header_bbip, header_daily_report, LayerName
+from database import BBIPQuery, BrasMongoQuery, DailyReportQuery, DailyReportMongoQuery
+from handler.scan import ScanHandler
+from utils.validate import Validate
 from utils.log import log
 
 
-class BrasHandler:
+class BrasHandler(ScanHandler):
     """Class to get data of bras layer."""
     __error_connection: bool = False
-    bras_query: BrasQuery
+    bras_query: BBIPQuery
+    daily_query: DailyReportQuery
 
-    def __init__(self, db_backup: bool = False, uri: str | None = None):
+    def __init__(self, uri: str | None = None):
         try:
-            if not db_backup: self.bras_query = MongoBrasQuery(uri=uri)
-            else: self.bras_query = PostgresBrasQuery(uri=uri)
+            self.bras_query = BrasMongoQuery(uri=uri)
+            self.daily_query = DailyReportMongoQuery(uri=uri)
         except Exception as e:
-            log.export(f"Bras handler. Failed connecting to the database. {e}")
+            log.error(f"Bras handler. Failed connecting to the database. {e}")
             self.__error_connection = True
 
-    def get_all_interfaces(self) -> pd.DataFrame:
-        """Get all interfaces of bras layer."""
+    def get_all_interfaces(self):
         try:
-            if self.__error_connection: raise Exception("An error occurred while connecting to the database. The method has skipped.")
+            if self.__error_connection: 
+                raise Exception("An error occurred while connecting to the database. The method has skipped.")
             df_interfaces = self.bras_query.get_interfaces()
-            df_interfaces.drop(columns=[HeaderDataFrame.CREATE_AT], inplace=True)
         except Exception as e:
-            log.export(f"Bras handler. Failed to get all interfaces of bras layer. {e}")
-            return pd.DataFrame()
+            log.error(f"Bras handler. Failed to get all interfaces of bras layer. {e}")
+            return pd.DataFrame(columns=header_bbip)
         else:
             return df_interfaces
+        
+    def get_all_interfaces_by_date(self, date: str):
+        try:
+            if self.__error_connection: 
+                raise Exception("An error occurred while connecting to the database. The method has skipped.")
+            if not Validate.date(date): raise Exception("The date is not valid.")
+            df_interfaces = self.bras_query.get_interfaces_by_date(date=date)
+        except Exception as e:
+            log.error(f"Bras handler. Failed to get all interfaces of bras layer. {e}")
+            return pd.DataFrame(columns=header_bbip)
+        else:
+            return df_interfaces
+        
+    def get_all_daily_report(self, date: str | None = None):
+        try:
+            if self.__error_connection: 
+                raise Exception("An error occurred while connecting to the database. The method has skipped.")
+            if date and not Validate.date(date): raise Exception("The date is not valid.")
+            if not date: date = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
+            df_daily_report = self.daily_query.get_report(layer_type=LayerName.BRAS, date=date)
+        except Exception as e:
+            log.error(f"Bras handler. Failed to get all daily report of bras layer. {e}")
+            return pd.DataFrame(columns=header_daily_report)
+        else:
+            return df_daily_report

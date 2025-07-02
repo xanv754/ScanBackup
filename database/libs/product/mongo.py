@@ -1,25 +1,23 @@
-from pymongo import MongoClient
+from pymongo import MongoClient, ASCENDING
 from pymongo.collection import Collection
-from database import (
-    TableNameDatabase,
-    Database,
-    BORDE_SCHEMA_MONGO,
-    BRAS_SCHEMA_MONGO,
-    CACHING_SCHEMA_MONGO,
-    RAI_SCHEMA_MONGO,
-    TRAFFIC_HISTORY_SCHEMA_MONGO,
-    IP_HISTORY_SCHEMA_MONGO, 
-    DAILY_REPORT_SCHEMA_MONGO
-)
+from constants import TableName, BBIPFieldName, IPBrasHistoryFieldName, DailyReportFieldName
+from database.libs.product.database import Database
+from database.schemas.borde import BORDE_SCHEMA as BORDE_SCHEMA_MONGO
+from database.schemas.bras import BRAS_SCHEMA as BRAS_SCHEMA_MONGO
+from database.schemas.caching import CACHING_SCHEMA as CACHING_SCHEMA_MONGO
+from database.schemas.rai import RAI_SCHEMA as RAI_SCHEMA_MONGO
+from database.schemas.ipHistory import IP_HISTORY_SCHEMA as IP_HISTORY_SCHEMA_MONGO
+from database.schemas.dailyReport import DAILY_REPORT_SCHEMA as DAILY_REPORT_SCHEMA_MONGO
 from utils.log import log
 
-class MongoDatabase(Database):
+
+class DatabaseMongo(Database):
     __client: MongoClient
     __connection: MongoClient
     __uri: str
     connected: bool = False
 
-    def __init__(self, uri: str) -> "MongoDatabase":
+    def __init__(self, uri: str) -> "DatabaseMongo":
         self.__uri = uri
 
     def __check_collection(self, name: str) -> bool:
@@ -49,43 +47,146 @@ class MongoDatabase(Database):
         self.__client.close()
         self.connected = False
 
-    def migration(self) -> bool:
+    def initialize(self) -> bool:
         try:
             self.open_connection()
-            if not self.__check_collection(TableNameDatabase.BORDE):
+            if not self.__check_collection(TableName.BORDE):
                 self.__connection.create_collection(
-                    TableNameDatabase.BORDE,
+                    TableName.BORDE,
                     validator=BORDE_SCHEMA_MONGO
                 )
-            if not self.__check_collection(TableNameDatabase.BRAS):
+                collection = self.__connection[TableName.BORDE]
+                collection.create_index(
+                    [
+                        (BBIPFieldName.NAME, ASCENDING),
+                        (BBIPFieldName.TYPE, ASCENDING),
+                        (BBIPFieldName.DATE, ASCENDING),
+                        (BBIPFieldName.TIME, ASCENDING)
+                    ],
+                    unique=True,
+                    name="unique_borde_index"
+                )
+                collection.create_index(
+                    [
+                        (BBIPFieldName.DATE, ASCENDING)
+                    ],
+                    name="borde_by_date_index"
+                )
+            if not self.__check_collection(TableName.BRAS):
                 self.__connection.create_collection(
-                    TableNameDatabase.BRAS,
+                    TableName.BRAS,
                     validator=BRAS_SCHEMA_MONGO
                 )
-            if not self.__check_collection(TableNameDatabase.CACHING):
+                collection = self.__connection[TableName.BRAS]
+                collection.create_index(
+                    [
+                        (BBIPFieldName.NAME, ASCENDING),
+                        (BBIPFieldName.TYPE, ASCENDING),
+                        (BBIPFieldName.DATE, ASCENDING),
+                        (BBIPFieldName.TIME, ASCENDING)
+                    ],
+                    unique=True,
+                    name="unique_bras_index"
+                )
+                collection.create_index(
+                    [
+                        (BBIPFieldName.DATE, ASCENDING)
+                    ],
+                    name="bras_by_date_index"
+                )
+            if not self.__check_collection(TableName.CACHING):
                 self.__connection.create_collection(
-                    TableNameDatabase.CACHING,
+                    TableName.CACHING,
                     validator=CACHING_SCHEMA_MONGO
                 )
-            if not self.__check_collection(TableNameDatabase.RAI):
+                collection = self.__connection[TableName.CACHING]
+                collection.create_index(
+                    [
+                        (BBIPFieldName.NAME, ASCENDING),
+                        (BBIPFieldName.TYPE, ASCENDING),
+                        (BBIPFieldName.DATE, ASCENDING),
+                        (BBIPFieldName.TIME, ASCENDING)
+                    ],
+                    unique=True,
+                    name="unique_caching_index"
+                )
+                collection.create_index(
+                    [
+                        (BBIPFieldName.DATE, ASCENDING)
+                    ],
+                    name="caching_by_date_index"
+                )
+            if not self.__check_collection(TableName.RAI):
                 self.__connection.create_collection(
-                    TableNameDatabase.RAI,
+                    TableName.RAI,
                     validator=RAI_SCHEMA_MONGO
                 )
-            if not self.__check_collection(TableNameDatabase.TRAFFIC_HISTORY):
-                self.__connection.create_collection(
-                    TableNameDatabase.TRAFFIC_HISTORY,
-                    validator=TRAFFIC_HISTORY_SCHEMA_MONGO
+                collection = self.__connection[TableName.RAI]
+                collection.create_index(
+                    [
+                        (BBIPFieldName.NAME, ASCENDING),
+                        (BBIPFieldName.TYPE, ASCENDING),
+                        (BBIPFieldName.DATE, ASCENDING),
+                        (BBIPFieldName.TIME, ASCENDING)
+                    ],
+                    unique=True,
+                    name="unique_rai_index"
                 )
-            if not self.__check_collection(TableNameDatabase.IP_HISTORY):
+                collection.create_index(
+                    [
+                        (BBIPFieldName.DATE, ASCENDING)
+                    ],
+                    name="rai_by_date_index"
+                )
+            if not self.__check_collection(TableName.IP_BRAS_HISTORY):
                 self.__connection.create_collection(
-                    TableNameDatabase.IP_HISTORY,
+                    TableName.IP_BRAS_HISTORY,
                     validator=IP_HISTORY_SCHEMA_MONGO
                 )
-            if not self.__check_collection(TableNameDatabase.DAILY_REPORT):
+                collection = self.__connection[TableName.IP_BRAS_HISTORY]
+                collection.create_index(
+                    [
+                        (IPBrasHistoryFieldName.BRAS_NAME, ASCENDING),
+                        (IPBrasHistoryFieldName.DATE, ASCENDING),
+                        (IPBrasHistoryFieldName.TIME, ASCENDING)
+                    ],
+                    unique=True,
+                    name="unique_ip_history_index"
+                )
+                collection.create_index(
+                    [
+                        (IPBrasHistoryFieldName.DATE, ASCENDING)
+                    ],
+                    name="ip_bras_by_date_index"
+                )
+            if not self.__check_collection(TableName.DAILY_REPORT):
                 self.__connection.create_collection(
-                    TableNameDatabase.DAILY_REPORT,
+                    TableName.DAILY_REPORT,
                     validator=DAILY_REPORT_SCHEMA_MONGO
+                )
+                collection = self.__connection[TableName.DAILY_REPORT]
+                collection.create_index(
+                    [
+                        (DailyReportFieldName.NAME, ASCENDING),
+                        (DailyReportFieldName.TYPE_LAYER, ASCENDING),
+                        (DailyReportFieldName.TYPE, ASCENDING),
+                        (DailyReportFieldName.DATE, ASCENDING)
+                    ],
+                    unique=True,
+                    name="unique_daily_report_index"
+                )
+                collection.create_index(
+                    [
+                        (DailyReportFieldName.DATE, ASCENDING)
+                    ],
+                    name="daily_report_by_date_index"
+                )
+                collection.create_index(
+                    [
+                        (DailyReportFieldName.DATE, ASCENDING),
+                        (DailyReportFieldName.TYPE_LAYER, ASCENDING)
+                    ],
+                    name="daily_report_by_date_typelayer_index"
                 )
             self.close_connection()
         except Exception as e:
@@ -94,28 +195,25 @@ class MongoDatabase(Database):
         else:
             return True
 
-    def rollback(self) -> bool:
+    def drop(self) -> bool:
         try:
             self.open_connection()
-            borde_collection: Collection = self.__connection[TableNameDatabase.BORDE]
+            borde_collection: Collection = self.__connection[TableName.BORDE]
             borde_collection.delete_many({})
             borde_collection.drop()
-            bras_collection: Collection = self.__connection[TableNameDatabase.BRAS]
+            bras_collection: Collection = self.__connection[TableName.BRAS]
             bras_collection.delete_many({})
             bras_collection.drop()
-            caching_collection: Collection = self.__connection[TableNameDatabase.CACHING]
+            caching_collection: Collection = self.__connection[TableName.CACHING]
             caching_collection.delete_many({})
             caching_collection.drop()
-            rai_collection: Collection = self.__connection[TableNameDatabase.RAI]
+            rai_collection: Collection = self.__connection[TableName.RAI]
             rai_collection.delete_many({})
             rai_collection.drop()
-            traffic_history_collection: Collection = self.__connection[TableNameDatabase.TRAFFIC_HISTORY]
-            traffic_history_collection.delete_many({})
-            traffic_history_collection.drop()
-            ip_history_collection: Collection = self.__connection[TableNameDatabase.IP_HISTORY]
+            ip_history_collection: Collection = self.__connection[TableName.IP_BRAS_HISTORY]
             ip_history_collection.delete_many({})
             ip_history_collection.drop()
-            daily_report_collection: Collection = self.__connection[TableNameDatabase.DAILY_REPORT]
+            daily_report_collection: Collection = self.__connection[TableName.DAILY_REPORT]
             daily_report_collection.delete_many({})
             daily_report_collection.drop()
             self.close_connection()

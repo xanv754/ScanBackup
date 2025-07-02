@@ -1,19 +1,22 @@
 import os
+import shutil
 import random
 import traceback
-import psycopg2
+from typing import List
 from abc import ABC, abstractmethod
 from datetime import datetime, timedelta
 from dotenv import dotenv_values
-from pydantic import BaseModel
 from pymongo import MongoClient
 from database import (
-    BordeFieldDatabase, BrasFieldDatabase, CachingFieldDatabase, RaiFieldDatabase,
-    TrafficHistoryFieldDatabase, IPHistoryFieldDatabase, DailyReportFieldDatabase,
-    TableNameDatabase
+    BORDE_SCHEMA_MONGO, BRAS_SCHEMA_MONGO,
+    CACHING_SCHEMA_MONGO, RAI_SCHEMA_MONGO,
+    IP_HISTORY_SCHEMA_MONGO, DAILY_REPORT_SCHEMA_MONGO
 )
-from model import BordeModel, BrasModel, CachingModel, RaiModel, TrafficHistoryModel, DailyReportModel
-from constants.group import ModelBordeType, BrasType, LayerType
+from model import BBIPModel, IPBrasModel, DailyReportModel
+from constants import (
+    LayerName, TableName, 
+    BBIPFieldName, IPBrasHistoryFieldName, DailyReportFieldName, 
+)
 
 
 class FileDataTest(ABC):
@@ -29,16 +32,11 @@ class FileDataTest(ABC):
         """Delete the example file."""
         if os.path.isfile(self.filepath):
             os.remove(self.filepath)
-            if os.path.isdir(self.folder):
-                os.rmdir(self.folder)
 
     @classmethod
     def delete_father_folder(cls) -> None:
         """Delete the father folder."""
-        if os.path.isdir(f"{os.path.abspath(__file__).split('/test')[0]}/test/data/SCAN"):
-            os.rmdir(f"{os.path.abspath(__file__).split('/test')[0]}/test/data/SCAN")
-        if os.path.isdir(f"{os.path.abspath(__file__).split('/test')[0]}/test/data"):
-            os.rmdir(f"{os.path.abspath(__file__).split('/test')[0]}/test/data")
+        shutil.rmtree(f"{os.path.abspath(__file__).split('/test')[0]}/test/data")
 
 
 class FileDataSCANTest(FileDataTest):
@@ -46,8 +44,7 @@ class FileDataSCANTest(FileDataTest):
     def create_file(self) -> None:
         """Create a file with example data."""
         try:
-            date = datetime.now() - timedelta(days=1)
-            date = date.strftime("%Y-%m-%d")
+            date = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
             with open(self.filepath, "w") as file:
                 file.write("Fecha Hora InPro OutPro InMax OutMax\n")
                 file.write(f"{date} 17:35:00 11617614 2296806 11890501 2323927\n")
@@ -56,6 +53,7 @@ class FileDataSCANTest(FileDataTest):
         except Exception as e:
             traceback.print_exc(e)
             exit(1)
+
 
 class FileBordeDataTest(FileDataSCANTest):
     def __init__(self, filename: str):
@@ -97,8 +95,7 @@ class FileDailyReportTest(FileDataTest):
     def create_file(self) -> None:
         """Create a file with example data."""
         try:
-            date = datetime.now() - timedelta(days=1)
-            date = date.strftime("%Y-%m-%d")
+            date = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
             with open(self.filepath, "w") as file:
                 file.write("Interfaz Tipo Fecha Capacidad In Out In-Max Out-Max Uso-%\n")
                 file.write(f"Interfaz-1 HUAWEI {date} 10 11617614 2296806 11890501 2323927 98\n")
@@ -109,913 +106,436 @@ class FileDailyReportTest(FileDataTest):
             exit(1)
 
 
-class Database(ABC):
+class DatabaseBBIPTest(ABC):
     uri: str
     name_db: str
     table: str
-    db_backup: bool
 
-    def __init__(self, table: str, db_backup: bool = False):
+    def __init__(self, table: str):
         try:
             if os.path.exists(".env.test"): env = dotenv_values(".env.test")
             else: raise FileNotFoundError("No file `env.test` with environment variables found")
-            if db_backup:
-                uri_postgres = env.get("URI_POSTGRES")
-                if uri_postgres: self.uri = uri_postgres
-                else: raise Exception("Failed to obtain configuration. URI PostgreSQL variable not found in enviroment file")
-            else:
-                uri_mongo = env.get("URI_MONGO")
-                if uri_mongo: self.uri = uri_mongo
-                else: raise Exception("Failed to obtain configuration. URI MongoDB variable not found in enviroment file")
+            uri_mongo = env.get("URI_MONGO")
+            if uri_mongo: self.uri = uri_mongo
+            else: raise Exception("Failed to obtain configuration. URI MongoDB variable not found in enviroment file")
             name_db = self.uri.split("/")[-1]
             self.name_db = name_db
-            self.db_backup = db_backup
+            self.__start_db()
             self.table = table
         except Exception as e:
             traceback.print_exc(e)
             exit(1)
-        else:
-            self.create_table()
 
-    def clean(self, border: bool = False) -> None:
+    def __check_collection(self, name: str, client: MongoClient) -> bool:
+        """Check if the collection exists."""
+        collection_list = client.list_collection_names()
+        return name in collection_list
+    
+    def __start_db(self) -> None:
+        """Start the database."""
+        try:
+            client = MongoClient(self.uri)
+            database = client[self.name_db]
+            if not self.__check_collection(TableName.BORDE, database):
+                database.create_collection(
+                    TableName.BORDE,
+                    validator=BORDE_SCHEMA_MONGO
+                )
+            if not self.__check_collection(TableName.BRAS, database):
+                database.create_collection(
+                    TableName.BRAS,
+                    validator=BRAS_SCHEMA_MONGO
+                )
+            if not self.__check_collection(TableName.CACHING, database):
+                database.create_collection(
+                    TableName.CACHING,
+                    validator=CACHING_SCHEMA_MONGO
+                )
+            if not self.__check_collection(TableName.RAI, database):
+                database.create_collection(
+                    TableName.RAI,
+                    validator=RAI_SCHEMA_MONGO
+                )
+            if not self.__check_collection(TableName.IP_BRAS_HISTORY, database):
+                database.create_collection(
+                    TableName.IP_BRAS_HISTORY,
+                    validator=IP_HISTORY_SCHEMA_MONGO
+                )
+            client.close()
+        except Exception as e:
+            traceback.print_exc(e)
+            exit(1)
+
+    def clean(self) -> None:
         """Clean all registers in the database."""
         try:
-            if self.db_backup:
-                database = psycopg2.connect(self.uri)
-                cursor = database.cursor()
-                cursor.execute(f"DELETE FROM {self.table}")
-                if border: cursor.execute(f"DELETE FROM {LayerType.BORDE}")
-                database.commit()
-                database.close()
-            else:
-                client = MongoClient(self.uri)
-                database = client[self.name_db]
-                collection = database[self.table]
-                collection.delete_many({})
-                if border: 
-                    collection = database[LayerType.BORDE]
-                    collection.delete_many({})
-                client.close()
+            client = MongoClient(self.uri)
+            database = client[self.name_db]
+            collection = database[self.table]
+            collection.delete_many({})
+            client.close()
         except Exception as e:
             traceback.print_exc(e)
             exit(1)
 
     @abstractmethod
-    def get_exampĺe(self) -> BaseModel | None:
+    def get_exampĺe(self) -> BBIPModel:
         """Get an example of data."""
         pass
 
-    @abstractmethod
-    def transform_model(self, data: list[dict | tuple]) -> list[BaseModel]:
+    def transform_model(self, data: list[dict]) -> List[BBIPModel]:
         """Transform data to model."""
-        pass
+        new_data: List[BBIPModel] = []
+        for json in data:
+            new_data.append(
+                BBIPModel(
+                    name=json[BBIPFieldName.NAME],
+                    type=json[BBIPFieldName.TYPE],
+                    capacity=json[BBIPFieldName.CAPACITY],
+                    date=json[BBIPFieldName.DATE],
+                    time=json[BBIPFieldName.TIME],
+                    inValue=json[BBIPFieldName.IN_VALUE],
+                    inMax=json[BBIPFieldName.IN_MAX],
+                    outValue=json[BBIPFieldName.OUT_VALUE],
+                    outMax=json[BBIPFieldName.OUT_MAX]
+                )
+            )
+        return new_data
 
-    @abstractmethod
-    def create_table(self):
+    def insert(self, data: BBIPModel) -> BBIPModel:
         """Insert a new register in the database."""
-        pass
+        try:
+            client = MongoClient(self.uri)
+            database = client[self.name_db]
+            collection = database[self.table]
+            collection.insert_one(data.model_dump())
+            client.close()
+        except Exception as e:
+            traceback.print_exc(e)
+            exit(1)
+        else:
+            return data
 
-    @abstractmethod
-    def insert(self, data: BaseModel, id: str | None = None) -> None:
-        """Insert a new register in the database."""
-        pass
-
-    @abstractmethod
-    def get(self, id: int) -> list:
+    def get(self, interface: str) -> list:
         """Get one registers from the database."""
-        pass
+        try:
+            client = MongoClient(self.uri)
+            database = client[self.name_db]
+            collection = database[self.table]
+            result = collection.find_one({ BBIPFieldName.NAME: interface })
+            client.close()
+            return self.transform_model([result])[0]
+        except Exception as e:
+            traceback.print_exc(e)
+            return []
 
-    def get_all(self) -> list[BaseModel]:
+    def get_all(self) -> list[BBIPModel]:
         """Get all registers from the database."""
         try:
-            if self.db_backup:
-                database = psycopg2.connect(self.uri)
-                cursor = database.cursor()
-                cursor.execute(f"""
-                    SELECT * 
-                    FROM {self.table}
-                """)
-                result = cursor.fetchall()
-                result = self.transform_model(result)
-                database.close()
-            else:
-                client = MongoClient(self.uri)
-                database = client[self.name_db]
-                collection = database[self.table]
-                result = collection.find()
-                result = self.transform_model(result)
-                client.close()
+            client = MongoClient(self.uri)
+            database = client[self.name_db]
+            collection = database[self.table]
+            result = collection.find()
+            result = self.transform_model(result)
+            client.close()
             return result
         except Exception as e:
             traceback.print_exc(e)
             return []
 
 
-class DatabaseBorderTest(Database):
-    def __init__(self, db_backup: bool = False):
-        super().__init__(LayerType.BORDE, db_backup)
+class DatabaseBorderTest(DatabaseBBIPTest):
+    def __init__(self):
+        super().__init__(table=TableName.BORDE)
 
-    def get_exampĺe(self) -> BordeModel | None:
-        return BordeModel(
-            id=str(random.randint(1, 100)),
+    def get_exampĺe(self) -> BBIPModel:
+        return BBIPModel(
             name=f"Interface_Test_{random.randint(1, 100)}",
-            model=random.choice([ModelBordeType.CISCO, ModelBordeType.HUAWEI]),
+            type=random.choice(["CISCO", "HUAWEI"]),
             capacity=random.randint(1, 100),
-            createAt=datetime.now().strftime("%Y-%m-%d")
-        )
-
-    def transform_model(self, data: list[dict | tuple]) -> list[BordeModel]:
-        data_model = []
-        for value in data:
-            if isinstance(value, dict):
-                data_model.append(
-                    BordeModel(id=str(value["_id"]), name=value["name"], model=value["model"], capacity=value["capacity"], createAt=value["createAt"])
-                )
-            elif isinstance(value, tuple):
-                data_model.append(
-                    BordeModel(id=str(value[0]), name=value[1], model=value[2], capacity=value[3], createAt=value[4].strftime("%Y-%m-%d"))
-                )
-        return data_model
-
-    def create_table(self) -> None:
-        try:
-            if self.db_backup:
-                database = psycopg2.connect(self.uri)
-                cursor = database.cursor()
-                cursor.execute(f"""
-                    CREATE TABLE IF NOT EXISTS {self.table} (
-                        {BordeFieldDatabase.ID} VARCHAR(100) NULL,
-                        {BordeFieldDatabase.NAME} VARCHAR(100) NOT NULL,
-                        {BordeFieldDatabase.MODEL} VARCHAR(15) NOT NULL,
-                        {BordeFieldDatabase.CAPACITY} SMALLINT NOT NULL,
-                        {BordeFieldDatabase.CREATE_AT} DATE DEFAULT CURRENT_DATE,
-                        CONSTRAINT {self.table}_pkey PRIMARY KEY ({BordeFieldDatabase.NAME})
-                    )"""
-                )
-                database.commit()
-                database.close()
-        except Exception as e:
-            traceback.print_exc(e)
-            exit(1)
-
-    def insert(self, data: BordeModel | None = None, id: str | None = None) -> BordeModel:
-        try:
-            if data is None: data = self.get_exampĺe()
-            if id: data.id = id
-            if self.db_backup:
-                database = psycopg2.connect(self.uri)
-                cursor = database.cursor()
-                cursor.execute(f"""
-                    INSERT INTO {self.table} (
-                        {BordeFieldDatabase.ID},
-                        {BordeFieldDatabase.NAME},
-                        {BordeFieldDatabase.MODEL},
-                        {BordeFieldDatabase.CAPACITY}
-                    ) VALUES ( %s, %s, %s, %s )
-                """, (data.id, data.name, data.model, data.capacity))
-                database.commit()
-                database.close()
-            else:
-                client = MongoClient(self.uri)
-                database = client[self.name_db]
-                collection = database[self.table]
-                data = data.model_dump()
-                if id: 
-                    data.pop("id")
-                    data["_id"] = id
-                collection.insert_one(data)
-                client.close()
-        except Exception as e:
-            traceback.print_exc(e)
-            exit(1)
-        else:
-            return data
-
-    def get(self, id: int) -> BordeModel | None:
-        try:
-            if self.db_backup:
-                database = psycopg2.connect(self.uri)
-                cursor = database.cursor()
-                cursor.execute(f"""
-                    SELECT * 
-                    FROM {self.table} 
-                    WHERE {BordeFieldDatabase.ID} = %s""", (id,)
-                )
-                result = cursor.fetchone()
-                database.close()
-            else:
-                client = MongoClient(self.uri)
-                database = client[self.name_db]
-                collection = database[self.table]
-                result = collection.find_one({BordeFieldDatabase.ID: id})
-                client.close()
-            return self.transform_model(result)[0]
-        except Exception as e:
-            traceback.print_exc(e)
-            return []
-        
-    def get_all(self) -> list[BordeModel]:
-        return super().get_all()
-
-
-class DatabaseBrasTest(Database):
-    def __init__(self, db_backup: bool = False):
-        super().__init__(LayerType.BRAS, db_backup)
-
-    def get_exampĺe(self) -> BrasModel | None:
-        return BrasModel(
-            id=str(random.randint(1, 100)),
-            name=f"Interface_Test_{random.randint(1, 100)}",
-            type=random.choice([BrasType.UPLINK, BrasType.DOWNLINK]),
-            capacity=random.randint(1, 100),
-            createAt=datetime.now().strftime("%Y-%m-%d")
-        )
-
-    def transform_model(self, data: list[dict | tuple]) -> BrasModel | None:
-        data_model = []
-        for value in data:
-            if isinstance(value, dict):
-                data_model.append(
-                    BrasModel(id=str(value["_id"]), name=value["name"], type=value["type"], capacity=value["capacity"], createAt=value["createAt"])
-                )
-            elif isinstance(value, tuple):
-                data_model.append(
-                    BrasModel(id=str(data[0]), name=data[1], type=data[2], capacity=data[3], createAt=data[4].strftime("%Y-%m-%d"))
-                )
-        return data_model
-
-    def create_table(self) -> None:
-        try:
-            if self.db_backup:
-                database = psycopg2.connect(self.uri)
-                cursor = database.cursor()
-                cursor.execute(f"""
-                    CREATE TABLE IF NOT EXISTS {self.table} (
-                        {BrasFieldDatabase.ID} VARCHAR(100) NULL,
-                        {BrasFieldDatabase.NAME} VARCHAR(100) NOT NULL,
-                        {BrasFieldDatabase.TYPE} VARCHAR(15) NOT NULL,
-                        {BrasFieldDatabase.CAPACITY} SMALLINT NOT NULL,
-                        {BrasFieldDatabase.CREATE_AT} DATE DEFAULT CURRENT_DATE,
-                        CONSTRAINT {self.table}_pkey PRIMARY KEY ({BrasFieldDatabase.NAME})
-                    )"""
-                )
-                database.commit()
-                database.close()
-        except Exception as e:
-            traceback.print_exc(e)
-            exit(1)
-
-    def insert(self, data: BrasModel | None = None) -> BrasModel:
-        try:
-            if data is None: data = self.get_exampĺe()
-            if self.db_backup:
-                database = psycopg2.connect(self.uri)
-                cursor = database.cursor()
-                cursor.execute(f"""
-                    INSERT INTO {self.table} (
-                        {BrasFieldDatabase.ID},
-                        {BrasFieldDatabase.NAME},
-                        {BrasFieldDatabase.TYPE},
-                        {BrasFieldDatabase.CAPACITY}
-                    ) VALUES ( %s, %s, %s, %s )
-                """, (data.id, data.name, data.type, data.capacity))
-                database.commit()
-                database.close()
-            else:
-                client = MongoClient(self.uri)
-                database = client[self.name_db]
-                collection = database[self.table]
-                collection.insert_one(data.model_dump())
-                client.close()
-        except Exception as e:
-            traceback.print_exc(e)
-            exit(1)
-        else:
-            return data
-
-    def get(self, id: int) -> BrasModel | None:
-        try:
-            if self.db_backup:
-                database = psycopg2.connect(self.uri)
-                cursor = database.cursor()
-                cursor.execute(f"""
-                    SELECT * 
-                    FROM {self.table} 
-                    WHERE {BrasFieldDatabase.ID} = %s""", (id,)
-                )
-                result = cursor.fetchone()
-                database.close()
-            else:
-                client = MongoClient(self.uri)
-                database = client[self.name_db]
-                collection = database[self.table]
-                result = collection.find_one({BrasFieldDatabase.ID: id})
-                client.close()
-            return self.transform_model(result)[0]
-        except Exception as e:
-            traceback.print_exc(e)
-            return []
-        
-    def get_all(self) -> list[BrasModel]:
-        return super().get_all()
-
-
-class DatabaseCachingTest(Database):
-    def __init__(self, db_backup: bool = False):
-        super().__init__(LayerType.CACHING, db_backup)
-
-    def get_exampĺe(self) -> CachingModel | None:
-        return CachingModel(
-            id=str(random.randint(1, 100)),
-            name=f"Interface_Test_{random.randint(1, 100)}",
-            service="GOOGLE",
-            capacity=random.randint(1, 100),
-            createAt=datetime.now().strftime("%Y-%m-%d")
-        )
-
-    def transform_model(self, data: dict | tuple) -> CachingModel | None:
-        data_model = []
-        for value in data:
-            if isinstance(value, dict):
-                data_model.append(
-                    CachingModel(id=str(value["_id"]), name=value["name"], service=value["service"], capacity=value["capacity"], createAt=value["createAt"])
-                )
-            elif isinstance(value, tuple):
-                data_model.append(
-                    CachingModel(id=str(data[0]), name=data[1], service=data[2], capacity=data[3], createAt=data[4].strftime("%Y-%m-%d"))
-                )
-        return data_model
-
-    def create_table(self) -> None:
-        try:
-            if self.db_backup:
-                database = psycopg2.connect(self.uri)
-                cursor = database.cursor()
-                cursor.execute(f"""
-                    CREATE TABLE IF NOT EXISTS {self.table} (
-                        {CachingFieldDatabase.ID} VARCHAR(100) NULL,
-                        {CachingFieldDatabase.NAME} VARCHAR(100) NOT NULL,
-                        {CachingFieldDatabase.SERVICE} VARCHAR(20) NOT NULL,
-                        {CachingFieldDatabase.CAPACITY} SMALLINT NOT NULL,
-                        {CachingFieldDatabase.CREATE_AT} DATE DEFAULT CURRENT_DATE,
-                        CONSTRAINT {self.table}_pkey PRIMARY KEY ({CachingFieldDatabase.NAME})
-                    )"""
-                )
-                database.commit()
-                database.close()
-        except Exception as e:
-            traceback.print_exc(e)
-            exit(1)
-
-    def insert(self, data: CachingModel | None = None) -> CachingModel:
-        try:
-            if data is None: data = self.get_exampĺe()
-            if self.db_backup:
-                database = psycopg2.connect(self.uri)
-                cursor = database.cursor()
-                cursor.execute(f"""
-                    INSERT INTO {self.table} (
-                        {CachingFieldDatabase.ID},
-                        {CachingFieldDatabase.NAME},
-                        {CachingFieldDatabase.SERVICE},
-                        {CachingFieldDatabase.CAPACITY}
-                    ) VALUES ( %s, %s, %s, %s )
-                """, (data.id, data.name, data.service, data.capacity))
-                database.commit()
-                database.close()
-            else:
-                client = MongoClient(self.uri)
-                database = client[self.name_db]
-                collection = database[self.table]
-                collection.insert_one(data.model_dump())
-                client.close()
-        except Exception as e:
-            traceback.print_exc(e)
-            exit(1)
-        else:
-            return data
-
-    def get(self, id: int) -> CachingModel | None:
-        try:
-            if self.db_backup:
-                database = psycopg2.connect(self.uri)
-                cursor = database.cursor()
-                cursor.execute(f"""
-                    SELECT * 
-                    FROM {self.table} 
-                    WHERE {CachingFieldDatabase.ID} = %s""", (id,)
-                )
-                result = cursor.fetchone()
-                database.close()
-            else:
-                client = MongoClient(self.uri)
-                database = client[self.name_db]
-                collection = database[self.table]
-                result = collection.find_one({CachingFieldDatabase.ID: id})
-                client.close()
-            return self.transform_model(result)[0]
-        except Exception as e:
-            traceback.print_exc(e)
-            return []
-    
-    def get_all(self) -> list[CachingModel]:
-        return super().get_all()
-        
-
-class DatabaseRaiTest(Database):
-    def __init__(self, db_backup: bool = False):
-        super().__init__(LayerType.RAI, db_backup)
-
-    def get_exampĺe(self) -> RaiModel | None:
-        return RaiModel(
-            id=str(random.randint(1, 100)),
-            name=f"Interface_Test_{random.randint(1, 100)}",
-            capacity=random.randint(1, 100),
-            createAt=datetime.now().strftime("%Y-%m-%d")
-        )
-
-    def transform_model(self, data: dict | tuple) -> RaiModel | None:
-        data_model = []
-        for value in data:
-            if isinstance(value, dict):
-                data_model.append(
-                    RaiModel(id=str(value["_id"]), name=value["name"], capacity=value["capacity"], createAt=value["createAt"])
-                )
-            elif isinstance(value, tuple):
-                data_model.append(
-                    RaiModel(id=str(data[0]), name=data[1], capacity=data[2], createAt=data[3].strftime("%Y-%m-%d"))
-                )
-        return data_model
-
-    def create_table(self) -> None:
-        try:
-            if self.db_backup:
-                database = psycopg2.connect(self.uri)
-                cursor = database.cursor()
-                cursor.execute(f"""
-                    CREATE TABLE IF NOT EXISTS {self.table} (
-                        {RaiFieldDatabase.ID} VARCHAR(100) NULL,
-                        {RaiFieldDatabase.NAME} VARCHAR(150) NOT NULL,
-                        {RaiFieldDatabase.CAPACITY} REAL NOT NULL,
-                        {RaiFieldDatabase.CREATE_AT} DATE DEFAULT CURRENT_DATE,
-                        CONSTRAINT {self.table}_pkey PRIMARY KEY ({RaiFieldDatabase.NAME})
-                    )"""
-                )
-                database.commit()
-                database.close()
-        except Exception as e:
-            traceback.print_exc(e)
-            exit(1)
-
-    def insert(self, data: RaiModel | None = None) -> RaiModel:
-        try:
-            if data is None: data = self.get_exampĺe()
-            if self.db_backup:
-                database = psycopg2.connect(self.uri)
-                cursor = database.cursor()
-                cursor.execute(f"""
-                    INSERT INTO {self.table} (
-                        {RaiFieldDatabase.ID},
-                        {RaiFieldDatabase.NAME},
-                        {RaiFieldDatabase.CAPACITY}
-                    ) VALUES ( %s, %s, %s )
-                """, (data.id, data.name, data.capacity))
-                database.commit()
-                database.close()
-            else:
-                client = MongoClient(self.uri)
-                database = client[self.name_db]
-                collection = database[self.table]
-                collection.insert_one(data.model_dump())
-                client.close()
-        except Exception as e:
-            traceback.print_exc(e)
-            exit(1)
-        else:
-            return data
-
-    def get(self, id: int) -> RaiModel | None:
-        try:
-            if self.db_backup:
-                database = psycopg2.connect(self.uri)
-                cursor = database.cursor()
-                cursor.execute(f"""
-                    SELECT * 
-                    FROM {self.table} 
-                    WHERE {RaiFieldDatabase.ID} = %s""", (id,)
-                )
-                result = cursor.fetchone()
-                database.close()
-            else:
-                client = MongoClient(self.uri)
-                database = client[self.name_db]
-                collection = database[self.table]
-                result = collection.find_one({RaiFieldDatabase.ID: id})
-                client.close()
-            return self.transform_model(result)[0]
-        except Exception as e:
-            traceback.print_exc(e)
-            return []
-    
-    def get_all(self) -> list[RaiModel]:
-        return super().get_all()
-        
-
-class DatabaseTrafficTest(Database):
-    def __init__(self, db_backup: bool = False):
-        super().__init__(LayerType.TRAFFIC_HISTORY, db_backup)
-
-    def get_exampĺe(self) -> TrafficHistoryModel | None:
-        return TrafficHistoryModel(
             date=(datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d"),
-            time=(datetime.now() - timedelta(days=1)).strftime("%H:%M:%S"),
-            idLayer=str(random.randint(0, 1000)),
-            typeLayer=LayerType.BORDE,
-            inProm=random.randint(1, 100),
-            outProm=random.randint(1, 100),
+            time=datetime.now().strftime("%H:%M:%S"),
+            inValue=random.randint(1, 100),
             inMax=random.randint(1, 100),
+            outValue=random.randint(1, 100),
             outMax=random.randint(1, 100)
         )
 
-    def transform_model(self, data: dict | tuple) -> TrafficHistoryModel | None:
-        data_model = []
-        for value in data:
-            if isinstance(value, dict):
-                data_model.append(
-                    TrafficHistoryModel(
-                        date=value["date"],
-                        time=value["time"],
-                        idLayer=str(value["idLayer"]),
-                        typeLayer=value["typeLayer"],
-                        inProm=value["inProm"],
-                        outProm=value["outProm"],
-                        inMax=value["inMax"],
-                        outMax=value["outMax"]
-                    )
-                )
-            elif isinstance(value, tuple):
-                data_model.append(
-                    TrafficHistoryModel(
-                        date=value[0].strftime("%Y-%m-%d"),
-                        time=value[1].strftime("%H:%M:%S"),
-                        idLayer=str(value[2]),
-                        typeLayer=value[3],
-                        inProm=value[4],
-                        outProm=value[5],
-                        inMax=value[6],
-                        outMax=value[7]
-                    )
-                )
-        return data_model
+    def insert(self, data: BBIPModel | None = None) -> BBIPModel:
+        if data is None: data = self.get_exampĺe()
+        return super().insert(data=data)
 
-    def create_table(self) -> None:
-        try:
-            if self.db_backup:
-                database = psycopg2.connect(self.uri)
-                cursor = database.cursor()
-                cursor.execute(f"""
-                    CREATE TABLE IF NOT EXISTS {TableNameDatabase.TRAFFIC_HISTORY} (
-                        {TrafficHistoryFieldDatabase.DATE} DATE NOT NULL,
-                        {TrafficHistoryFieldDatabase.TIME} TIME NOT NULL,
-                        {TrafficHistoryFieldDatabase.ID_LAYER} VARCHAR(100) NOT NULL,
-                        {TrafficHistoryFieldDatabase.TYPE_LAYER} VARCHAR(15) NOT NULL,
-                        {TrafficHistoryFieldDatabase.IN_PROM} REAL NOT NULL,
-                        {TrafficHistoryFieldDatabase.OUT_PROM} REAL NOT NULL,
-                        {TrafficHistoryFieldDatabase.IN_MAX} REAL NOT NULL,
-                        {TrafficHistoryFieldDatabase.OUT_MAX} REAL NOT NULL,
-                        CONSTRAINT {TableNameDatabase.TRAFFIC_HISTORY}_pkey PRIMARY KEY (
-                            {TrafficHistoryFieldDatabase.DATE}, 
-                            {TrafficHistoryFieldDatabase.TIME}, 
-                            {TrafficHistoryFieldDatabase.ID_LAYER},
-                            {TrafficHistoryFieldDatabase.TYPE_LAYER}
-                        )
-                    )"""
-                )
-                database.commit()
-                database.close()
-        except Exception as e:
-            traceback.print_exc(e)
-            exit(1)
-
-    def insert(self, data: TrafficHistoryModel | None = None) -> TrafficHistoryModel:
-        try:
-            if data is None: data = self.get_exampĺe()
-            query_borde = DatabaseBorderTest(db_backup=self.db_backup)
-            if self.db_backup:
-                interface_borde = query_borde.insert()
-                data.idLayer = str(interface_borde.id)
-                database = psycopg2.connect(self.uri)
-                cursor = database.cursor()
-                cursor.execute(f"""
-                    INSERT INTO {self.table} (
-                        {TrafficHistoryFieldDatabase.DATE},
-                        {TrafficHistoryFieldDatabase.TIME},
-                        {TrafficHistoryFieldDatabase.ID_LAYER},
-                        {TrafficHistoryFieldDatabase.TYPE_LAYER},
-                        {TrafficHistoryFieldDatabase.IN_PROM},
-                        {TrafficHistoryFieldDatabase.OUT_PROM},
-                        {TrafficHistoryFieldDatabase.IN_MAX},
-                        {TrafficHistoryFieldDatabase.OUT_MAX}
-                    ) VALUES ( %s, %s, %s, %s, %s, %s, %s, %s )
-                """, (data.date, data.time, data.idLayer, data.typeLayer, data.inProm, data.outProm, data.inMax, data.outMax))
-                database.commit()
-                database.close()
-            else:
-                client = MongoClient(self.uri)
-                database = client[self.name_db]
-                collection = database[self.table]
-                collection.insert_one(data.model_dump())
-                query_borde.insert(id=data.idLayer)
-                client.close()
-        except Exception as e:
-            traceback.print_exc(e)
-            exit(1)
-        else:
-            return data
-
-    def get(self, date: str, idLayer: str, typeLayer: str) -> TrafficHistoryModel | None:
-        try:
-            if self.db_backup:
-                database = psycopg2.connect(self.uri)
-                cursor = database.cursor()
-                cursor.execute(f"""
-                    SELECT * 
-                    FROM {self.table} 
-                    WHERE {TrafficHistoryFieldDatabase.DATE} = %s AND
-                    {TrafficHistoryFieldDatabase.ID_LAYER} = %s AND
-                    {TrafficHistoryFieldDatabase.TYPE_LAYER} = %s
-                """, (date, idLayer, typeLayer))
-                result = cursor.fetchone()
-                database.close()
-            else:
-                client = MongoClient(self.uri)
-                database = client[self.name_db]
-                collection = database[self.table]
-                result = collection.find_one({
-                    TrafficHistoryFieldDatabase.DATE: date,
-                    TrafficHistoryFieldDatabase.ID_LAYER: idLayer,
-                    TrafficHistoryFieldDatabase.TYPE_LAYER: typeLayer
-                })
-                client.close()
-            return self.transform_model(result)[0]
-        except Exception as e:
-            traceback.print_exc(e)
-            return []
+    def get(self, interface: str) -> BBIPModel | None:
+        return super().get(interface=interface)
         
-    def get_all(self) -> list[TrafficHistoryModel]:
+    def get_all(self) -> list[BBIPModel]:
+        return super().get_all()
+
+
+class DatabaseBrasTest(DatabaseBBIPTest):
+    def __init__(self):
+        super().__init__(table=TableName.BRAS)
+
+    def get_exampĺe(self) -> BBIPModel | None:
+        return BBIPModel(
+            name=f"Interface_Test_{random.randint(1, 100)}",
+            type=random.choice(["UPLINK", "DOWNLINK"]),
+            capacity=random.randint(1, 100),
+            date=(datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d"),
+            time=datetime.now().strftime("%H:%M:%S"),
+            inValue=random.randint(1, 100),
+            inMax=random.randint(1, 100),
+            outValue=random.randint(1, 100),
+            outMax=random.randint(1, 100)
+        )
+
+    def insert(self, data: BBIPModel | None = None) -> BBIPModel:
+        if data is None: data = self.get_exampĺe()
+        return super().insert(data=data)
+
+    def get(self, interface: str) -> BBIPModel | None:
+        return super().get(interface=interface)
+        
+    def get_all(self) -> list[BBIPModel]:
+        return super().get_all()
+
+
+class DatabaseCachingTest(DatabaseBBIPTest):
+    def __init__(self):
+        super().__init__(table=TableName.CACHING)
+
+    def get_exampĺe(self) -> BBIPModel | None:
+        return BBIPModel(
+            name=f"Interface_Test_{random.randint(1, 100)}",
+            type=random.choice(["GOOGLE", "FACEBOOK", "AKAMAI", "ABATVGO"]),
+            capacity=random.randint(1, 100),
+            date=(datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d"),
+            time=datetime.now().strftime("%H:%M:%S"),
+            inValue=random.randint(1, 100),
+            inMax=random.randint(1, 100),
+            outValue=random.randint(1, 100),
+            outMax=random.randint(1, 100)
+        )
+
+    def insert(self, data: BBIPModel | None = None) -> BBIPModel:
+        if data is None: data = self.get_exampĺe()
+        return super().insert(data=data)
+
+    def get(self, interface: str) -> BBIPModel | None:
+        return super().get(interface=interface)
+        
+    def get_all(self) -> list[BBIPModel]:
         return super().get_all()
         
 
-class DatabaseDailyTest(Database):
-    def __init__(self, db_backup: bool = False):
-        super().__init__(LayerType.DAILY_REPORT, db_backup=db_backup)
+class DatabaseRaiTest(DatabaseBBIPTest):
+    def __init__(self):
+        super().__init__(table=TableName.RAI)
 
-    def get_exampĺe(self) -> DailyReportModel | None:
+    def get_exampĺe(self) -> BBIPModel | None:
+        return BBIPModel(
+            name=f"Interface_Test_{random.randint(1, 100)}",
+            type="DEDICADO",
+            capacity=random.randint(1, 100),
+            date=(datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d"),
+            time=datetime.now().strftime("%H:%M:%S"),
+            inValue=random.randint(1, 100),
+            inMax=random.randint(1, 100),
+            outValue=random.randint(1, 100),
+            outMax=random.randint(1, 100)
+        )
+
+    def insert(self, data: BBIPModel | None = None) -> BBIPModel:
+        if data is None: data = self.get_exampĺe()
+        return super().insert(data=data)
+
+    def get(self, interface: str) -> BBIPModel | None:
+        return super().get(interface=interface)
+        
+    def get_all(self) -> list[BBIPModel]:
+        return super().get_all()
+
+
+class DatabaseDailyTest():
+    uri: str
+    name_db: str
+    table: str
+
+    def __init__(self):
+        try:
+            if os.path.exists(".env.test"): env = dotenv_values(".env.test")
+            else: raise FileNotFoundError("No file `env.test` with environment variables found")
+            uri_mongo = env.get("URI_MONGO")
+            if uri_mongo: self.uri = uri_mongo
+            else: raise Exception("Failed to obtain configuration. URI MongoDB variable not found in enviroment file")
+            name_db = self.uri.split("/")[-1]
+            self.name_db = name_db
+            self.__start_db()
+            self.table = TableName.DAILY_REPORT
+        except Exception as e:
+            traceback.print_exc(e)
+            exit(1)
+
+    def __check_collection(self, name: str, client: MongoClient) -> bool:
+        """Check if the collection exists."""
+        collection_list = client.list_collection_names()
+        return name in collection_list
+    
+    def __start_db(self) -> None:
+        """Start the database."""
+        try:
+            client = MongoClient(self.uri)
+            database = client[self.name_db]
+            if not self.__check_collection(TableName.DAILY_REPORT, database):
+                database.create_collection(
+                    TableName.DAILY_REPORT,
+                    validator=DAILY_REPORT_SCHEMA_MONGO
+                )
+            client.close()
+        except Exception as e:
+            traceback.print_exc(e)
+            exit(1)
+
+    def clean(self) -> None:
+        """Clean all registers in the daily report collection."""
+        try:
+            client = MongoClient(self.uri)
+            database = client[self.name_db]
+            collection = database[TableName.DAILY_REPORT]
+            collection.delete_many({})
+            client.close()
+        except Exception as e:
+            traceback.print_exc(e)
+            exit(1)
+
+    def get_exampĺe(self, borde: bool = True, bras: bool = False, caching: bool = False, rai: bool = False) -> DailyReportModel:
+        """Get an example of data."""
+        if borde:
+            typeLayer = LayerName.BORDE
+            type = random.choice(["CISCO", "HUAWEI"])
+        elif bras:
+            typeLayer = LayerName.BRAS
+            type = random.choice(["UPLINK", "DOWNLINK"])
+        elif caching:
+            typeLayer = LayerName.CACHING
+            type = random.choice(["GOOGLE", "FACEBOOK", "AKAMAI", "ABATVGO"])
+        elif rai:
+            typeLayer = LayerName.RAI
+            type = "DEDICADO"
         return DailyReportModel(
+            name=f"Interface_Test_{random.randint(1, 100)}",
+            type=type,
+            capacity=random.randint(1, 100),
             date=(datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d"),
-            idLayer=str(random.randint(1, 100)),
-            typeLayer=LayerType.BORDE,
+            typeLayer=typeLayer,
             inProm=random.randint(1, 100),
             outProm=random.randint(1, 100),
-            inMax=random.randint(1, 100),
-            outMax=random.randint(1, 100)
+            inMaxProm=random.randint(1, 100),
+            outMaxProm=random.randint(1, 100),
+            use=random.randint(1, 100)
         )
 
-    def transform_model(self, data: dict | tuple) -> DailyReportModel | None:
-        data_model = []
-        for value in data:
-            if isinstance(value, dict):
-                data_model.append(
-                    DailyReportModel(
-                        date=value["date"],
-                        idLayer=str(value["idLayer"]),
-                        typeLayer=value["typeLayer"],
-                        inProm=value["inProm"],
-                        outProm=value["outProm"],
-                        inMax=value["inMax"],
-                        outMax=value["outMax"]
-                    )
+    def transform_model(self, data: list[dict]) -> List[DailyReportModel]:
+        """Transform data to model."""
+        new_data: List[DailyReportModel] = []
+        for json in data:
+            new_data.append(
+                DailyReportModel(
+                    name=json[DailyReportFieldName.NAME],
+                    type=json[DailyReportFieldName.TYPE],
+                    capacity=json[DailyReportFieldName.CAPACITY],
+                    date=json[DailyReportFieldName.DATE],
+                    typeLayer=json[DailyReportFieldName.TYPE_LAYER],
+                    inProm=json[DailyReportFieldName.IN_PROM],
+                    inMaxProm=json[DailyReportFieldName.IN_MAX],
+                    outProm=json[DailyReportFieldName.OUT_PROM],
+                    outMaxProm=json[DailyReportFieldName.OUT_MAX],
+                    use=json[DailyReportFieldName.USE]
                 )
-            elif isinstance(value, tuple):
-                data_model.append(
-                    DailyReportModel(
-                        date=value[0].strftime("%Y-%m-%d"),
-                        idLayer=str(value[1]),
-                        typeLayer=value[2],
-                        inProm=value[3],
-                        outProm=value[4],
-                        inMax=value[5],
-                        outMax=value[6]
-                    )
-                )
-        return data_model
+            )
+        return new_data
 
-    def create_table(self) -> None:
+    def insert(self, data: DailyReportModel | None = None, borde: bool = False, bras: bool = False, caching: bool = False, rai: bool = False) -> DailyReportModel:
+        """Insert a new register in the database."""
         try:
-            if self.db_backup:
-                database = psycopg2.connect(self.uri)
-                cursor = database.cursor()
-                cursor.execute(f"""
-                    CREATE TABLE IF NOT EXISTS {TableNameDatabase.DAILY_REPORT} (
-                        {DailyReportFieldDatabase.DATE} DATE NOT NULL,
-                        {DailyReportFieldDatabase.ID_LAYER} INTEGER NOT NULL,
-                        {DailyReportFieldDatabase.TYPE_LAYER} VARCHAR(15) NOT NULL,
-                        {DailyReportFieldDatabase.IN_PROM} REAL NOT NULL,
-                        {DailyReportFieldDatabase.OUT_PROM} REAL NOT NULL,
-                        {DailyReportFieldDatabase.IN_MAX} REAL NOT NULL,
-                        {DailyReportFieldDatabase.OUT_MAX} REAL NOT NULL,
-                        CONSTRAINT {TableNameDatabase.DAILY_REPORT}_pkey PRIMARY KEY (
-                            {DailyReportFieldDatabase.DATE}, 
-                            {DailyReportFieldDatabase.ID_LAYER}
-                        )
-                    )""" 
-                )
-                database.commit()
-                database.close()
-        except Exception as e:
-            traceback.print_exc(e)
-            exit(1)
-
-    def insert(self, data: DailyReportModel | None = None) -> DailyReportModel:
-        try:
-            if data is None: data = self.get_exampĺe()
-            query_borde = DatabaseBorderTest(db_backup=self.db_backup)
-            if self.db_backup:
-                interface_borde = query_borde.insert()
-                data.idLayer = str(interface_borde.id)
-                database = psycopg2.connect(self.uri)
-                cursor = database.cursor()
-                cursor.execute(f"""
-                    INSERT INTO {self.table} (
-                        {DailyReportFieldDatabase.DATE},
-                        {DailyReportFieldDatabase.ID_LAYER},
-                        {DailyReportFieldDatabase.TYPE_LAYER},
-                        {DailyReportFieldDatabase.IN_PROM},
-                        {DailyReportFieldDatabase.OUT_PROM},
-                        {DailyReportFieldDatabase.IN_MAX},
-                        {DailyReportFieldDatabase.OUT_MAX}
-                    ) VALUES ( %s, %s, %s, %s, %s, %s, %s )
-                """, (data.date, data.idLayer, data.typeLayer, data.inProm, data.outProm, data.inMax, data.outMax))
-                database.commit()
-                database.close()
-            else:
-                client = MongoClient(self.uri)
-                database = client[self.name_db]
-                collection = database[self.table]
-                collection.insert_one(data.model_dump())
-                query_borde.insert(id=data.idLayer)
-                client.close()
+            if data is None: 
+                if not borde and not bras and not caching and not rai: borde = True
+                data = self.get_exampĺe(borde=borde, bras=bras, caching=caching, rai=rai)
+            client = MongoClient(self.uri)
+            database = client[self.name_db]
+            collection = database[self.table]
+            collection.insert_one(data.model_dump())
+            client.close()
         except Exception as e:
             traceback.print_exc(e)
             exit(1)
         else:
             return data
 
-    def get(self, date: str, idLayer: str, typeLayer: str) -> DailyReportModel | None:
+    def get(self, interface: str) -> list:
+        """Get one registers from the database."""
         try:
-            if self.db_backup:
-                database = psycopg2.connect(self.uri)
-                cursor = database.cursor()
-                cursor.execute(f"""
-                    SELECT * 
-                    FROM {self.table} 
-                    WHERE {DailyReportFieldDatabase.DATE} = %s AND
-                    {DailyReportFieldDatabase.ID_LAYER} = %s AND
-                    {DailyReportFieldDatabase.TYPE_LAYER} = %s
-                """, (date, idLayer, typeLayer))
-                result = cursor.fetchone()
-                database.close()
-            else:
-                client = MongoClient(self.uri)
-                database = client[self.name_db]
-                collection = database[self.table]
-                result = collection.find_one({
-                    DailyReportFieldDatabase.DATE: date,
-                    DailyReportFieldDatabase.ID_LAYER: idLayer,
-                    DailyReportFieldDatabase.TYPE_LAYER: typeLayer
-                })
-                client.close()
-            return self.transform_model(result)[0]
+            client = MongoClient(self.uri)
+            database = client[self.name_db]
+            collection = database[self.table]
+            result = collection.find_one({ DailyReportFieldName.NAME: interface })
+            client.close()
+            return self.transform_model([result])[0]
         except Exception as e:
             traceback.print_exc(e)
             return []
-        
+
     def get_all(self) -> list[DailyReportModel]:
-        return super().get_all()
+        """Get all registers from the database."""
+        try:
+            client = MongoClient(self.uri)
+            database = client[self.name_db]
+            collection = database[self.table]
+            result = collection.find()
+            result = self.transform_model(result)
+            client.close()
+            return result
+        except Exception as e:
+            traceback.print_exc(e)
+            return []
 
 
 if __name__ == "__main__":
-    borde_example = BordeModel(id="1", name="INTERFACE_TEST_BORDE_1", model=ModelBordeType.CISCO, capacity=10, createAt=datetime.now().strftime("%Y-%m-%d"))
-    mongo = DatabaseBorderTest()
-    mongo.create_table()
-    mongo.insert(data=borde_example)
-    response = mongo.get(id="1")
-    print(response)
-    mongo.clean()
 
-    postgres = DatabaseBorderTest(db_backup=True)
-    postgres.create_table()
-    postgres.insert(data=borde_example)
-    response = postgres.get(id="1")
-    print(response)
-    postgres.clean()
+    borde = DatabaseBorderTest()
+    example = borde.insert()
+    print(example)
+    search = borde.get(interface=example.name)
+    print(search)
+    borde.clean()
 
-    bras_example = BrasModel(id="1", name="INTERFACE_TEST_BRAS_1", type=BrasType.UPLINK, capacity=10, createAt=datetime.now().strftime("%Y-%m-%d"))
-    mongo = DatabaseBrasTest()
-    mongo.create_table()
-    mongo.insert(data=bras_example)
-    response = mongo.get(id="1")
-    print(response)
-    mongo.clean()
+    bras = DatabaseBrasTest()
+    example = bras.insert()
+    print(example)
+    search = bras.get(interface=example.name)
+    print(search)
+    bras.clean()
 
-    postgres = DatabaseBrasTest(db_backup=True)
-    postgres.create_table()
-    postgres.insert(data=bras_example)
-    response = postgres.get(id="1")
-    print(response)
-    postgres.clean()
+    caching = DatabaseCachingTest()
+    example = caching.insert()
+    print(example)
+    search = caching.get(interface=example.name)
+    print(search)
+    caching.clean()
 
-    caching_example = CachingModel(id="1", name="INTERFACE_TEST_CACHING_1", service="GOOGLE", capacity=10, createAt=datetime.now().strftime("%Y-%m-%d"))
-    mongo = DatabaseCachingTest()
-    mongo.create_table()
-    mongo.insert(data=caching_example)
-    response = mongo.get(id="1")
-    print(response)
-    mongo.clean()
-
-    postgres = DatabaseCachingTest(db_backup=True)
-    postgres.create_table()
-    postgres.insert(data=caching_example)
-    response = postgres.get(id="1")
-    print(response)
-    postgres.clean()
-
-    rai_example = RaiModel(id="1", name="INTERFACE_TEST_RAI_1", capacity=10, createAt=datetime.now().strftime("%Y-%m-%d"))
-    mongo = DatabaseRaiTest()
-    mongo.create_table()
-    mongo.insert(data=rai_example)
-    response = mongo.get(id="1")
-    print(response)
-    mongo.clean()
-
-    postgres = DatabaseRaiTest(db_backup=True)
-    postgres.create_table()
-    postgres.insert(data=rai_example)
-    response = postgres.get(id="1")
-    print(response)
-    postgres.clean()
-
-    traffic_example = TrafficHistoryModel(
-        date=datetime.now().strftime("%Y-%m-%d"),
-        time=datetime.now().strftime("%H:%M:%S"),
-        idLayer="1",
-        typeLayer="BORDE",
-        inProm=10,
-        outProm=10,
-        inMax=10,
-        outMax=10
-    )
-    mongo = DatabaseTrafficTest()
-    mongo.create_table()
-    mongo.insert(data=traffic_example)
-    response = mongo.get(date=traffic_example.date, idLayer=traffic_example.idLayer, typeLayer=traffic_example.typeLayer)
-    print(response)
-    mongo.clean()
-
-    postgres = DatabaseTrafficTest(db_backup=True)
-    postgres.create_table()
-    postgres.insert(data=traffic_example)
-    response = postgres.get(date=traffic_example.date, idLayer=traffic_example.idLayer, typeLayer=traffic_example.typeLayer)
-    print(response)
-    postgres.clean()
-
-    daily_example = DailyReportModel(
-        date=datetime.now().strftime("%Y-%m-%d"),
-        idLayer="1",
-        typeLayer="BORDE",
-        inProm=10,
-        outProm=10,
-        inMax=10,
-        outMax=10
-    )
-    mongo = DatabaseDailyTest()
-    mongo.create_table()
-    mongo.insert(data=daily_example)
-    response = mongo.get(date=daily_example.date, idLayer=daily_example.idLayer, typeLayer=daily_example.typeLayer)
-    print(response)
-    mongo.clean()
-
-    postgres = DatabaseDailyTest(db_backup=True)
-    postgres.create_table()
-    postgres.insert(data=daily_example)
-    response = postgres.get(date=daily_example.date, idLayer=daily_example.idLayer, typeLayer=daily_example.typeLayer)
-    print(response)
-    postgres.clean()
+    rai = DatabaseRaiTest()
+    example = rai.insert()
+    print(example)
+    search = rai.get(interface=example.name)
+    print(search)
+    rai.clean()
 
     data_scan = FileBordeDataTest(filename="CISCO%INTERFACE_TEST_1%10")
     data_scan.create_file()
     data_scan.delete_file()
+    data_scan.delete_father_folder()
 
     data_daily_report = FileDailyReportTest(filename="Resumen_Borde.csv")
     data_daily_report.create_file()
     data_daily_report.delete_file()
+    data_daily_report.delete_father_folder()

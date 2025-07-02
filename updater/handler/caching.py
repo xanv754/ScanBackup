@@ -1,96 +1,61 @@
 import os
-from multiprocessing import Process
-from typing import List, Tuple
-from datetime import datetime
-from constants.group import LayerType
-from constants.path import DataPath
-from database import MongoCachingQuery, PostgresCachingQuery
-from model import CachingModel, TrafficHistoryModel, CachingFieldModel
-from updater import UpdaterHandler, TrafficHistoryUpdaterHandler
+import pandas as pd
+from datetime import datetime, timedelta
+from constants import DataPath, HeaderBBIP, header_bbip, header_upload_scan_data
+from database import CachingMongoQuery
+from model import BBIPModel
+from updater.update import UpdaterHandler
 from utils.log import log
 
 
 class CachingUpdaterHandler(UpdaterHandler):
     """Caching data updater handler."""
 
-    def _load_database(self, data: List[Tuple[CachingModel, List[TrafficHistoryModel]]], db_backup: bool = False, uri: str | None = None) -> bool:
-        """Load the data obtained in the principal database."""
-        failed = False
+    def get_data(self, folderpath: str | None = None, date: str | None = None, force: bool = False) -> pd.DataFrame:
         try:
-            if db_backup: database = PostgresCachingQuery(uri=uri)
-            else: database = MongoCachingQuery(uri=uri)
-            historyHandler = TrafficHistoryUpdaterHandler()
-            for interface, traffic in data:
-                try:
-                    data_interface = database.get_interface(interface.name)
-                    if data_interface.empty:
-                        response = database.new_interface(interface)
-                        if not response:
-                            raise Exception(f"Failed to insert new interface of Caching layer: {interface.name}")
-                        else:
-                            data_interface = database.get_interface(interface.name)
-                            if data_interface.empty:
-                                raise Exception(f"Failed to get new interface of Caching layer: {interface.name}")
-                    for new_traffic in traffic:
-                        new_traffic.idLayer = str(data_interface[CachingFieldModel.id].iloc[0])
-                        new_traffic.typeLayer = LayerType.CACHING
-                    if db_backup: response = historyHandler.load_data(data=traffic, postgres=True, uri=uri)
-                    else: response = historyHandler.load_data(data=traffic, mongo=True, uri=uri)
-                    if not response:
-                        raise Exception(f"Failed to insert histories traffic of an interface of Caching layer: {interface.name}")
-                except Exception as e:
-                    log.error(f"Failed to insert new interface or histories traffic of Caching layer. {e}")
-                    continue
-        except Exception as e:
-            log.error(f"Failed to load data of Caching layer. {e}")
-            failed = True
-        return not failed
-
-    def get_data(self, filepath: str | None = None, date: str | None = None) -> List[Tuple[CachingModel, List[TrafficHistoryModel]]]:
-        try:
-            if not filepath: filepath = DataPath.SCAN_DATA_CACHING
-            if not os.path.exists(filepath) or not os.path.isdir(filepath):
+            if not folderpath: folderpath = DataPath.SCAN_DATA_CACHING
+            if not os.path.exists(folderpath) or not os.path.isdir(folderpath):
                 raise FileNotFoundError("Caching folder not found.")
-            files = [filename for filename in os.listdir(filepath)]
-            data: List[Tuple[CachingModel, List[TrafficHistoryModel]]] = []
+            if not date: date = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
+            files = [filename for filename in os.listdir(folderpath)]
+            df_to_upload = pd.DataFrame(columns=header_bbip)
             for filename in files:
                 try:
-                    service = filename.split("%")[0]
+                    type = filename.split("%")[0]
                     interface = filename.split("%")[1]
-                    capacity = float(filename.split("%")[2])
-                    interface_border = CachingModel(
-                        id=None,
-                        name=interface,
-                        service=service,
-                        capacity=capacity,
-                        createAt=datetime.now().strftime("%Y-%m-%d")
-                    )
-                    historyHandler = TrafficHistoryUpdaterHandler()
-                    if date:
-                        traffic_border = historyHandler.get_data(filepath=f"{filepath}/{filename}", date=date)
-                    else:
-                        traffic_border = historyHandler.get_data(filepath=f"{filepath}/{filename}")
+                    capacity = filename.split("%")[2]
+                    df_data = pd.read_csv(f"{folderpath}/{filename}", sep=" ", header=None, names=header_upload_scan_data)
+                    if not force: df_data = df_data[df_data[HeaderBBIP.DATE] == date]
+                    if not df_data.empty:
+                        df_data[HeaderBBIP.NAME] = interface
+                        df_data[HeaderBBIP.CAPACITY] = capacity
+                        df_data[HeaderBBIP.TYPE] = type
+                        if df_to_upload.empty: df_to_upload = df_data
+                        else: df_to_upload = pd.concat([df_to_upload, df_data], axis=0)
                 except Exception as e:
                     log.error(f"Something went wrong to load data: {filename}. {e}")
-                    continue
-                else:
-                    data.append((interface_border, traffic_border))
+                    continue                    
         except Exception as e:
             log.error(f"Failed to data load of Caching layer. {e}")
-            return []
+            return pd.DataFrame(columns=header_bbip)
         else:
-            return data
+            return df_to_upload
 
-    def load_data(self, data: List[Tuple[CachingModel, List[TrafficHistoryModel]]]) -> bool:
+    def load_data(self, data: pd.DataFrame, uri: str | None = None) -> bool:
         try:
-            load_mongo = Process(target=self._load_database, args=(data,))
-            # load_postgres = Process(target=self._load_database, args=(data, True))
-            load_mongo.start()
-            # load_postgres.start()
-            load_mongo.join()
-            # load_postgres.join()
+            if data.empty: 
+                log.warning("The system received empty data Caching when it updated.")
+                return False
+            query = CachingMongoQuery(uri=uri)
+            data_json = data.to_dict(orient="records")
+            try:
+                json = [BBIPModel(**item) for item in data_json]
+            except Exception as e:
+                log.error(f"Failed to validate data with the model. Caching updater system has suspended. {e}")
+                return False
+            else:
+                response = query.new_interface(json)
+                return response
         except Exception as e:
             log.error(f"Failed to load data of Caching layer. {e}")
             return False
-        else:
-            return True
