@@ -10,7 +10,7 @@ class DailyReportModel(BaseModel):
     date: str
     typeLayer: str
     inProm: float
-    inMaxProm: float
     outProm: float
+    inMaxProm: float
     outMaxProm: float
     use: float

@@ -12,7 +12,6 @@ class Updater(unittest.TestCase):
     def clean(self):
         self.borde_report_example.delete_file()
         self.bras_report_example.delete_file()
-        FileDailyReportTest.delete_father_folder()
         self.mongo_borde_db_test.clean()
 
     def test_get_data(self):

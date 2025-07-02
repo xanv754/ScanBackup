@@ -9,7 +9,6 @@ class Updater(unittest.TestCase):
 
     def clean(self):
         self.data_example.delete_file()
-        self.data_example.delete_father_folder()
         self.mongo_borde_db_test.clean()
 
     def test_get_data(self):

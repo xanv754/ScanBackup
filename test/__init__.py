@@ -32,7 +32,6 @@ class FileDataTest(ABC):
         """Delete the example file."""
         if os.path.isfile(self.filepath):
             os.remove(self.filepath)
-            shutil.rmtree(self.folder)
 
     @classmethod
     def delete_father_folder(cls) -> None:
@@ -195,9 +194,9 @@ class DatabaseBBIPTest(ABC):
                     capacity=json[BBIPFieldName.CAPACITY],
                     date=json[BBIPFieldName.DATE],
                     time=json[BBIPFieldName.TIME],
-                    inProm=json[BBIPFieldName.IN_VALUE],
+                    inValue=json[BBIPFieldName.IN_VALUE],
                     inMax=json[BBIPFieldName.IN_MAX],
-                    outProm=json[BBIPFieldName.OUT_VALUE],
+                    outValue=json[BBIPFieldName.OUT_VALUE],
                     outMax=json[BBIPFieldName.OUT_MAX]
                 )
             )
@@ -256,9 +255,9 @@ class DatabaseBorderTest(DatabaseBBIPTest):
             capacity=random.randint(1, 100),
             date=(datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d"),
             time=datetime.now().strftime("%H:%M:%S"),
-            inProm=random.randint(1, 100),
+            inValue=random.randint(1, 100),
             inMax=random.randint(1, 100),
-            outProm=random.randint(1, 100),
+            outValue=random.randint(1, 100),
             outMax=random.randint(1, 100)
         )
 
@@ -284,9 +283,9 @@ class DatabaseBrasTest(DatabaseBBIPTest):
             capacity=random.randint(1, 100),
             date=(datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d"),
             time=datetime.now().strftime("%H:%M:%S"),
-            inProm=random.randint(1, 100),
+            inValue=random.randint(1, 100),
             inMax=random.randint(1, 100),
-            outProm=random.randint(1, 100),
+            outValue=random.randint(1, 100),
             outMax=random.randint(1, 100)
         )
 
@@ -312,9 +311,9 @@ class DatabaseCachingTest(DatabaseBBIPTest):
             capacity=random.randint(1, 100),
             date=(datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d"),
             time=datetime.now().strftime("%H:%M:%S"),
-            inProm=random.randint(1, 100),
+            inValue=random.randint(1, 100),
             inMax=random.randint(1, 100),
-            outProm=random.randint(1, 100),
+            outValue=random.randint(1, 100),
             outMax=random.randint(1, 100)
         )
 
@@ -340,9 +339,9 @@ class DatabaseRaiTest(DatabaseBBIPTest):
             capacity=random.randint(1, 100),
             date=(datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d"),
             time=datetime.now().strftime("%H:%M:%S"),
-            inProm=random.randint(1, 100),
+            inValue=random.randint(1, 100),
             inMax=random.randint(1, 100),
-            outProm=random.randint(1, 100),
+            outValue=random.randint(1, 100),
             outMax=random.randint(1, 100)
         )
 
