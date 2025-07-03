@@ -6,7 +6,6 @@ Un sistema diseñado para la recolección de datos de tráfico de todas las inte
     - [Variables de Entorno](#variables-de-entorno)
     - [Variables en Shell](#variables-en-shell)
     - [Instalación de dependencias](#instalación-de-dependencias)
-    - [Permisología de Logs](#permisología-de-logs)
 - [Ejecución de rutinas](#ejecución-de-rutinas)
     - [Recolección de datos](#recolección-de-datos)
     - [Procesamiento de datos](#procesamiento-de-datos)
@@ -15,6 +14,7 @@ Un sistema diseñado para la recolección de datos de tráfico de todas las inte
     - [Captura de Data](#captura-de-data)
     - [Inicialización del Sistema](#inicialización-del-sistema)
     - [Programación de Tareas](#programación-de-tareas)
+    - [Logs](#logs)
 - [Interfaz de Línea de Comandos](#interfaz-de-línea-de-comandos)
     - [Base de Datos](#base-de-datos)
         - [Inicializar la base de datos](#crear-la-base-de-datos)
@@ -62,8 +62,6 @@ pip install -r requirements.txt
 ```
 
 Se puede instalar manualmente o con el [inicializador del sistema](#inicialización-del-sistema).
-## Permisología de Logs
-El sistema guarda los logs en el directorio `/var/log/cgprd/`. Es necesario poder darle permisos de lectura y escritura a dicha carpeta para que el sistema pueda guardar los logs.
 
 # Rutinas de Ejecución
 El sistema se encarga de recolectar la información del tráfico en datos de cada 5 minutos de todas las interfaces de la red. Esta data, una vez obtenida, es procesada y almacenada en la base de datos del sistema.
@@ -122,6 +120,8 @@ export PASSWORDSCAN="contraseña" # Debe reemplazarse por la contraseña
 00 07 * * * /home/SystemCGPRD/.venv/bin/python /home/SystemCGPRD/routines/Rdiario.py
 30 07 * * * /home/SystemCGPRD/.venv/bin/python -m updater data
 ```
+## Logs
+El sistema lleva un registros de logs en el directorio `data/logs/` ubicado en la raíz del sistema. Estos logs cuentan con un formato específico para facilitar su lectura. Cada operación que ejecuta el sistema se registra en dichos archivos.
 
 # Interfaz de Línea de Comandos
 ## Base de Datos
