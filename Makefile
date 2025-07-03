@@ -17,6 +17,7 @@ setup: venv
 	mkdir -p $(HOMEPROJECT)/data/SCAN/Caching
 	mkdir -p $(HOMEPROJECT)/data/SCAN/RAI
 	mkdir -p $(HOMEPROJECT)/data/SCAN/Reportes-Diarios
+	mkdir -p $(HOMEPROJECT)/data/logs
 	mkdir -p $(HOMEPROJECT)/routines/tmp/
 	mkdir -p $(HOMEPROJECT)/sources/SCAN/
 	touch $(HOMEPROJECT)/sources/SCAN/Borde.txt

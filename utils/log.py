@@ -1,10 +1,11 @@
 import logging
+from os import path
 from pathlib import Path
 from logging.handlers import TimedRotatingFileHandler
 from rich.logging import RichHandler
 
 # TITLE_ART = art.text2art(f"{AboutConstant.TITLE_CLI.value}")
-LOGS = "/var/log/cgprd"
+LOGS = path.join(path.dirname(path.dirname(path.abspath(__file__))), "data", "logs")
 LOG_FORMAT = "%(asctime)s %(levelname)s %(message)s"
 DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 FORMATTER = logging.Formatter(LOG_FORMAT, DATE_FORMAT)
@@ -29,7 +30,7 @@ class LogHandler:
             )
             self.__console_handler.setFormatter(FORMATTER)
             self.__file_handler = TimedRotatingFileHandler(
-                f"{LOGS}/system-cgprd.log",
+                f"{LOGS}/SysGRD.log",
                 when="W0",
                 interval=1,
                 backupCount=4,
