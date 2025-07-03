@@ -17,6 +17,7 @@ echo $fecha > $ruta/routines/tmp/fechaayer
 #TODO: MEJORAR
 # Lista las capas a capturar data 
 ls $ruta/sources/SCAN > $ruta/routines/tmp/lista
+echo "$(date +"%Y-%m-%d %H:%M:%S") INFO Captura de datos iniciada..." >> $ruta/data/logs/SysGRD.log
 
 cat $ruta/routines/tmp/lista | while read line1
 do
@@ -55,10 +56,10 @@ do
       
     lineas=`cat $ruta/data/SCAN/$capa/$tipo\%$interfaz\%$capacidad | grep -f $ruta/routines/tmp/fechaayer | wc -l`
     hora=$(date +"%y-%m-%d %T")
-    echo $hora $capa $interfaz $lineas >> $ruta/data/SCAN/Alertas.txt 
+    echo $hora $capa $interfaz $lineas >> $ruta/data/logs/Alertas-SCAN.txt 
     rm $ruta/routines/tmp/$terminal
   done  
 done
 
 rm $ruta/routines/tmp/*
-
+echo "$(date +"%Y-%m-%d %H:%M:%S") INFO Captura de datos finalizada" >> $ruta/data/logs/SysGRD.log
