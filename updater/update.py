@@ -20,7 +20,7 @@ class UpdaterHandler(ABC):
         pass
 
     @abstractmethod
-    def load_data(self, data: DataFrame, uri: str | None = None) -> bool | None:
+    def load_data(self, data: DataFrame, uri: str | None = None) -> bool:
         """Load data in the database.
         
         Parameters
