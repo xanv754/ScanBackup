@@ -21,7 +21,7 @@ Detalles de Proceso:
 import os
 import pandas as pd
 from datetime import datetime, timedelta, timezone
-from constants.layers import layers_BBIP_SCAN
+from constants.layers import foldername_BBIP_SCAN
 from utils.log import log
 
 
@@ -32,7 +32,7 @@ ayer = (datetime.now(timezone.utc) - timedelta(days=1)).strftime('%Y-%m-%d')
 
 log.info("Starting to generate the daily report...")
 try:
-    for capa in layers_BBIP_SCAN:
+    for capa in foldername_BBIP_SCAN:
         ruta_data_scan = os.path.join(ruta_scan_dir, capa)
         ruta_data_reporte = os.path.join(ruta_reporte_dir, f"Resumen_{capa}.csv")
 
