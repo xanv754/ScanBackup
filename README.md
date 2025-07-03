@@ -34,6 +34,9 @@ Un sistema diseñado para la recolección de datos de tráfico de todas las inte
 
 ------------------------------------------------------------------
 
+# Documentación 
+- Para ver la documentación de los diagramas, revisa: [diagramas](https://drive.google.com/file/d/1OHpYc9LDjmO_SAFFDzrM-Qdf7UrZxNz0/view?usp=sharing).
+
 # Requerimientos
 ## Variables de Entorno
 El sistema require un archivo `.env.production` o `.env` con las siguientes variables de entorno:
