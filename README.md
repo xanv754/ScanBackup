@@ -11,9 +11,10 @@ Un sistema diseñado para la recolección de datos de tráfico de todas las inte
     - [Recolección de datos](#recolección-de-datos)
     - [Procesamiento de datos](#procesamiento-de-datos)
     - [Almacenamiento de datos](#almacenamiento-de-datos)
-- [Mantenimiento del sistema](#mantenimiento-del-sistema)
+- [Inicio y Mantenimiento del sistema](#inicio-y-mantenimiento-del-sistema)
     - [Captura de Data](#captura-de-data)
-- [Programación de Tareas](#programación-de-tareas)
+    - [Inicialización del Sistema](#inicialización-del-sistema)
+    - [Programación de Tareas](#programación-de-tareas)
 - [Interfaz de Línea de Comandos](#interfaz-de-línea-de-comandos)
     - [Base de Datos](#base-de-datos)
         - [Inicializar la base de datos](#crear-la-base-de-datos)
@@ -60,6 +61,7 @@ El sistema requiere que se instalen las siguientes dependencias para su correcto
 pip install -r requirements.txt
 ```
 
+Se puede instalar manualmente o con el [inicializador del sistema](#inicialización-del-sistema).
 ## Permisología de Logs
 El sistema guarda los logs en el directorio `/var/log/cgprd/`. Es necesario poder darle permisos de lectura y escritura a dicha carpeta para que el sistema pueda guardar los logs.
 
@@ -92,7 +94,7 @@ Este módulo se encuentra en el mismo directorio que el sistema, en la carpeta `
 > Nota: Para más información de los comandos del módulo `updater`, véase la sección [Actualización del sistema](#actualización-del-sistema).
 
 
-# Mantenimiento del sistema
+# Inicio y Mantenimiento del sistema
 ## Captura de Data
 Para poder realizar la captura de data, es necesario poder proporcionarles los links para consultar los datos. Estos links deben estar en un archivo `.txt` en el directorio `sources/SCAN/`. Dicho directorio debe estar en la misma carpeta que el sistema, específicamente en la raíz. 
 
@@ -101,7 +103,14 @@ Estos links deben estar separados por las capas del sistema, con el siguiente fo
 link-de-acceso nombre-de-la-interfaz capacidad-de-la-interfaz tipo-de-la-interfaz
 ```
 
-# Programación de Tareas
+## Inicialización del Sistema
+El sistema almacena y busca datos en carpetas específicas creadas especialmente para el sistema. Además, el sistema requiere que se crean la base de datos con sus colecciones correspondientes. Eso sin contar que el sistema requiere las dependencias de Python previamente mencionadas. Para poder realizar todas esas operaciones correctamente, se puede ejecutar el siguiente comando:
+```bash
+make setup
+```
+Este comando creará las carpetas necesarias para el funcionamiento del sistema, creará la base de datos y instalará las dependencias de Python.
+
+## Programación de Tareas
 Para la correcta ejecución de las rutinas diariamente, se debe configurar el sistema para que se ejecuten automáticamente. Para ello se debe añadir al crontab del sistema el siguiente comando:
 ```bash
 PYTHONPATH="/home/SystemCGPRD" # Debe reemplazarse por la ruta del directorio del sistema
@@ -109,7 +118,7 @@ export HOMEPROJECT="/home/SystemCGPRD" # Debe reemplazarse por la ruta del direc
 export USERSCAN="usuario" # Debe reemplazarse por el usuario
 export PASSWORDSCAN="contraseña" # Debe reemplazarse por la contraseña
 
-00 04 * * * bash /home/SystemCGPRD/routines/captura-data.sh >> /var/log/cgprd/crontab.log 2>&1
+00 04 * * * bash /home/SystemCGPRD/routines/captura-data.sh
 00 07 * * * /home/SystemCGPRD/.venv/bin/python /home/SystemCGPRD/routines/Rdiario.py
 30 07 * * * /home/SystemCGPRD/.venv/bin/python -m updater data
 ```
