@@ -12,11 +12,12 @@ fecha=$(date --date="yesterday" +%Y-%m-%d)
 ruta=$HOMEPROJECT
 
 cd $ruta/routines
+rm $ruta/routines/tmp/*
 echo $fecha > $ruta/routines/tmp/fechaayer
-
-#TODO: MEJORAR
 # Lista las capas a capturar data 
-ls $ruta/sources/SCAN > $ruta/routines/tmp/lista
+ls $ruta/sources/SCAN > $ruta/routines/tmp/lista #TODO: MEJORAR
+
+echo "$(date +"%Y-%m-%d %H:%M:%S") INFO Captura de datos iniciada..."
 echo "$(date +"%Y-%m-%d %H:%M:%S") INFO Captura de datos iniciada..." >> $ruta/data/logs/SysGRD.log
 
 cat $ruta/routines/tmp/lista | while read line1
@@ -30,7 +31,7 @@ do
     capacidad=`echo $line2 | awk '{print $3}' `
     tipo=`echo $line2 | awk '{print $4}' `
 
-    wget --user=$USERSCAN --password=$PASSWORDSCAN --no-check-certificate $url
+    wget --user=$USERSCAN --password=$PASSWORDSCAN --no-check-certificate $url -O $ruta/routines/tmp/$terminal
 
     sed -i '1d' $ruta/routines/tmp/$terminal
     cat $ruta/routines/tmp/$terminal | head -500 | while read line3
@@ -62,4 +63,5 @@ do
 done
 
 rm $ruta/routines/tmp/*
+echo "$(date +"%Y-%m-%d %H:%M:%S") INFO Captura de datos finalizada"
 echo "$(date +"%Y-%m-%d %H:%M:%S") INFO Captura de datos finalizada" >> $ruta/data/logs/SysGRD.log
