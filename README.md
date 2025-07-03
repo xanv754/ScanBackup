@@ -108,6 +108,20 @@ make setup
 ```
 Este comando creará las carpetas necesarias para el funcionamiento del sistema, creará la base de datos y instalará las dependencias de Python.
 
+## Ejecución del Sistema
+Para poder ejecutar el sistema, se debe ejecutar el siguiente comando:
+```bash
+make run
+```
+Este comando capturará la data del día anterior, procesará los datos y los almacenará en la base de datos del sistema.
+
+## Limpieza de Datos
+Para limpiar los archivos de datos capturados, se debe ejecutar el siguiente comando:
+```bash
+make clean-data
+```
+Este comando eliminará todos los data capturada sin afectar a la base de datos.
+
 ## Programación de Tareas
 Para la correcta ejecución de las rutinas diariamente, se debe configurar el sistema para que se ejecuten automáticamente. Para ello se debe añadir al crontab del sistema el siguiente comando:
 ```bash
@@ -145,7 +159,7 @@ Para borrar la base de datos, se debe ejecutar el siguiente comando:
 ```bash
 python -m database main.py drop
 ```
-Esto eliminará toda la información de la base de datos de manera irreversible.
+Esto eliminará toda la información de la base de datos de manera irreversible. Se debe tener precaución al utilizar este comando.
 
 ## Generación de Reportes
 El módulo `reports` contiene las funciones para la generación de reportes. Estos reportes se encuentran en el mismo directorio que el sistema, en la carpeta `reports/`.
