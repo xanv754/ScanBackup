@@ -2,6 +2,7 @@
 data/*
 sources/*
 routines/tmp/*
+routines/capa
 test/correcciondata
 test/data/*
 test/calculos/*
