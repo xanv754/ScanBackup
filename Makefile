@@ -19,6 +19,10 @@ setup: venv
 	mkdir -p $(HOMEPROJECT)/data/SCAN/Reportes-Diarios
 	mkdir -p $(HOMEPROJECT)/routines/tmp/
 	mkdir -p $(HOMEPROJECT)/sources/SCAN/
+	touch $(HOMEPROJECT)/sources/SCAN/Borde.txt
+	touch $(HOMEPROJECT)/sources/SCAN/Bras.txt
+	touch $(HOMEPROJECT)/sources/SCAN/Caching.txt
+	touch $(HOMEPROJECT)/sources/SCAN/RAI.txt
 	@echo "Inicializando base de datos..."
 	export PYTHONPATH=$(HOMEPROJECT)
 	$(HOMEPROJECT)/.venv/bin/python -m database start
