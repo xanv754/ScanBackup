@@ -6,6 +6,7 @@ from handler.borde import BordeHandler
 from handler.bras import BrasHandler
 from handler.caching import CachingHandler
 from handler.rai import RaiHandler
+from handler.scan import ScanHandler
 from utils.validate import Validate
 from utils.log import log
 
@@ -14,10 +15,10 @@ class BBIPHandler:
     """Class to get data of BBIP layer."""
 
     __error_connection: bool = False
-    borde_handler: BordeHandler
-    bras_handler: BrasHandler
-    caching_handler: CachingHandler
-    rai_handler: RaiHandler
+    borde_handler: ScanHandler
+    bras_handler: ScanHandler
+    caching_handler: ScanHandler
+    rai_handler: ScanHandler
 
     def __init__(self, uri: str | None = None):
         try:
