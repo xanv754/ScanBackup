@@ -1,4 +1,3 @@
-from typing import List
 from abc import ABC, abstractmethod
 from pandas import DataFrame
 
@@ -6,7 +5,7 @@ from pandas import DataFrame
 class UpdaterHandler(ABC):
     """System data updater handler"""
     @abstractmethod
-    def get_data(self, folderpath: str | None = None, date: str | None = None, force: bool = False) -> List:
+    def get_data(self, folderpath: str | None = None, date: str | None = None, force: bool = False) -> DataFrame:
         """Get data to be loaded in the database.
 
         Parameters
