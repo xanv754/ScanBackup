@@ -1,5 +1,7 @@
 import os
+from pathlib import Path
 from dotenv import load_dotenv, dotenv_values
+from constants import DataPath
 from utils.log import log
 
 
@@ -37,24 +39,7 @@ class ConfigurationHandler:
                 if uri_mongo: 
                     self.uri_mongo = uri_mongo
                 else:
-                    log.warning(message=f"Failed to obtain configuration. URI MongoDB variable not found in enviroment file", path=__file__, err=True)
+                    log.warning(message=f"Failed to obtain configuration. URI MongoDB variable not found in enviroment file")
         except Exception as e:
-            log.error(message=f"Failed to obtain configuration. {e}", path=__file__, err=True)
+            log.error(message=f"Failed to obtain configuration. {e}")
             exit(1)
-
-    @classmethod
-    def set_uri(cls, uri_postgres: str | None = None, uri_mongo: str | None = None) -> "ConfigurationHandler":
-        """Set the URI database.
-
-        Parameters
-        ----------
-        uri : str
-            URI database.
-        """
-        instance = cls.__new__(cls)
-        instance.__init__()
-        if uri_postgres:
-            instance.uri_postgres = uri_postgres
-        if uri_mongo:
-            instance.uri_mongo = uri_mongo
-        return instance
