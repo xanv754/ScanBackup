@@ -28,3 +28,15 @@ setup: venv
 	export PYTHONPATH=$(HOMEPROJECT)
 	$(HOMEPROJECT)/.venv/bin/python -m database start
 	@echo "Sistema instanciado correctamente."
+
+run:
+	bash $(HOMEPROJECT)/routines/captura-data.sh
+	$(HOMEPROJECT)/.venv/bin/python $(HOMEPROJECT)/routines/Rdiario.py
+	$(HOMEPROJECT)/.venv/bin/python -m updater data
+
+clean-data:
+	rm -rf $(HOMEPROJECT)/data/SCAN/Borde/*
+	rm -rf $(HOMEPROJECT)/data/SCAN/Bras/*
+	rm -rf $(HOMEPROJECT)/data/SCAN/Caching/*
+	rm -rf $(HOMEPROJECT)/data/SCAN/RAI/*
+	rm -rf $(HOMEPROJECT)/data/SCAN/Reportes-Diarios/*
