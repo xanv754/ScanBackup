@@ -46,6 +46,8 @@ class BBIPHandler:
             df_interfaces = pd.concat(data, axis=0)
             if data:
                 df_interfaces = pd.concat(data, axis=0)
+                df_interfaces.drop_duplicates(inplace=True)
+                df_interfaces.reset_index(drop=True, inplace=True)
                 return df_interfaces
             else: return pd.DataFrame(columns=header_all_bbip)
         except Exception as e:
@@ -69,6 +71,8 @@ class BBIPHandler:
             df_interfaces = pd.concat(data, axis=0)
             if data:
                 df_interfaces = pd.concat(data, axis=0)
+                df_interfaces.drop_duplicates(inplace=True)
+                df_interfaces.reset_index(drop=True, inplace=True)
                 return df_interfaces
             else: return pd.DataFrame(columns=header_all_bbip)
         except Exception as e:
@@ -84,9 +88,11 @@ class BBIPHandler:
             df_bras = self.bras_handler.get_all_daily_report(date=date)
             df_caching = self.caching_handler.get_all_daily_report(date=date)
             df_rai = self.rai_handler.get_all_daily_report(date=date)
-            data = [df for df in [df_borde, df_bras, df_caching, df_rai] if not df.empty]
+            data: list[pd.DataFrame] = [df for df in [df_borde, df_bras, df_caching, df_rai] if not df.empty]
             if data:
                 df_daily_report = pd.concat(data, axis=0)
+                df_daily_report.drop_duplicates(inplace=True)
+                df_daily_report.reset_index(drop=True, inplace=True)
                 return df_daily_report
             else: return pd.DataFrame(columns=header_daily_report)
         except Exception as e:
@@ -102,7 +108,10 @@ class BBIPHandler:
             while date.strftime("%Y-%m-%d") != datetime.now().strftime("%Y-%m-%d"):
                 df = self.get_all_daily_report_by_date(date=date.strftime("%Y-%m-%d"))
                 if df_daily_report.empty and not df.empty: df_daily_report = df
-                elif not df.empty: df_daily_report = pd.concat([df_daily_report, df], ignore_index=True)
+                elif not df.empty: 
+                    df_daily_report = pd.concat([df_daily_report, df], ignore_index=True)
+                    df_daily_report.drop_duplicates(inplace=True)
+                    df_daily_report.reset_index(drop=True, inplace=True)
                 date = date + timedelta(days=1)
         except Exception as e:
             log.error(f"BBIP handler. Failed to get all daily reports of BBIP. {e}")
@@ -122,7 +131,10 @@ class BBIPHandler:
             while first_date.strftime("%Y-%m-%d") != last_date:
                 df = self.get_all_daily_report_by_date(date=first_date.strftime("%Y-%m-%d"))
                 if df_daily_report.empty and not df.empty: df_daily_report = df
-                elif not df.empty: df_daily_report = pd.concat([df_daily_report, df], ignore_index=True)
+                elif not df.empty: 
+                    df_daily_report = pd.concat([df_daily_report, df], ignore_index=True)
+                    df_daily_report.drop_duplicates(inplace=True)
+                    df_daily_report.reset_index(drop=True, inplace=True)
                 first_date = first_date + timedelta(days=1)
         except Exception as e:
             log.error(f"Traffic handler. Failed to get all daily reports of BBIP. {e}")
@@ -139,7 +151,10 @@ class BBIPHandler:
                 date = (datetime.now() - timedelta(days=day)).strftime("%Y-%m-%d")
                 df = self.get_all_daily_report_by_date(date=date)
                 if df_daily_report.empty and not df.empty: df_daily_report = df
-                elif not df.empty: df_daily_report = pd.concat([df_daily_report, df], axis=0)
+                elif not df.empty: 
+                    df_daily_report = pd.concat([df_daily_report, df], axis=0)
+                    df_daily_report.drop_duplicates(inplace=True)
+                    df_daily_report.reset_index(drop=True, inplace=True)
         except Exception as e:
             log.error(f"BBIP handler. Failed to get all daily reports of BBIP. {e}")
             return pd.DataFrame()
