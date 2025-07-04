@@ -6,6 +6,7 @@ routines/capa
 test/correcciondata
 test/data/*
 test/calculos/*
+tmp/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
