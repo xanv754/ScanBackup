@@ -104,8 +104,9 @@ class BBIPHandler:
             if self.__error_connection: 
                 raise Exception("An error occurred while connecting to the database. The method has skipped.")
             df_daily_report = pd.DataFrame(columns=header_daily_report)
-            date = (datetime.now() - timedelta(days=datetime.now().weekday() + 1))
-            while date.strftime("%Y-%m-%d") != datetime.now().strftime("%Y-%m-%d"):
+            date = (datetime.now() - timedelta(days=datetime.now().weekday() + 7))
+            date_to = (datetime.now() - timedelta(days=datetime.now().weekday() + 1))
+            while date.strftime("%Y-%m-%d") != date_to.strftime("%Y-%m-%d"):
                 df = self.get_all_daily_report_by_date(date=date.strftime("%Y-%m-%d"))
                 if df_daily_report.empty and not df.empty: df_daily_report = df
                 elif not df.empty: 
