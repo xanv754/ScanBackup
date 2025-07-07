@@ -188,12 +188,12 @@ Para generar el reporte semanal, se debe ejecutar el siguiente comando:
 ```bash
 python main.py semanal
 ```
-Esto generará un reporte con el promedio de datos desde el domingo de la semana hasta la fecha anterior al día en el que se está pidiendo el reporte. Este reporte será exportado un archivo .xlsx llamado `Resumen_Semanal.xlsx`. 
+Esto generará un reporte con el promedio de datos desde el lunes de la semana pasada hasta el domingo de la semana cursando. Este reporte será exportado un archivo .xlsx llamado `Resumen_Semanal.xlsx`. 
 
 > *Nota:* La ubicación predeterminada es la carpeta de descargas del sistema. Si no se encuentra dicha carpeta, se dejará el archivo el "home" del sistema.
 
 #### Opciones Extras
-Si se desea generar un reporte semanal con la data exacta de 7 días hacia atrás, es decir, contando desde el día anterior a la fecha en la que se está generando el reporte, hasta 7 días atrás (sin importar que se pueda obtener data de la semana pasada), se debe ejecutar el siguiente comando:
+Si se desea generar un reporte semanal con la data exacta de 7 días hacia atrás, es decir, contando desde el día anterior a la fecha en la que se está generando el reporte hasta 7 días atrás, se debe ejecutar el siguiente comando:
 ```bash
 python main.py semanal --literal
 ```
