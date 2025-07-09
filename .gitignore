@@ -1,12 +1,12 @@
 # Files
 data/*
-sources/*
-routines/tmp/*
-routines/capa
-test/correcciondata
-test/data/*
-test/calculos/*
-tmp/*
+systemgrd/sources/*
+systemgrd/routines/tmp/*
+systemgrd/routines/capa
+systemgrd/test/correcciondata
+systemgrd/test/data/*
+systemgrd/test/calculos/*
+systemgrd/tmp/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
