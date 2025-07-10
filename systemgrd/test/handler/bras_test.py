@@ -1,6 +1,6 @@
 import unittest
-from handler import BrasHandler
-from test import DatabaseBrasTest, DatabaseDailyTest
+from systemgrd.handler import BrasHandler
+from systemgrd.test import DatabaseBrasTest, DatabaseDailyTest
 
 
 

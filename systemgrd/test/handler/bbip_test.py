@@ -1,7 +1,7 @@
 import unittest
 from datetime import datetime, timedelta
-from handler import BBIPHandler
-from test import DatabaseDailyTest, DatabaseBorderTest, DatabaseBrasTest, DatabaseCachingTest, DatabaseRaiTest
+from systemgrd.handler import BBIPHandler
+from systemgrd.test import DatabaseDailyTest, DatabaseBorderTest, DatabaseBrasTest, DatabaseCachingTest, DatabaseRaiTest
 
 
 class Handler(unittest.TestCase):

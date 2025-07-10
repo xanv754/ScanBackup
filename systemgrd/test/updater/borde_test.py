@@ -1,7 +1,7 @@
 import unittest
 from pandas import DataFrame
-from updater import BordeUpdaterHandler
-from test import FileBordeDataTest, DatabaseBorderTest
+from systemgrd.updater import BordeUpdaterHandler
+from systemgrd.test import FileBordeDataTest, DatabaseBorderTest
 
 class Updater(unittest.TestCase):
     mongo_borde_db_test: DatabaseBorderTest = DatabaseBorderTest()

@@ -1,6 +1,6 @@
 import unittest
-from handler import BordeHandler
-from test import DatabaseBorderTest, DatabaseDailyTest
+from systemgrd.handler import BordeHandler
+from systemgrd.test import DatabaseBorderTest, DatabaseDailyTest
 
 
 class Handler(unittest.TestCase):

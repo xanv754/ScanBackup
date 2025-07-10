@@ -1,6 +1,6 @@
 import unittest
-from database import BordeMongoQuery
-from test import DatabaseBorderTest, BBIPFieldName
+from systemgrd.database import BordeMongoQuery
+from systemgrd.test import DatabaseBorderTest, BBIPFieldName
 
 
 class Query(unittest.TestCase):

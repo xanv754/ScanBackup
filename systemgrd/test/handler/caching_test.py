@@ -1,6 +1,6 @@
 import unittest
-from handler import CachingHandler
-from test import DatabaseCachingTest, DatabaseDailyTest
+from systemgrd.handler import CachingHandler
+from systemgrd.test import DatabaseCachingTest, DatabaseDailyTest
 
 
 class Handler(unittest.TestCase):

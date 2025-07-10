@@ -1,6 +1,6 @@
 import unittest
-from handler import RaiHandler
-from test import DatabaseRaiTest, DatabaseDailyTest
+from systemgrd.handler import RaiHandler
+from systemgrd.test import DatabaseRaiTest, DatabaseDailyTest
 
 
 class Handler(unittest.TestCase):

@@ -1,7 +1,7 @@
 import unittest
 from pandas import DataFrame
-from updater import DailyReportUpdaterHandler
-from test import FileDailyReportTest, DatabaseBorderTest, DatabaseDailyTest
+from systemgrd.updater import DailyReportUpdaterHandler
+from systemgrd.test import FileDailyReportTest, DatabaseBorderTest, DatabaseDailyTest
 
 
 class Updater(unittest.TestCase):
