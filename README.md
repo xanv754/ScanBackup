@@ -55,46 +55,46 @@ export USERSCAN="usuario" # Debe reemplazarse por el usuario
 export PASSWORDSCAN="contraseña" # Debe reemplazarse por la contraseña
 ```
 
-## Instalación de dependencias
-El sistema requiere que se instalen las siguientes dependencias para su correcto funcionamiento:
+> *Nota:* Esto es importante para el correcto funcionamiento de la captura de data.
+## Instalación 
+El sistema cuenta con un archivo `pyproject.toml` que contiene toda la información necesaria para instalar el sistema. Para instalar el sistema, se debe ejecutar el siguiente comando:
 ```bash
-pip install -r requirements.txt
+pip install -e .
 ```
-
-Se puede instalar manualmente o con el [inicializador del sistema](#inicialización-del-sistema).
+Se puede instalar manualmente de esta forma o con el [inicializador del sistema](#inicialización-del-sistema).
 
 # Rutinas de Ejecución
 El sistema se encarga de recolectar la información del tráfico en datos de cada 5 minutos de todas las interfaces de la red. Esta data, una vez obtenida, es procesada y almacenada en la base de datos del sistema.
 
-El sistema tiene un orden estricto para dicha operación: recolección, procesamiento y almacenamiento de los datos. Esto se logra mediante el correcto orden de ejecución de las rutinas. Las rutinas se encuentran en el mismo directorio que el sistema, en la carpeta `routines/`.
+El sistema tiene un orden estricto para dicha operación: recolección, procesamiento y almacenamiento de los datos. Esto se logra mediante el correcto orden de ejecución de las rutinas. Las rutinas se encuentran en la carpeta `routines/`.
 
 ## Recolección de datos
 Para recolectar los datos de SCAN, se debe ejecutar el siguiente comando:
 ```bash
-bash routines/captura-data.sh
+bash systemgrd/routines/captura-data.sh
 ```
-Esto recolectará los datos de SCAN del día anterior, y los alojará en el directorio `data/SCAN` según la capa que corresponda. La carpeta `data/` se encuentra en el mismo directorio que el sistema.
+Esto recolectará los datos de SCAN del día anterior, y los alojará en el directorio `data/SCAN` según la capa que corresponda. Dicha carpeta debe encontrarse fuera de la carpeta `systemgrd/`.
 
 ## Procesamiento de datos
 Para procesar los datos de SCAN y obtener la data correspondiente al reporte diario, se debe ejecutar el siguiente comando:
 ```bash
-python routines/Rdiario.py
+python -m systemgrd.routines.diario
 ```
-Esto procesará los datos de SCAN del día anterior, y los almacenará en el directorio `data/SCAN/Reportes-Diarios` según la capa que corresponda. La carpeta `data/` se encuentra en el mismo directorio que el sistema.
+Esto procesará los datos de SCAN del día anterior, y los almacenará en el directorio `data/SCAN/Reportes-Diarios` según la capa que corresponda. Dicha carpeta debe encontrarse fuera de la carpeta `systemgrd/`.
 
 ## Almacenamiento de datos
 Para almacenar los datos de SCAN, se debe ejecutar el siguiente comando del módulo `updater`:
 ```bash
-python -m updater data
+python -m systemgrd.updater data
 ```
-Este módulo se encuentra en el mismo directorio que el sistema, en la carpeta `updater/`. Se encarga de cargar los datos de SCAN en la base de datos del sistema.
+Este módulo se encuentra en la carpeta `updater/`. Se encarga de cargar los datos de SCAN en la base de datos del sistema.
 
 > Nota: Para más información de los comandos del módulo `updater`, véase la sección [Actualización del sistema](#actualización-del-sistema).
 
 
 # Inicio y Mantenimiento del sistema
 ## Captura de Data
-Para poder realizar la captura de data, es necesario poder proporcionarles los links para consultar los datos. Estos links deben estar en un archivo `.txt` en el directorio `sources/SCAN/`. Dicho directorio debe estar en la misma carpeta que el sistema, específicamente en la raíz. 
+Para poder realizar la captura de data, es necesario poder proporcionarles los links para consultar los datos. Estos links deben estar en un archivo `.txt` en el directorio `sources/SCAN/`. Dicha carpeta debe encontrarse fuera de la carpeta `systemgrd/`.
 
 Estos links deben estar separados por las capas del sistema, con el siguiente formato:
 ```
@@ -125,39 +125,38 @@ Este comando eliminará todos los data capturada sin afectar a la base de datos.
 ## Programación de Tareas
 Para la correcta ejecución de las rutinas diariamente, se debe configurar el sistema para que se ejecuten automáticamente. Para ello se debe añadir al crontab del sistema el siguiente comando:
 ```bash
-PYTHONPATH="/home/SystemCGPRD" # Debe reemplazarse por la ruta del directorio del sistema
 export HOMEPROJECT="/home/SystemCGPRD" # Debe reemplazarse por la ruta del directorio del sistema
 export USERSCAN="usuario" # Debe reemplazarse por el usuario
 export PASSWORDSCAN="contraseña" # Debe reemplazarse por la contraseña
 
-00 04 * * * bash /home/SystemCGPRD/routines/captura-data.sh
-00 07 * * * /home/SystemCGPRD/.venv/bin/python /home/SystemCGPRD/routines/Rdiario.py
-30 07 * * * /home/SystemCGPRD/.venv/bin/python -m updater data
+00 04 * * * bash /home/SystemCGPRD/systemgrd/routines/captura-data.sh
+00 07 * * * /home/SystemCGPRD/.venv/bin/python -m systemgrd.routines.diario
+30 07 * * * /home/SystemCGPRD/.venv/bin/python -m systemgrd.updater data
 ```
 ## Logs
-El sistema lleva un registros de logs en el directorio `data/logs/` ubicado en la raíz del sistema. Estos logs cuentan con un formato específico para facilitar su lectura. Cada operación que ejecuta el sistema se registra en dichos archivos.
+El sistema lleva un registros de logs en el directorio `data/logs/` ubicado en la raíz del sistema. Estos logs cuentan con un formato específico para facilitar su lectura. Cada operación que ejecuta el sistema se registra en dichos archivos. Dicha carpeta debe encontrarse fuera de la carpeta `systemgrd/`.
 
 # Interfaz de Línea de Comandos
 ## Base de Datos
 
-El módulo `database` contiene las funciones para la manipulación de la base de datos. Este módulo se encuentra en el mismo directorio que el sistema, en la carpeta `database/`.
+El módulo `database` contiene las funciones para la manipulación de la base de datos. Este módulo se encuentra en la carpeta `database/`.
 
 Puede leer la información sobre los comandos disponibles ejecutando:
 ```bash
-python -m database --help
+python -m systemgrd.database --help
 ``` 
 
 ### Crear la base de datos
 Para crear una nueva base de datos, se debe ejecutar el siguiente comando:
 ```bash
-python -m database main.py start
+python -m systemgrd.database start
 ```
 Esto creará la base de datos del sistema, así como todas las colecciones necesarias con esquemas e índices correspondientes.
 
 ### Borrar la base de datos
 Para borrar la base de datos, se debe ejecutar el siguiente comando:
 ```bash
-python -m database main.py drop
+python -m systemgrd.database drop
 ```
 Esto eliminará toda la información de la base de datos de manera irreversible. Se debe tener precaución al utilizar este comando.
 
@@ -166,18 +165,18 @@ El módulo `reports` contiene las funciones para la generación de reportes. Est
 
 Puede leer la información sobre los comandos disponibles ejecutando:
 ```bash
-python main.py --help
+python -m systemgrd --help
 ``` 
 o 
 
 ```bash
-python main.py
+python systemgrd/__main__.py
 ```
 
 ### Generar el reporte diario
 Para generar el reporte diario, se debe ejecutar el siguiente comando:
 ```bash
-python main.py diario
+python -m systemgrd diario
 ```
 Esto obtendrá el reporte del día anterior y lo exportará en un archivo .xlsx llamado `Resumen_Diario.xlsx`. 
 
@@ -186,7 +185,7 @@ Esto obtendrá el reporte del día anterior y lo exportará en un archivo .xlsx 
 ### Generar el reporte semanal
 Para generar el reporte semanal, se debe ejecutar el siguiente comando:
 ```bash
-python main.py semanal
+python -m systemgrd semanal
 ```
 Esto generará un reporte con el promedio de datos desde el lunes de la semana pasada hasta el domingo de la semana cursando. Este reporte será exportado un archivo .xlsx llamado `Resumen_Semanal.xlsx`. 
 
@@ -195,13 +194,13 @@ Esto generará un reporte con el promedio de datos desde el lunes de la semana p
 #### Opciones Extras
 Si se desea generar un reporte semanal con la data exacta de 7 días hacia atrás, es decir, contando desde el día anterior a la fecha en la que se está generando el reporte hasta 7 días atrás, se debe ejecutar el siguiente comando:
 ```bash
-python main.py semanal --literal
+python -m systemgrd semanal --literal
 ```
 
 ### Generar el reporte quincenal
 Para generar el reporte quincenal, se debe ejecutar el siguiente comando:
 ```bash
-python main.py quincenal
+python -m systemgrd quincenal
 ```
 Esto generará un reporte con el promedio de datos desde el primer día del mes hasta el día 15 del mes (solo promediará los días en los que se obtenga información). Este reporte será exportado un archivo .xlsx llamado `Resumen_Quincenal.xlsx`. 
 
@@ -210,13 +209,13 @@ Esto generará un reporte con el promedio de datos desde el primer día del mes 
 #### Opciones Extras
 Si se desea generar un reporte quincenal con la data exacta de 15 días hacia atrás, es decir, contando desde el día anterior a la fecha en la que se está generando el reporte, hasta 15 días atrás (sin importar que se pueda obtener data del mes pasado), se debe ejecutar el siguiente comando:
 ```bash
-python main.py quincenal --literal
+python -m systemgrd quincenal --literal
 ```
 
 ### Generar el reporte mensual
 Para generar el reporte mensual, se debe ejecutar el siguiente comando:
 ```bash
-python main.py mensual
+python -m systemgrd mensual
 ```
 Esto generará un reporte con el promedio de datos desde el primer día del mes hasta el día 30 del mes (solo promediará los días en los que se obtenga información). Este reporte será exportado un archivo .xlsx llamado `Resumen_Mensual.xlsx`. 
 
@@ -225,63 +224,63 @@ Esto generará un reporte con el promedio de datos desde el primer día del mes 
 #### Opciones Extras
 Si se desea generar un reporte mensual con la data exacta de 30 días hacia atrás, es decir, contando desde el día anterior a la fecha en la que se está generando el reporte, hasta 30 días atrás (sin importar que se pueda obtener data del mes pasado), se debe ejecutar el siguiente comando:
 ```bash
-python main.py mensual --literal
+python -m systemgrd mensual --literal
 ```
 
 ## Actualización del sistema
 Puede leer la información sobre los comandos disponibles ejecutando:
 ```bash
-python -m updater --help
+python -m systemgrd.updater --help
 ```
 ### Almacenamiento de datos
 Para almacenar los datos de SCAN, se debe ejecutar el siguiente comando del módulo `updater`:
 ```bash
-python -m updater data
+python -m systemgrd.updater data
 ```
-Este módulo se encuentra en el mismo directorio que el sistema, en la carpeta `updater/`. Se encarga de cargar los datos de SCAN en la base de datos del sistema.
+Este módulo se encuentra en la carpeta `updater/`. Se encarga de cargar los datos de SCAN en la base de datos del sistema.
 
 #### Opciones Extras
 #### Almacenamiento de data de un día específico
 Si se tiene recolectado y procesado la data de un día distinto al día anterior, se puede mandar a almacenar con el siguiente comando:
 ```bash
-python -m updater data --date yyyy-mm-dd
+python -m systemgrd.updater data --date yyyy-mm-dd
 ```
 Donde `yyyy-mm-dd` es la fecha del día que se desea cargar escrito en dicho formato.
 
 #### Carga de todos los datos obtenidos
 Si se desea cargar todos los datos recolectados y procesados, indistintamente de la diferencia de fechas que puede contener los archivos, se puede mandar a cargar con el siguiente comando:
 ```bash
-python -m updater data --force
+python -m systemgrd.updater data --force
 ```
 Esto cargará todos los datos que se encuentren en los archivos en los directorios correspondientes.
 
 ### Almacenamiento único de los reportes diarios
 Si se desea solo almacenar los reportes diarios que se tienen procesados, se puede mandar a almacenar con el siguiente comando:
 ```bash
-python -m updater daily
+python -m systemgrd.updater daily
 ```
 
 #### Opciones Extras
 #### Almacenamiento de reporte diario de un día específico
 Si se tiene procesado la data del reporte diario de un día distinto al día anterior, se puede mandar a almacenar con el siguiente comando:
 ```bash
-python -m updater daily --date yyyy-mm-dd
+python -m systemgrd.updater daily --date yyyy-mm-dd
 ```
 Donde `yyyy-mm-dd` es la fecha del día que se desea cargar escrito en dicho formato.
 
 #### Carga de todos los reportes diarios obtenidos
 Si se desea cargar todos los datos procesados de los reportes diarios, indistintamente de la diferencia de fechas que puede contener los archivos, se puede mandar a cargar con el siguiente comando:
 ```bash
-python -m updater daily --force
+python -m systemgrd.updater daily --force
 ```
 Esto cargará todos los datos que se encuentren en los archivos en los directorios correspondientes.
 
 # Pruebas unitarias
 Para ejecutar las pruebas unitarias del sistema, se debe ejecutar los siguientes comandos:
 ```bash
-python -m unittest discover -s test/querys -p "*_test.py"
-python -m unittest discover -s test/updater -p "*_test.py"
-python -m unittest discover -s test/handler -p "*_test.py"
+python -m unittest discover -s systemgrd/test/querys -p "*_test.py"
+python -m unittest discover -s systemgrd/test/updater -p "*_test.py"
+python -m unittest discover -s systemgrd/test/handler -p "*_test.py"
 ```
 
 > *Nota:* Tenga en cuenta que siempre puede ejecutar pruebas unitarias individualmente siguiendo la documentación oficial de Unittest de python.
