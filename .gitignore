@@ -1,6 +1,6 @@
 # Files
 data/*
-systemgrd/sources/*
+/sources/*
 systemgrd/routines/tmp/*
 systemgrd/routines/capa
 systemgrd/test/correcciondata
