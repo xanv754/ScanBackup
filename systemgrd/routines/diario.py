@@ -50,6 +50,7 @@ if __name__ == "__main__":
                 tipo = archivo.rsplit('%')[0]
                 df_interfaz = pd.read_csv(f'{ruta_data_scan}/{archivo}', sep=' ', names=['Fecha', 'Hora', 'IN', 'OUT', 'IN MAX', 'OUT MAX'])
                 df_interfaz = df_interfaz[df_interfaz['Fecha'] == ayer]
+                if df_interfaz.empty: continue
                 
                 try:
                     factor = 0.000000008022
@@ -83,7 +84,7 @@ if __name__ == "__main__":
                 else: df_nuevo_reporte = pd.concat([df_nuevo_reporte, df_interfaz], axis=0)
                 df_nuevo_reporte.reset_index(drop=True, inplace=True)
 
-            if not df_viejo_reporte.empty:
+            if not df_viejo_reporte.empty and not df_nuevo_reporte.empty:
                 df_nuevo_reporte = pd.concat([df_viejo_reporte, df_nuevo_reporte], axis=0)
             df_nuevo_reporte.to_csv(ruta_data_reporte, index=False, sep=" ", decimal=".")
     except Exception as e:
