@@ -22,7 +22,7 @@ class ConfigurationHandler:
         try:
             if not hasattr(self, "__initialized"):
                 self.__initialized = True
-                base_path = os.path.abspath(__file__).split("/utils")[0]
+                base_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
                 if os.path.exists(f"{base_path}/.env.development"):
                     env = dotenv_values(f"{base_path}/.env.development")
                 elif os.path.exists(f"{base_path}/.env.test"):
@@ -41,3 +41,8 @@ class ConfigurationHandler:
         except Exception as e:
             log.error(message=f"Failed to obtain configuration. {e}")
             exit(1)
+
+
+if __name__ == "__main__":
+    config = ConfigurationHandler()
+    print(config.uri_mongo)
