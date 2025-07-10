@@ -132,17 +132,17 @@ Este comando eliminará todos los data capturada sin afectar a la base de datos.
 ## Programación de Tareas
 Para la correcta ejecución de las rutinas diariamente, se debe configurar el sistema para que se ejecuten automáticamente. Para ello se debe añadir al crontab del sistema el siguiente comando:
 ```bash
-export HOMEPROJECT="/home/SystemCGPRD" # Debe reemplazarse por la ruta del directorio del sistema
+export HOMEPROJECT="/home/user/SystemCGPRD" # Debe reemplazarse por la ruta del directorio del sistema
 export USERSCAN="usuario" # Debe reemplazarse por el usuario
 export PASSWORDSCAN="contraseña" # Debe reemplazarse por la contraseña
 
-00 04 * * * bash /home/SystemCGPRD/systemgrd/routines/scan.sh
-00 07 * * * /home/SystemCGPRD/.venv/bin/python -m systemgrd.routines.diario
-30 07 * * * /home/SystemCGPRD/.venv/bin/python -m systemgrd.updater data
+00 04 * * * bash /home/user/SystemCGPRD/systemgrd/routines/scan.sh
+00 07 * * * /home/user/SystemCGPRD/.venv/bin/python -m systemgrd.routines.diario
+30 07 * * * /home/user/SystemCGPRD/.venv/bin/python -m systemgrd.updater data
 ```
 o 
 ```bash
-export HOMEPROJECT="/home/SystemCGPRD" # Debe reemplazarse por la ruta del directorio del sistema
+export HOMEPROJECT="/home/user/SystemCGPRD" # Debe reemplazarse por la ruta del directorio del sistema
 export USERSCAN="usuario" # Debe reemplazarse por el usuario
 export PASSWORDSCAN="contraseña" # Debe reemplazarse por la contraseña
 
