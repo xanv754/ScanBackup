@@ -197,7 +197,7 @@ python -m systemgrd diario
 ```
 
 Esto obtendrá el reporte del día anterior y lo exportará en un archivo .xlsx llamado `Resumen_Diario.xlsx`. 
-> *Nota:* La ubicación predeterminada es la carpeta de descargas del sistema. Si no se encuentra dicha carpeta, se dejará el archivo el "home" del sistema.
+> *Nota:* La ubicación predeterminada es la carpeta de descargas del sistema. Si no se encuentra dicha carpeta, se dejará el archivo en el home del usuario.
 
 ### Generar el reporte semanal
 Para generar el reporte semanal, se debe ejecutar el siguiente comando:
@@ -206,7 +206,7 @@ python -m systemgrd semanal
 ```
 
 Esto generará un reporte con el promedio de datos desde el lunes de la semana pasada hasta el domingo de la semana cursando. Este reporte será exportado un archivo .xlsx llamado `Resumen_Semanal.xlsx`. 
-> *Nota:* La ubicación predeterminada es la carpeta de descargas del sistema. Si no se encuentra dicha carpeta, se dejará el archivo el "home" del sistema.
+> *Nota:* La ubicación predeterminada es la carpeta de descargas del sistema. Si no se encuentra dicha carpeta, se dejará el archivo en el home del usuario.
 
 #### Opciones Extras
 Si se desea generar un reporte semanal con la data exacta de 7 días hacia atrás, es decir, contando desde el día anterior a la fecha en la que se está generando el reporte hasta 7 días atrás, se debe ejecutar el siguiente comando:
@@ -221,7 +221,7 @@ python -m systemgrd quincenal
 ```
 
 Esto generará un reporte con el promedio de datos desde el primer día del mes hasta el día 15 del mes (solo promediará los días en los que se obtenga información). Este reporte será exportado un archivo .xlsx llamado `Resumen_Quincenal.xlsx`. 
-> *Nota:* La ubicación predeterminada es la carpeta de descargas del sistema. Si no se encuentra dicha carpeta, se dejará el archivo el "home" del sistema.
+> *Nota:* La ubicación predeterminada es la carpeta de descargas del sistema. Si no se encuentra dicha carpeta, se dejará el archivo en el home del usuario.
 
 #### Opciones Extras
 Si se desea generar un reporte quincenal con la data exacta de 15 días hacia atrás, es decir, contando desde el día anterior a la fecha en la que se está generando el reporte, hasta 15 días atrás (sin importar que se pueda obtener data del mes pasado), se debe ejecutar el siguiente comando:
@@ -236,7 +236,7 @@ python -m systemgrd mensual
 ```
 
 Esto generará un reporte con el promedio de datos desde el primer día del mes hasta el día 30 del mes (solo promediará los días en los que se obtenga información). Este reporte será exportado un archivo .xlsx llamado `Resumen_Mensual.xlsx`. 
-> *Nota:* La ubicación predeterminada es la carpeta de descargas del sistema. Si no se encuentra dicha carpeta, se dejará el archivo el "home" del sistema.
+> *Nota:* La ubicación predeterminada es la carpeta de descargas del sistema. Si no se encuentra dicha carpeta, se dejará el archivo en el home del usuario.
 
 #### Opciones Extras
 Si se desea generar un reporte mensual con la data exacta de 30 días hacia atrás, es decir, contando desde el día anterior a la fecha en la que se está generando el reporte, hasta 30 días atrás (sin importar que se pueda obtener data del mes pasado), se debe ejecutar el siguiente comando:
