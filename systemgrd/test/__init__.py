@@ -7,13 +7,13 @@ from abc import ABC, abstractmethod
 from datetime import datetime, timedelta
 from dotenv import dotenv_values
 from pymongo import MongoClient
-from database import (
+from systemgrd.database import (
     BORDE_SCHEMA_MONGO, BRAS_SCHEMA_MONGO,
     CACHING_SCHEMA_MONGO, RAI_SCHEMA_MONGO,
     IP_HISTORY_SCHEMA_MONGO, DAILY_REPORT_SCHEMA_MONGO
 )
-from model import BBIPModel, IPBrasModel, DailyReportModel
-from constants import (
+from systemgrd.model import BBIPModel, IPBrasModel, DailyReportModel
+from systemgrd.constants import (
     LayerName, TableName, 
     BBIPFieldName, IPBrasHistoryFieldName, DailyReportFieldName, 
 )

@@ -1,6 +1,6 @@
 import unittest
-from database import RaiMongoQuery
-from test import DatabaseRaiTest, BBIPFieldName
+from systemgrd.database import RaiMongoQuery
+from systemgrd.test import DatabaseRaiTest, BBIPFieldName
 
 
 class Query(unittest.TestCase):

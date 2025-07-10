@@ -1,6 +1,6 @@
 import unittest
-from database import CachingMongoQuery
-from test import DatabaseCachingTest, BBIPFieldName
+from systemgrd.database import CachingMongoQuery
+from systemgrd.test import DatabaseCachingTest, BBIPFieldName
 
 
 class Query(unittest.TestCase):

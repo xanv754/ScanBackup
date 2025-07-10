@@ -1,6 +1,6 @@
 import unittest
-from database import BrasMongoQuery
-from test import DatabaseBrasTest, BBIPFieldName
+from systemgrd.database import BrasMongoQuery
+from systemgrd.test import DatabaseBrasTest, BBIPFieldName
 
 
 class Query(unittest.TestCase):

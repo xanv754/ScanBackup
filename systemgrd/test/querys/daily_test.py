@@ -1,6 +1,6 @@
 import unittest
-from database import DailyReportMongoQuery
-from test import DatabaseDailyTest, DailyReportFieldName
+from systemgrd.database import DailyReportMongoQuery
+from systemgrd.test import DatabaseDailyTest, DailyReportFieldName
 
 
 class Query(unittest.TestCase):
