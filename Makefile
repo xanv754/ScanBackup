@@ -30,7 +30,7 @@ setup: venv
 
 run:
 	bash $(HOMEPROJECT)/routines/captura-data.sh
-	$(HOMEPROJECT)/.venv/bin/python $(HOMEPROJECT)/systemgrd/routines/Rdiario.py
+	$(HOMEPROJECT)/.venv/bin/python -m systemgrd.routines.diario
 	$(HOMEPROJECT)/.venv/bin/python -m systemgrd.updater data
 
 clean-data:
