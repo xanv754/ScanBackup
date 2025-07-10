@@ -7,7 +7,7 @@ venv:
 ifeq ($(VENV_EXISTS),0)
 	@echo "Creando entorno virtual del sistema..."
 	python -m venv $(HOMEPROJECT)/.venv
-	$(HOMEPROJECT)/.venv/bin/pip install -r $(HOMEPROJECT)/requirements.txt
+	$(HOMEPROJECT)/.venv/bin/pip install -e .
 endif
 
 setup: venv
@@ -18,21 +18,20 @@ setup: venv
 	mkdir -p $(HOMEPROJECT)/data/SCAN/RAI
 	mkdir -p $(HOMEPROJECT)/data/SCAN/Reportes-Diarios
 	mkdir -p $(HOMEPROJECT)/data/logs
-	mkdir -p $(HOMEPROJECT)/routines/tmp/
+	mkdir -p $(HOMEPROJECT)/systemgrd/routines/tmp/
 	mkdir -p $(HOMEPROJECT)/sources/SCAN/
 	touch $(HOMEPROJECT)/sources/SCAN/Borde.txt
 	touch $(HOMEPROJECT)/sources/SCAN/Bras.txt
 	touch $(HOMEPROJECT)/sources/SCAN/Caching.txt
 	touch $(HOMEPROJECT)/sources/SCAN/RAI.txt
 	@echo "Inicializando base de datos..."
-	export PYTHONPATH=$(HOMEPROJECT)
-	$(HOMEPROJECT)/.venv/bin/python -m database start
+	$(HOMEPROJECT)/.venv/bin/python -m systemgrd.database start
 	@echo "Sistema instanciado correctamente."
 
 run:
 	bash $(HOMEPROJECT)/routines/captura-data.sh
-	$(HOMEPROJECT)/.venv/bin/python $(HOMEPROJECT)/routines/Rdiario.py
-	$(HOMEPROJECT)/.venv/bin/python -m updater data
+	$(HOMEPROJECT)/.venv/bin/python $(HOMEPROJECT)/systemgrd/routines/Rdiario.py
+	$(HOMEPROJECT)/.venv/bin/python -m systemgrd.updater data
 
 clean-data:
 	rm -rf $(HOMEPROJECT)/data/SCAN/Borde/*
