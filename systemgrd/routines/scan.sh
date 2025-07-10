@@ -1,24 +1,34 @@
 #/bin/bash
 
 # ---------------------------- INFO ----------------------------
-# 
-# Script que captura los datos de todas las interfacez de BBIP
-# obtenidas desde el aplicativo SCAN
+#
+# Script que captura los datos de tráfico del día anterior,
+# de todas las interfaces declaradas dentro de la carpeta
+# `sources/SCAN/` del sistema. Obtiendo la información de 
+# todas estas interfaces para almacenarlas de forma temporal 
+# para su procesamiento y, posteriormente, almacenamiento 
+# permanente en la base de datos del sistema.
+#
+# Para más información del sistema, léase `README.md`.
 #
 # --------------------------------------------------------------
 
-# Captura la fecha del dia anterior
 fecha=$(date --date="yesterday" +%Y-%m-%d) 
 ruta="$HOMEPROJECT/systemgrd"
 
-cd $ruta/routines
-rm $ruta/routines/tmp/*
-echo $fecha > $ruta/routines/tmp/fechaayer
-# Lista las capas a capturar data 
-ls $HOMEPROJECT/sources/SCAN > $ruta/routines/tmp/lista #TODO: MEJORAR
-
+if [ -d "$ruta/routines/tmp" ]; then
+  if [ -n "$(ls -A "$ruta/routines/tmp" 2>/dev/null)" ]; then
+    rm $ruta/routines/tmp/*
+  fi
+else
+  mkdir $ruta/routines/tmp
+fi
 echo "$(date +"%Y-%m-%d %H:%M:%S") INFO Captura de datos iniciada..."
 echo "$(date +"%Y-%m-%d %H:%M:%S") INFO Captura de datos iniciada..." >> $HOMEPROJECT/data/logs/SysGRD.log
+
+cd $ruta/routines
+echo $fecha > $ruta/routines/tmp/fechaayer
+ls $HOMEPROJECT/sources/SCAN > $ruta/routines/tmp/lista
 
 cat $ruta/routines/tmp/lista | while read line1
 do

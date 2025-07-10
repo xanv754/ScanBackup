@@ -71,9 +71,9 @@ El sistema tiene un orden estricto para dicha operación: recolección, procesam
 ## Recolección de datos
 Para recolectar los datos de SCAN, se debe ejecutar el siguiente comando:
 ```bash
-bash systemgrd/routines/captura-data.sh
+bash systemgrd/routines/scan.sh
 ```
-Esto recolectará los datos de SCAN del día anterior, y los alojará en el directorio `data/SCAN` según la capa que corresponda. Dicha carpeta debe encontrarse fuera de la carpeta `systemgrd/`.
+Esto recolectará los datos de tráfico de SCAN del día anterior de todas las interfaces especificadas en el directorio `sources/SCAN`. Todo el tráfico obtenido está en base a intervalos de cinco minutos. La información obtenida se alojará en el directorio `data/SCAN` según la capa que corresponda. Dicha carpeta debe encontrarse fuera de la carpeta `systemgrd/`.
 
 ## Procesamiento de datos
 Para procesar los datos de SCAN y obtener la data correspondiente al reporte diario, se debe ejecutar el siguiente comando:

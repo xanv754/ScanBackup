@@ -18,7 +18,6 @@ setup: venv
 	mkdir -p $(HOMEPROJECT)/data/SCAN/RAI
 	mkdir -p $(HOMEPROJECT)/data/SCAN/Reportes-Diarios
 	mkdir -p $(HOMEPROJECT)/data/logs
-	mkdir -p $(HOMEPROJECT)/systemgrd/routines/tmp/
 	mkdir -p $(HOMEPROJECT)/sources/SCAN/
 	touch $(HOMEPROJECT)/sources/SCAN/Borde.txt
 	touch $(HOMEPROJECT)/sources/SCAN/Bras.txt
@@ -29,7 +28,7 @@ setup: venv
 	@echo "Sistema instanciado correctamente."
 
 run:
-	bash $(HOMEPROJECT)/routines/captura-data.sh
+	bash $(HOMEPROJECT)/systemgrd/routines/scan.sh
 	$(HOMEPROJECT)/.venv/bin/python -m systemgrd.routines.diario
 	$(HOMEPROJECT)/.venv/bin/python -m systemgrd.updater data
 

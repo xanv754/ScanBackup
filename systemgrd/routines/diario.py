@@ -16,6 +16,8 @@ Detalles de Proceso:
 - Se crea un dataframe temporal donde se escriben los resultados.
 - Se concatena el dataframe temporal con el dataframe donde se guarda toda la data.
 - Se exporta el dataframe en un archivo CSV.
+
+Para más información del sistema, léase `README.md`.
 """
 
 import os
