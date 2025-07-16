@@ -7,6 +7,7 @@ systemgrd/test/correcciondata
 systemgrd/test/data/*
 systemgrd/test/calculos/*
 systemgrd/tmp/*
+/tmp/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
