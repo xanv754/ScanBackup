@@ -128,7 +128,7 @@ class BBIPHandler:
             if date_to < 10: date_to = f"0{date_to}"
             last_date = datetime.strptime(datetime.now().strftime("%Y-%m-%d")[:-3] + "-" + str(date_to), "%Y-%m-%d")
             first_date = datetime.strptime(datetime.now().strftime("%Y-%m-%d")[:-3] + "-01", "%Y-%m-%d")
-            while first_date.strftime("%Y-%m-%d") != last_date:
+            while first_date.strftime("%Y-%m-%d") != last_date.strftime("%Y-%m-%d"):
                 df = self.get_all_daily_report_by_date(date=first_date.strftime("%Y-%m-%d"))
                 if df_daily_report.empty and not df.empty: df_daily_report = df
                 elif not df.empty: 
