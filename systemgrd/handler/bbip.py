@@ -95,7 +95,7 @@ class BBIPHandler:
                 return df_daily_report
             else: return pd.DataFrame(columns=header_daily_report)
         except Exception as e:
-            log.error(f"BBIP handler. Failed to get all daily reports of BBIP. {e}")
+            log.error(f"BBIP handler. Failed to get all daily reports by date of BBIP. {e}")
             return pd.DataFrame(columns=header_daily_report)
         
     def get_all_daily_data_on_week(self) -> pd.DataFrame:
@@ -114,7 +114,7 @@ class BBIPHandler:
                     df_daily_report.reset_index(drop=True, inplace=True)
                 date = date + timedelta(days=1)
         except Exception as e:
-            log.error(f"BBIP handler. Failed to get all daily reports of BBIP. {e}")
+            log.error(f"BBIP handler. Failed to get all daily reports on week of BBIP. {e}")
             return pd.DataFrame()
         else:
             return df_daily_report
@@ -137,7 +137,7 @@ class BBIPHandler:
                     df_daily_report.reset_index(drop=True, inplace=True)
                 first_date = first_date + timedelta(days=1)
         except Exception as e:
-            log.error(f"Traffic handler. Failed to get all daily reports of BBIP. {e}")
+            log.error(f"Traffic handler. Failed to get all daily reports by first month of BBIP. {e}")
             return pd.DataFrame()
         else:
             return df_daily_report
@@ -156,7 +156,7 @@ class BBIPHandler:
                     df_daily_report.drop_duplicates(inplace=True)
                     df_daily_report.reset_index(drop=True, inplace=True)
         except Exception as e:
-            log.error(f"BBIP handler. Failed to get all daily reports of BBIP. {e}")
+            log.error(f"BBIP handler. Failed to get all daily reports by days before of BBIP. {e}")
             return pd.DataFrame()
         else:
             return df_daily_report
