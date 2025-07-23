@@ -12,6 +12,10 @@ class ConfigurationHandler:
     __instance: "ConfigurationHandler | None" = None
     uri_postgres: str
     uri_mongo: str
+    scan_username: str
+    scan_password: str
+    scan_url_borde_huawei: str
+    scan_url_borde_cisco: str
 
     def __new__(cls):
         if not cls.__instance:
@@ -34,10 +38,25 @@ class ConfigurationHandler:
                 else:
                     raise FileNotFoundError("No file with environment variables found")
                 uri_mongo = env.get("URI_MONGO")
-                if uri_mongo: 
-                    self.uri_mongo = uri_mongo
+                if uri_mongo: self.uri_mongo = uri_mongo
                 else:
                     log.warning(message=f"Failed to obtain configuration. URI MongoDB variable not found in enviroment file")
+                scan_username = env.get("SCAN_USERNAME")
+                if scan_username: self.scan_username = scan_username
+                else:
+                    log.warning(message=f"Failed to obtain configuration. SCAN_USERNAME variable not found in enviroment file")
+                scan_password = env.get("SCAN_PASSWORD")
+                if scan_password: self.scan_password = scan_password
+                else:
+                    log.warning(message=f"Failed to obtain configuration. SCAN_PASSWORD variable not found in enviroment file")
+                scan_url_borde_hw = env.get("SCAN_URL_BORDE_HW")
+                if scan_url_borde_hw: self.scan_url_borde_huawei = scan_url_borde_hw
+                else:
+                    log.warning(message=f"Failed to obtain configuration. SCAN_URL_BORDE variable not found in enviroment file")
+                scan_url_borde_cisco = env.get("SCAN_URL_BORDE_CISCO")
+                if scan_url_borde_cisco: self.scan_url_borde_cisco = scan_url_borde_cisco
+                else:
+                    log.warning(message=f"Failed to obtain configuration. SCAN_URL_BORDE_CISCO variable not found in enviroment file")
         except Exception as e:
             log.error(message=f"Failed to obtain configuration. {e}")
             exit(1)

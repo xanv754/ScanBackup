@@ -9,6 +9,7 @@ class DataPath:
     SCAN_DATA_CACHING = path.join(ROOT_PATH, "data", "SCAN", "Caching")
     SCAN_DATA_RAI = path.join(ROOT_PATH, "data", "SCAN", "RAI")
     SCAN_REPORT_DAILY = path.join(ROOT_PATH, "data", "SCAN", "Reportes-Diarios")
+    SCAN_SOURCES = path.join(ROOT_PATH, "sources", "SCAN")
 
 
 paths_BBIP_SCAN = [
@@ -25,3 +26,4 @@ if __name__ == "__main__":
     print(DataPath.SCAN_DATA_CACHING)
     print(DataPath.SCAN_DATA_RAI)
     print(DataPath.SCAN_REPORT_DAILY)
+    print(DataPath.SCAN_SOURCES)
