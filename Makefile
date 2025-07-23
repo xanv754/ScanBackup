@@ -32,6 +32,9 @@ run:
 	$(HOMEPROJECT)/.venv/bin/python -m systemgrd.routines.diario
 	$(HOMEPROJECT)/.venv/bin/python -m systemgrd.updater data
 
+sources:
+	$(HOMEPROJECT)/.venv/bin/python -m systemgrd.routines.sources
+
 clean-data:
 	rm -rf $(HOMEPROJECT)/data/SCAN/Borde/*
 	rm -rf $(HOMEPROJECT)/data/SCAN/Bras/*
