@@ -47,18 +47,14 @@ class SourceScrapping(ABC):
             return None
         else:
             return soup
-        
+
+    @abstractmethod  
     def get_capacity(self, url: str) -> str:
-        try:
-            soup = self.get_html(url)
-            if not soup: raise Exception("Failed to obtain HTML from source.")
-            block = soup.find('span', class_="d-block mb-3").find_next('p').find_next('i')
-            capacity = block.get_text(strip=True).split(": ")[1].split("Gb")[0].strip().replace(",", ".")
-            capacity = str(int(round(float(capacity))))
-            return capacity
-        except Exception as error:
-            log.error(f"Failed to obtain capacity from {url}. {error}")
-            return "0"
+        pass
+
+    @abstractmethod  
+    def get_sources(self) -> list[Source]:
+        pass
         
     @abstractmethod
     def save_sources(self, sources: list[Source]) -> bool:
@@ -92,13 +88,29 @@ class BordeSourceScrapping(SourceScrapping):
         
     def _scrap_borde_huawei(self) -> list:
         soup = self.get_html(self.config.scan_url_borde_huawei)
-        if not soup: log.error("Failed to obtain sources from SCAN Borde Huawei.")
+        if not soup: 
+            log.error("Failed to obtain sources from SCAN Borde Huawei.")
+            return []
         return self._get_info_interfaces(soup, "HUAWEI")
 
     def _scrap_cisco(self) -> list:
         soup = self.get_html(self.config.scan_url_borde_cisco)
-        if not soup: log.error("Failed to obtain sources from SCAN Borde Cisco.")
+        if not soup: 
+            log.error("Failed to obtain sources from SCAN Borde Cisco.")
+            return []
         return self._get_info_interfaces(soup, "CISCO")
+    
+    def get_capacity(self, url: str) -> str:
+        try:
+            soup = self.get_html(url)
+            if not soup: raise Exception("Failed to obtain HTML from source.")
+            block = soup.find('span', class_="d-block mb-3").find_next('p').find_next('i')
+            capacity = block.get_text(strip=True).split(": ")[1].split("Gb")[0].strip().replace(",", ".")
+            capacity = str(int(round(float(capacity))))
+            return capacity
+        except Exception as error:
+            log.error(f"Failed to obtain capacity from {url}. {error}")
+            return "0"
 
     def get_sources(self) -> list[Source]:
         interfaces_hw = self._scrap_borde_huawei()
@@ -121,6 +133,92 @@ class BordeSourceScrapping(SourceScrapping):
             return True
 
 
+class BrasSourceScrapping(SourceScrapping):
+
+    def _get_list_bras(self, soup: BeautifulSoup, interface: str) -> list[str, str]:
+        elements = []
+        if interface == "UPLINK": content = "UPLINK POR BRAS"
+        else: content = "DOWNLINK POR BRAS"
+        menu = soup.find('div', class_="sidebar").find('nav').find('ul', class_='nav nav-pills nav-sidebar flex-column').find_all('li', class_="nav-item menu")
+        for level in menu:
+            block = level.find("ul", class_="nav nav-treeview").find_all('li', class_="nav-item")
+            for item in block:
+                if item.find('p').get_text(strip=True) == content:
+                    all_bras = item.find('ul', class_="nav nav-treeview").find_all('li', class_="nav-item")
+                    for bras in all_bras:
+                        link = bras.find('a').get('href')
+                        name = bras.find('p').get_text(strip=True)
+                        elements.append((name, link))
+        return elements
+
+    def _get_info_interfaces(self, soup: BeautifulSoup, interface: str) -> list[Source]:
+        try:
+            sources = []
+            list_bras = self._get_list_bras(soup, interface)
+            for bras in list_bras:
+                url_base = self.url_base.replace("11", "8")
+                soup = self.get_html(url_base + bras[1])
+                if not soup: 
+                    log.error(f"Failed to obtain info from SCAN Bras {bras[0]}.")
+                    continue
+                blocks = soup.find('section', class_="content").find_all('div', class_="col-sm-12")
+                del blocks[0]
+                for block in blocks:
+                    name = block.find('li', {'id': 'subtitulo'}).get_text(strip=True)
+                    preffix = name.split(" - ")[0].strip()
+                    preffix = preffix.replace("/", "").replace("(", "").replace(")", "").replace(" ", "_").replace("%", "")
+                    suffix = name.split(" - ")[1].strip()
+                    suffix = suffix.replace("/", "").replace("(", "").replace(")", "").replace(" ", "_").replace("%", "")
+                    name = preffix + "_-_" + suffix
+                    link_original = block.find('li', {'id': 'graficas'}).find('a').get('href')
+                    link = link_original.replace(".html", ".log")
+                    capacity = self.get_capacity(name)
+                    source = Source(link=link, name=name, capacity=capacity, model=interface)
+                    sources.append(source)
+        except Exception as error:
+            log.error(f"Failed to obtain info from SCAN Bras interfaces. {error}")
+            return []
+        else:
+            return sources
+        
+    def get_capacity(self, name: str):
+        try:
+            name_split = name.split("_")
+            for content in name_split:
+                content = content.upper().strip()
+                if "GB" in content:
+                    content = content.replace("GB", "")
+                    return content
+            return "5"
+        except Exception as error:
+            log.error(f"Failed to obtain capacity from {name}. {error}")
+            return "0"
+
+    def get_sources(self) -> list[Source]:
+        soup = self.get_html(self.config.scan_url_bras)
+        if not soup: 
+            log.error("Failed to obtain sources from SCAN Bras.")
+            return []
+        sources_uplink = self._get_info_interfaces(soup, "UPLINK")
+        sources_downlink = self._get_info_interfaces(soup, "DOWNLINK")
+        return sources_uplink + sources_downlink
+
+    def save_sources(self, sources):
+        try:
+            if os.path.exists(f"{DataPath.SCAN_SOURCES}/Bras_bk.txt"):
+                os.remove(f"{DataPath.SCAN_SOURCES}/Bras_bk.txt")
+            os.rename(f"{DataPath.SCAN_SOURCES}/Bras.txt", f"{DataPath.SCAN_SOURCES}/Bras_bk.txt")
+            url_base = self.url_base.replace("11", "8")
+            with open(f"{DataPath.SCAN_SOURCES}/Bras.txt", "w") as file:
+                for source in sources:
+                    if source.capacity == "0": continue
+                    file.write(f"{url_base}{source.link} {source.name} {source.capacity} {source.model}\n")
+        except Exception as error:
+            log.error(f"Failed to save sources. {error}")
+            return False
+        else:
+            return True
+
 if __name__ == "__main__":
     borde_scrapper = BordeSourceScrapping()
     borde_sources = borde_scrapper.get_sources()
@@ -128,3 +226,8 @@ if __name__ == "__main__":
     if status_update: log.info("Sources from SCAN Borde updated.")
     else: log.error("Failed to update sources from SCAN Borde.")
     
+    bras_scrapper = BrasSourceScrapping()
+    bras_sources = bras_scrapper.get_sources()
+    status_update = bras_scrapper.save_sources(bras_sources)
+    if status_update: log.info("Sources from SCAN Bras updated.")
+    else: log.error("Failed to update sources from SCAN Bras.")

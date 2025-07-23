@@ -16,6 +16,7 @@ class ConfigurationHandler:
     scan_password: str
     scan_url_borde_huawei: str
     scan_url_borde_cisco: str
+    scan_url_bras: str
 
     def __new__(cls):
         if not cls.__instance:
@@ -57,6 +58,10 @@ class ConfigurationHandler:
                 if scan_url_borde_cisco: self.scan_url_borde_cisco = scan_url_borde_cisco
                 else:
                     log.warning(message=f"Failed to obtain configuration. SCAN_URL_BORDE_CISCO variable not found in enviroment file")
+                scan_url_bras = env.get("SCAN_URL_BRAS")
+                if scan_url_bras: self.scan_url_bras = scan_url_bras
+                else:
+                    log.warning(message=f"Failed to obtain configuration. SCAN_URL_BRAS variable not found in enviroment file")
         except Exception as e:
             log.error(message=f"Failed to obtain configuration. {e}")
             exit(1)
