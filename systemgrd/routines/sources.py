@@ -30,11 +30,13 @@ class SourceScrapping(ABC):
         self.set_url_base()
 
     def set_url_base(self) -> None:
+        """Define the base path."""
         url = self.config.scan_url_borde_huawei
         base = url.split(".net")[0]
         self.url_base = base + ".net"
 
     def get_html(self, url: str) -> BeautifulSoup | None:
+        """Get the HTML of the page."""
         try:
             html = requests.get(
                 url, 
@@ -49,21 +51,33 @@ class SourceScrapping(ABC):
             return soup
 
     @abstractmethod  
-    def get_capacity(self, url: str) -> str:
+    def get_capacity(self, param: str) -> str:
+        """Get the capacity of an interface.
+        
+        :param param: The name or url of the interface.
+        :type param: str
+        """
         pass
 
     @abstractmethod  
     def get_sources(self) -> list[Source]:
+        """Get a list of sources for each existing interface."""
         pass
         
     @abstractmethod
     def save_sources(self, sources: list[Source]) -> bool:
+        """Save the sources in a file corresponding to their layer.
+        
+        :param sources: The list of sources to save.
+        :type sources: list[Source]
+        """
         pass
     
 
 class BordeSourceScrapping(SourceScrapping):
 
     def _get_info_interfaces(self, soup: BeautifulSoup, model: str) -> list[Source]:
+        """Scrapping the information to obtain the sources for each interface."""
         try:
             sources = []
             interfaces = soup.find_all('ul', class_="list-group")
@@ -86,30 +100,32 @@ class BordeSourceScrapping(SourceScrapping):
         else:
             return sources
         
-    def _scrap_borde_huawei(self) -> list:
+    def _scrap_borde_huawei(self) -> list[Source]:
+        """Scrapping the information to obtain the sources borde Huawei."""
         soup = self.get_html(self.config.scan_url_borde_huawei)
         if not soup: 
             log.error("Failed to obtain sources from SCAN Borde Huawei.")
             return []
         return self._get_info_interfaces(soup, "HUAWEI")
 
-    def _scrap_cisco(self) -> list:
+    def _scrap_cisco(self) -> list[Source]:
+        """Scrapping the information to obtain the sources borde Cisco."""
         soup = self.get_html(self.config.scan_url_borde_cisco)
         if not soup: 
             log.error("Failed to obtain sources from SCAN Borde Cisco.")
             return []
         return self._get_info_interfaces(soup, "CISCO")
     
-    def get_capacity(self, url: str) -> str:
+    def get_capacity(self, param: str) -> str:
         try:
-            soup = self.get_html(url)
+            soup = self.get_html(param)
             if not soup: raise Exception("Failed to obtain HTML from source.")
             block = soup.find('span', class_="d-block mb-3").find_next('p').find_next('i')
             capacity = block.get_text(strip=True).split(": ")[1].split("Gb")[0].strip().replace(",", ".")
             capacity = str(int(round(float(capacity))))
             return capacity
         except Exception as error:
-            log.error(f"Failed to obtain capacity from {url}. {error}")
+            log.error(f"Failed to obtain capacity from {param}. {error}")
             return "0"
 
     def get_sources(self) -> list[Source]:
@@ -136,6 +152,7 @@ class BordeSourceScrapping(SourceScrapping):
 class BrasSourceScrapping(SourceScrapping):
 
     def _get_list_bras(self, soup: BeautifulSoup, interface: str) -> list[str, str]:
+        """Scrapping the information to obtain a list of bras existing."""
         elements = []
         if interface == "UPLINK": content = "UPLINK POR BRAS"
         else: content = "DOWNLINK POR BRAS"
@@ -152,6 +169,7 @@ class BrasSourceScrapping(SourceScrapping):
         return elements
 
     def _get_info_interfaces(self, soup: BeautifulSoup, interface: str) -> list[Source]:
+        """Scrapping the information to obtain the sources for each interface."""
         try:
             sources = []
             list_bras = self._get_list_bras(soup, interface)
@@ -181,9 +199,9 @@ class BrasSourceScrapping(SourceScrapping):
         else:
             return sources
         
-    def get_capacity(self, name: str):
+    def get_capacity(self, param: str):
         try:
-            name_split = name.split("_")
+            name_split = param.split("_")
             for content in name_split:
                 content = content.upper().strip()
                 if "GB" in content:
@@ -191,7 +209,7 @@ class BrasSourceScrapping(SourceScrapping):
                     return content
             return "5"
         except Exception as error:
-            log.error(f"Failed to obtain capacity from {name}. {error}")
+            log.error(f"Failed to obtain capacity from {param}. {error}")
             return "0"
 
     def get_sources(self) -> list[Source]:
