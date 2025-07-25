@@ -116,7 +116,7 @@ class BordeSourceScrapping(SourceScrapping):
             return []
         return self._get_info_interfaces(soup, "CISCO")
     
-    def get_capacity(self, param: str) -> str:
+    def get_capacity(self, param: str):
         try:
             soup = self.get_html(param)
             if not soup: raise Exception("Failed to obtain HTML from source.")
@@ -128,16 +128,17 @@ class BordeSourceScrapping(SourceScrapping):
             log.error(f"Failed to obtain capacity from {param}. {error}")
             return "0"
 
-    def get_sources(self) -> list[Source]:
+    def get_sources(self):
         interfaces_hw = self._scrap_borde_huawei()
         interfaces_cisco = self._scrap_cisco()
         return interfaces_hw + interfaces_cisco
     
-    def save_sources(self, sources) -> bool:
+    def save_sources(self, sources):
         try:
             if os.path.exists(f"{DataPath.SCAN_SOURCES}/Borde_bk.txt"):
                 os.remove(f"{DataPath.SCAN_SOURCES}/Borde_bk.txt")
-            os.rename(f"{DataPath.SCAN_SOURCES}/Borde.txt", f"{DataPath.SCAN_SOURCES}/Borde_bk.txt")
+            if os.path.exists(f"{DataPath.SCAN_SOURCES}/Borde.txt"):
+                os.rename(f"{DataPath.SCAN_SOURCES}/Borde.txt", f"{DataPath.SCAN_SOURCES}/Borde_bk.txt")
             with open(f"{DataPath.SCAN_SOURCES}/Borde.txt", "w") as file:
                 for source in sources:
                     if source.capacity == "0": continue
@@ -212,7 +213,7 @@ class BrasSourceScrapping(SourceScrapping):
             log.error(f"Failed to obtain capacity from {param}. {error}")
             return "0"
 
-    def get_sources(self) -> list[Source]:
+    def get_sources(self):
         soup = self.get_html(self.config.scan_url_bras)
         if not soup: 
             log.error("Failed to obtain sources from SCAN Bras.")
@@ -225,7 +226,8 @@ class BrasSourceScrapping(SourceScrapping):
         try:
             if os.path.exists(f"{DataPath.SCAN_SOURCES}/Bras_bk.txt"):
                 os.remove(f"{DataPath.SCAN_SOURCES}/Bras_bk.txt")
-            os.rename(f"{DataPath.SCAN_SOURCES}/Bras.txt", f"{DataPath.SCAN_SOURCES}/Bras_bk.txt")
+            if os.path.exists(f"{DataPath.SCAN_SOURCES}/Bras.txt"):
+                os.rename(f"{DataPath.SCAN_SOURCES}/Bras.txt", f"{DataPath.SCAN_SOURCES}/Bras_bk.txt")
             url_base = self.url_base.replace("11", "8")
             with open(f"{DataPath.SCAN_SOURCES}/Bras.txt", "w") as file:
                 for source in sources:
@@ -236,6 +238,79 @@ class BrasSourceScrapping(SourceScrapping):
             return False
         else:
             return True
+        
+
+class CachingSourceScrapping(SourceScrapping):
+
+    def _get_list_services(self, soup: BeautifulSoup) -> list[str, str]:
+        """Scrapping the information to obtain a list of bras existing."""
+        services = []
+        blocks = soup.find('div', class_="sidebar").find('nav', class_="mt-2").find('ul', class_="nav nav-pills nav-sidebar flex-column").find('li', class_="nav-item menu-open").find('ul', class_="nav nav-treeview").find_all('li', class_="nav-item")
+        del blocks[0]
+        for item in blocks:
+            block = item.find('a', class_="nav-link")
+            link = block.get('href')
+            if link == "#": continue
+            service = block.find('p').get_text(strip=True)
+            service = service.replace("Suma", "").strip().upper()
+            if "ALIANZA" in service: service = "FACEBOOK"
+            services.append((service, link))
+        return services
+
+    def _get_info_interfaces(self) -> list[Source]:
+        """Scrapping the information to obtain the sources for each interface."""
+        try:
+            sources = []
+            soup = self.get_html(self.config.scan_url_caching)
+            if not soup: 
+                log.error("Failed to obtain sources from SCAN Caching.")
+                return []
+            services = self._get_list_services(soup)
+            for service in services:
+                soup = self.get_html(f"{self.url_base}{service[1]}")
+                if not soup: 
+                    log.error(f"Failed to obtain info from SCAN Caching {service[0]}.")
+                    continue
+                blocks = soup.find('section', class_="content").find('div', class_="row").find('div', class_="col-md-12").find_all('div', class_="col-sm-12")
+                for item in blocks:
+                    name = item.find('li', {'id': 'subtitulo'}).get_text(strip=True)
+                    if not name or "Sumatoria" in name:
+                        continue
+                    name = name.split(" - ")[0].replace("Router ", "").replace(" ", "_").replace("/", "").replace("(", "").replace(")", "").replace("%", "").replace("|", "-")
+                    capacity = self.get_capacity(name)
+                    link_original = item.find('li', {'id': 'graficas'}).find('a').get('href')
+                    link = link_original.replace(".html", ".log")
+                    source = Source(link=link, name=name, capacity=capacity, model=service[0])
+                    sources.append(source)
+        except Exception as error:
+            log.error(f"Failed to obtain info from SCAN Caching interfaces. {error}")
+            return []
+        else:
+            return sources
+
+    def get_capacity(self, param: str): 
+        # TODO
+        return "PENDIENTE"
+
+    def get_sources(self):
+        return self._get_info_interfaces()
+
+    def save_sources(self, sources: list[Source]):
+        try:
+            if os.path.exists(f"{DataPath.SCAN_SOURCES}/Caching_bk.txt"):
+                os.remove(f"{DataPath.SCAN_SOURCES}/Caching_bk.txt")
+            if os.path.exists(f"{DataPath.SCAN_SOURCES}/Caching.txt"):
+                os.rename(f"{DataPath.SCAN_SOURCES}/Caching.txt", f"{DataPath.SCAN_SOURCES}/Caching_bk.txt")
+            with open(f"{DataPath.SCAN_SOURCES}/Caching.txt", "w") as file:
+                for source in sources:
+                    if source.capacity == "0": continue
+                    file.write(f"{self.url_base}{source.link} {source.name} {source.capacity} {source.model}\n")
+        except Exception as error:
+            log.error(f"Failed to save sources. {error}")
+            return False
+        else:
+            return True
+
 
 if __name__ == "__main__":
     borde_scrapper = BordeSourceScrapping()
@@ -249,3 +324,9 @@ if __name__ == "__main__":
     status_update = bras_scrapper.save_sources(bras_sources)
     if status_update: log.info("Sources from SCAN Bras updated.")
     else: log.error("Failed to update sources from SCAN Bras.")
+
+    caching_scrapper = CachingSourceScrapping()
+    caching_sources = caching_scrapper.get_sources()
+    status_update = caching_scrapper.save_sources(caching_sources)
+    if status_update: log.info("Sources from SCAN Caching updated.")
+    else: log.error("Failed to update sources from SCAN Caching.")
