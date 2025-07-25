@@ -17,6 +17,7 @@ class ConfigurationHandler:
     scan_url_borde_huawei: str
     scan_url_borde_cisco: str
     scan_url_bras: str
+    scan_url_caching: str
 
     def __new__(cls):
         if not cls.__instance:
@@ -41,29 +42,33 @@ class ConfigurationHandler:
                 uri_mongo = env.get("URI_MONGO")
                 if uri_mongo: self.uri_mongo = uri_mongo
                 else:
-                    log.warning(message=f"Failed to obtain configuration. URI MongoDB variable not found in enviroment file")
+                    log.warning(f"Failed to obtain configuration. URI MongoDB variable not found in enviroment file")
                 scan_username = env.get("SCAN_USERNAME")
                 if scan_username: self.scan_username = scan_username
                 else:
-                    log.warning(message=f"Failed to obtain configuration. SCAN_USERNAME variable not found in enviroment file")
+                    log.warning(f"Failed to obtain configuration. SCAN_USERNAME variable not found in enviroment file")
                 scan_password = env.get("SCAN_PASSWORD")
                 if scan_password: self.scan_password = scan_password
                 else:
-                    log.warning(message=f"Failed to obtain configuration. SCAN_PASSWORD variable not found in enviroment file")
+                    log.warning(f"Failed to obtain configuration. SCAN_PASSWORD variable not found in enviroment file")
                 scan_url_borde_hw = env.get("SCAN_URL_BORDE_HW")
                 if scan_url_borde_hw: self.scan_url_borde_huawei = scan_url_borde_hw
                 else:
-                    log.warning(message=f"Failed to obtain configuration. SCAN_URL_BORDE variable not found in enviroment file")
+                    log.warning(f"Failed to obtain configuration. SCAN_URL_BORDE variable not found in enviroment file")
                 scan_url_borde_cisco = env.get("SCAN_URL_BORDE_CISCO")
                 if scan_url_borde_cisco: self.scan_url_borde_cisco = scan_url_borde_cisco
                 else:
-                    log.warning(message=f"Failed to obtain configuration. SCAN_URL_BORDE_CISCO variable not found in enviroment file")
+                    log.warning(f"Failed to obtain configuration. SCAN_URL_BORDE_CISCO variable not found in enviroment file")
                 scan_url_bras = env.get("SCAN_URL_BRAS")
                 if scan_url_bras: self.scan_url_bras = scan_url_bras
                 else:
-                    log.warning(message=f"Failed to obtain configuration. SCAN_URL_BRAS variable not found in enviroment file")
-        except Exception as e:
-            log.error(message=f"Failed to obtain configuration. {e}")
+                    log.warning(f"Failed to obtain configuration. SCAN_URL_BRAS variable not found in enviroment file")
+                scan_url_caching = env.get("SCAN_URL_CACHING")
+                if scan_url_caching: self.scan_url_caching = scan_url_caching
+                else:
+                    log.warning(f"Failed to obtain configuration. SCAN_URL_CACHING variable not found in enviroment file")
+        except Exception as error:
+            log.error(f"Failed to obtain configuration. {error}")
             exit(1)
 
 
