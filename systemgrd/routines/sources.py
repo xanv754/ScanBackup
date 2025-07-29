@@ -312,6 +312,73 @@ class CachingSourceScrapping(SourceScrapping):
             return True
 
 
+class RaiSourceScrapping(SourceScrapping):
+    def _get_info_interfaces(self, soup: BeautifulSoup, url_base: str) -> list[Source]:
+        """Scrapping the information to obtain the sources for each interface."""
+        try:
+            sources = []
+            blocks = soup.find('section', {'id': 'features'}).find('div', class_="container").find('div', class_="row").find_all('div', class_="col-sm-12")
+            for item in blocks:
+                link_original = item.find('li', {'id': 'graficas'}).find('a').get('href')
+                link = link_original.replace(".html", ".log")
+                name = item.find('li', {'id': 'subtitulo'}).get_text(strip=True)
+                name = name.replace("Router ", "").split(" - ")[0]
+                name = name.replace("/", "").replace("(", "").replace(")", "").replace("%", "").replace("|", "-").replace(" ", "_")
+                capacity = self.get_capacity(link_original)
+                source = Source(link=f"{url_base}{link}", name=name, capacity=capacity, model="DEDICADO")
+                sources.append(source)
+        except Exception as error:
+            log.error(f"Failed to obtain info from SCAN Rai interfaces. {error}")
+            return []
+        else:
+            return sources
+        
+    def _scrap_rai_hw(self) -> list[Source]:
+        """Scrapping the information to obtain the sources Rai Huawei."""
+        soup = self.get_html(self.config.scan_url_rai_hw)
+        if not soup: 
+            log.error("Failed to obtain sources from SCAN Rai Huawei.")
+            return []
+        return self._get_info_interfaces(soup, url_base=self.url_base)
+
+    def _scrap_rai_zte(self) -> list[Source]:
+        """Scrapping the information to obtain the sources Rai ZTE."""
+        soup = self.get_html(self.config.scan_url_rai_zte)
+        if not soup: 
+            log.error("Failed to obtain sources from SCAN Rai ZTE.")
+            return []
+        url_base = self.url_base.replace("11", "10")
+        return self._get_info_interfaces(soup, url_base=url_base)
+
+    def get_capacity(self, param: str): 
+        # TODO
+        return "PENDIENTE"
+
+    def get_sources(self):
+        try:
+            sources_hw = self._scrap_rai_hw()
+            sources_zte = self._scrap_rai_zte()
+            return sources_hw + sources_zte
+        except Exception as error:
+            log.error(f"Failed to obtain info from SCAN Rai interfaces. {error}")
+            return []
+
+    def save_sources(self, sources: list[Source]):
+        try:
+            if os.path.exists(f"{DataPath.SCAN_SOURCES}/RAI_bk.txt"):
+                os.remove(f"{DataPath.SCAN_SOURCES}/RAI_bk.txt")
+            if os.path.exists(f"{DataPath.SCAN_SOURCES}/RAI.txt"):
+                os.rename(f"{DataPath.SCAN_SOURCES}/RAI.txt", f"{DataPath.SCAN_SOURCES}/RAI_bk.txt")
+            with open(f"{DataPath.SCAN_SOURCES}/RAI.txt", "w") as file:
+                for source in sources:
+                    if source.capacity == "0": continue
+                    file.write(f"{source.link} {source.name} {source.capacity} {source.model}\n")
+        except Exception as error:
+            log.error(f"Failed to save sources. {error}")
+            return False
+        else:
+            return True
+
 if __name__ == "__main__":
     borde_scrapper = BordeSourceScrapping()
     borde_sources = borde_scrapper.get_sources()
@@ -330,3 +397,9 @@ if __name__ == "__main__":
     status_update = caching_scrapper.save_sources(caching_sources)
     if status_update: log.info("Sources from SCAN Caching updated.")
     else: log.error("Failed to update sources from SCAN Caching.")
+
+    rai_scrapper = RaiSourceScrapping()
+    rai_sources = rai_scrapper.get_sources()
+    status_update = rai_scrapper.save_sources(rai_sources)
+    if status_update: log.info("Sources from SCAN Rai updated.")
+    else: log.error("Failed to update sources from SCAN Rai.")
