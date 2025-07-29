@@ -49,6 +49,10 @@ SCAN_USERNAME="username"
 SCAN_PASSWORD="password"
 SCAN_URL_BORDE_HW="url" # Página principal de los enlaces
 SCAN_URL_BORDE_CISCO="url" # Página principal de los enlaces
+SCAN_URL_BRAS="url" # Página principal de los enlaces
+SCAN_URL_CACHING="url" # Página principal de los enlaces
+SCAN_URL_RAI_HW="url" # Página principal de los enlaces
+SCAN_URL_RAI_ZTE="url" # Página principal de los enlaces
 ```
 > *Nota*: Para ejecutar las **pruebas unitarias** es necesario un archivo `.env.test` con las variables de entorno. Si se desea trabajar en el **entorno de desarrollo**, se debe usar el archivo `.env.development`, que tiene un privilegio de uso antes que el archivo `.env.production` o `.env`. El sistema diferencia el **entorno de desarrollo** entre el **entorno de pruebas**.
 
@@ -124,8 +128,6 @@ make sources
 ```
 
 Este comando actualizará las fuentes de los enlaces y los almacenará en el directorio `sources/SCAN/` en la capa correspondiente.
-
-> *Nota:* Por ahora solo se obtienen las fuentesde los enlaces de la capa `Borde`.
 
 ## Ejecución del Sistema
 Para poder ejecutar el sistema, se debe ejecutar el siguiente comando:
