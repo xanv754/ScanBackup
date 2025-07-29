@@ -18,6 +18,8 @@ class ConfigurationHandler:
     scan_url_borde_cisco: str
     scan_url_bras: str
     scan_url_caching: str
+    scan_url_rai_hw: str
+    scan_url_rai_zte: str
 
     def __new__(cls):
         if not cls.__instance:
@@ -67,6 +69,14 @@ class ConfigurationHandler:
                 if scan_url_caching: self.scan_url_caching = scan_url_caching
                 else:
                     log.warning(f"Failed to obtain configuration. SCAN_URL_CACHING variable not found in enviroment file")
+                scan_url_rai_hw = env.get("SCAN_URL_RAI_HW")
+                if scan_url_rai_hw: self.scan_url_rai_hw = scan_url_rai_hw
+                else:
+                    log.warning(f"Failed to obtain configuration. SCAN_URL_RAI_HW variable not found in enviroment file")
+                scan_url_rai_zte = env.get("SCAN_URL_RAI_ZTE")
+                if scan_url_rai_zte: self.scan_url_rai_zte = scan_url_rai_zte
+                else:
+                    log.warning(f"Failed to obtain configuration. SCAN_URL_RAI_ZTE variable not found in enviroment file")
         except Exception as error:
             log.error(f"Failed to obtain configuration. {error}")
             exit(1)
