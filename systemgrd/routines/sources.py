@@ -380,6 +380,7 @@ class RaiSourceScrapping(SourceScrapping):
             return True
 
 if __name__ == "__main__":
+    log.info("Starting scrapping to update sources...")
     borde_scrapper = BordeSourceScrapping()
     borde_sources = borde_scrapper.get_sources()
     status_update = borde_scrapper.save_sources(borde_sources)
