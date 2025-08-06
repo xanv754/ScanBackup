@@ -38,6 +38,7 @@ Un sistema diseñado para la recolección de datos de tráfico de todas las inte
 # Documentación 
 - Para ver la documentación de los diagramas, revisa: [diagramas](https://drive.google.com/file/d/1OHpYc9LDjmO_SAFFDzrM-Qdf7UrZxNz0/view?usp=sharing).
 
+**IMPORTANTE:** Antes de realizar cualquier operación o modificación del sistema, se recomienda leer toda la documentación de este documento para entender el funcionamiento del sistema y sus procedimientos.
 
 # Requerimientos
 ## Variables de Entorno
@@ -122,12 +123,16 @@ make setup
 Este comando creará las carpetas necesarias para el funcionamiento del sistema, creará la base de datos y instalará las dependencias de Python.
 
 ## Actualización de las fuentes
-Para actualizar o obtener de nuevo las fuentes de los enlaces necesarios para el funcionamiento del sistema, se debe ejecutar el siguiente comando:
+Para actualizar o obtener la base de las fuentes de los enlaces necesarios para el funcionamiento del sistema, se debe ejecutar el siguiente comando:
 ```bash
 make sources
 ```
 
-Este comando actualizará las fuentes de los enlaces y los almacenará en el directorio `sources/SCAN/` en la capa correspondiente.
+Este comando actualizará las fuentes de los enlaces y los almacenará en el directorio `sources/SCAN/` en la capa correspondiente. Esto se refiere a que, realizando un web scrapping de las capas en SCAN, se obtienen las fuentes los enlaces registrados en SCAN con sus otros valores necesarios para el correcto funcionamiento del sistema. 
+
+En dichas fuentes, no siempre se traen en todas las capas la información completa (solo `Borde` y `Bras` sí), por lo que se debe revisar manualmente la correcta extracción de la información antes de ejecutar el actualizador de la data de SCAN. El actualizador de las fuentes de SCAN solo agrega o elimina interfaces en los archivos de la carpeta `sources/SCAN/`, pero no modifica información de las interfaces ya registradas. Esto con el fin de no dañar los valores de capacidades de las interfaces registradas, ya que no hay certeza de que la información que se extrae sea la correcta con respecto a la capacidad de cada interfaz.
+
+Es por ello que **no se recomienda ejecutar en automático el actualizador de las fuentes todos los días**. Se debe colocar las capacidades de las interfaces nuevas de la capa `Caching` y `Rai` de forma manual, y revisar los valores extraídos de las capas `Borde` y `Bras`.
 
 ## Ejecución del Sistema
 Para poder ejecutar el sistema, se debe ejecutar el siguiente comando:
