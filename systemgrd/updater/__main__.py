@@ -1,9 +1,9 @@
 import click
 from multiprocessing import Process
-from systemgrd.updater.handler.borde import BordeUpdaterHandler
-from systemgrd.updater.handler.bras import BrasUpdaterHandler
-from systemgrd.updater.handler.caching import CachingUpdaterHandler
-from systemgrd.updater.handler.rai import RaiUpdaterHandler
+from systemgrd.updater.handler.borde import BordeUpdaterHandler, BordeSourceScrapping
+from systemgrd.updater.handler.bras import BrasUpdaterHandler, BrasSourceScrapping
+from systemgrd.updater.handler.caching import CachingUpdaterHandler, CachingSourceScrapping
+from systemgrd.updater.handler.rai import RaiUpdaterHandler, RaiSourceScrapping
 from systemgrd.updater.handler.dailyReport import DailyReportUpdaterHandler
 from systemgrd.utils import log
 
@@ -117,6 +117,46 @@ def daily(date: str, force: bool = False):
         log.error(f"Actualización de reportes diarios fallida. {e}")
     finally:
         log.info("Actualización de reportes diarios finalizada")
+
+@cli.command(help="Recarga los enlaces para obtener la información de SCAN.")
+@click.option("--borde", required=False, is_flag=True, help="Actualizar solo los enlaces de SCAN para la capa Borde.")
+@click.option("--bras", required=False, is_flag=True, help="Actualizar solo los enlaces de SCAN para la capa Bras.")
+@click.option("--caching", required=False, is_flag=True, help="Actualizar solo los enlaces de SCAN para la capa Caching.")
+@click.option("--rai", required=False, is_flag=True, help="Actualizar solo los enlaces de SCAN para la capa Rai.")
+def sources(borde: bool = False, bras: bool = False, caching: bool = False, rai: bool = False):
+    log.info("Starting scrapping to update sources...")
+    if (not borde and not bras and not caching and not rai) or borde:
+        log.info("Starting update of sources for Borde layer...")
+        borde_scrapper = BordeSourceScrapping()
+        borde_sources = borde_scrapper.get_sources()
+        log.info("Saving Borde sources...")
+        status_update = borde_scrapper.save_sources(borde_sources, "Borde")
+        if status_update: log.info("Sources from SCAN Borde updated.")
+        else: log.error("Failed to update sources from SCAN Borde.")
+    if (not borde and not bras and not caching and not rai) or bras:
+        log.info("Starting update of sources for Borde layer...")
+        bras_scrapper = BrasSourceScrapping()
+        bras_sources = bras_scrapper.get_sources()
+        log.info("Saving Bras sources...")
+        status_update = bras_scrapper.save_sources(bras_sources, "Bras")
+        if status_update: log.info("Sources from SCAN Bras updated.")
+        else: log.error("Failed to update sources from SCAN Bras.")
+    if (not borde and not bras and not caching and not rai) or caching:
+        log.info("Starting update of sources for Borde layer...")
+        caching_scrapper = CachingSourceScrapping()
+        caching_sources = caching_scrapper.get_sources()
+        log.info("Saving Caching sources...")
+        status_update = caching_scrapper.save_sources(caching_sources, "Caching")
+        if status_update: log.info("Sources from SCAN Caching updated.")
+        else: log.error("Failed to update sources from SCAN Caching.")
+    if (not borde and not bras and not caching and not rai) or rai:
+        log.info("Starting update of sources for Borde layer...")
+        rai_scrapper = RaiSourceScrapping()
+        rai_sources = rai_scrapper.get_sources()
+        log.info("Saving Rai sources...")
+        status_update = rai_scrapper.save_sources(rai_sources, "RAI")
+        if status_update: log.info("Sources from SCAN Rai updated.")
+        else: log.error("Failed to update sources from SCAN Rai.")
 
 
 if __name__ == "__main__":

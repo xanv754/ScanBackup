@@ -31,6 +31,12 @@ Un sistema diseñado para la recolección de datos de tráfico de todas las inte
         - [Carga de reportes diarios](#almacenamiento-único-de-los-reportes-diarios)
             - [Almacenamiento de reporte diario de un día específico](#almacenamiento-de-reporte-diario-de-un-día-específico)
             - [Carga de todos los reportes diarios obtenidos](#carga-de-todos-los-reportes-diarios-obtenidos)
+    - [Actualización de las fuentes de enlaces del sistema](#actualización-de-las-fuentes-de-enlaces-del-sistema)
+        - [Actualización de las fuentes de enlaces para todas las capas](#actualización-de-las-fuentes-de-enlaces-para-todas-las-capas)
+        - [Actualización de las fuentes de enlaces para la capa `Borde`](#actualización-de-las-fuentes-de-enlaces-para-la-capa-borde)
+        - [Actualización de las fuentes de enlaces para la capa `Bras`](#actualización-de-las-fuentes-de-enlaces-para-la-capa-bras)
+        - [Actualización de las fuentes de enlaces para la capa `Caching`](#actualización-de-las-fuentes-de-enlaces-para-la-capa-caching)
+        - [Actualización de las fuentes de enlaces para la capa `Rai`](#actualización-de-las-fuentes-de-enlaces-para-la-capa-rai)
 - [Pruebas unitarias](#pruebas-unitarias)
 
 ------------------------------------------------------------------
@@ -128,11 +134,11 @@ Para actualizar o obtener la base de las fuentes de los enlaces necesarios para 
 make sources
 ```
 
-Este comando actualizará las fuentes de los enlaces y los almacenará en el directorio `sources/SCAN/` en la capa correspondiente. Esto se refiere a que, realizando un web scrapping de las capas en SCAN, se obtienen las fuentes los enlaces registrados en SCAN con sus otros valores necesarios para el correcto funcionamiento del sistema. 
+Este comando actualizará las fuentes de los enlaces y los almacenará en el directorio `sources/SCAN/` en la capa correspondiente. Esto se refiere a que, realizando un web scrapping de la información en SCAN sobre las interfaces de las capas, se obtienen las fuentes de los enlaces existentes (con sus otros valores necesarios) para la correcta extracción de datos.
 
-En dichas fuentes, no siempre se traen en todas las capas la información completa (solo `Borde` y `Bras` sí), por lo que se debe revisar manualmente la correcta extracción de la información antes de ejecutar el actualizador de la data de SCAN. El actualizador de las fuentes de SCAN solo agrega o elimina interfaces en los archivos de la carpeta `sources/SCAN/`, pero no modifica información de las interfaces ya registradas. Esto con el fin de no dañar los valores de capacidades de las interfaces registradas, ya que no hay certeza de que la información que se extrae sea la correcta con respecto a la capacidad de cada interfaz.
+Cabe destacar que, en dichas fuentes, no siempre se trae toda la información necesaria completa (solo `Borde` y `Bras` sí), por lo que se debe revisar manualmente las fuentes para el correcto funcionamiento del actualizador de la data de SCAN. El actualizador de las fuentes de SCAN solo agrega o elimina interfaces en los archivos de la carpeta `sources/SCAN/`, pero no modifica información de las interfaces ya registradas. Esto con el fin de no dañar los valores de las interfaces registradas (por ejemplo, sobreescribir las capacidades de las interfaces), ya que no siempre es posible extraer la información necesaria para el sistema desde la página de SCAN.
 
-Es por ello que **no se recomienda ejecutar en automático el actualizador de las fuentes todos los días**. Se debe colocar las capacidades de las interfaces nuevas de la capa `Caching` y `Rai` de forma manual, y revisar los valores extraídos de las capas `Borde` y `Bras`.
+Por ello **no se recomienda ejecutar en automático el actualizador de las fuentes todos los días**. Se debe colocar las capacidades de las interfaces nuevas de la capa `Caching` y `Rai` de forma manual, y revisar los valores extraídos de las capas `Borde` y `Bras`.
 
 ## Ejecución del Sistema
 Para poder ejecutar el sistema, se debe ejecutar el siguiente comando:
@@ -319,6 +325,51 @@ python -m systemgrd.updater daily --force
 
 Esto cargará todos los datos que se encuentren en los archivos en los directorios correspondientes.
 
+## Actualización de las fuentes de enlaces del sistema
+Puede leer la información sobre los comandos disponibles ejecutando:
+```bash
+python -m systemgrd.updater sources --help
+```
+
+### Actualización de las fuentes de enlaces para todas las capas
+Para actualizar todas las fuentes de enlaces para todas las capas, se debe ejecutar el siguiente comando:
+```bash
+python -m systemgrd.updater sources
+```
+
+Esto actualizará las fuentes de enlaces para todas las capas y los almacenará en el directorio `sources/SCAN/` en un `.txt` con el nombre de la capa correspondiente.
+
+### Actualización de las fuentes de enlaces para la capa `Borde`
+Para actualizar las fuentes de enlaces para la capa `Borde`, se debe ejecutar el siguiente comando:
+```bash
+python -m systemgrd.updater sources --borde
+```
+
+Esto actualizará las fuentes de enlaces para la capa `Borde` y los almacenará en el directorio `sources/SCAN/` en un `.txt` con el nombre de la misma capa.
+
+### Actualización de las fuentes de enlaces para la capa `Bras`
+Para actualizar las fuentes de enlaces para la capa `Bras`, se debe ejecutar el siguiente comando:
+```bash
+python -m systemgrd.updater sources --bras
+```
+
+Esto actualizará las fuentes de enlaces para la capa `Bras` y los almacenará en el directorio `sources/SCAN/` en un `.txt` con el nombre de la misma capa.
+
+### Actualización de las fuentes de enlaces para la capa `Caching`
+Para actualizar las fuentes de enlaces para la capa `Caching`, se debe ejecutar el siguiente comando:
+```bash
+python -m systemgrd.updater sources --caching
+```
+
+Esto actualizará las fuentes de enlaces para la capa `Caching` y los almacenará en el directorio `sources/SCAN/` en un `.txt` con el nombre de la misma capa.
+
+### Actualización de las fuentes de enlaces para la capa `Rai`
+Para actualizar las fuentes de enlaces para la capa `Rai`, se debe ejecutar el siguiente comando:
+```bash
+python -m systemgrd.updater sources --rai
+```
+
+Esto actualizará las fuentes de enlaces para la capa `Rai` y los almacenará en el directorio `sources/SCAN/` en un `.txt` con el nombre de la misma capa.
 
 # Pruebas unitarias
 Para ejecutar las pruebas unitarias del sistema, se debe ejecutar los siguientes comandos:
