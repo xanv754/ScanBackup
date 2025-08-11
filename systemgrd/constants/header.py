@@ -1,3 +1,11 @@
+class HeaderSource:
+    """Header of the Source dataframe."""
+    LINK = "link"
+    NAME = "name"
+    CAPACITY = "capacity"
+    MODEL = "model"
+
+
 class HeaderBBIP:
     """Header of the Backbone IP dataframe."""
     NAME = "name"
@@ -10,6 +18,7 @@ class HeaderBBIP:
     OUT_VALUE = "outValue"
     OUT_MAX = "outMax"
     TYPE_LAYER = "typeLayer"
+
 
 class HeaderIPBras:
     """Header of the Backbone IP dataframe."""
@@ -34,6 +43,13 @@ class HeaderDailyReport:
     OUT_MAX = "outMaxProm"
     USE = "use"
 
+
+header_source = [
+    HeaderSource.LINK,
+    HeaderSource.NAME,
+    HeaderSource.CAPACITY,
+    HeaderSource.MODEL
+]
 
 header_bbip = [
     HeaderBBIP.NAME,

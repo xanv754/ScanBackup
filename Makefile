@@ -33,7 +33,7 @@ run:
 	$(HOMEPROJECT)/.venv/bin/python -m systemgrd.updater data
 
 sources:
-	$(HOMEPROJECT)/.venv/bin/python -m systemgrd.routines.sources
+	$(HOMEPROJECT)/.venv/bin/python -m systemgrd.updater sources
 
 clean-data:
 	rm -rf $(HOMEPROJECT)/data/SCAN/Borde/*
