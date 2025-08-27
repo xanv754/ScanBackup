@@ -6,6 +6,7 @@ from systemgrd.handler.borde import BordeHandler
 from systemgrd.handler.bras import BrasHandler
 from systemgrd.handler.caching import CachingHandler
 from systemgrd.handler.rai import RaiHandler
+from systemgrd.handler.ixp import IXPHandler
 from systemgrd.handler.scan import ScanHandler
 from systemgrd.utils import Validate, log
 
@@ -18,6 +19,7 @@ class BBIPHandler:
     bras_handler: ScanHandler
     caching_handler: ScanHandler
     rai_handler: ScanHandler
+    ixp_handler: ScanHandler
 
     def __init__(self, uri: str | None = None):
         try:
@@ -25,6 +27,7 @@ class BBIPHandler:
             self.bras_handler = BrasHandler(uri=uri)
             self.caching_handler = CachingHandler(uri=uri)
             self.rai_handler = RaiHandler(uri=uri)
+            self.ixp_handler = IXPHandler(uri=uri)
         except Exception as e:
             log.error(f"BBIP handler. Failed connecting to the database. {e}")
             self.__error_connection = True
@@ -41,7 +44,9 @@ class BBIPHandler:
             df_caching[HeaderBBIP.TYPE_LAYER] = LayerName.CACHING
             df_rai = self.rai_handler.get_all_interfaces()
             df_rai[HeaderBBIP.TYPE_LAYER] = LayerName.RAI
-            data = [df for df in [df_borde, df_bras, df_caching, df_rai] if not df.empty]
+            df_ixp = self.ixp_handler.get_all_interfaces()
+            df_ixp[HeaderBBIP.TYPE_LAYER] = LayerName.IXP
+            data = [df for df in [df_borde, df_bras, df_caching, df_rai, df_ixp] if not df.empty]
             df_interfaces = pd.concat(data, axis=0)
             if data:
                 df_interfaces = pd.concat(data, axis=0)
@@ -66,7 +71,9 @@ class BBIPHandler:
             df_caching[HeaderBBIP.TYPE_LAYER] = LayerName.CACHING
             df_rai = self.rai_handler.get_all_interfaces_by_date(date=date)
             df_rai[HeaderBBIP.TYPE_LAYER] = LayerName.RAI
-            data = [df for df in [df_borde, df_bras, df_caching, df_rai] if not df.empty]
+            df_ixp = self.ixp_handler.get_all_interfaces_by_date(date=date)
+            df_ixp[HeaderBBIP.TYPE_LAYER] = LayerName.IXP
+            data = [df for df in [df_borde, df_bras, df_caching, df_rai, df_ixp] if not df.empty]
             df_interfaces = pd.concat(data, axis=0)
             if data:
                 df_interfaces = pd.concat(data, axis=0)
@@ -87,7 +94,8 @@ class BBIPHandler:
             df_bras = self.bras_handler.get_all_daily_report(date=date)
             df_caching = self.caching_handler.get_all_daily_report(date=date)
             df_rai = self.rai_handler.get_all_daily_report(date=date)
-            data: list[pd.DataFrame] = [df for df in [df_borde, df_bras, df_caching, df_rai] if not df.empty]
+            df_ixp = self.ixp_handler.get_all_daily_report(date=date)
+            data: list[pd.DataFrame] = [df for df in [df_borde, df_bras, df_caching, df_rai, df_ixp] if not df.empty]
             if data:
                 df_daily_report = pd.concat(data, axis=0)
                 df_daily_report.drop_duplicates(inplace=True)

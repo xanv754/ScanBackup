@@ -6,6 +6,7 @@ from systemgrd.database.schemas.borde import BORDE_SCHEMA as BORDE_SCHEMA_MONGO
 from systemgrd.database.schemas.bras import BRAS_SCHEMA as BRAS_SCHEMA_MONGO
 from systemgrd.database.schemas.caching import CACHING_SCHEMA as CACHING_SCHEMA_MONGO
 from systemgrd.database.schemas.rai import RAI_SCHEMA as RAI_SCHEMA_MONGO
+from systemgrd.database.schemas.ixp import IXP_SCHEMA as IXP_SCHEMA_MONGO
 from systemgrd.database.schemas.ipHistory import IP_HISTORY_SCHEMA as IP_HISTORY_SCHEMA_MONGO
 from systemgrd.database.schemas.dailyReport import DAILY_REPORT_SCHEMA as DAILY_REPORT_SCHEMA_MONGO
 from systemgrd.utils import log
@@ -17,7 +18,7 @@ class DatabaseMongo(Database):
     __uri: str
     connected: bool = False
 
-    def __init__(self, uri: str) -> "DatabaseMongo":
+    def __init__(self, uri: str) -> None:
         self.__uri = uri
 
     def __check_collection(self, name: str) -> bool:
@@ -138,6 +139,28 @@ class DatabaseMongo(Database):
                     ],
                     name="rai_by_date_index"
                 )
+            if not self.__check_collection(TableName.IXP):
+                self.__connection.create_collection(
+                    TableName.IXP,
+                    validator=IXP_SCHEMA_MONGO
+                )
+                collection = self.__connection[TableName.IXP]
+                collection.create_index(
+                    [
+                        (BBIPFieldName.NAME, ASCENDING),
+                        (BBIPFieldName.TYPE, ASCENDING),
+                        (BBIPFieldName.DATE, ASCENDING),
+                        (BBIPFieldName.TIME, ASCENDING)
+                    ],
+                    unique=True,
+                    name="unique_ixp_index"
+                )
+                collection.create_index(
+                    [
+                        (BBIPFieldName.DATE, ASCENDING)
+                    ],
+                    name="ixp_by_date_index"
+                )
             if not self.__check_collection(TableName.IP_BRAS_HISTORY):
                 self.__connection.create_collection(
                     TableName.IP_BRAS_HISTORY,
@@ -210,6 +233,9 @@ class DatabaseMongo(Database):
             rai_collection: Collection = self.__connection[TableName.RAI]
             rai_collection.delete_many({})
             rai_collection.drop()
+            ixp_collection: Collection = self.__connection[TableName.IXP]
+            ixp_collection.delete_many({})
+            ixp_collection.drop()
             ip_history_collection: Collection = self.__connection[TableName.IP_BRAS_HISTORY]
             ip_history_collection.delete_many({})
             ip_history_collection.drop()

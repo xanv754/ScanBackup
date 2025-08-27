@@ -4,6 +4,7 @@ class TableName:
     CACHING = "CACHING_HISTORY"
     RAI = "RAI_HISTORY"
     IP_BRAS_HISTORY = "IP_BRAS_HISTORY"
+    IXP = "IXP_HISTORY"
     DAILY_REPORT = "DAILY_REPORT"
 
 
@@ -38,3 +39,4 @@ class DailyReportFieldName:
     IN_MAX = "inMaxProm"
     OUT_MAX = "outMaxProm"
     USE = "use"
+    

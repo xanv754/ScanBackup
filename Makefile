@@ -16,6 +16,7 @@ setup: venv
 	mkdir -p $(HOMEPROJECT)/data/SCAN/Bras
 	mkdir -p $(HOMEPROJECT)/data/SCAN/Caching
 	mkdir -p $(HOMEPROJECT)/data/SCAN/RAI
+	mkdir -p $(HOMEPROJECT)/data/SCAN/IXP
 	mkdir -p $(HOMEPROJECT)/data/SCAN/Reportes-Diarios
 	mkdir -p $(HOMEPROJECT)/data/logs
 	mkdir -p $(HOMEPROJECT)/sources/SCAN/
@@ -23,6 +24,7 @@ setup: venv
 	touch $(HOMEPROJECT)/sources/SCAN/Bras.txt
 	touch $(HOMEPROJECT)/sources/SCAN/Caching.txt
 	touch $(HOMEPROJECT)/sources/SCAN/RAI.txt
+	touch $(HOMEPROJECT)/sources/SCAN/IXP.txt
 	@echo "Inicializando base de datos..."
 	$(HOMEPROJECT)/.venv/bin/python -m systemgrd.database start
 	@echo "Sistema instanciado correctamente."
@@ -40,4 +42,5 @@ clean-data:
 	rm -rf $(HOMEPROJECT)/data/SCAN/Bras/*
 	rm -rf $(HOMEPROJECT)/data/SCAN/Caching/*
 	rm -rf $(HOMEPROJECT)/data/SCAN/RAI/*
+	rm -rf $(HOMEPROJECT)/data/SCAN/IXP/*
 	rm -rf $(HOMEPROJECT)/data/SCAN/Reportes-Diarios/*
