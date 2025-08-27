@@ -4,6 +4,7 @@ from systemgrd.updater.handler.borde import BordeUpdaterHandler, BordeSourceScra
 from systemgrd.updater.handler.bras import BrasUpdaterHandler, BrasSourceScrapping
 from systemgrd.updater.handler.caching import CachingUpdaterHandler, CachingSourceScrapping
 from systemgrd.updater.handler.rai import RaiUpdaterHandler, RaiSourceScrapping
+from systemgrd.updater.handler.ixp import IXPUpdaterHandler
 from systemgrd.updater.handler.dailyReport import DailyReportUpdaterHandler
 from systemgrd.utils import log
 
@@ -51,6 +52,17 @@ def load_rai(date: str | None, force: bool = False) -> None:
         else: log.error("Data de rai cargado fallida")
     except Exception as e:
         log.error(f"Failed to load data of Rai layer. {e}")
+        
+def load_ixp(date: str | None, force: bool = False) -> None:
+    try:
+        ipxHandler = IXPUpdaterHandler()
+        if date: data_borde = ipxHandler.get_data(date=date, force=force)
+        else: data_borde = ipxHandler.get_data(force=force)
+        status_operation = ipxHandler.load_data(data=data_borde)
+        if status_operation: log.info("Data de ixp cargado exitosamente")
+        else: log.error("Data de ixp cargado fallida")
+    except Exception as e:
+        log.error(f"Failed to load data of IXP layer. {e}")
 
 
 @click.group
@@ -78,10 +90,13 @@ def data(date: str, force: bool = False):
         caching.start()
         rai = Process(target=load_rai, args=(date, force))
         rai.start()
+        ixp = Process(target=load_ixp, args=(date, force))
+        ixp.start()
         borde.join()
         bras.join()
         caching.join()
         rai.join()
+        ixp.join()
     except Exception as e:
         log.error(f"Actualización de datos fallida. {e}")
     finally:

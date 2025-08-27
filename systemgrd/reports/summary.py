@@ -16,19 +16,22 @@ class SummaryReportBBIP:
         df_caching = df_caching.drop(columns=[HeaderDailyReport.TYPE_LAYER])
         df_rai = df_data[df_data[HeaderDailyReport.TYPE_LAYER] == LayerName.RAI]
         df_rai = df_rai.drop(columns=[HeaderDailyReport.TYPE_LAYER])
-        return df_borde, df_bras, df_caching, df_rai
+        df_ixp = df_data[df_data[HeaderDailyReport.TYPE_LAYER] == LayerName.IXP]
+        df_ixp = df_ixp.drop(columns=[HeaderDailyReport.TYPE_LAYER])
+        return df_borde, df_bras, df_caching, df_rai, df_ixp
 
     def summary_diary(self, date: str | None = None) -> bool:
         try:
             handler = BBIPHandler()
             if date: df_data = handler.get_all_daily_report_by_date(date=date)
             else: df_data = handler.get_all_daily_report_by_date()
-            df_borde, df_bras, df_caching, df_rai = self.__get_data_layers(df_data=df_data)
+            df_borde, df_bras, df_caching, df_rai, df_ixp = self.__get_data_layers(df_data=df_data)
             data = {
                 LayerName.BORDE: df_borde,
                 LayerName.BRAS: df_bras,
                 LayerName.CACHING: df_caching,
-                LayerName.RAI: df_rai
+                LayerName.RAI: df_rai,
+                LayerName.IXP: df_ixp
             }
             log.info("Resumen diario obtenido. Exportando...")
             excel = ExcelExport(filename="Resumen_Diario", data=data)
@@ -44,16 +47,18 @@ class SummaryReportBBIP:
             handler = BBIPHandler()
             if literal: df_data = handler.get_all_daily_data_by_days_before(day_before=8)
             else: df_data = handler.get_all_daily_data_on_week()
-            df_borde, df_bras, df_caching, df_rai = self.__get_data_layers(df_data=df_data)
+            df_borde, df_bras, df_caching, df_rai, df_ixp = self.__get_data_layers(df_data=df_data)
             df_borde = calculate(df=df_borde)
             df_bras = calculate(df=df_bras)
             df_caching = calculate(df=df_caching)
             df_rai = calculate(df=df_rai)
+            df_ixp = calculate(df=df_ixp)
             data = {
                 LayerName.BORDE: df_borde,
                 LayerName.BRAS: df_bras,
                 LayerName.CACHING: df_caching,
-                LayerName.RAI: df_rai
+                LayerName.RAI: df_rai,
+                LayerName.IXP: df_ixp
             }
             log.info("Resumen semanal obtenido. Exportando...")
             excel = ExcelExport(filename="Resumen_Semanal", data=data)
@@ -69,16 +74,18 @@ class SummaryReportBBIP:
             handler = BBIPHandler()
             if literal: df_data = handler.get_all_daily_data_by_days_before(day_before=16)
             else: df_data = handler.get_all_daily_data_by_first_month(date_to=16)
-            df_borde, df_bras, df_caching, df_rai = self.__get_data_layers(df_data=df_data)
+            df_borde, df_bras, df_caching, df_rai, df_ixp = self.__get_data_layers(df_data=df_data)
             df_borde = calculate(df=df_borde)
             df_bras = calculate(df=df_bras)
             df_caching = calculate(df=df_caching)
             df_rai = calculate(df=df_rai)
+            df_ixp = calculate(df=df_ixp)
             data = {
                 LayerName.BORDE: df_borde,
                 LayerName.BRAS: df_bras,
                 LayerName.CACHING: df_caching,
-                LayerName.RAI: df_rai
+                LayerName.RAI: df_rai,
+                LayerName.IXP: df_ixp
             }
             log.info("Resumen quincenal obtenido. Exportando...")
             excel = ExcelExport(filename="Resumen_Quincenal", data=data)
@@ -94,16 +101,18 @@ class SummaryReportBBIP:
             handler = BBIPHandler()
             if literal: df_data = handler.get_all_daily_data_by_days_before(day_before=30)
             else: df_data = handler.get_all_daily_data_by_first_month()
-            df_borde, df_bras, df_caching, df_rai = self.__get_data_layers(df_data=df_data)
+            df_borde, df_bras, df_caching, df_rai, df_ixp = self.__get_data_layers(df_data=df_data)
             df_borde = calculate(df=df_borde)
             df_bras = calculate(df=df_bras)
             df_caching = calculate(df=df_caching)
             df_rai = calculate(df=df_rai)
+            df_ixp = calculate(df=df_ixp)
             data = {
                 LayerName.BORDE: df_borde,
                 LayerName.BRAS: df_bras,
                 LayerName.CACHING: df_caching,
-                LayerName.RAI: df_rai
+                LayerName.RAI: df_rai,
+                LayerName.IXP: df_ixp
             }
             log.info("Resumen mensual obtenido. Exportando...")
             excel = ExcelExport(filename="Resumen_Mensual", data=data)

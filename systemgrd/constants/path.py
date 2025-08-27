@@ -8,6 +8,7 @@ class DataPath:
     SCAN_DATA_BRAS = path.join(ROOT_PATH, "data", "SCAN", "Bras")
     SCAN_DATA_CACHING = path.join(ROOT_PATH, "data", "SCAN", "Caching")
     SCAN_DATA_RAI = path.join(ROOT_PATH, "data", "SCAN", "RAI")
+    SCAN_DATA_IXP = path.join(ROOT_PATH, "data", "SCAN", "IXP")
     SCAN_REPORT_DAILY = path.join(ROOT_PATH, "data", "SCAN", "Reportes-Diarios")
     SCAN_SOURCES = path.join(ROOT_PATH, "sources", "SCAN")
 
