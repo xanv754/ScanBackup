@@ -1,7 +1,8 @@
+from typing import Any, Dict
 from systemgrd.constants import BBIPFieldName
 
 
-CACHING_SCHEMA ={
+CACHING_SCHEMA: Dict[str, Dict[str, Any]] = {
     "$jsonSchema": {
         "bsonType": "object",
         "required": [

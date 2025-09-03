@@ -1,7 +1,8 @@
+from typing import Any, Dict
 from systemgrd.constants import BBIPFieldName
 
 
-RAI_SCHEMA ={
+RAI_SCHEMA: Dict[str, Dict[str, Any]] = {
     "$jsonSchema": {
         "bsonType": "object",
         "required": [

@@ -1,7 +1,8 @@
+from typing import Any, Dict
 from systemgrd.constants import BBIPFieldName
 
 
-IXP_SCHEMA = {
+IXP_SCHEMA: Dict[str, Dict[str, Any]] = {
     "$jsonSchema": {
         "bsonType": "object",
         "required": [
