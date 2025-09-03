@@ -61,7 +61,7 @@ SCAN_URL_CACHING="url" # Página principal de los enlaces
 SCAN_URL_RAI_HW="url" # Página principal de los enlaces
 SCAN_URL_RAI_ZTE="url" # Página principal de los enlaces
 ```
-> *Nota*: Para ejecutar las **pruebas unitarias** es necesario un archivo `.env.test` con las variables de entorno. Si se desea trabajar en el **entorno de desarrollo**, se debe usar el archivo `.env.development`, que tiene un privilegio de uso antes que el archivo `.env.production` o `.env`. El sistema diferencia el **entorno de desarrollo** entre el **entorno de pruebas**.
+> *Nota*: Para la carga de variables de entorno en modo desarrollador se debe tener el archivo `.env.development` y especificar la opción en los comandos correspondientes.
 
 ## Variables en Shell
 Además, el sistema requiere que se añadan las siguiente variables a nuestro archivo de shell (`.bashrc` o `.zshrc`):
@@ -197,6 +197,17 @@ python -m systemgrd.database start
 
 Esto creará la base de datos del sistema, así como todas las colecciones necesarias con esquemas e índices correspondientes.
 
+#### Opciones Extras
+Si se desea crear la base de datos en modo desarrollo, cargando las variables de desarrollo, utilice la bandera `--dev` para que el sistema cargue las variables del archivo `.env.development`:
+```bash
+python -m systemgrd.database start --dev
+```
+
+Si se desea crear la base de datos en modo de pruebas, cargando las variables de pruebas, utilice la bandera `--test` para que el sistema cargue las variables del archivo `.env.testing`:
+```bash
+python -m systemgrd.database start --test
+```
+
 ### Borrar la base de datos
 Para borrar la base de datos, se debe ejecutar el siguiente comando:
 ```bash
@@ -204,6 +215,17 @@ python -m systemgrd.database drop
 ```
 
 Esto eliminará toda la información de la base de datos de manera irreversible. Se debe tener precaución al utilizar este comando.
+
+#### Opciones Extras
+Si se desea borrar la base de datos en modo desarrollo, cargando las variables de desarrollo, utilice la bandera `--dev` para que el sistema cargue las variables del archivo `.env.development`:
+```bash
+python -m systemgrd.database drop --dev
+```
+
+Si se desea borrar la base de datos en modo de pruebas, cargando las variables de pruebas, utilice la bandera `--test` para que el sistema cargue las variables del archivo `.env.testing`:
+```bash
+python -m systemgrd.database drop --test
+```
 
 ## Generación de Reportes
 El módulo `reports` contiene las funciones para la generación de reportes. Estos reportes se encuentran en el mismo directorio que el sistema, en la carpeta `reports/`.
@@ -372,7 +394,7 @@ python -m systemgrd.updater sources --rai
 Esto actualizará las fuentes de enlaces para la capa `Rai` y los almacenará en el directorio `sources/SCAN/` en un `.txt` con el nombre de la misma capa.
 
 # Pruebas unitarias
-Para ejecutar las pruebas unitarias del sistema, se debe ejecutar los siguientes comandos:
+Para ejecutar las pruebas unitarias del sistema, necesario tener el archivo `env.testing` con todas las [Variables de Entorno](#variables-de-entorno). Los siguientes comandos ejecutan las pruebas pertinentes:
 ```bash
 python -m unittest discover -s systemgrd/test/querys -p "*_test.py"
 python -m unittest discover -s systemgrd/test/updater -p "*_test.py"
