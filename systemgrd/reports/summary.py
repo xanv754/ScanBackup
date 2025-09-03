@@ -1,13 +1,13 @@
 from pandas import DataFrame
 from systemgrd.constants import LayerName, HeaderDailyReport
-from systemgrd.handler import BBIPHandler
+from systemgrd.handler import LayerHandler
 from systemgrd.utils import calculate, ExcelExport, log
 
 
 class SummaryReportBBIP:
     """Controller to manage summary data."""
 
-    def __get_data_layers(self, df_data: DataFrame) -> tuple[DataFrame, DataFrame, DataFrame, DataFrame]:
+    def _get_data_layers(self, df_data: DataFrame) -> tuple[DataFrame, DataFrame, DataFrame, DataFrame, DataFrame]:
         df_borde = df_data[df_data[HeaderDailyReport.TYPE_LAYER] == LayerName.BORDE]
         df_borde = df_borde.drop(columns=[HeaderDailyReport.TYPE_LAYER])
         df_bras = df_data[df_data[HeaderDailyReport.TYPE_LAYER] == LayerName.BRAS]
@@ -18,14 +18,14 @@ class SummaryReportBBIP:
         df_rai = df_rai.drop(columns=[HeaderDailyReport.TYPE_LAYER])
         df_ixp = df_data[df_data[HeaderDailyReport.TYPE_LAYER] == LayerName.IXP]
         df_ixp = df_ixp.drop(columns=[HeaderDailyReport.TYPE_LAYER])
-        return df_borde, df_bras, df_caching, df_rai, df_ixp
+        return df_borde, df_bras, df_caching, df_rai, df_ixp 
 
     def summary_diary(self, date: str | None = None) -> bool:
         try:
-            handler = BBIPHandler()
+            handler = LayerHandler()
             if date: df_data = handler.get_all_daily_report_by_date(date=date)
             else: df_data = handler.get_all_daily_report_by_date()
-            df_borde, df_bras, df_caching, df_rai, df_ixp = self.__get_data_layers(df_data=df_data)
+            df_borde, df_bras, df_caching, df_rai, df_ixp = self._get_data_layers(df_data=df_data)
             data = {
                 LayerName.BORDE: df_borde,
                 LayerName.BRAS: df_bras,
@@ -44,10 +44,10 @@ class SummaryReportBBIP:
         
     def summary_weekly(self, literal: bool = False) -> bool:
         try:
-            handler = BBIPHandler()
+            handler = LayerHandler()
             if literal: df_data = handler.get_all_daily_data_by_days_before(day_before=8)
             else: df_data = handler.get_all_daily_data_on_week()
-            df_borde, df_bras, df_caching, df_rai, df_ixp = self.__get_data_layers(df_data=df_data)
+            df_borde, df_bras, df_caching, df_rai, df_ixp = self._get_data_layers(df_data=df_data)
             df_borde = calculate(df=df_borde)
             df_bras = calculate(df=df_bras)
             df_caching = calculate(df=df_caching)
@@ -71,10 +71,10 @@ class SummaryReportBBIP:
         
     def summary_fortnight(self, literal: bool = False) -> bool:
         try:
-            handler = BBIPHandler()
+            handler = LayerHandler()
             if literal: df_data = handler.get_all_daily_data_by_days_before(day_before=16)
             else: df_data = handler.get_all_daily_data_by_first_month(date_to=16)
-            df_borde, df_bras, df_caching, df_rai, df_ixp = self.__get_data_layers(df_data=df_data)
+            df_borde, df_bras, df_caching, df_rai, df_ixp = self._get_data_layers(df_data=df_data)
             df_borde = calculate(df=df_borde)
             df_bras = calculate(df=df_bras)
             df_caching = calculate(df=df_caching)
@@ -98,10 +98,10 @@ class SummaryReportBBIP:
         
     def summary_monthly(self, literal: bool = False) -> bool:
         try:
-            handler = BBIPHandler()
+            handler = LayerHandler()
             if literal: df_data = handler.get_all_daily_data_by_days_before(day_before=30)
             else: df_data = handler.get_all_daily_data_by_first_month()
-            df_borde, df_bras, df_caching, df_rai, df_ixp = self.__get_data_layers(df_data=df_data)
+            df_borde, df_bras, df_caching, df_rai, df_ixp = self._get_data_layers(df_data=df_data)
             df_borde = calculate(df=df_borde)
             df_bras = calculate(df=df_bras)
             df_caching = calculate(df=df_caching)
