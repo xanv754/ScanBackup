@@ -1,7 +1,8 @@
+from typing import Any, Dict
 from systemgrd.constants import DailyReportFieldName
 
 
-DAILY_REPORT_SCHEMA ={
+DAILY_REPORT_SCHEMA: Dict[str, Dict[str, Any]] = { 
     "$jsonSchema": {
         "bsonType": "object",
         "required": [

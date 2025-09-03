@@ -1,6 +1,7 @@
 import pandas as pd
 from io import StringIO
-from typing import List
+from typing import List, Dict, Any
+from pymongo.cursor import Cursor
 from systemgrd.constants import BBIPFieldName, DailyReportFieldName, header_bbip, header_daily_report
 from systemgrd.utils import log
 
@@ -9,13 +10,12 @@ class BBIPResponseAdapter:
     """Class to transform BBIP layers response of databases."""
 
     @staticmethod
-    def to_dataframe(data: List[dict]) -> pd.DataFrame:
+    def to_dataframe(data: List[Dict[Any, Any]] | Cursor[Any]) -> pd.DataFrame:
         """Transform response of mongo database to dataframe.
         
         :param data: Data borde interfaces.
         :type data: List[dict]
-        :return: Dataframe of borde interfaces.
-        :rtype: pd.DataFrame
+        :return DataFrame: Dataframe of borde interfaces.
         """
         try:
             buffer: StringIO = StringIO()
@@ -32,7 +32,7 @@ class BBIPResponseAdapter:
                 line += str(interface[BBIPFieldName.OUT_MAX]) + '\n'
                 buffer.write(line)
             buffer.seek(0)
-            df = pd.read_csv(buffer, sep=';', header=None, names=header_bbip)
+            df = pd.read_csv(buffer, sep=';', header=None, names=header_bbip) # type: ignore
             return df
         except Exception as error:
             log.error(f"Failed to BBIP response adapter. {error}")
@@ -43,13 +43,12 @@ class DailyReportResponseAdapter:
     """Class to transform daily reports response of databases."""
 
     @staticmethod
-    def to_dataframe(data: List[dict]) -> pd.DataFrame:
+    def to_dataframe(data: List[Dict[Any, Any]] | Cursor[Any]) -> pd.DataFrame:
         """Transform response of mongo database to dataframe.
         
         :param data: Data borde interfaces.
         :type data: List[dict]
-        :return: Dataframe of borde interfaces.
-        :rtype: pd.DataFrame
+        :return DataFrame: Dataframe of borde interfaces.
         """
         try:
             buffer: StringIO = StringIO()
@@ -67,7 +66,7 @@ class DailyReportResponseAdapter:
                 line += str(interface[DailyReportFieldName.USE]) + '\n'
                 buffer.write(line)
             buffer.seek(0)
-            df = pd.read_csv(buffer, sep=';', header=None, names=header_daily_report)
+            df = pd.read_csv(buffer, sep=';', header=None, names=header_daily_report) # type: ignore
             return df
         except Exception as error:
             log.error(f"Failed to BBIP response adapter. {error}")
