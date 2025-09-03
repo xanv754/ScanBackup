@@ -29,10 +29,19 @@ setup: venv
 	$(HOMEPROJECT)/.venv/bin/python -m systemgrd.database start
 	@echo "Sistema instanciado correctamente."
 
+run-base:
+	bash $(HOMEPROJECT)/systemgrd/routines/scan.sh
+	$(HOMEPROJECT)/.venv/bin/python -m systemgrd.routines.diario
+
 run:
 	bash $(HOMEPROJECT)/systemgrd/routines/scan.sh
 	$(HOMEPROJECT)/.venv/bin/python -m systemgrd.routines.diario
 	$(HOMEPROJECT)/.venv/bin/python -m systemgrd.updater data
+
+run-dev:
+	bash $(HOMEPROJECT)/systemgrd/routines/scan.sh
+	$(HOMEPROJECT)/.venv/bin/python -m systemgrd.routines.diario
+	$(HOMEPROJECT)/.venv/bin/python -m systemgrd.updater data --dev
 
 sources:
 	$(HOMEPROJECT)/.venv/bin/python -m systemgrd.updater sources

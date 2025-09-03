@@ -10,7 +10,7 @@ from systemgrd.model import Source
 from systemgrd.utils import log, ConfigurationHandler
 
 
-requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)
+requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning) # type: ignore
 
 
 class SourceScrapping(ABC):
@@ -28,6 +28,7 @@ class SourceScrapping(ABC):
         :type new: pd.DataFrame
         :param old: The old sources.
         :type old: pd.DataFrame
+        :returns DataFrame: Merge of new data and old data.
         """
         try:
             common = pd.merge(old, new, on=[HeaderSource.NAME, HeaderSource.MODEL], how="inner")
@@ -60,7 +61,10 @@ class SourceScrapping(ABC):
         self.url_base = base + ".net"
 
     def get_html(self, url: str) -> BeautifulSoup | None:
-        """Get the HTML of the page."""
+        """Get the HTML of the page.
+        
+        :returns BeutifulSoup | None: HTML information page.
+        """
         try:
             html = requests.get(
                 url, 
@@ -79,6 +83,7 @@ class SourceScrapping(ABC):
         
         :param name: The name to clear.
         :type name: str
+        :return str: Link name formatted.
         """
         name = name.replace(" ", "_")
         name = name.replace("(", "")
@@ -95,12 +100,13 @@ class SourceScrapping(ABC):
         :type sources: list[Source]
         :param layer: The layer to save the sources.
         :type layer: str
+        :return bool: Status of saved. True if saved successfully, otherwise False.
         """
         try:
             df = self.transform_data_to_dataframe(sources)
             if df.empty: raise Exception("The data to save is empty.")
             if os.path.exists(f"{DataPath.SCAN_SOURCES}/{layer}.txt"):
-                df_old = pd.read_csv(f"{DataPath.SCAN_SOURCES}/{layer}.txt", sep=" ", header=None, names=header_source)
+                df_old = pd.read_csv(f"{DataPath.SCAN_SOURCES}/{layer}.txt", sep=" ", header=None, names=header_source) # type: ignore
                 if not df_old.empty:
                     df_old[HeaderSource.MODEL] = df_old[HeaderSource.MODEL].astype(str)
                     df_old.sort_values(by=[HeaderSource.MODEL, HeaderSource.NAME], inplace=True)
@@ -122,6 +128,7 @@ class SourceScrapping(ABC):
         
         :param data: The data to transform.
         :type data: list[Source]
+        :returns DataFrame: DataFrame of model data.
         """
         try:
             json = [interface.model_dump() for interface in data]
@@ -137,10 +144,14 @@ class SourceScrapping(ABC):
         
         :param param: The name or url of the interface.
         :type param: str
+        :return str: Capacity of link.
         """
         pass
 
     @abstractmethod  
     def get_sources(self) -> list[Source]:
-        """Get a list of sources for each existing interface."""
+        """Get a list of sources for each existing interface.
+        
+        :returns List[Source]: SCAN's link of a layer.
+        """
         pass

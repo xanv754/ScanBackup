@@ -15,9 +15,11 @@ from systemgrd.utils import log
 class DatabaseMongo:
     _client: MongoClient[Any]
     _name_db: str
+    _uri: str
     connected: bool = False
 
     def __init__(self, uri: str) -> None:
+        self._uri = uri
         self.open_connection(uri)
 
     def _check_collection(self, name: str) -> bool:
@@ -69,15 +71,10 @@ class DatabaseMongo:
         self._client.close()
         self.connected = False
 
-    def initialize(self, uri: str) -> bool:
-        """Create all collections and schemas in the database.
-        
-        :param uri: URI database
-        :type uri: str
-        :return bool: True if the operation was successful, False otherwise
-        """
+    def initialize(self) -> bool:
+        """Create all collections and schemas in the database."""
         try:
-            self.open_connection(uri)
+            self.open_connection(self._uri)
             db = self._client[self._name_db]
             if not self._check_collection(TableName.BORDE):
                 db.create_collection(TableName.BORDE, validator=BORDE_SCHEMA_MONGO)
@@ -195,15 +192,10 @@ class DatabaseMongo:
         else:
             return True
 
-    def drop(self, uri: str) -> bool:
-        """Deletes all collections in the database.
-        
-        :param uri: URI database
-        :type uri: str
-        :return bool: True if the operation was successful, False otherwise
-        """
+    def drop(self) -> bool:
+        """Deletes all collections in the database."""
         try:
-            self.open_connection(uri)
+            self.open_connection(self._uri)
             db = self._client[self._name_db]
             borde_collection: Collection[Any] = db[TableName.BORDE]
             borde_collection.delete_many({})
