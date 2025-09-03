@@ -29,6 +29,22 @@ setup: venv
 	$(HOMEPROJECT)/.venv/bin/python -m systemgrd.database start
 	@echo "Sistema instanciado correctamente."
 
+setup-folders:
+	@echo "Creando directorios requeridos..."
+	mkdir -p $(HOMEPROJECT)/data/SCAN/Borde
+	mkdir -p $(HOMEPROJECT)/data/SCAN/Bras
+	mkdir -p $(HOMEPROJECT)/data/SCAN/Caching
+	mkdir -p $(HOMEPROJECT)/data/SCAN/RAI
+	mkdir -p $(HOMEPROJECT)/data/SCAN/IXP
+	mkdir -p $(HOMEPROJECT)/data/SCAN/Reportes-Diarios
+	mkdir -p $(HOMEPROJECT)/data/logs
+	mkdir -p $(HOMEPROJECT)/sources/SCAN/
+	touch $(HOMEPROJECT)/sources/SCAN/Borde.txt
+	touch $(HOMEPROJECT)/sources/SCAN/Bras.txt
+	touch $(HOMEPROJECT)/sources/SCAN/Caching.txt
+	touch $(HOMEPROJECT)/sources/SCAN/RAI.txt
+	touch $(HOMEPROJECT)/sources/SCAN/IXP.txt
+
 run-base:
 	bash $(HOMEPROJECT)/systemgrd/routines/scan.sh
 	$(HOMEPROJECT)/.venv/bin/python -m systemgrd.routines.diario
