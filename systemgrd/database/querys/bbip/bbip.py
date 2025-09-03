@@ -13,10 +13,10 @@ class BBIPMongoQuery(BBIPQuery):
 
     _database: DatabaseMongo
 
-    def __init__(self, uri: str | None = None):
+    def __init__(self, uri: str | None = None, dev: bool = False):
         try:
-            if not uri:
-                config = ConfigurationHandler()
+            if not uri or dev:
+                config = ConfigurationHandler(dev=dev)
                 uri = config.uri_mongo
             database = DatabaseMongo(uri=uri)
             self._database = database
@@ -26,6 +26,7 @@ class BBIPMongoQuery(BBIPQuery):
     def new_interface(self, collection: str, data: List[BBIPModel]) -> bool:
         try:
             status_insert = False
+            self._database.open_connection()
             if self._database.connected:
                 cursor = self._database.get_cursor(table=collection)
                 response = cursor.insert_many([json.model_dump() for json in data])
@@ -40,6 +41,7 @@ class BBIPMongoQuery(BBIPQuery):
     def get_interface(self, collection: str, name: str) -> DataFrame:
         try:
             interface: DataFrame = DataFrame(columns=header_bbip)
+            self._database.open_connection()
             if self._database.connected:
                 cursor = self._database.get_cursor(table=collection)
                 result = cursor.find_one({ BBIPFieldName.NAME: name })
@@ -55,6 +57,7 @@ class BBIPMongoQuery(BBIPQuery):
     def get_interfaces(self, collection: str) -> DataFrame:
         try:
             interfaces: DataFrame = DataFrame(columns=header_bbip)
+            self._database.open_connection()
             if self._database.connected:
                 cursor = self._database.get_cursor(table=collection)
                 cursor = cursor.find()
@@ -68,6 +71,7 @@ class BBIPMongoQuery(BBIPQuery):
     def get_interfaces_by_date(self, collection: str, date: str) -> DataFrame:
         try:
             interfaces: DataFrame = DataFrame(columns=header_bbip)
+            self._database.open_connection()
             if self._database.connected:
                 cursor = self._database.get_cursor(table=collection)
                 cursor = cursor.find({ BBIPFieldName.DATE: date })

@@ -13,10 +13,10 @@ class DailyReportMongoQuery(DailyReportQuery):
 
     _database: DatabaseMongo
 
-    def __init__(self, uri: str | None = None):
+    def __init__(self, uri: str | None = None, dev: bool = False):
         try:
-            if not uri:
-                config = ConfigurationHandler()
+            if not uri or dev:
+                config = ConfigurationHandler(dev=dev)
                 uri = config.uri_mongo
             database = DatabaseMongo(uri=uri)
             self._database = database
@@ -26,6 +26,7 @@ class DailyReportMongoQuery(DailyReportQuery):
     def new_report(self, data: List[DailyReportModel]):
         try:
             status_insert = False
+            self._database.open_connection()
             if self._database.connected:
                 collection = self._database.get_cursor(table=TableName.DAILY_REPORT)
                 response = collection.insert_many([json.model_dump() for json in data])
@@ -39,6 +40,7 @@ class DailyReportMongoQuery(DailyReportQuery):
     def get_report(self, layer_type: str, date: str):
         try:
             traffic: DataFrame = DataFrame(columns=header_daily_report)
+            self._database.open_connection()
             if self._database.connected:
                 collection = self._database.get_cursor(table=TableName.DAILY_REPORT)
                 result = collection.find({
