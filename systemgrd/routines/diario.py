@@ -33,7 +33,7 @@ if __name__ == "__main__":
     ruta_reporte_dir = os.path.join(ruta_base, "data", "SCAN", "Reportes-Diarios")
     ayer = (datetime.now(timezone.utc) - timedelta(days=1)).strftime('%Y-%m-%d')
 
-    log.info("Starting to generate the daily report...")
+    log.info("Inicio de generación de reportes diarios...")
     try:
         for capa in foldername_BBIP_SCAN:
             ruta_data_scan = os.path.join(ruta_scan_dir, capa)
@@ -41,7 +41,7 @@ if __name__ == "__main__":
 
             # TODO: Eliminar encabezados magic strings
             if os.path.exists(ruta_data_reporte): 
-                df_viejo_reporte = pd.read_csv(ruta_data_reporte, sep=" ", skiprows=1, names=['Interfaz', 'Tipo', 'Fecha', 'Capacidad', 'In', 'Out', 'In-Max', 'Out-Max', 'Uso-%'])
+                df_viejo_reporte = pd.read_csv(ruta_data_reporte, sep=" ", skiprows=1, names=['Interfaz', 'Tipo', 'Fecha', 'Capacidad', 'In', 'Out', 'In-Max', 'Out-Max', 'Uso-%']) # type: ignore
             else:
                 df_viejo_reporte = pd.DataFrame(columns=['Interfaz', 'Tipo', 'Fecha', 'Capacidad', 'In', 'Out', 'In-Max', 'Out-Max', 'Uso-%'])
             df_nuevo_reporte = pd.DataFrame(columns=['Interfaz', 'Tipo', 'Fecha', 'Capacidad', 'In', 'Out', 'In-Max', 'Out-Max', 'Uso-%'])
@@ -50,7 +50,7 @@ if __name__ == "__main__":
                 interfaz = archivo.rsplit('%')[1]  
                 capacidad = float(archivo.split('%')[-1])
                 tipo = archivo.rsplit('%')[0]
-                df_interfaz = pd.read_csv(f'{ruta_data_scan}/{archivo}', sep=' ', names=['Fecha', 'Hora', 'IN', 'OUT', 'IN MAX', 'OUT MAX'])
+                df_interfaz = pd.read_csv(f'{ruta_data_scan}/{archivo}', sep=' ', names=['Fecha', 'Hora', 'IN', 'OUT', 'IN MAX', 'OUT MAX']) # type: ignore
                 df_interfaz = df_interfaz[df_interfaz['Fecha'] == ayer]
                 if df_interfaz.empty: continue
                 
@@ -68,7 +68,7 @@ if __name__ == "__main__":
                     log.error(f"Failed to generate calculations for {interfaz}")
                     continue
 
-                valores = {
+                valores = { # type: ignore
                     'Interfaz': interfaz,
                     'Tipo': tipo,
                     'Fecha': ayer,
@@ -81,7 +81,7 @@ if __name__ == "__main__":
                 }
 
                 df_interfaz = pd.DataFrame([valores])
-                df_interfaz.dropna(inplace=True)
+                df_interfaz.dropna(inplace=True) # type: ignore
                 if df_nuevo_reporte.empty: df_nuevo_reporte = df_interfaz
                 else: df_nuevo_reporte = pd.concat([df_nuevo_reporte, df_interfaz], axis=0)
                 df_nuevo_reporte.reset_index(drop=True, inplace=True)
@@ -90,6 +90,6 @@ if __name__ == "__main__":
                 df_nuevo_reporte = pd.concat([df_viejo_reporte, df_nuevo_reporte], axis=0)
             df_nuevo_reporte.to_csv(ruta_data_reporte, index=False, sep=" ", decimal=".")
     except Exception as e:
-        log.error(f"Daily report generation failed. {e}")
+        log.error(f"Generación de reportes diarios fallido. {e}")
     else:
-        log.info("Daily report generation finished successfully")
+        log.info("Generación de reportes diarios finalizada exitosamente")

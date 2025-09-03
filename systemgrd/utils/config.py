@@ -9,7 +9,6 @@ load_dotenv(override=True)
 class ConfigurationHandler:
     """Handler to get all configuration to system."""
 
-    __instance: "ConfigurationHandler | None" = None
     uri_postgres: str
     uri_mongo: str
     scan_username: str
@@ -21,67 +20,59 @@ class ConfigurationHandler:
     scan_url_rai_hw: str
     scan_url_rai_zte: str
 
-    def __new__(cls):
-        if not cls.__instance:
-            cls.__instance = super(ConfigurationHandler, cls).__new__(cls)
-        return cls.__instance
-
-    def __init__(self) -> None:
+    def __init__(self, dev: bool = False, test: bool = False) -> None:
         try:
-            if not hasattr(self, "__initialized"):
-                self.__initialized = True
-                base_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-                if os.path.exists(f"{base_path}/.env.development"):
-                    env = dotenv_values(f"{base_path}/.env.development")
-                elif os.path.exists(f"{base_path}/.env.test"):
-                    env = dotenv_values(f"{base_path}/.env.test")
-                elif os.path.exists(f"{base_path}/.env.production"):
-                    env = dotenv_values(f"{base_path}/.env.production")
-                elif os.path.exists(f"{base_path}/.env"):
-                    env = dotenv_values(f"{base_path}/.env")
-                else:
-                    raise FileNotFoundError("No file with environment variables found")
-                uri_mongo = env.get("URI_MONGO")
-                if uri_mongo: self.uri_mongo = uri_mongo
-                else:
-                    log.warning(f"Failed to obtain configuration. URI MongoDB variable not found in enviroment file")
-                scan_username = env.get("SCAN_USERNAME")
-                if scan_username: self.scan_username = scan_username
-                else:
-                    log.warning(f"Failed to obtain configuration. SCAN_USERNAME variable not found in enviroment file")
-                scan_password = env.get("SCAN_PASSWORD")
-                if scan_password: self.scan_password = scan_password
-                else:
-                    log.warning(f"Failed to obtain configuration. SCAN_PASSWORD variable not found in enviroment file")
-                scan_url_borde_hw = env.get("SCAN_URL_BORDE_HW")
-                if scan_url_borde_hw: self.scan_url_borde_huawei = scan_url_borde_hw
-                else:
-                    log.warning(f"Failed to obtain configuration. SCAN_URL_BORDE variable not found in enviroment file")
-                scan_url_borde_cisco = env.get("SCAN_URL_BORDE_CISCO")
-                if scan_url_borde_cisco: self.scan_url_borde_cisco = scan_url_borde_cisco
-                else:
-                    log.warning(f"Failed to obtain configuration. SCAN_URL_BORDE_CISCO variable not found in enviroment file")
-                scan_url_bras = env.get("SCAN_URL_BRAS")
-                if scan_url_bras: self.scan_url_bras = scan_url_bras
-                else:
-                    log.warning(f"Failed to obtain configuration. SCAN_URL_BRAS variable not found in enviroment file")
-                scan_url_caching = env.get("SCAN_URL_CACHING")
-                if scan_url_caching: self.scan_url_caching = scan_url_caching
-                else:
-                    log.warning(f"Failed to obtain configuration. SCAN_URL_CACHING variable not found in enviroment file")
-                scan_url_rai_hw = env.get("SCAN_URL_RAI_HW")
-                if scan_url_rai_hw: self.scan_url_rai_hw = scan_url_rai_hw
-                else:
-                    log.warning(f"Failed to obtain configuration. SCAN_URL_RAI_HW variable not found in enviroment file")
-                scan_url_rai_zte = env.get("SCAN_URL_RAI_ZTE")
-                if scan_url_rai_zte: self.scan_url_rai_zte = scan_url_rai_zte
-                else:
-                    log.warning(f"Failed to obtain configuration. SCAN_URL_RAI_ZTE variable not found in enviroment file")
+            base_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+            if dev and os.path.exists(f"{base_path}/.env.development"):
+                env = dotenv_values(f"{base_path}/.env.development")
+            elif test and os.path.exists(f"{base_path}/.env.testing"):
+                env = dotenv_values(f"{base_path}/.env.testing")
+            elif not dev and not test and os.path.exists(f"{base_path}/.env.production"):
+                env = dotenv_values(f"{base_path}/.env.production")
+            elif not dev and not test and os.path.exists(f"{base_path}/.env"):
+                env = dotenv_values(f"{base_path}/.env")
+            else: raise FileNotFoundError("No file with environment variables found")
+            uri_mongo = env.get("URI_MONGO")
+            if uri_mongo: self.uri_mongo = uri_mongo
+            else:
+                log.warning(f"Failed to obtain configuration. URI MongoDB variable not found in enviroment file")
+            scan_username = env.get("SCAN_USERNAME")
+            if scan_username: self.scan_username = scan_username
+            else:
+                log.warning(f"Failed to obtain configuration. SCAN_USERNAME variable not found in enviroment file")
+            scan_password = env.get("SCAN_PASSWORD")
+            if scan_password: self.scan_password = scan_password
+            else:
+                log.warning(f"Failed to obtain configuration. SCAN_PASSWORD variable not found in enviroment file")
+            scan_url_borde_hw = env.get("SCAN_URL_BORDE_HW")
+            if scan_url_borde_hw: self.scan_url_borde_huawei = scan_url_borde_hw
+            else:
+                log.warning(f"Failed to obtain configuration. SCAN_URL_BORDE variable not found in enviroment file")
+            scan_url_borde_cisco = env.get("SCAN_URL_BORDE_CISCO")
+            if scan_url_borde_cisco: self.scan_url_borde_cisco = scan_url_borde_cisco
+            else:
+                log.warning(f"Failed to obtain configuration. SCAN_URL_BORDE_CISCO variable not found in enviroment file")
+            scan_url_bras = env.get("SCAN_URL_BRAS")
+            if scan_url_bras: self.scan_url_bras = scan_url_bras
+            else:
+                log.warning(f"Failed to obtain configuration. SCAN_URL_BRAS variable not found in enviroment file")
+            scan_url_caching = env.get("SCAN_URL_CACHING")
+            if scan_url_caching: self.scan_url_caching = scan_url_caching
+            else:
+                log.warning(f"Failed to obtain configuration. SCAN_URL_CACHING variable not found in enviroment file")
+            scan_url_rai_hw = env.get("SCAN_URL_RAI_HW")
+            if scan_url_rai_hw: self.scan_url_rai_hw = scan_url_rai_hw
+            else:
+                log.warning(f"Failed to obtain configuration. SCAN_URL_RAI_HW variable not found in enviroment file")
+            scan_url_rai_zte = env.get("SCAN_URL_RAI_ZTE")
+            if scan_url_rai_zte: self.scan_url_rai_zte = scan_url_rai_zte
+            else:
+                log.warning(f"Failed to obtain configuration. SCAN_URL_RAI_ZTE variable not found in enviroment file")
         except Exception as error:
             log.error(f"Failed to obtain configuration. {error}")
             exit(1)
 
 
 if __name__ == "__main__":
-    config = ConfigurationHandler()
+    config = ConfigurationHandler(dev=True)
     print(config.uri_mongo)
