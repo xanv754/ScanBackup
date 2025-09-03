@@ -1,5 +1,5 @@
 import click
-from systemgrd.database.libs.factory.mongo import DatabaseMongoFactory
+from systemgrd.database.libs.database import DatabaseMongo
 from systemgrd.utils import ConfigurationHandler, log
 
 
@@ -14,11 +14,12 @@ def cli():
 
 
 @cli.command(help="Crea una nueva base de datos en MondoDB para el sistema.")
-def start():
-    config = ConfigurationHandler()
+@click.option("--dev", is_flag=True, help="Carga las variables del entorno de desarrollo")
+def start(dev: bool = False, test: bool = False):
+    config = ConfigurationHandler(dev=dev, test=test)
     log.info("Inicialización de la base de datos...")
     uri_mongo = config.uri_mongo
-    mongo_database = DatabaseMongoFactory().get_database(uri=uri_mongo)
+    mongo_database = DatabaseMongo(uri=uri_mongo)
     mongo_status = mongo_database.initialize()
     if mongo_status: 
         log.info("Inicialización de la base de datos completada exitosamente")
@@ -27,11 +28,12 @@ def start():
 
 
 @cli.command(help="Destruye la base de datos en MondoDB con toda su información. Esta acción no se puede deshacer.")
-def drop():
-    config = ConfigurationHandler()
+@click.option("--dev", is_flag=True, help="Carga las variables del entorno de desarrollo")
+def drop(dev: bool = False, test: bool = False):
+    config = ConfigurationHandler(dev=dev, test=test)
     log.info("Inicio de la destrucción de la base de datos...")
     uri_mongo = config.uri_mongo
-    mongo_database = DatabaseMongoFactory().get_database(uri=uri_mongo)
+    mongo_database = DatabaseMongo(uri=uri_mongo)
     mongo_status = mongo_database.drop()
     if mongo_status:
         log.info("Destrucción de la base de datos completada exitosamente")

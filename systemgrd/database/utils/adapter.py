@@ -15,8 +15,7 @@ class BBIPResponseAdapter:
         
         :param data: Data borde interfaces.
         :type data: List[dict]
-        :return: Dataframe of borde interfaces.
-        :rtype: pd.DataFrame
+        :return DataFrame: Dataframe of borde interfaces.
         """
         try:
             buffer: StringIO = StringIO()
@@ -49,8 +48,7 @@ class DailyReportResponseAdapter:
         
         :param data: Data borde interfaces.
         :type data: List[dict]
-        :return: Dataframe of borde interfaces.
-        :rtype: pd.DataFrame
+        :return DataFrame: Dataframe of borde interfaces.
         """
         try:
             buffer: StringIO = StringIO()
