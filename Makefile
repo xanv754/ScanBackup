@@ -39,11 +39,6 @@ setup-folders:
 	mkdir -p $(HOMEPROJECT)/data/SCAN/Reportes-Diarios
 	mkdir -p $(HOMEPROJECT)/data/logs
 	mkdir -p $(HOMEPROJECT)/sources/SCAN/
-	touch $(HOMEPROJECT)/sources/SCAN/Borde.txt
-	touch $(HOMEPROJECT)/sources/SCAN/Bras.txt
-	touch $(HOMEPROJECT)/sources/SCAN/Caching.txt
-	touch $(HOMEPROJECT)/sources/SCAN/RAI.txt
-	touch $(HOMEPROJECT)/sources/SCAN/IXP.txt
 
 run-base:
 	bash $(HOMEPROJECT)/systemgrd/routines/scan.sh
