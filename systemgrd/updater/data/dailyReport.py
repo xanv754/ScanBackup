@@ -4,8 +4,7 @@ from datetime import datetime, timedelta
 from systemgrd.constants import LayerName, HeaderDailyReport, HeaderBBIP, header_daily_report, header_upload_daily_data
 from systemgrd.database import DailyReportMongoQuery
 from systemgrd.model import DailyReportModel
-from systemgrd.updater.utils.layer import LayerDetector
-from systemgrd.utils import log
+from systemgrd.utils import LayerDetector, log
 
 
 class DailyReportUpdaterHandler:

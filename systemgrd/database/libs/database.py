@@ -33,16 +33,25 @@ class DatabaseMongo:
         collection_list = db.list_collection_names()
         return name in collection_list
     
-    def open_connection(self, uri: str) -> None:
+    def get_uri(self) -> str:
+        """Get the URI database.
+        
+        :returns str: URI database.
+        """
+        return self._uri
+    
+    def open_connection(self, uri: str | None = None) -> None:
         """Open a connection to the database.
         
         :param uri: URI database
         :type uri: str
         """
         try:
-            name_db = uri.split("/")[-1]
-            self._name_db = name_db
-            self._client = MongoClient(uri)
+            if not self.connected:
+                if not uri: uri = self._uri
+                name_db = uri.split("/")[-1]
+                self._name_db = name_db
+                self._client = MongoClient(uri)
         except Exception as e:
             log.error(f"Failed to connect to MongoDB database. {e}")
             self.connected = False

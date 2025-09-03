@@ -4,8 +4,7 @@ from datetime import datetime, timedelta
 from systemgrd.constants import HeaderBBIP, header_bbip, header_upload_scan_data
 from systemgrd.database import BBIPMongoQuery
 from systemgrd.model import BBIPModel
-from systemgrd.updater.utils.layer import LayerDetector
-from systemgrd.utils import log
+from systemgrd.utils import LayerDetector, log
 
 
 class BBIPUpdaterHandler:

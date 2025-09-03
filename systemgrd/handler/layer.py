@@ -11,9 +11,9 @@ class LayerHandler:
     __error_connection: bool = False
     bbip_handler: BBIPHandler
 
-    def __init__(self, uri: str | None = None):
+    def __init__(self, uri: str | None = None, dev: bool = False):
         try:
-            self.bbip_handler = BBIPHandler(uri=uri)
+            self.bbip_handler = BBIPHandler(uri=uri, dev=dev)
         except Exception as e:
             log.error(f"BBIP handler. Failed connecting to the database. {e}")
             self.__error_connection = True
