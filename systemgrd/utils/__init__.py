@@ -2,7 +2,7 @@ from systemgrd.utils.log import log
 from systemgrd.utils.calculate import calculate
 from systemgrd.utils.config import ConfigurationHandler
 from systemgrd.utils.excel import ExcelExport
-from systemgrd.utils.translate import Translate
+from systemgrd.utils.transform import TransformData
 from systemgrd.utils.validate import Validate
 from systemgrd.utils.layer import LayerDetector
 
@@ -12,7 +12,7 @@ __all__ = [
     "calculate",
     "ConfigurationHandler",
     "ExcelExport",
-    "Translate",
+    "TransformData",
     "Validate",
     "LayerDetector"
 ]
