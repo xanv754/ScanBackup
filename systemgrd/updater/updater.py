@@ -60,4 +60,5 @@ class UpdaterSourceHandler:
             if status_update: log.info(f"Enlaces de SCAN {layer} actualizados.")
             else: log.error(f"Fallo al actualizar los enlaces de SCAN {layer}.")
         except Exception as e:
-            log.error(f"Failed to load data of {layer} sources. {e}")        
+            log.error(f"Failed to load data of {layer} sources. {e}")
+            return None

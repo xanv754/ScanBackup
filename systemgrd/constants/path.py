@@ -11,6 +11,7 @@ class DataPath:
     SCAN_DATA_IXP = path.join(ROOT_PATH, "data", "SCAN", "IXP")
     SCAN_REPORT_DAILY = path.join(ROOT_PATH, "data", "SCAN", "Reportes-Diarios")
     SCAN_SOURCES = path.join(ROOT_PATH, "sources", "SCAN")
+    SCAN_SOURCES_BK = path.join(ROOT_PATH, "sources", "BK_SCAN")
 
 
 paths_BBIP_SCAN = [

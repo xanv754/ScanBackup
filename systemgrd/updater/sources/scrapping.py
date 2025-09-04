@@ -103,20 +103,23 @@ class SourceScrapping(ABC):
         :return bool: Status of saved. True if saved successfully, otherwise False.
         """
         try:
+            layer = layer.capitalize()
             df = self.transform_data_to_dataframe(sources)
             if df.empty: raise Exception("The data to save is empty.")
-            if os.path.exists(f"{DataPath.SCAN_SOURCES}/{layer}.txt"):
-                df_old = pd.read_csv(f"{DataPath.SCAN_SOURCES}/{layer}.txt", sep=" ", header=None, names=header_source) # type: ignore
+            source_path = os.path.join(DataPath.SCAN_SOURCES, f"{layer}.txt")
+            old_source_path = os.path.join(DataPath.SCAN_SOURCES_BK, f"{layer}.txt")
+            if os.path.exists(source_path):
+                df_old = pd.read_csv(source_path, sep=" ", header=None, names=header_source) # type: ignore
                 if not df_old.empty:
                     df_old[HeaderSource.MODEL] = df_old[HeaderSource.MODEL].astype(str)
                     df_old.sort_values(by=[HeaderSource.MODEL, HeaderSource.NAME], inplace=True)
-                    df_old.to_csv(f"{DataPath.SCAN_SOURCES}/{layer}_bk.txt", sep=" ", header=False, index=False)
+                    df_old.to_csv(old_source_path, sep=" ", header=False, index=False)
                     data = self._compare_sources_old(df, df_old)
                     if data.empty: raise Exception("The data to save is empty.")
                 else: data = df
             else: data = df
             data.sort_values(by=[HeaderSource.MODEL, HeaderSource.CAPACITY, HeaderSource.NAME], inplace=True)
-            data.to_csv(f"{DataPath.SCAN_SOURCES}/{layer}.txt", sep=" ", header=False, index=False)
+            data.to_csv(source_path, sep=" ", header=False, index=False)
         except Exception as error:
             log.error(f"Failed to save sources: {layer}. {error}")
             return False
