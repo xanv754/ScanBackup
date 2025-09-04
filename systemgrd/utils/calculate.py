@@ -18,10 +18,10 @@ def calculate(df: pd.DataFrame) -> pd.DataFrame:
     """
     try:
         summary_df = pd.DataFrame(columns=header_daily_report)
-        interfaces = df[HeaderBBIP.NAME].unique()
+        interfaces: list[str] = df[HeaderBBIP.NAME].unique() # type: ignore
         for interface in interfaces:
             df_filtered: pd.DataFrame = df[df[HeaderBBIP.NAME] == interface]
-            df_filtered = df_filtered.sort_values(by=[HeaderDailyReport.DATE], ascending=False)
+            df_filtered = df_filtered.sort_values(by=[HeaderDailyReport.DATE], ascending=False) 
             df_filtered = df_filtered.reset_index(drop=True)
             capacity = df_filtered[HeaderBBIP.CAPACITY].iloc[0]
             type = df_filtered[HeaderBBIP.TYPE].iloc[0]

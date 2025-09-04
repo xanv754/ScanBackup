@@ -3,9 +3,9 @@ from typing import Dict
 from pathlib import Path
 from openpyxl import load_workbook
 from openpyxl.styles.colors import Color
-from openpyxl.styles import Font, PatternFill, Border, Side, numbers
+from openpyxl.styles import Font, PatternFill, Border, Side
 from systemgrd.constants import cells, HeaderDailyReport
-from systemgrd.utils.translate import Translate
+from systemgrd.utils.transform import TransformData
 
 class ExcelExport:
     """Class to export data to excel."""
@@ -14,11 +14,11 @@ class ExcelExport:
     data: Dict[str, pd.DataFrame]
 
     def __init__(self, filename: str, data: Dict[str, pd.DataFrame]) -> None:
-        self.__set_filepath(filename=filename)
+        self._set_filepath(filename=filename)
         self.data = data
 
 
-    def __set_filepath(self, filename: str) -> None:
+    def _set_filepath(self, filename: str) -> None:
         """Set the filepath to export data."""
         if not filename.endswith(".xlsx"): filename = f"{filename}.xlsx"
         home = Path.home()
@@ -29,7 +29,7 @@ class ExcelExport:
         else:
             self.filepath = f"{home}/{filename}"
 
-    def __set_styles(self, daily: bool = False) -> None:
+    def _set_styles(self, daily: bool = False) -> None:
         """Set the styles to excel."""
         border = Border(left=Side(style="thin", color=Color(rgb="000000")), right=Side(style="thin", color=Color(rgb="000000")), top=Side(style="thin", color=Color(rgb="000000")), bottom=Side(style="thin", color=Color(rgb="000000")))
         number_format = '0.00'
@@ -73,19 +73,7 @@ class ExcelExport:
         with pd.ExcelWriter(self.filepath, engine="openpyxl") as writer:
             for layer_type, df in self.data.items():
                 df.sort_values(by=[HeaderDailyReport.TYPE, HeaderDailyReport.NAME], inplace=True)
-                df = Translate.header(df)
-                df.to_excel(writer, sheet_name=layer_type, index=False)
-        self.__set_styles(daily=daily)
-
-
-if __name__ == "__main__":
-    data = {
-        "BORDE": pd.DataFrame({
-            "Fecha": ["2025-01-01", "2025-01-02", "2025-01-03"],
-            "Prom": ["10", "20", "30"],
-            "MaxProm": ["10", "20", "30"]
-        }),
-    }
-    excel = ExcelExport(filename="test", data=data)
-    excel.export()
-    print("Exported in", excel.filepath)
+                df = TransformData.reorganize(df)
+                df = TransformData.translate_header(df)
+                df.to_excel(writer, sheet_name=layer_type, index=False) # type: ignore
+        self._set_styles(daily=daily)
