@@ -22,7 +22,15 @@ setup-folders:
 	mkdir -p $(HOMEPROJECT)/sources/SCAN/
 	mkdir -p $(HOMEPROJECT)/sources/BK_SCAN/
 
-setup: venv setup-folders
+setup-files:
+	@echo "Creando archivos bases..."
+	touch $(HOMEPROJECT)/sources/SCAN/Borde.txt
+	touch $(HOMEPROJECT)/sources/SCAN/Bras.txt
+	touch $(HOMEPROJECT)/sources/SCAN/Caching.txt
+	touch $(HOMEPROJECT)/sources/SCAN/RAI.txt
+	touch $(HOMEPROJECT)/sources/SCAN/IXP.txt
+
+setup: venv setup-folders setup-files
 	@echo "Inicializando base de datos..."
 	$(HOMEPROJECT)/.venv/bin/python -m systemgrd.database start
 	@echo "Sistema instanciado correctamente."
