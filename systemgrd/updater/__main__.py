@@ -85,11 +85,17 @@ def daily(date: str | None = None, force: bool = False, dev: bool = False):
 @click.option("--caching", required=False, is_flag=True, help="Actualizar solo los enlaces de SCAN para la capa Caching.")
 @click.option("--rai", required=False, is_flag=True, help="Actualizar solo los enlaces de SCAN para la capa Rai.")
 def sources(borde: bool = False, bras: bool = False, caching: bool = False, rai: bool = False):
-    log.info("Starting scrapping to update sources...")
+    log.info("Inicio de la actualización de las fuentes de SCAN...")
     if borde: UpdaterSourceHandler(LayerName.BORDE)
     if bras: UpdaterSourceHandler(LayerName.BRAS)
     if caching: UpdaterSourceHandler(LayerName.CACHING)
     if rai: UpdaterSourceHandler(LayerName.RAI)
+    if not borde and not bras and not caching and not rai:
+        UpdaterSourceHandler(LayerName.BORDE)
+        UpdaterSourceHandler(LayerName.BRAS)
+        UpdaterSourceHandler(LayerName.CACHING)
+        UpdaterSourceHandler(LayerName.RAI)
+    log.info("Actualización de las fuentes terminadas...")
     
 
 if __name__ == "__main__":

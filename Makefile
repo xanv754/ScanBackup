@@ -10,25 +10,6 @@ ifeq ($(VENV_EXISTS),0)
 	$(HOMEPROJECT)/.venv/bin/pip install -e .
 endif
 
-setup: venv
-	@echo "Creando directorios requeridos..."
-	mkdir -p $(HOMEPROJECT)/data/SCAN/Borde
-	mkdir -p $(HOMEPROJECT)/data/SCAN/Bras
-	mkdir -p $(HOMEPROJECT)/data/SCAN/Caching
-	mkdir -p $(HOMEPROJECT)/data/SCAN/RAI
-	mkdir -p $(HOMEPROJECT)/data/SCAN/IXP
-	mkdir -p $(HOMEPROJECT)/data/SCAN/Reportes-Diarios
-	mkdir -p $(HOMEPROJECT)/data/logs
-	mkdir -p $(HOMEPROJECT)/sources/SCAN/
-	touch $(HOMEPROJECT)/sources/SCAN/Borde.txt
-	touch $(HOMEPROJECT)/sources/SCAN/Bras.txt
-	touch $(HOMEPROJECT)/sources/SCAN/Caching.txt
-	touch $(HOMEPROJECT)/sources/SCAN/RAI.txt
-	touch $(HOMEPROJECT)/sources/SCAN/IXP.txt
-	@echo "Inicializando base de datos..."
-	$(HOMEPROJECT)/.venv/bin/python -m systemgrd.database start
-	@echo "Sistema instanciado correctamente."
-
 setup-folders:
 	@echo "Creando directorios requeridos..."
 	mkdir -p $(HOMEPROJECT)/data/SCAN/Borde
@@ -39,22 +20,32 @@ setup-folders:
 	mkdir -p $(HOMEPROJECT)/data/SCAN/Reportes-Diarios
 	mkdir -p $(HOMEPROJECT)/data/logs
 	mkdir -p $(HOMEPROJECT)/sources/SCAN/
+	mkdir -p $(HOMEPROJECT)/sources/BK_SCAN/
+
+setup-files:
+	@echo "Creando archivos bases..."
+	touch $(HOMEPROJECT)/sources/SCAN/Borde.txt
+	touch $(HOMEPROJECT)/sources/SCAN/Bras.txt
+	touch $(HOMEPROJECT)/sources/SCAN/Caching.txt
+	touch $(HOMEPROJECT)/sources/SCAN/RAI.txt
+	touch $(HOMEPROJECT)/sources/SCAN/IXP.txt
+
+setup: venv setup-folders setup-files
+	@echo "Inicializando base de datos..."
+	$(HOMEPROJECT)/.venv/bin/python -m systemgrd.database start
+	@echo "Sistema instanciado correctamente."
 
 run-base:
 	bash $(HOMEPROJECT)/systemgrd/routines/scan.sh
 	$(HOMEPROJECT)/.venv/bin/python -m systemgrd.routines.diario
 
-run:
-	bash $(HOMEPROJECT)/systemgrd/routines/scan.sh
-	$(HOMEPROJECT)/.venv/bin/python -m systemgrd.routines.diario
+run: run-base
 	$(HOMEPROJECT)/.venv/bin/python -m systemgrd.updater data
 
-run-dev:
-	bash $(HOMEPROJECT)/systemgrd/routines/scan.sh
-	$(HOMEPROJECT)/.venv/bin/python -m systemgrd.routines.diario
+run-dev: run-base
 	$(HOMEPROJECT)/.venv/bin/python -m systemgrd.updater data --dev
 
-sources:
+updater-sources:
 	$(HOMEPROJECT)/.venv/bin/python -m systemgrd.updater sources
 
 clean-data:
