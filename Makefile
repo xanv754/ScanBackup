@@ -27,8 +27,8 @@ setup-files:
 	touch $(HOMEPROJECT)/sources/SCAN/Borde.txt
 	touch $(HOMEPROJECT)/sources/SCAN/Bras.txt
 	touch $(HOMEPROJECT)/sources/SCAN/Caching.txt
-	touch $(HOMEPROJECT)/sources/SCAN/RAI.txt
-	touch $(HOMEPROJECT)/sources/SCAN/IXP.txt
+	touch $(HOMEPROJECT)/sources/SCAN/Rai.txt
+	touch $(HOMEPROJECT)/sources/SCAN/Ixp.txt
 
 setup: venv setup-folders setup-files
 	@echo "Inicializando base de datos..."
