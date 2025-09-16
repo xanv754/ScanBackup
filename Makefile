@@ -15,7 +15,7 @@ setup-folders:
 	mkdir -p $(HOMEPROJECT)/data/SCAN/Borde
 	mkdir -p $(HOMEPROJECT)/data/SCAN/Bras
 	mkdir -p $(HOMEPROJECT)/data/SCAN/Caching
-	mkdir -p $(HOMEPROJECT)/data/SCAN/RAI
+	mkdir -p $(HOMEPROJECT)/data/SCAN/Rai
 	mkdir -p $(HOMEPROJECT)/data/SCAN/IXP
 	mkdir -p $(HOMEPROJECT)/data/SCAN/Reportes-Diarios
 	mkdir -p $(HOMEPROJECT)/data/logs
@@ -52,6 +52,6 @@ clean-data:
 	rm -rf $(HOMEPROJECT)/data/SCAN/Borde/*
 	rm -rf $(HOMEPROJECT)/data/SCAN/Bras/*
 	rm -rf $(HOMEPROJECT)/data/SCAN/Caching/*
-	rm -rf $(HOMEPROJECT)/data/SCAN/RAI/*
+	rm -rf $(HOMEPROJECT)/data/SCAN/Rai/*
 	rm -rf $(HOMEPROJECT)/data/SCAN/IXP/*
 	rm -rf $(HOMEPROJECT)/data/SCAN/Reportes-Diarios/*
