@@ -20,6 +20,6 @@ foldername_BBIP_SCAN = [
     "Borde",
     "Bras",
     "Caching",
-    "RAI",
+    "Rai",
     "IXP"
 ]
