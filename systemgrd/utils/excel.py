@@ -59,11 +59,11 @@ class ExcelExport:
                     sheet.cell(row=row, column=column).border = border
                     if not daily and cells[column] == "D": 
                         sheet.cell(row=row, column=column).number_format = number_format
-                    if (cells[column] == "E" or
-                        cells[column] == "F" or
-                        cells[column] == "G" or
-                        cells[column] == "H" or
-                        cells[column] == "I"
+                    if (cells[column] == "B" or
+                        cells[column] == "C" or
+                        cells[column] == "D" or
+                        cells[column] == "E" or
+                        cells[column] == "F"
                     ): sheet.cell(row=row, column=column).number_format = number_format
 
         workbook.save(self.filepath)
