@@ -5,7 +5,7 @@ from abc import ABC, abstractmethod
 from requests.auth import HTTPBasicAuth
 from bs4 import BeautifulSoup
 from urllib3.exceptions import InsecureRequestWarning
-from systemgrd.constants import DataPath, HeaderSource, header_source
+from systemgrd.constants import DataPath, HeaderSource, LayerName, header_source
 from systemgrd.model import Source
 from systemgrd.utils import log, ConfigurationHandler
 
@@ -16,7 +16,7 @@ requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning) # ty
 class SourceScrapping(ABC):
     config: ConfigurationHandler
     url_base: str
-    with_capacity: str = "UNDEFINED"
+    with_capacity: str = "101010101010101010101010101010101010101"
 
     def __init__(self) -> None:
         self.config = ConfigurationHandler()
@@ -118,6 +118,9 @@ class SourceScrapping(ABC):
                     if data.empty: raise Exception("The data to save is empty.")
                 else: data = df
             else: data = df
+            if layer.upper() == LayerName.BORDE or layer.upper() == LayerName.BRAS:
+                data[HeaderSource.CAPACITY] = data[HeaderSource.CAPACITY].astype(int)
+            else: data[HeaderSource.CAPACITY] = data[HeaderSource.CAPACITY].astype(float)
             data.sort_values(by=[HeaderSource.MODEL, HeaderSource.CAPACITY, HeaderSource.NAME], inplace=True)
             data.to_csv(source_path, sep=" ", header=False, index=False)
         except Exception as error:
