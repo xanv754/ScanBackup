@@ -19,6 +19,7 @@ class ConfigurationHandler:
     scan_url_caching: str
     scan_url_rai_hw: str
     scan_url_rai_zte: str
+    scan_url_ixp: str
 
     def __init__(self, dev: bool = False, test: bool = False) -> None:
         try:
@@ -68,6 +69,10 @@ class ConfigurationHandler:
             if scan_url_rai_zte: self.scan_url_rai_zte = scan_url_rai_zte
             else:
                 log.warning(f"Failed to obtain configuration. SCAN_URL_RAI_ZTE variable not found in enviroment file")
+            scan_url_ixp = env.get("SCAN_URL_IXP")
+            if scan_url_ixp: self.scan_url_ixp = scan_url_ixp
+            else:
+                log.warning(f"Failed to obtain configuration. SCAN_URL_IXP variable not found in enviroment file")
         except Exception as error:
             log.error(f"Failed to obtain configuration. {error}")
             exit(1)
