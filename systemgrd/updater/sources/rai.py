@@ -21,7 +21,7 @@ class RAISourceScrapping(SourceScrapping):
                 name = " ".join(name) # type: ignore
                 name = name.split(" - ")[0]
                 name = name.replace("/", "").replace("(", "").replace(")", "").replace("%", "").replace("|", "-").replace(" ", "_")
-                capacity = self.get_capacity(link_original) # type: ignore
+                capacity = self.get_capacity(f"{self.url_base}{link_original}") # type: ignore
                 source = Source(link=f"{self.url_base}{link}", name=name, capacity=capacity, model=model)
                 sources.append(source) # type: ignore
         except Exception as error:
@@ -49,8 +49,23 @@ class RAISourceScrapping(SourceScrapping):
         return self._get_info_interfaces(soup)
 
     def get_capacity(self, param: str) -> str: 
-        # TODO
-        return self.with_capacity
+        try:
+            soup = self.get_html(param)
+            if not soup: raise Exception("Failed to obtain HTML from source.")
+            block = soup.find('span', class_="d-block mb-3").find_next('p').find_next('i') # type: ignore
+            info = block.get_text(strip=True).split(": ")[1] # type: ignore
+            capacity = float(info.split(" ")[0])
+            unit = info.split(" ")[1]
+            if capacity and unit:
+                if "Mb" in unit.capitalize(): capacity = capacity / 1000
+                if 2 <= capacity <= 10: capacity = 10.0
+                elif (capacity % 10) >= 5: capacity = capacity + (10 - (capacity % 10))
+                capacity = str(float(capacity))
+                return capacity
+            else: return self.with_capacity
+        except Exception as error:
+            log.error(f"Failed to obtain capacity info from SCAN Caching interface ({param}) - {error}")
+            return self.with_capacity
 
     def get_sources(self) -> list[Source]:
         try:
