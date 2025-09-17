@@ -136,9 +136,11 @@ make sources
 
 Este comando actualizará las fuentes de los enlaces y los almacenará en el directorio `sources/SCAN/` en la capa correspondiente. Esto se refiere a que, realizando un web scrapping de la información en SCAN sobre las interfaces de las capas, se obtienen las fuentes de los enlaces existentes (con sus otros valores necesarios) para la correcta extracción de datos.
 
-Cabe destacar que, en dichas fuentes, no siempre se trae toda la información necesaria completa (solo `Borde` y `Bras` sí), por lo que se debe revisar manualmente las fuentes para el correcto funcionamiento del actualizador de la data de SCAN. El actualizador de las fuentes de SCAN solo agrega o elimina interfaces en los archivos de la carpeta `sources/SCAN/`, pero no modifica información de las interfaces ya registradas. Esto con el fin de no dañar los valores de las interfaces registradas (por ejemplo, sobreescribir las capacidades de las interfaces), ya que no siempre es posible extraer la información necesaria para el sistema desde la página de SCAN.
+Cabe destacar que, en dichas fuentes, no hay seguridad de que se obtengan las capacidades correctas según el negocio de la empresa, por lo que se debe revisar manualmente las fuentes obtenidas para el correcto funcionamiento del actualizador de la data de SCAN. El actualizador de las fuentes de SCAN solo agrega o elimina interfaces en los archivos de la carpeta `sources/SCAN/`, pero no modifica información de las capacidade de las interfaces ya registradas. Esto con el fin de no dañar los valores de registradas.
 
-Por ello **no se recomienda ejecutar en automático el actualizador de las fuentes todos los días**. Se debe colocar las capacidades de las interfaces nuevas de la capa `Caching` y `Rai` de forma manual, y revisar los valores extraídos de las capas `Borde` y `Bras`.
+Si no es posible obtener la capacidad de una interfaz, por defecto se colocará un valor absurdo para su identificación (101010101010101010101010101010101010101).
+
+Por ello **no se recomienda ejecutar en automático el actualizador de las fuentes todos los días**. Siempre se debe revisar los valores extraídos de las capas.
 
 ## Ejecución del Sistema
 Para poder ejecutar el sistema, se debe ejecutar el siguiente comando:
