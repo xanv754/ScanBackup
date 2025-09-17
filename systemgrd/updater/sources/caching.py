@@ -46,8 +46,8 @@ class CachingSourceScrapping(SourceScrapping):
                     name = item.find('li', {'id': 'subtitulo'}).get_text(strip=True) # type: ignore
                     if not name or junk_interface in name: continue
                     name = name.split(" - ")[0].replace("Router ", "").replace(" ", "_").replace("/", "").replace("(", "").replace(")", "").replace("%", "").replace("|", "-") # type: ignore
-                    capacity = self.get_capacity(name) # type: ignore
                     link_original = item.find('li', {'id': 'graficas'}).find('a').get('href') # type: ignore
+                    capacity = self.get_capacity(f"{self.url_base}{link_original}") # type: ignore
                     link = link_original.replace(".html", ".log") # type: ignore
                     source = Source(link=f"{self.url_base}{link}", name=name, capacity=capacity, model=service[0]) # type: ignore
                     sources.append(source) # type: ignore
@@ -58,8 +58,21 @@ class CachingSourceScrapping(SourceScrapping):
             return sources # type: ignore
 
     def get_capacity(self, param: str) -> str:
-        # TODO
-        return self.with_capacity
+        try:
+            soup = self.get_html(param)
+            if not soup: raise Exception("Failed to obtain HTML from source.")
+            block = soup.find('span', class_="d-block mb-3").find_next('p').find_next('i') # type: ignore
+            capacity = block.get_text(strip=True).split(": ")[1].split("Gb")[0].strip().replace(",", ".") # type: ignore
+            capacity = round(float(capacity))
+            if 5 <= capacity <= 10: capacity = 10
+            elif (capacity % 10) > 5: capacity = capacity + (10 - (capacity % 10))
+            elif (capacity % 10) <= 5: capacity = capacity + 1.5
+            else: capacity = self.with_capacity
+            capacity = str(capacity)
+            return capacity
+        except Exception as error:
+            log.error(f"Failed to obtain capacity info from SCAN Caching interface ({param}) - {error}")
+            return self.with_capacity
 
     def get_sources(self) -> list[Source]:
         self.set_url_base(self.config.scan_url_caching)
