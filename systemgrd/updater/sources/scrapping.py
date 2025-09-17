@@ -16,7 +16,7 @@ requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning) # ty
 class SourceScrapping(ABC):
     config: ConfigurationHandler
     url_base: str
-    with_capacity: str = "000000"
+    with_capacity: str = "UNDEFINED"
 
     def __init__(self) -> None:
         self.config = ConfigurationHandler()
