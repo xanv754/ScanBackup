@@ -68,7 +68,7 @@ class CachingSourceScrapping(SourceScrapping):
             elif (capacity % 10) > 5: capacity = capacity + (10 - (capacity % 10))
             elif (capacity % 10) <= 5: capacity = capacity + 1.5
             else: capacity = self.with_capacity
-            capacity = str(capacity)
+            capacity = str(float(capacity))
             return capacity
         except Exception as error:
             log.error(f"Failed to obtain capacity info from SCAN Caching interface ({param}) - {error}")
