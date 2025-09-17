@@ -41,7 +41,7 @@ do
     capacidad=`echo $line2 | awk '{print $3}' `
     tipo=`echo $line2 | awk '{print $4}' `
 
-    wget --user=$USERSCAN --password=$PASSWORDSCAN --no-check-certificate $url -O $ruta/routines/tmp/$terminal
+    wget -q --user=$USERSCAN --password=$PASSWORDSCAN --no-check-certificate $url -O $ruta/routines/tmp/$terminal > /dev/null 2>&1
 
     sed -i '1d' $ruta/routines/tmp/$terminal
     cat $ruta/routines/tmp/$terminal | head -500 | while read line3
