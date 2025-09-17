@@ -57,7 +57,7 @@ class ExcelExport:
                 for column in range(1, max_column + 1):
                     sheet.cell(row=row, column=column).font = font
                     sheet.cell(row=row, column=column).border = border
-                    if not daily and cells[column] == "D": 
+                    if not daily and cells[column] == "H": 
                         sheet.cell(row=row, column=column).number_format = number_format
                     if (cells[column] == "B" or
                         cells[column] == "C" or
