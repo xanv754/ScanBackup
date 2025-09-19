@@ -18,6 +18,10 @@ def cli():
 @cli.command(help="Carga la data de SCAN en el sistema.")
 @click.option("--date", required=False, help="Fecha para cargar los datos. Formato YYYY-MM-DD")
 @click.option("--borde", is_flag=True, required=False, help="Carga los datos de la capa Borde de SCAN.")
+@click.option("--bras", is_flag=True, required=False, help="Carga los datos de la capa Bras de SCAN.")
+@click.option("--caching", is_flag=True, required=False, help="Carga los datos de la capa Caching de SCAN.")
+@click.option("--rai", is_flag=True, required=False, help="Carga los datos de la capa Rai de SCAN.")
+@click.option("--ixp", is_flag=True, required=False, help="Carga los datos de la capa IXP de SCAN.")
 @click.option("--force", is_flag=True, required=False, help="Carga todos los datos que puedan encontrarse obtenidos.")
 @click.option("--dev", is_flag=True, required=False, help="Carga el entorno de desarrollo.")
 def data(date: str | None = None, borde: bool = False, bras: bool = False, caching: bool = False, rai: bool = False, ixp: bool = False, force: bool = False, dev: bool = False):
@@ -74,8 +78,8 @@ def data(date: str | None = None, borde: bool = False, bras: bool = False, cachi
             date=date,
             force=force
         )
-        if not status_operation: raise Exception()
-        else: log.info("Actualización de reportes diarios cargado exitosamente")
+        if not status_operation: log.info("Actualización de reportes diarios cargado exitosamente")
+        else: raise Exception()
         log.info("Actualización de reportes diarios finalizada")
     except Exception as e:
         log.error(f"Actualización de datos fallida. {e}")
