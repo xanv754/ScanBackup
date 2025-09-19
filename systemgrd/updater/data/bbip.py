@@ -38,6 +38,7 @@ class BBIPUpdaterHandler:
                     df_data = pd.read_csv(os.path.join(folderpath, filename), sep=" ", header=None, names=header_upload_scan_data) # type: ignore
                     df_data = df_data[df_data[HeaderBBIP.DATE] != self._date]
                     if not df_data.empty:
+                        df_data = df_data.reset_index(drop=True)
                         df_data.to_csv(os.path.join(folderpath, filename), sep=" ")
                         continue
                 os.remove(os.path.join(folderpath, filename))

@@ -78,8 +78,8 @@ def data(date: str | None = None, borde: bool = False, bras: bool = False, cachi
             date=date,
             force=force
         )
-        if not status_operation: log.info("Actualización de reportes diarios cargado exitosamente")
-        else: raise Exception()
+        if not status_operation: raise Exception()
+        else: log.info("Actualización de reportes diarios cargado exitosamente")
         log.info("Actualización de reportes diarios finalizada")
     except Exception as e:
         log.error(f"Actualización de datos fallida. {e}")
