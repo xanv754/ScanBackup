@@ -17,29 +17,56 @@ def cli():
 
 @cli.command(help="Carga la data de SCAN en el sistema.")
 @click.option("--date", required=False, help="Fecha para cargar los datos. Formato YYYY-MM-DD")
+@click.option("--borde", is_flag=True, required=False, help="Carga los datos de la capa Borde de SCAN.")
 @click.option("--force", is_flag=True, required=False, help="Carga todos los datos que puedan encontrarse obtenidos.")
 @click.option("--dev", is_flag=True, required=False, help="Carga el entorno de desarrollo.")
-def data(date: str | None = None, force: bool = False, dev: bool = False):
+def data(date: str | None = None, borde: bool = False, bras: bool = False, caching: bool = False, rai: bool = False, ixp: bool = False, force: bool = False, dev: bool = False):
     try:
         log.info("Inicio de actualización de datos del sistema...")
         config = ConfigurationHandler(dev=dev)
         uri = config.uri_mongo
-        borde = Process(target=UpdaterHandler, args=(LayerName.BORDE, uri, date, force))
-        borde.start()
-        bras = Process(target=UpdaterHandler, args=(LayerName.BRAS, uri, date, force))
-        bras.start()
-        caching = Process(target=UpdaterHandler, args=(LayerName.CACHING, uri, date, force))
-        caching.start()
-        rai = Process(target=UpdaterHandler, args=(LayerName.RAI, uri, date, force))
-        rai.start()
-        ixp = Process(target=UpdaterHandler, args=(LayerName.IXP, uri, date, force))
-        ixp.start()
-        borde.join()
-        bras.join()
-        caching.join()
-        rai.join()
-        ixp.join()
-        log.info("Actualización de las capas finalizada")
+        if borde and not bras and not caching and not rai and not ixp:
+            borde_handler = Process(target=UpdaterHandler, args=(LayerName.BORDE, uri, date, force))
+            borde_handler.start()
+            borde_handler.join()
+            log.info("Actualización de la capa finalizada")
+        elif bras and not borde and not caching and not rai and not ixp:
+            bras_handler = Process(target=UpdaterHandler, args=(LayerName.BRAS, uri, date, force))
+            bras_handler.start()
+            bras_handler.join()
+            log.info("Actualización de la capa finalizada")
+        elif caching and not borde and not bras and not rai and not ixp:
+            caching_handler = Process(target=UpdaterHandler, args=(LayerName.CACHING, uri, date, force))
+            caching_handler.start()
+            caching_handler.join()
+            log.info("Actualización de la capa finalizada")
+        elif rai and not borde and not bras and not caching and not ixp:
+            rai_handler = Process(target=UpdaterHandler, args=(LayerName.RAI, uri, date, force))
+            rai_handler.start()
+            rai_handler.join()
+            log.info("Actualización de la capa finalizada")
+        elif ixp and not borde and not bras and not caching and not rai:
+            ixp_handler = Process(target=UpdaterHandler, args=(LayerName.IXP, uri, date, force))
+            ixp_handler.start()
+            ixp_handler.join()
+            log.info("Actualización de la capa finalizada")
+        else:
+            borde_handler = Process(target=UpdaterHandler, args=(LayerName.BORDE, uri, date, force))
+            borde_handler.start()
+            bras_handler = Process(target=UpdaterHandler, args=(LayerName.BRAS, uri, date, force))
+            bras_handler.start()
+            caching_handler = Process(target=UpdaterHandler, args=(LayerName.CACHING, uri, date, force))
+            caching_handler.start()
+            rai_handler = Process(target=UpdaterHandler, args=(LayerName.RAI, uri, date, force))
+            rai_handler.start()
+            ixp_handler = Process(target=UpdaterHandler, args=(LayerName.IXP, uri, date, force))
+            ixp_handler.start()
+            borde_handler.join()
+            bras_handler.join()
+            caching_handler.join()
+            rai_handler.join()
+            ixp_handler.join()
+            log.info("Actualización de las capas finalizada")
         log.info("Inicio de actualización de reportes diarios del sistema...")
         status_operation = UpdaterHandler(
             layer=LayerName.DAILY_REPORT,
