@@ -15,24 +15,24 @@ IP_HISTORY_SCHEMA: Dict[str, Dict[str, Any]] = {
         "properties": {
             IPBrasHistoryFieldName.DATE: {
                 "bsonType": "string",
-                "description": "Date of the traffic"
+                "description": "Date of the traffic",
             },
             IPBrasHistoryFieldName.TIME: {
                 "bsonType": "string",
-                "description": "Hour of the traffic"
+                "description": "Hour of the traffic",
             },
             IPBrasHistoryFieldName.BRAS_NAME: {
                 "bsonType": "string",
-                "description": "Name of Bras"
+                "description": "Name of Bras",
             },
             IPBrasHistoryFieldName.IN_PROM: {
                 "bsonType": ["int", "long"],
-                "description": "In prom of the traffic"
+                "description": "In prom of the traffic",
             },
             IPBrasHistoryFieldName.IN_MAX: {
                 "bsonType": ["int", "long"],
-                "description": "In max of the traffic"
-            }
-        }
+                "description": "In max of the traffic",
+            },
+        },
     }
 }

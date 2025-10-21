@@ -3,8 +3,12 @@ from systemgrd.database.schemas.bras import BRAS_SCHEMA as BRAS_SCHEMA_MONGO
 from systemgrd.database.schemas.caching import CACHING_SCHEMA as CACHING_SCHEMA_MONGO
 from systemgrd.database.schemas.rai import RAI_SCHEMA as RAI_SCHEMA_MONGO
 from systemgrd.database.schemas.ixp import IXP_SCHEMA as IXP_SCHEMA_MONGO
-from systemgrd.database.schemas.ipHistory import IP_HISTORY_SCHEMA as IP_HISTORY_SCHEMA_MONGO
-from systemgrd.database.schemas.dailyReport import DAILY_REPORT_SCHEMA as DAILY_REPORT_SCHEMA_MONGO
+from systemgrd.database.schemas.ipHistory import (
+    IP_HISTORY_SCHEMA as IP_HISTORY_SCHEMA_MONGO,
+)
+from systemgrd.database.schemas.dailyReport import (
+    DAILY_REPORT_SCHEMA as DAILY_REPORT_SCHEMA_MONGO,
+)
 from systemgrd.database.libs.database import DatabaseMongo
 from systemgrd.database.querys.bbip.query import BBIPQuery
 from systemgrd.database.querys.bbip.bbip import BBIPMongoQuery
@@ -24,5 +28,5 @@ __all__ = [
     "BBIPQuery",
     "BBIPMongoQuery",
     "DailyReportQuery",
-    "DailyReportMongoQuery"
+    "DailyReportMongoQuery",
 ]

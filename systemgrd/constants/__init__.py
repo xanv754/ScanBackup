@@ -5,6 +5,4 @@ from systemgrd.constants.path import *
 from systemgrd.constants.cells import cells
 
 
-__all__ = [
-    "cells"
-]
+__all__ = ["cells"]

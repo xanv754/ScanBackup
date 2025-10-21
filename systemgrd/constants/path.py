@@ -3,6 +3,7 @@ from os import path
 
 class DataPath:
     """All paths of the data system."""
+
     ROOT_PATH = path.abspath(path.join(path.dirname(__file__), "..", ".."))
     SCAN_DATA_BORDE = path.join(ROOT_PATH, "data", "SCAN", "Borde")
     SCAN_DATA_BRAS = path.join(ROOT_PATH, "data", "SCAN", "Bras")
@@ -18,7 +19,7 @@ paths_BBIP_SCAN = [
     DataPath.SCAN_DATA_BORDE,
     DataPath.SCAN_DATA_BRAS,
     DataPath.SCAN_DATA_CACHING,
-    DataPath.SCAN_DATA_RAI
+    DataPath.SCAN_DATA_RAI,
 ]
 
 

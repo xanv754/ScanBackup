@@ -34,7 +34,7 @@ class BBIPQuery(ABC):
     @abstractmethod
     def get_interfaces(self, collection: str) -> DataFrame:
         """Get all interfaces.
-        
+
         :param collection: Name of the collection to execute the query
         :type collection: str
         :return DataFrame: Data obtained from the query

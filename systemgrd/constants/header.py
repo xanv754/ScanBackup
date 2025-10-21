@@ -1,5 +1,6 @@
 class HeaderSource:
     """Header of the Source dataframe."""
+
     LINK = "link"
     NAME = "name"
     CAPACITY = "capacity"
@@ -8,6 +9,7 @@ class HeaderSource:
 
 class HeaderBBIP:
     """Header of the Backbone IP dataframe."""
+
     NAME = "name"
     TYPE = "type"
     CAPACITY = "capacity"
@@ -22,6 +24,7 @@ class HeaderBBIP:
 
 class HeaderIPBras:
     """Header of the Backbone IP dataframe."""
+
     DATE = "date"
     TIME = "time"
     BRAS_NAME = "BrasName"
@@ -48,7 +51,7 @@ header_source = [
     HeaderSource.LINK,
     HeaderSource.NAME,
     HeaderSource.CAPACITY,
-    HeaderSource.MODEL
+    HeaderSource.MODEL,
 ]
 
 header_bbip = [
@@ -60,7 +63,7 @@ header_bbip = [
     HeaderBBIP.IN_VALUE,
     HeaderBBIP.IN_MAX,
     HeaderBBIP.OUT_VALUE,
-    HeaderBBIP.OUT_MAX
+    HeaderBBIP.OUT_MAX,
 ]
 
 header_all_bbip = [
@@ -73,7 +76,7 @@ header_all_bbip = [
     HeaderBBIP.IN_MAX,
     HeaderBBIP.OUT_VALUE,
     HeaderBBIP.OUT_MAX,
-    HeaderBBIP.TYPE_LAYER
+    HeaderBBIP.TYPE_LAYER,
 ]
 
 header_upload_scan_data = [
@@ -82,7 +85,7 @@ header_upload_scan_data = [
     HeaderBBIP.IN_VALUE,
     HeaderBBIP.IN_MAX,
     HeaderBBIP.OUT_VALUE,
-    HeaderBBIP.OUT_MAX
+    HeaderBBIP.OUT_MAX,
 ]
 
 header_ip_bras = [
@@ -90,7 +93,7 @@ header_ip_bras = [
     HeaderIPBras.TIME,
     HeaderIPBras.BRAS_NAME,
     HeaderIPBras.IN_PROM,
-    HeaderIPBras.IN_MAX
+    HeaderIPBras.IN_MAX,
 ]
 
 header_daily_report = [
@@ -103,7 +106,7 @@ header_daily_report = [
     HeaderDailyReport.OUT_PROM,
     HeaderDailyReport.IN_MAX,
     HeaderDailyReport.OUT_MAX,
-    HeaderDailyReport.USE
+    HeaderDailyReport.USE,
 ]
 
 header_upload_daily_data = [
@@ -115,5 +118,5 @@ header_upload_daily_data = [
     HeaderDailyReport.OUT_PROM,
     HeaderDailyReport.IN_MAX,
     HeaderDailyReport.OUT_MAX,
-    HeaderDailyReport.USE
+    HeaderDailyReport.USE,
 ]

@@ -8,14 +8,20 @@ from datetime import datetime, timedelta
 from dotenv import dotenv_values
 from pymongo import MongoClient
 from systemgrd.database import (
-    BORDE_SCHEMA_MONGO, BRAS_SCHEMA_MONGO,
-    CACHING_SCHEMA_MONGO, RAI_SCHEMA_MONGO,
-    IP_HISTORY_SCHEMA_MONGO, DAILY_REPORT_SCHEMA_MONGO
+    BORDE_SCHEMA_MONGO,
+    BRAS_SCHEMA_MONGO,
+    CACHING_SCHEMA_MONGO,
+    RAI_SCHEMA_MONGO,
+    IP_HISTORY_SCHEMA_MONGO,
+    DAILY_REPORT_SCHEMA_MONGO,
 )
 from systemgrd.model import BBIPModel, IPBrasModel, DailyReportModel
 from systemgrd.constants import (
-    LayerName, TableName, 
-    BBIPFieldName, IPBrasHistoryFieldName, DailyReportFieldName, 
+    LayerName,
+    TableName,
+    BBIPFieldName,
+    IPBrasHistoryFieldName,
+    DailyReportFieldName,
 )
 
 
@@ -27,7 +33,7 @@ class FileDataTest(ABC):
     def create_file(self) -> None:
         """Create a file with example data."""
         pass
-    
+
     def delete_file(self) -> None:
         """Delete the example file."""
         if os.path.isfile(self.filepath):
@@ -62,7 +68,7 @@ class FileBordeDataTest(FileDataSCANTest):
         self.folder = os.path.dirname(filepath)
         os.makedirs(self.folder, exist_ok=True)
 
- 
+
 class FileBrasDataTest(FileDataSCANTest):
     def __init__(self, filename: str):
         filepath = f"{os.path.abspath(__file__).split('/test')[0]}/test/data/SCAN/Bras/{filename}"
@@ -97,10 +103,18 @@ class FileDailyReportTest(FileDataTest):
         try:
             date = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
             with open(self.filepath, "w") as file:
-                file.write("Interfaz Tipo Fecha Capacidad In Out In-Max Out-Max Uso-%\n")
-                file.write(f"Interfaz-1 HUAWEI {date} 10 11617614 2296806 11890501 2323927 98\n")
-                file.write(f"Interfaz-2 HUAWEI {date} 10 3515418 2152241 3605922 2243843 60\n")
-                file.write(f"Interfaz-3 HUAWEI {date} 10 2824666 2263704 3462229 2338423 50\n")
+                file.write(
+                    "Interfaz Tipo Fecha Capacidad In Out In-Max Out-Max Uso-%\n"
+                )
+                file.write(
+                    f"Interfaz-1 HUAWEI {date} 10 11617614 2296806 11890501 2323927 98\n"
+                )
+                file.write(
+                    f"Interfaz-2 HUAWEI {date} 10 3515418 2152241 3605922 2243843 60\n"
+                )
+                file.write(
+                    f"Interfaz-3 HUAWEI {date} 10 2824666 2263704 3462229 2338423 50\n"
+                )
         except Exception as e:
             traceback.print_exc(e)
             exit(1)
@@ -113,11 +127,19 @@ class DatabaseBBIPTest(ABC):
 
     def __init__(self, table: str):
         try:
-            if os.path.exists(".env.test"): env = dotenv_values(".env.test")
-            else: raise FileNotFoundError("No file `env.test` with environment variables found")
+            if os.path.exists(".env.test"):
+                env = dotenv_values(".env.test")
+            else:
+                raise FileNotFoundError(
+                    "No file `env.test` with environment variables found"
+                )
             uri_mongo = env.get("URI_MONGO")
-            if uri_mongo: self.uri = uri_mongo
-            else: raise Exception("Failed to obtain configuration. URI MongoDB variable not found in enviroment file")
+            if uri_mongo:
+                self.uri = uri_mongo
+            else:
+                raise Exception(
+                    "Failed to obtain configuration. URI MongoDB variable not found in enviroment file"
+                )
             name_db = self.uri.split("/")[-1]
             self.name_db = name_db
             self.__start_db()
@@ -130,7 +152,7 @@ class DatabaseBBIPTest(ABC):
         """Check if the collection exists."""
         collection_list = client.list_collection_names()
         return name in collection_list
-    
+
     def __start_db(self) -> None:
         """Start the database."""
         try:
@@ -138,28 +160,19 @@ class DatabaseBBIPTest(ABC):
             database = client[self.name_db]
             if not self.__check_collection(TableName.BORDE, database):
                 database.create_collection(
-                    TableName.BORDE,
-                    validator=BORDE_SCHEMA_MONGO
+                    TableName.BORDE, validator=BORDE_SCHEMA_MONGO
                 )
             if not self.__check_collection(TableName.BRAS, database):
-                database.create_collection(
-                    TableName.BRAS,
-                    validator=BRAS_SCHEMA_MONGO
-                )
+                database.create_collection(TableName.BRAS, validator=BRAS_SCHEMA_MONGO)
             if not self.__check_collection(TableName.CACHING, database):
                 database.create_collection(
-                    TableName.CACHING,
-                    validator=CACHING_SCHEMA_MONGO
+                    TableName.CACHING, validator=CACHING_SCHEMA_MONGO
                 )
             if not self.__check_collection(TableName.RAI, database):
-                database.create_collection(
-                    TableName.RAI,
-                    validator=RAI_SCHEMA_MONGO
-                )
+                database.create_collection(TableName.RAI, validator=RAI_SCHEMA_MONGO)
             if not self.__check_collection(TableName.IP_BRAS_HISTORY, database):
                 database.create_collection(
-                    TableName.IP_BRAS_HISTORY,
-                    validator=IP_HISTORY_SCHEMA_MONGO
+                    TableName.IP_BRAS_HISTORY, validator=IP_HISTORY_SCHEMA_MONGO
                 )
             client.close()
         except Exception as e:
@@ -197,7 +210,7 @@ class DatabaseBBIPTest(ABC):
                     inValue=json[BBIPFieldName.IN_VALUE],
                     inMax=json[BBIPFieldName.IN_MAX],
                     outValue=json[BBIPFieldName.OUT_VALUE],
-                    outMax=json[BBIPFieldName.OUT_MAX]
+                    outMax=json[BBIPFieldName.OUT_MAX],
                 )
             )
         return new_data
@@ -222,7 +235,7 @@ class DatabaseBBIPTest(ABC):
             client = MongoClient(self.uri)
             database = client[self.name_db]
             collection = database[self.table]
-            result = collection.find_one({ BBIPFieldName.NAME: interface })
+            result = collection.find_one({BBIPFieldName.NAME: interface})
             client.close()
             return self.transform_model([result])[0]
         except Exception as e:
@@ -258,16 +271,17 @@ class DatabaseBorderTest(DatabaseBBIPTest):
             inValue=random.randint(1, 100),
             inMax=random.randint(1, 100),
             outValue=random.randint(1, 100),
-            outMax=random.randint(1, 100)
+            outMax=random.randint(1, 100),
         )
 
     def insert(self, data: BBIPModel | None = None) -> BBIPModel:
-        if data is None: data = self.get_exampĺe()
+        if data is None:
+            data = self.get_exampĺe()
         return super().insert(data=data)
 
     def get(self, interface: str) -> BBIPModel | None:
         return super().get(interface=interface)
-        
+
     def get_all(self) -> list[BBIPModel]:
         return super().get_all()
 
@@ -286,16 +300,17 @@ class DatabaseBrasTest(DatabaseBBIPTest):
             inValue=random.randint(1, 100),
             inMax=random.randint(1, 100),
             outValue=random.randint(1, 100),
-            outMax=random.randint(1, 100)
+            outMax=random.randint(1, 100),
         )
 
     def insert(self, data: BBIPModel | None = None) -> BBIPModel:
-        if data is None: data = self.get_exampĺe()
+        if data is None:
+            data = self.get_exampĺe()
         return super().insert(data=data)
 
     def get(self, interface: str) -> BBIPModel | None:
         return super().get(interface=interface)
-        
+
     def get_all(self) -> list[BBIPModel]:
         return super().get_all()
 
@@ -314,19 +329,20 @@ class DatabaseCachingTest(DatabaseBBIPTest):
             inValue=random.randint(1, 100),
             inMax=random.randint(1, 100),
             outValue=random.randint(1, 100),
-            outMax=random.randint(1, 100)
+            outMax=random.randint(1, 100),
         )
 
     def insert(self, data: BBIPModel | None = None) -> BBIPModel:
-        if data is None: data = self.get_exampĺe()
+        if data is None:
+            data = self.get_exampĺe()
         return super().insert(data=data)
 
     def get(self, interface: str) -> BBIPModel | None:
         return super().get(interface=interface)
-        
+
     def get_all(self) -> list[BBIPModel]:
         return super().get_all()
-        
+
 
 class DatabaseRaiTest(DatabaseBBIPTest):
     def __init__(self):
@@ -342,32 +358,41 @@ class DatabaseRaiTest(DatabaseBBIPTest):
             inValue=random.randint(1, 100),
             inMax=random.randint(1, 100),
             outValue=random.randint(1, 100),
-            outMax=random.randint(1, 100)
+            outMax=random.randint(1, 100),
         )
 
     def insert(self, data: BBIPModel | None = None) -> BBIPModel:
-        if data is None: data = self.get_exampĺe()
+        if data is None:
+            data = self.get_exampĺe()
         return super().insert(data=data)
 
     def get(self, interface: str) -> BBIPModel | None:
         return super().get(interface=interface)
-        
+
     def get_all(self) -> list[BBIPModel]:
         return super().get_all()
 
 
-class DatabaseDailyTest():
+class DatabaseDailyTest:
     uri: str
     name_db: str
     table: str
 
     def __init__(self):
         try:
-            if os.path.exists(".env.test"): env = dotenv_values(".env.test")
-            else: raise FileNotFoundError("No file `env.test` with environment variables found")
+            if os.path.exists(".env.test"):
+                env = dotenv_values(".env.test")
+            else:
+                raise FileNotFoundError(
+                    "No file `env.test` with environment variables found"
+                )
             uri_mongo = env.get("URI_MONGO")
-            if uri_mongo: self.uri = uri_mongo
-            else: raise Exception("Failed to obtain configuration. URI MongoDB variable not found in enviroment file")
+            if uri_mongo:
+                self.uri = uri_mongo
+            else:
+                raise Exception(
+                    "Failed to obtain configuration. URI MongoDB variable not found in enviroment file"
+                )
             name_db = self.uri.split("/")[-1]
             self.name_db = name_db
             self.__start_db()
@@ -380,7 +405,7 @@ class DatabaseDailyTest():
         """Check if the collection exists."""
         collection_list = client.list_collection_names()
         return name in collection_list
-    
+
     def __start_db(self) -> None:
         """Start the database."""
         try:
@@ -388,8 +413,7 @@ class DatabaseDailyTest():
             database = client[self.name_db]
             if not self.__check_collection(TableName.DAILY_REPORT, database):
                 database.create_collection(
-                    TableName.DAILY_REPORT,
-                    validator=DAILY_REPORT_SCHEMA_MONGO
+                    TableName.DAILY_REPORT, validator=DAILY_REPORT_SCHEMA_MONGO
                 )
             client.close()
         except Exception as e:
@@ -408,7 +432,13 @@ class DatabaseDailyTest():
             traceback.print_exc(e)
             exit(1)
 
-    def get_exampĺe(self, borde: bool = True, bras: bool = False, caching: bool = False, rai: bool = False) -> DailyReportModel:
+    def get_exampĺe(
+        self,
+        borde: bool = True,
+        bras: bool = False,
+        caching: bool = False,
+        rai: bool = False,
+    ) -> DailyReportModel:
         """Get an example of data."""
         if borde:
             typeLayer = LayerName.BORDE
@@ -432,7 +462,7 @@ class DatabaseDailyTest():
             outProm=random.randint(1, 100),
             inMaxProm=random.randint(1, 100),
             outMaxProm=random.randint(1, 100),
-            use=random.randint(1, 100)
+            use=random.randint(1, 100),
         )
 
     def transform_model(self, data: list[dict]) -> List[DailyReportModel]:
@@ -450,17 +480,27 @@ class DatabaseDailyTest():
                     inMaxProm=json[DailyReportFieldName.IN_MAX],
                     outProm=json[DailyReportFieldName.OUT_PROM],
                     outMaxProm=json[DailyReportFieldName.OUT_MAX],
-                    use=json[DailyReportFieldName.USE]
+                    use=json[DailyReportFieldName.USE],
                 )
             )
         return new_data
 
-    def insert(self, data: DailyReportModel | None = None, borde: bool = False, bras: bool = False, caching: bool = False, rai: bool = False) -> DailyReportModel:
+    def insert(
+        self,
+        data: DailyReportModel | None = None,
+        borde: bool = False,
+        bras: bool = False,
+        caching: bool = False,
+        rai: bool = False,
+    ) -> DailyReportModel:
         """Insert a new register in the database."""
         try:
-            if data is None: 
-                if not borde and not bras and not caching and not rai: borde = True
-                data = self.get_exampĺe(borde=borde, bras=bras, caching=caching, rai=rai)
+            if data is None:
+                if not borde and not bras and not caching and not rai:
+                    borde = True
+                data = self.get_exampĺe(
+                    borde=borde, bras=bras, caching=caching, rai=rai
+                )
             client = MongoClient(self.uri)
             database = client[self.name_db]
             collection = database[self.table]
@@ -478,7 +518,7 @@ class DatabaseDailyTest():
             client = MongoClient(self.uri)
             database = client[self.name_db]
             collection = database[self.table]
-            result = collection.find_one({ DailyReportFieldName.NAME: interface })
+            result = collection.find_one({DailyReportFieldName.NAME: interface})
             client.close()
             return self.transform_model([result])[0]
         except Exception as e:

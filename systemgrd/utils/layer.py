@@ -2,7 +2,7 @@ from systemgrd.constants import LayerName, DataPath, TableName
 
 
 class LayerDetector:
-    
+
     @staticmethod
     def get_folder_path(layer: str) -> str:
         if layer == LayerName.BORDE:
@@ -19,7 +19,7 @@ class LayerDetector:
             return DataPath.SCAN_REPORT_DAILY
         else:
             raise FileNotFoundError(f"Not found data of the layer: {layer}")
-        
+
     @staticmethod
     def get_table_name(layer: str) -> str:
         if layer == LayerName.BORDE:

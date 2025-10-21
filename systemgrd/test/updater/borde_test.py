@@ -3,9 +3,12 @@ from pandas import DataFrame
 from systemgrd.updater import BordeUpdaterHandler
 from systemgrd.test import FileBordeDataTest, DatabaseBorderTest
 
+
 class Updater(unittest.TestCase):
     mongo_borde_db_test: DatabaseBorderTest = DatabaseBorderTest()
-    data_example: FileBordeDataTest = FileBordeDataTest(filename=f"CISCO%INTERFACE_TEST_1%10")
+    data_example: FileBordeDataTest = FileBordeDataTest(
+        filename=f"CISCO%INTERFACE_TEST_1%10"
+    )
 
     def clean(self):
         self.data_example.delete_file()
@@ -28,13 +31,15 @@ class Updater(unittest.TestCase):
 
         borderHandler = BordeUpdaterHandler()
         data = borderHandler.get_data(folderpath=self.data_example.folder)
-        status_operation = borderHandler.load_data(data=data, uri=self.mongo_borde_db_test.uri)
+        status_operation = borderHandler.load_data(
+            data=data, uri=self.mongo_borde_db_test.uri
+        )
         self.assertTrue(status_operation)
         data_mongo = self.mongo_borde_db_test.get_all()
         self.assertEqual(len(data_mongo), 3)
 
         self.clean()
-    
+
 
 if __name__ == "__main__":
     unittest.main()

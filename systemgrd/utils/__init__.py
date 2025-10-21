@@ -14,5 +14,5 @@ __all__ = [
     "ExcelExport",
     "TransformData",
     "Validate",
-    "LayerDetector"
+    "LayerDetector",
 ]
