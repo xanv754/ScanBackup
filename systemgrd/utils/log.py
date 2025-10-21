@@ -11,6 +11,7 @@ LOG_FORMAT = "%(asctime)s %(levelname)s %(message)s"
 DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 FORMATTER = logging.Formatter(LOG_FORMAT, DATE_FORMAT)
 
+
 class LogHandler:
     """Handler to realize all operation about log system."""
 
@@ -21,7 +22,8 @@ class LogHandler:
     def __init__(self) -> None:
         try:
             folder_exist = self.create_file()
-            if not folder_exist: return
+            if not folder_exist:
+                return
             self.__console_handler = RichHandler(
                 rich_tracebacks=True,
                 markup=False,
@@ -36,10 +38,13 @@ class LogHandler:
                 interval=1,
                 backupCount=4,
                 encoding="utf-8",
-                utc=True
+                utc=True,
             )
             self.__file_handler.setFormatter(FORMATTER)
-            logging.basicConfig(level=logging.INFO, handlers=[self.__console_handler, self.__file_handler])
+            logging.basicConfig(
+                level=logging.INFO,
+                handlers=[self.__console_handler, self.__file_handler],
+            )
             self.logger = logging.getLogger(__name__)
         except Exception as e:
             print(f"Log Error - {e}")
@@ -61,4 +66,3 @@ log = logHandler.logger
 if __name__ == "__main__":
     logHandler.create_file()
     log.info("Test")
-

@@ -44,16 +44,17 @@ class BBIPMongoQuery(BBIPQuery):
             self._database.open_connection()
             if self._database.connected:
                 cursor = self._database.get_cursor(table=collection)
-                result = cursor.find_one({ BBIPFieldName.NAME: name })
+                result = cursor.find_one({BBIPFieldName.NAME: name})
                 if result:
                     data = BBIPResponseAdapter.to_dataframe([result])
-                    if not data.empty: interface = data
+                    if not data.empty:
+                        interface = data
                 self._database.close_connection()
             return interface
         except Exception as e:
             log.error(f"Failed to get interface. {e}")
             return DataFrame(columns=header_bbip)
-        
+
     def get_interfaces(self, collection: str) -> DataFrame:
         try:
             interfaces: DataFrame = DataFrame(columns=header_bbip)
@@ -67,14 +68,14 @@ class BBIPMongoQuery(BBIPQuery):
         except Exception as e:
             log.error(f"Failed to get all interfaces. {e}")
             return DataFrame(columns=header_bbip)
-        
+
     def get_interfaces_by_date(self, collection: str, date: str) -> DataFrame:
         try:
             interfaces: DataFrame = DataFrame(columns=header_bbip)
             self._database.open_connection()
             if self._database.connected:
                 cursor = self._database.get_cursor(table=collection)
-                cursor = cursor.find({ BBIPFieldName.DATE: date })
+                cursor = cursor.find({BBIPFieldName.DATE: date})
                 interfaces = BBIPResponseAdapter.to_dataframe(cursor)
                 self._database.close_connection()
             return interfaces

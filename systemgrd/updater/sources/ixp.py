@@ -4,7 +4,7 @@ from systemgrd.updater.sources.scrapping import SourceScrapping
 from systemgrd.utils import log
 
 
-class IXPSourceScrapping(SourceScrapping): #TODO: Implement
+class IXPSourceScrapping(SourceScrapping):  # TODO: Implement
 
     def _get_list_services(self, soup: BeautifulSoup) -> list[tuple[str, str]]:
         """Scrapping the information to obtain a list of bras existing."""

@@ -39,4 +39,3 @@ class DailyReportFieldName:
     IN_MAX = "inMaxProm"
     OUT_MAX = "outMaxProm"
     USE = "use"
-    
