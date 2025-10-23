@@ -15,6 +15,8 @@ class LayerDetector:
             return DataPath.SCAN_DATA_RAI
         elif layer == LayerName.IXP:
             return DataPath.SCAN_DATA_IXP
+        elif layer == LayerName.IP_BRAS:
+            return DataPath.SCAN_DATA_IPBRAS
         elif layer == LayerName.DAILY_REPORT:
             return DataPath.SCAN_REPORT_DAILY
         else:
@@ -32,6 +34,8 @@ class LayerDetector:
             return TableName.RAI
         elif layer == LayerName.IXP:
             return TableName.IXP
+        elif layer == LayerName.IP_BRAS:
+            return TableName.IP_BRAS_HISTORY
         elif layer == LayerName.DAILY_REPORT:
             return TableName.DAILY_REPORT
         else:

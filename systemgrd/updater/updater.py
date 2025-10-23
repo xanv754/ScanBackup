@@ -1,10 +1,12 @@
 from systemgrd.constants import LayerName
 from systemgrd.updater.data.bbip import BBIPUpdaterHandler
 from systemgrd.updater.data.dailyReport import DailyReportUpdaterHandler
+from systemgrd.updater.data.ipHistory import IPHistoryUpdaterHandler
 from systemgrd.updater.sources.borde import BordeSourceScrapping
 from systemgrd.updater.sources.bras import BrasSourceScrapping
 from systemgrd.updater.sources.caching import CachingSourceScrapping
 from systemgrd.updater.sources.rai import RAISourceScrapping
+from systemgrd.updater.sources.ipbras import IPBrasSourceScrapping
 from systemgrd.utils import log
 
 
@@ -15,6 +17,8 @@ class UpdaterHandler:
     ) -> None:
         if layer == LayerName.DAILY_REPORT:
             self._updater_daily_summary(uri=uri, date=date, force=force)
+        elif layer == LayerName.IP_BRAS:
+            self._updater_ip_history(uri=uri, date=date, force=force)
         else:
             self._updater_bbip(layer=layer, uri=uri, date=date, force=force)
 
@@ -32,6 +36,19 @@ class UpdaterHandler:
                 log.error(f"Carga de la data de {layer} fallida")
         except Exception as e:
             log.error(f"Failed to load data of {layer} layer. {e}")
+
+    def _updater_ip_history(self, uri: str, date: str | None, force: bool) -> None:
+        """Updater IP history collection in database."""
+        try:
+            ip_history_handler = IPHistoryUpdaterHandler()
+            data = ip_history_handler.get_data(date=date, force=force)
+            status_operation = ip_history_handler.load_data(data=data, uri=uri)
+            if status_operation:
+                log.info("Data de IPBras cargado exitosamente")
+            else:
+                log.error("Carga de la data de IPBras fallida")
+        except Exception as e:
+            log.error(f"Failed to load data of IPBras layer. {e}")
 
     def _updater_daily_summary(self, uri: str, date: str | None, force: bool) -> None:
         """Updater daily summary collection in database."""
@@ -60,6 +77,8 @@ class UpdaterSourceHandler:
                 scrapper = CachingSourceScrapping()
             elif layer == LayerName.RAI:
                 scrapper = RAISourceScrapping()
+            elif layer == LayerName.IP_BRAS:
+                scrapper = IPBrasSourceScrapping()
             else:
                 raise Exception("Layer not valid to updater sources")
 

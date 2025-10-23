@@ -26,11 +26,11 @@ IP_HISTORY_SCHEMA: Dict[str, Dict[str, Any]] = {
                 "description": "Name of Bras",
             },
             IPBrasHistoryFieldName.IN_PROM: {
-                "bsonType": ["int", "long"],
+                "bsonType": ["int", "long", "double"],
                 "description": "In prom of the traffic",
             },
             IPBrasHistoryFieldName.IN_MAX: {
-                "bsonType": ["int", "long"],
+                "bsonType": ["int", "long", "double", "null"],
                 "description": "In max of the traffic",
             },
         },

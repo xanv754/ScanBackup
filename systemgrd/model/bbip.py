@@ -15,11 +15,11 @@ class BBIPModel(BaseModel):
     outMax: float
 
 
-class IPBrasModel:
+class IPBrasModel(BaseModel):
     """Data model of the IP Bras."""
 
     brasname: str
     date: str
     time: str
     inProm: float
-    inMax: float
+    inMax: float | None = None  # Hacer opcional para manejar NaN

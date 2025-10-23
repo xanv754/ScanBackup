@@ -12,6 +12,7 @@ from systemgrd.database.schemas.dailyReport import (
 from systemgrd.database.libs.database import DatabaseMongo
 from systemgrd.database.querys.bbip.query import BBIPQuery
 from systemgrd.database.querys.bbip.bbip import BBIPMongoQuery
+from systemgrd.database.querys.bbip.ipBras import IPBrasMongoQuery
 from systemgrd.database.querys.daily.query import DailyReportQuery
 from systemgrd.database.querys.daily.daily import DailyReportMongoQuery
 
@@ -27,6 +28,7 @@ __all__ = [
     "DatabaseMongo",
     "BBIPQuery",
     "BBIPMongoQuery",
+    "IPBrasMongoQuery",
     "DailyReportQuery",
     "DailyReportMongoQuery",
 ]
