@@ -226,7 +226,11 @@ def daily(date: str | None = None, force: bool = False, dev: bool = False):
     help="Actualizar solo los enlaces de SCAN para la capa IPBras.",
 )
 def sources(
-    borde: bool = False, bras: bool = False, caching: bool = False, rai: bool = False, ipbras: bool = False
+    borde: bool = False,
+    bras: bool = False,
+    caching: bool = False,
+    rai: bool = False,
+    ipbras: bool = False,
 ):
     log.info("Inicio de la actualización de las fuentes de SCAN...")
     if borde:

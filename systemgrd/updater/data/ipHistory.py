@@ -13,9 +13,7 @@ class IPHistoryUpdaterHandler:
     _date: str
     _force: bool = False
 
-    def get_data(
-        self, date: str | None = None, force: bool = False
-    ) -> pd.DataFrame:
+    def get_data(self, date: str | None = None, force: bool = False) -> pd.DataFrame:
         """Get data to be loaded in the database.
 
         :params date: Date to be used for filtering.
@@ -33,16 +31,24 @@ class IPHistoryUpdaterHandler:
             for subdir in subdirs:
                 subdir_path = os.path.join(folderpath, subdir)
                 brasname = subdir.split("%")[1].strip() if "%" in subdir else subdir
-                try:  
+                try:
                     file_path = subdir_path
                     brasname = file_path.split("/")[-1]
-                    df_data = pd.read_csv(file_path, sep=" ", header=None, names=header_ip_bras)
-                    df_data = df_data.dropna(subset=[HeaderIPBras.DATE, HeaderIPBras.TIME, HeaderIPBras.IN_PROM])  # No requerir inMax si es opcional
+                    df_data = pd.read_csv(
+                        file_path, sep=" ", header=None, names=header_ip_bras
+                    )
+                    df_data = df_data.dropna(
+                        subset=[
+                            HeaderIPBras.DATE,
+                            HeaderIPBras.TIME,
+                            HeaderIPBras.IN_PROM,
+                        ]
+                    )  # No requerir inMax si es opcional
                     if not force:
                         df_data = df_data[df_data[HeaderIPBras.DATE] == date]
                     if not df_data.empty:
-                        df_data[HeaderIPBras.BRAS_NAME] = brasname  
-                        log.info(f"Procesando archivo {brasname}: {len(df_data)} filas")  
+                        df_data[HeaderIPBras.BRAS_NAME] = brasname
+                        log.info(f"Procesando archivo {brasname}: {len(df_data)} filas")
                         if df_to_upload.empty:
                             df_to_upload = df_data
                         else:
@@ -74,8 +80,9 @@ class IPHistoryUpdaterHandler:
             chunk_size = 1000
             query = IPBrasMongoQuery(uri=uri)
             from systemgrd.constants import TableName
+
             for i in range(0, len(data), chunk_size):
-                chunk = data.iloc[i:i + chunk_size]
+                chunk = data.iloc[i : i + chunk_size]
                 data_json = chunk.to_dict(orient="records")
                 try:
                     json = [IPBrasModel(**item) for item in data_json]
@@ -98,17 +105,34 @@ class IPHistoryUpdaterHandler:
         """Clears all files in IPBras that have been successfully updated."""
         try:
             folderpath = LayerDetector.get_folder_path(layer="IP_BRAS")
-            subdirs = [d for d in os.listdir(folderpath) if os.path.isdir(os.path.join(folderpath, d))]
+            subdirs = [
+                d
+                for d in os.listdir(folderpath)
+                if os.path.isdir(os.path.join(folderpath, d))
+            ]
             for subdir in subdirs:
                 subdir_path = os.path.join(folderpath, subdir)
-                files = [f for f in os.listdir(subdir_path) if os.path.isfile(os.path.join(subdir_path, f))]
+                files = [
+                    f
+                    for f in os.listdir(subdir_path)
+                    if os.path.isfile(os.path.join(subdir_path, f))
+                ]
                 for brasname in files:
                     if not self._force:
-                        df_data = pd.read_csv(os.path.join(subdir_path, brasname), sep=" ", header=None, names=header_ip_bras)
+                        df_data = pd.read_csv(
+                            os.path.join(subdir_path, brasname),
+                            sep=" ",
+                            header=None,
+                            names=header_ip_bras,
+                        )
                         df_data = df_data[df_data[HeaderIPBras.DATE] != self._date]
                         if not df_data.empty:
                             df_data = df_data.reset_index(drop=True)
-                            df_data.to_csv(os.path.join(subdir_path, brasname), sep=" ", index=False)
+                            df_data.to_csv(
+                                os.path.join(subdir_path, brasname),
+                                sep=" ",
+                                index=False,
+                            )
                             continue
                     os.remove(os.path.join(subdir_path, brasname))
         except Exception as e:

@@ -11,7 +11,7 @@ class IXPSourceScrapping(SourceScrapping):
         try:
             sources = []
             soup = self.get_html(self.config.scan_url_ixp)
-            if not soup: 
+            if not soup:
                 log.error("Failed to obtain sources from SCAN IXP.")
                 return []
             print(soup)
@@ -19,14 +19,15 @@ class IXPSourceScrapping(SourceScrapping):
             log.error(f"Failed to obtain info from SCAN IXP interfaces. {error}")
             return []
         else:
-            return sources # type: ignore
-    
+            return sources  # type: ignore
+
     def get_capacity(self, param: str) -> str:
         try:
             soup = self.get_html(param)
-            if not soup: raise Exception("Failed to obtain HTML from source.")
-            block = soup.find('span', class_="d-block mb-3").find_next('p').find_next('i') # type: ignore
-            capacity = block.get_text(strip=True).split(": ")[1].split("Gb")[0].strip().replace(",", ".") # type: ignore
+            if not soup:
+                raise Exception("Failed to obtain HTML from source.")
+            block = soup.find("span", class_="d-block mb-3").find_next("p").find_next("i")  # type: ignore
+            capacity = block.get_text(strip=True).split(": ")[1].split("Gb")[0].strip().replace(",", ".")  # type: ignore
             capacity = str(int(round(float(capacity))))
             return capacity
         except Exception as error:
