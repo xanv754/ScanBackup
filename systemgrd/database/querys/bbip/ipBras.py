@@ -42,7 +42,12 @@ class IPBrasMongoQuery:
             self._database.open_connection()
             if self._database.connected:
                 cursor = self._database.get_cursor(table=TableName.IP_BRAS_HISTORY)
-                result = cursor.find_one({IPBrasHistoryFieldName.BRAS_NAME: bras_name, IPBrasHistoryFieldName.DATE: date})
+                result = cursor.find_one(
+                    {
+                        IPBrasHistoryFieldName.BRAS_NAME: bras_name,
+                        IPBrasHistoryFieldName.DATE: date,
+                    }
+                )
                 if result:
                     # Crear adapter simple para IPBras si BBIPResponseAdapter no funciona
                     data = DataFrame([result])
@@ -82,15 +87,22 @@ class IPBrasMongoQuery:
             log.error(f"Failed to get all IP histories by date. {e}")
             return DataFrame(columns=header_ip_bras)
 
-    def get_ip_histories_by_date_range(self, start_date: str, end_date: str) -> DataFrame:
+    def get_ip_histories_by_date_range(
+        self, start_date: str, end_date: str
+    ) -> DataFrame:
         try:
             ip_histories: DataFrame = DataFrame(columns=header_ip_bras)
             self._database.open_connection()
             if self._database.connected:
                 cursor = self._database.get_cursor(table=TableName.IP_BRAS_HISTORY)
-                cursor = cursor.find({
-                    IPBrasHistoryFieldName.DATE: {"$gte": start_date, "$lte": end_date}
-                })
+                cursor = cursor.find(
+                    {
+                        IPBrasHistoryFieldName.DATE: {
+                            "$gte": start_date,
+                            "$lte": end_date,
+                        }
+                    }
+                )
                 ip_histories = DataFrame(list(cursor))
             self._database.close_connection()
             return ip_histories
@@ -107,7 +119,7 @@ class IPBrasMongoQuery:
                 pipeline = [
                     {"$match": {IPBrasHistoryFieldName.DATE: date}},
                     {"$sort": {IPBrasHistoryFieldName.TIME: 1}},
-                    {"$limit": 1000}
+                    {"$limit": 1000},
                 ]
                 cursor = cursor.aggregate(pipeline)
                 ip_histories = DataFrame(list(cursor))

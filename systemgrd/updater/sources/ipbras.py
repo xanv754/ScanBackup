@@ -16,7 +16,7 @@ class IPBrasSourceScrapping(SourceScrapping):
             sources = []
             ipbras_file = os.path.join("sources", "SCAN", "IPBras.txt")
             if os.path.exists(ipbras_file):
-                with open(ipbras_file, 'r') as f:
+                with open(ipbras_file, "r") as f:
                     for line in f:
                         parts = line.strip().split()
                         if len(parts) >= 4:
