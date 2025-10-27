@@ -59,13 +59,17 @@ do
 
       fechanormal=$(date -d @"$fechaunix" "+%Y-%m-%d %H:%M:%S")
       if [ "$capa" = "IPBras" ]; then
-        echo $fechanormal $inpro $inmax | grep -f $ruta/routines/tmp/fechaayer >> $HOMEPROJECT/data/SCAN/$capa/$capacidad\%$interfaz  
+        echo $fechanormal $inpro $inmax | grep -f $ruta/routines/tmp/fechaayer >> $HOMEPROJECT/data/SCAN/$capa/$capacidad\%$interfaz
       else
         echo $fechanormal $inpro $outpro $inmax $outmax | grep -f $ruta/routines/tmp/fechaayer >> $HOMEPROJECT/data/SCAN/$capa/$tipo\%$interfaz\%$capacidad
-      fi         
+      fi
     done
       
-    lineas=`cat $HOMEPROJECT/data/SCAN/$capa/$tipo\%$interfaz\%$capacidad | grep -f $ruta/routines/tmp/fechaayer | wc -l`
+    if [ "$capa" = "IPBras" ]; then
+      lineas=`cat $HOMEPROJECT/data/SCAN/$capa/$capacidad\%$interfaz | grep -f $ruta/routines/tmp/fechaayer | wc -l`
+    else
+      lineas=`cat $HOMEPROJECT/data/SCAN/$capa/$tipo\%$interfaz\%$capacidad | grep -f $ruta/routines/tmp/fechaayer | wc -l`
+    fi
     hora=$(date +"%y-%m-%d %T")
     echo $hora $capa $interfaz $lineas >> $HOMEPROJECT/data/logs/Alertas-SCAN.txt 
     rm $ruta/routines/tmp/$terminal
