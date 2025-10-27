@@ -1,7 +1,13 @@
 import unittest
 from datetime import datetime, timedelta
 from systemgrd.handler import BBIPHandler
-from systemgrd.test import DatabaseDailyTest, DatabaseBorderTest, DatabaseBrasTest, DatabaseCachingTest, DatabaseRaiTest
+from systemgrd.test import (
+    DatabaseDailyTest,
+    DatabaseBorderTest,
+    DatabaseBrasTest,
+    DatabaseCachingTest,
+    DatabaseRaiTest,
+)
 
 
 class Handler(unittest.TestCase):
@@ -17,7 +23,7 @@ class Handler(unittest.TestCase):
         self.bras_db_test.clean()
         self.caching_db_test.clean()
         self.rai_db_test.clean()
-    
+
     def test_get_all_interfaces(self):
         """Test get all interfaces."""
         self.borde_db_test.insert()
@@ -44,7 +50,7 @@ class Handler(unittest.TestCase):
         data = handler.get_all_interfaces_by_date(date=date)
         print(data)
         self.assertFalse(data.empty)
-        
+
         self.clean()
 
     def test_get_all_daily_report(self):
@@ -53,14 +59,14 @@ class Handler(unittest.TestCase):
         self.daily_db_test.insert(bras=True)
         self.daily_db_test.insert(caching=True)
         self.daily_db_test.insert(rai=True)
-        
+
         handler = BBIPHandler(uri=self.daily_db_test.uri)
         data = handler.get_all_daily_report_by_date()
         print(data)
-        self.assertFalse(data.empty)    
+        self.assertFalse(data.empty)
 
         self.clean()
-        
+
     def test_get_all_daily_report_by_days_before(self):
         """Test get all daily report by days before."""
         self.daily_db_test.insert(borde=True)

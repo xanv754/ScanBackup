@@ -1,5 +1,3 @@
 from systemgrd.reports.summary import SummaryReportBBIP
 
-__all__ = [
-    "SummaryReportBBIP"
-]
+__all__ = ["SummaryReportBBIP"]

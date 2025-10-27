@@ -5,8 +5,12 @@ from systemgrd.test import FileDailyReportTest, DatabaseBorderTest, DatabaseDail
 
 
 class Updater(unittest.TestCase):
-    borde_report_example: FileDailyReportTest = FileDailyReportTest(filename="Resumen_Borde.csv")
-    bras_report_example: FileDailyReportTest = FileDailyReportTest(filename="Resumen_Bras.csv")
+    borde_report_example: FileDailyReportTest = FileDailyReportTest(
+        filename="Resumen_Borde.csv"
+    )
+    bras_report_example: FileDailyReportTest = FileDailyReportTest(
+        filename="Resumen_Bras.csv"
+    )
     mongo_borde_db_test: DatabaseDailyTest = DatabaseDailyTest()
 
     def clean(self):
@@ -39,7 +43,6 @@ class Updater(unittest.TestCase):
         self.assertEqual(len(data_mongo), 3)
 
         self.clean()
-
 
 
 if __name__ == "__main__":

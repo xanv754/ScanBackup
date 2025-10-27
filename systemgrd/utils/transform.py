@@ -50,27 +50,33 @@ class TransformData:
             return df
         else:
             return df
-        
+
     @staticmethod
     def reorganize(df: pd.DataFrame) -> pd.DataFrame:
         try:
             header_reports = [
-                HeaderDailyReport.NAME, HeaderDailyReport.IN_PROM,
-                HeaderDailyReport.IN_MAX, HeaderDailyReport.OUT_PROM,
-                HeaderDailyReport.OUT_MAX, HeaderDailyReport.CAPACITY,
-                HeaderDailyReport.TYPE, HeaderDailyReport.USE
+                HeaderDailyReport.NAME,
+                HeaderDailyReport.IN_PROM,
+                HeaderDailyReport.IN_MAX,
+                HeaderDailyReport.OUT_PROM,
+                HeaderDailyReport.OUT_MAX,
+                HeaderDailyReport.CAPACITY,
+                HeaderDailyReport.TYPE,
+                HeaderDailyReport.USE,
             ]
             if set(df.columns.to_list()) == set(header_reports):
-                df = df[[
-                    HeaderDailyReport.NAME,
-                    HeaderDailyReport.IN_PROM,
-                    HeaderDailyReport.IN_MAX,
-                    HeaderDailyReport.OUT_PROM,
-                    HeaderDailyReport.OUT_MAX,
-                    HeaderDailyReport.CAPACITY,
-                    HeaderDailyReport.TYPE,
-                    HeaderDailyReport.USE
-                ]]
+                df = df[
+                    [
+                        HeaderDailyReport.NAME,
+                        HeaderDailyReport.IN_PROM,
+                        HeaderDailyReport.IN_MAX,
+                        HeaderDailyReport.OUT_PROM,
+                        HeaderDailyReport.OUT_MAX,
+                        HeaderDailyReport.CAPACITY,
+                        HeaderDailyReport.TYPE,
+                        HeaderDailyReport.USE,
+                    ]
+                ]
             return df
         except Exception as error:
             log.error(f"Failed to reorganize columns. {error}")

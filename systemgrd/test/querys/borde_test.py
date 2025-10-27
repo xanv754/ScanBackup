@@ -33,5 +33,6 @@ class Query(unittest.TestCase):
         self.mongo_db_test.clean()
         self.assertFalse(interfaces.empty)
 
+
 if __name__ == "__main__":
     unittest.main()

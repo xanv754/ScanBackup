@@ -3,7 +3,6 @@ from systemgrd.handler import BrasHandler
 from systemgrd.test import DatabaseBrasTest, DatabaseDailyTest
 
 
-
 class Handler(unittest.TestCase):
     interface_db_test: DatabaseBrasTest = DatabaseBrasTest()
     daily_db_test: DatabaseDailyTest = DatabaseDailyTest()
@@ -25,7 +24,6 @@ class Handler(unittest.TestCase):
         print(data)
         self.daily_db_test.clean()
         self.assertFalse(data.empty)
-
 
 
 if __name__ == "__main__":
