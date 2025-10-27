@@ -31,7 +31,7 @@ if __name__ == "__main__":
     ruta_base = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
     ruta_scan_dir = os.path.join(ruta_base, "data", "SCAN")
     ruta_reporte_dir = os.path.join(ruta_base, "data", "SCAN", "Reportes-Diarios")
-    ayer = (datetime.now(timezone.utc) - timedelta(days=1)).strftime('%Y-%m-%d')
+    ayer = (datetime.now(timezone.utc) - timedelta(days=1)).strftime("%Y-%m-%d")
 
     log.info("Inicio de generación de reportes diarios...")
     try:
@@ -40,26 +40,51 @@ if __name__ == "__main__":
             ruta_data_reporte = os.path.join(ruta_reporte_dir, f"Resumen_{capa}.csv")
 
             # TODO: Eliminar encabezados magic strings
-            if os.path.exists(ruta_data_reporte): 
-                df_viejo_reporte = pd.read_csv(ruta_data_reporte, sep=" ", skiprows=1, names=['Interfaz', 'Tipo', 'Fecha', 'Capacidad', 'In', 'Out', 'In-Max', 'Out-Max', 'Uso-%']) # type: ignore
+            if os.path.exists(ruta_data_reporte):
+                df_viejo_reporte = pd.read_csv(ruta_data_reporte, sep=" ", skiprows=1, names=["Interfaz", "Tipo", "Fecha", "Capacidad", "In", "Out", "In-Max", "Out-Max", "Uso-%"])  # type: ignore
             else:
-                df_viejo_reporte = pd.DataFrame(columns=['Interfaz', 'Tipo', 'Fecha', 'Capacidad', 'In', 'Out', 'In-Max', 'Out-Max', 'Uso-%'])
-            df_nuevo_reporte = pd.DataFrame(columns=['Interfaz', 'Tipo', 'Fecha', 'Capacidad', 'In', 'Out', 'In-Max', 'Out-Max', 'Uso-%'])
+                df_viejo_reporte = pd.DataFrame(
+                    columns=[
+                        "Interfaz",
+                        "Tipo",
+                        "Fecha",
+                        "Capacidad",
+                        "In",
+                        "Out",
+                        "In-Max",
+                        "Out-Max",
+                        "Uso-%",
+                    ]
+                )
+            df_nuevo_reporte = pd.DataFrame(
+                columns=[
+                    "Interfaz",
+                    "Tipo",
+                    "Fecha",
+                    "Capacidad",
+                    "In",
+                    "Out",
+                    "In-Max",
+                    "Out-Max",
+                    "Uso-%",
+                ]
+            )
 
             for archivo in os.listdir(ruta_data_scan):
-                interfaz = archivo.rsplit('%')[1]  
-                capacidad = float(archivo.split('%')[-1])
-                tipo = archivo.rsplit('%')[0]
-                df_interfaz = pd.read_csv(f'{ruta_data_scan}/{archivo}', sep=' ', names=['Fecha', 'Hora', 'IN', 'OUT', 'IN MAX', 'OUT MAX']) # type: ignore
-                df_interfaz = df_interfaz[df_interfaz['Fecha'] == ayer]
-                if df_interfaz.empty: continue
-                
+                interfaz = archivo.rsplit("%")[1]
+                capacidad = float(archivo.split("%")[-1])
+                tipo = archivo.rsplit("%")[0]
+                df_interfaz = pd.read_csv(f"{ruta_data_scan}/{archivo}", sep=" ", names=["Fecha", "Hora", "IN", "OUT", "IN MAX", "OUT MAX"])  # type: ignore
+                df_interfaz = df_interfaz[df_interfaz["Fecha"] == ayer]
+                if df_interfaz.empty:
+                    continue
+
                 try:
                     factor = 0.000000008022
-                    in_promedio = (df_interfaz['IN'].mean()) * factor
-                    out_promedio = (df_interfaz['OUT'].mean()) * factor
-                    inmax_promedio = (float(df_interfaz['IN MAX'].max())) * factor
-                    outmax_promedio = (float(df_interfaz['OUT MAX'].max())) * factor
+                    in_promedio = (df_interfaz["IN"].mean()) * factor
+                    out_promedio = (df_interfaz["OUT"].mean()) * factor
+                    inmax_promedio = (float(df_interfaz["IN MAX"].max())) * factor
+                    outmax_promedio = (float(df_interfaz["OUT MAX"].max())) * factor
                     if inmax_promedio >= outmax_promedio:
                         uso = (inmax_promedio / capacidad) * 100
                     else:
@@ -68,27 +93,35 @@ if __name__ == "__main__":
                     log.error(f"Failed to generate calculations for {interfaz}")
                     continue
 
-                valores = { # type: ignore
-                    'Interfaz': interfaz,
-                    'Tipo': tipo,
-                    'Fecha': ayer,
-                    'Capacidad': capacidad,
-                    'In': in_promedio,
-                    'Out': out_promedio,
-                    'In-Max': inmax_promedio,
-                    'Out-Max': outmax_promedio,
-                    'Uso-%': uso
+                valores = {  # type: ignore
+                    "Interfaz": interfaz,
+                    "Tipo": tipo,
+                    "Fecha": ayer,
+                    "Capacidad": capacidad,
+                    "In": in_promedio,
+                    "Out": out_promedio,
+                    "In-Max": inmax_promedio,
+                    "Out-Max": outmax_promedio,
+                    "Uso-%": uso,
                 }
 
                 df_interfaz = pd.DataFrame([valores])
-                df_interfaz.dropna(inplace=True) # type: ignore
-                if df_nuevo_reporte.empty: df_nuevo_reporte = df_interfaz
-                else: df_nuevo_reporte = pd.concat([df_nuevo_reporte, df_interfaz], axis=0)
+                df_interfaz.dropna(inplace=True)  # type: ignore
+                if df_nuevo_reporte.empty:
+                    df_nuevo_reporte = df_interfaz
+                else:
+                    df_nuevo_reporte = pd.concat(
+                        [df_nuevo_reporte, df_interfaz], axis=0
+                    )
                 df_nuevo_reporte.reset_index(drop=True, inplace=True)
 
             if not df_viejo_reporte.empty and not df_nuevo_reporte.empty:
-                df_nuevo_reporte = pd.concat([df_viejo_reporte, df_nuevo_reporte], axis=0)
-            df_nuevo_reporte.to_csv(ruta_data_reporte, index=False, sep=" ", decimal=".")
+                df_nuevo_reporte = pd.concat(
+                    [df_viejo_reporte, df_nuevo_reporte], axis=0
+                )
+            df_nuevo_reporte.to_csv(
+                ruta_data_reporte, index=False, sep=" ", decimal="."
+            )
     except Exception as e:
         log.error(f"Generación de reportes diarios fallido. {e}")
     else:

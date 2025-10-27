@@ -2,7 +2,7 @@ from systemgrd.constants import LayerName, DataPath, TableName
 
 
 class LayerDetector:
-    
+
     @staticmethod
     def get_folder_path(layer: str) -> str:
         if layer == LayerName.BORDE:
@@ -15,11 +15,13 @@ class LayerDetector:
             return DataPath.SCAN_DATA_RAI
         elif layer == LayerName.IXP:
             return DataPath.SCAN_DATA_IXP
+        elif layer == LayerName.IP_BRAS:
+            return DataPath.SCAN_DATA_IPBRAS
         elif layer == LayerName.DAILY_REPORT:
             return DataPath.SCAN_REPORT_DAILY
         else:
             raise FileNotFoundError(f"Not found data of the layer: {layer}")
-        
+
     @staticmethod
     def get_table_name(layer: str) -> str:
         if layer == LayerName.BORDE:
@@ -32,6 +34,8 @@ class LayerDetector:
             return TableName.RAI
         elif layer == LayerName.IXP:
             return TableName.IXP
+        elif layer == LayerName.IP_BRAS:
+            return TableName.IP_BRAS_HISTORY
         elif layer == LayerName.DAILY_REPORT:
             return TableName.DAILY_REPORT
         else:

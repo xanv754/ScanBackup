@@ -9,5 +9,5 @@ __all__ = [
     "UpdaterSourceHandler",
     "BBIPUpdaterHandler",
     "DailyReportUpdaterHandler",
-    "SourceScrapping"
+    "SourceScrapping",
 ]

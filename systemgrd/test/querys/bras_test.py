@@ -18,7 +18,9 @@ class Query(unittest.TestCase):
         """Test get an interface of Bras layer in the database."""
         example_interface = self.mongo_db_test.insert()
         database = BrasMongoQuery(uri=self.mongo_db_test.uri)
-        interface = database.get_interface(brasname=example_interface.name, type=example_interface.type)
+        interface = database.get_interface(
+            brasname=example_interface.name, type=example_interface.type
+        )
         print(interface)
         self.mongo_db_test.clean()
         self.assertFalse(interface.empty)

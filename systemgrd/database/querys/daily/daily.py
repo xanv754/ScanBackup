@@ -36,20 +36,23 @@ class DailyReportMongoQuery(DailyReportQuery):
         except Exception as e:
             log.error(f"Failed to insert a daily report. {e}")
             return False
-        
+
     def get_report(self, layer_type: str, date: str):
         try:
             traffic: DataFrame = DataFrame(columns=header_daily_report)
             self._database.open_connection()
             if self._database.connected:
                 collection = self._database.get_cursor(table=TableName.DAILY_REPORT)
-                result = collection.find({
-                    DailyReportFieldName.DATE: date,
-                    DailyReportFieldName.TYPE_LAYER: layer_type
-                })
+                result = collection.find(
+                    {
+                        DailyReportFieldName.DATE: date,
+                        DailyReportFieldName.TYPE_LAYER: layer_type,
+                    }
+                )
                 if result:
                     data = DailyReportResponseAdapter.to_dataframe(result)
-                    if not data.empty: traffic = data
+                    if not data.empty:
+                        traffic = data
                 self._database.close_connection()
             return traffic
         except Exception as e:
