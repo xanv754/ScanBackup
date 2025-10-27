@@ -27,7 +27,7 @@ class HeaderIPBras:
 
     DATE = "date"
     TIME = "time"
-    BRAS_NAME = "BrasName"
+    BRAS_NAME = "brasname"
     IN_PROM = "inProm"
     IN_MAX = "inMax"
 
@@ -91,7 +91,6 @@ header_upload_scan_data = [
 header_ip_bras = [
     HeaderIPBras.DATE,
     HeaderIPBras.TIME,
-    HeaderIPBras.BRAS_NAME,
     HeaderIPBras.IN_PROM,
     HeaderIPBras.IN_MAX,
 ]

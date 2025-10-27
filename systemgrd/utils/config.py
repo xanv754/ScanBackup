@@ -20,6 +20,7 @@ class ConfigurationHandler:
     scan_url_rai_hw: str
     scan_url_rai_zte: str
     scan_url_ixp: str
+    scan_url_ipbras: str
 
     def __init__(self, dev: bool = False, test: bool = False) -> None:
         try:
@@ -107,6 +108,13 @@ class ConfigurationHandler:
             else:
                 log.warning(
                     f"Failed to obtain configuration. SCAN_URL_IXP variable not found in enviroment file"
+                )
+            scan_url_ipbras = env.get("SCAN_URL_IPBRAS")
+            if scan_url_ipbras:
+                self.scan_url_ipbras = scan_url_ipbras
+            else:
+                log.warning(
+                    f"Failed to obtain configuration. SCAN_URL_IPBRAS variable not found in enviroment file"
                 )
         except Exception as error:
             log.error(f"Failed to obtain configuration. {error}")

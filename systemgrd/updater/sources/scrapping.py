@@ -152,6 +152,8 @@ class SourceScrapping(ABC):
                 raise Exception("The data to save is empty.")
             source_path = os.path.join(DataPath.SCAN_SOURCES, f"{layer}.txt")
             old_source_path = os.path.join(DataPath.SCAN_SOURCES_BK, f"{layer}.txt")
+            # Asegurese de que exista un directorio de respaldo
+            os.makedirs(DataPath.SCAN_SOURCES_BK, exist_ok=True)
             if os.path.exists(source_path):
                 df_old = pd.read_csv(source_path, sep=" ", header=None, names=header_source)  # type: ignore
                 if not df_old.empty:

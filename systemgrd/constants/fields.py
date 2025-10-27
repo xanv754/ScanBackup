@@ -23,7 +23,7 @@ class BBIPFieldName:
 class IPBrasHistoryFieldName:
     DATE = "date"
     TIME = "time"
-    BRAS_NAME = "Brasname"
+    BRAS_NAME = "brasname"
     IN_PROM = "inProm"
     IN_MAX = "inMax"
 
