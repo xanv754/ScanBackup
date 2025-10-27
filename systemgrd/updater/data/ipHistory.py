@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 from datetime import datetime, timedelta
-from systemgrd.constants import HeaderIPBras, header_ip_bras
+from systemgrd.constants import HeaderIPBras, LayerName, header_ip_bras
 from systemgrd.database.querys.bbip.ipBras import IPBrasMongoQuery
 from systemgrd.model import IPBrasModel
 from systemgrd.utils import LayerDetector, log
@@ -25,7 +25,7 @@ class IPHistoryUpdaterHandler:
         :returns DataFrame: Data to save in database.
         """
         try:
-            folderpath = LayerDetector.get_folder_path(layer="IP_BRAS")
+            folderpath = LayerDetector.get_folder_path(layer=LayerName.IP_BRAS)
             if not date:
                 date = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
             df_to_upload = pd.DataFrame(columns=header_ip_bras)
