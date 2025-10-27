@@ -17,6 +17,7 @@ setup-folders:
 	mkdir -p $(HOMEPROJECT)/data/SCAN/Caching
 	mkdir -p $(HOMEPROJECT)/data/SCAN/Rai
 	mkdir -p $(HOMEPROJECT)/data/SCAN/IXP
+	mkdir -p $(HOMEPROJECT)/data/SCAN/IPBras
 	mkdir -p $(HOMEPROJECT)/data/SCAN/Reportes-Diarios
 	mkdir -p $(HOMEPROJECT)/data/logs
 	mkdir -p $(HOMEPROJECT)/sources/SCAN/
@@ -29,6 +30,7 @@ setup-files:
 	touch $(HOMEPROJECT)/sources/SCAN/Caching.txt
 	touch $(HOMEPROJECT)/sources/SCAN/Rai.txt
 	touch $(HOMEPROJECT)/sources/SCAN/Ixp.txt
+	touch $(HOMEPROJECT)/sources/SCAN/IPBras.txt
 
 setup: venv setup-folders setup-files
 	@echo "Inicializando base de datos..."
@@ -54,4 +56,5 @@ clean-data:
 	rm -rf $(HOMEPROJECT)/data/SCAN/Caching/*
 	rm -rf $(HOMEPROJECT)/data/SCAN/Rai/*
 	rm -rf $(HOMEPROJECT)/data/SCAN/IXP/*
+	rm -rf $(HOMEPROJECT)/data/SCAN/IPBras/*
 	rm -rf $(HOMEPROJECT)/data/SCAN/Reportes-Diarios/*
