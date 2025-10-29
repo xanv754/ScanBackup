@@ -142,11 +142,17 @@ def data(
                 target=UpdaterHandler, args=(LayerName.IXP, uri, date, force)
             )
             ixp_handler.start()
+            ipbras_handler = Process(
+                target=UpdaterHandler, args=(LayerName.IP_BRAS, uri, date, force)
+            )
+            ipbras_handler.start()
+            
             borde_handler.join()
             bras_handler.join()
             caching_handler.join()
             rai_handler.join()
             ixp_handler.join()
+            ipbras_handler.join()
             log.info("Actualización de las capas finalizada")
         log.info("Inicio de actualización de reportes diarios del sistema...")
         status_operation = UpdaterHandler(

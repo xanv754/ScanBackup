@@ -1,6 +1,6 @@
 from typing import List
 from pandas import DataFrame
-from systemgrd.constants import TableName, DailyReportFieldName, header_daily_report
+from systemgrd.constants import TableName, DailyReportFieldName, header_daily
 from systemgrd.database.libs.database import DatabaseMongo
 from systemgrd.database.querys.daily.query import DailyReportQuery
 from systemgrd.database.utils.adapter import DailyReportResponseAdapter
@@ -39,7 +39,7 @@ class DailyReportMongoQuery(DailyReportQuery):
 
     def get_report(self, layer_type: str, date: str):
         try:
-            traffic: DataFrame = DataFrame(columns=header_daily_report)
+            traffic: DataFrame = DataFrame(columns=header_daily)
             self._database.open_connection()
             if self._database.connected:
                 collection = self._database.get_cursor(table=TableName.DAILY_REPORT)
@@ -57,4 +57,4 @@ class DailyReportMongoQuery(DailyReportQuery):
             return traffic
         except Exception as e:
             log.error(f"Failed to get daily report. {e}")
-            return DataFrame(columns=header_daily_report)
+            return DataFrame(columns=header_daily)

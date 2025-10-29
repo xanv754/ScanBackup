@@ -6,7 +6,7 @@ from systemgrd.constants import (
     BBIPFieldName,
     DailyReportFieldName,
     header_bbip,
-    header_daily_report,
+    header_daily,
 )
 from systemgrd.utils import log
 
@@ -71,8 +71,8 @@ class DailyReportResponseAdapter:
                 line += str(interface[DailyReportFieldName.USE]) + "\n"
                 buffer.write(line)
             buffer.seek(0)
-            df = pd.read_csv(buffer, sep=";", header=None, names=header_daily_report)  # type: ignore
+            df = pd.read_csv(buffer, sep=";", header=None, names=header_daily)  # type: ignore
             return df
         except Exception as error:
             log.error(f"Failed to BBIP response adapter. {error}")
-            return pd.DataFrame(columns=header_daily_report)
+            return pd.DataFrame(columns=header_daily)

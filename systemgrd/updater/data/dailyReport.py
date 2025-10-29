@@ -5,8 +5,10 @@ from systemgrd.constants import (
     LayerName,
     HeaderDailyReport,
     HeaderBBIP,
-    header_daily_report,
-    header_upload_daily_data,
+    HeaderIPBras,
+    header_daily,
+    header_daily_bbip,
+    header_daily_ip_bras
 )
 from systemgrd.database import DailyReportMongoQuery
 from systemgrd.model import DailyReportModel
@@ -24,8 +26,8 @@ class DailyReportUpdaterHandler:
     ) -> pd.DataFrame:
         """Read all summary daily of a layer specified through a path."""
         filename = os.path.basename(path)
-        layer = filename.replace(".", "_").split("_")[1].upper().strip()
-        df = pd.read_csv(path, sep=" ", names=header_upload_daily_data, index_col=False, skiprows=1)  # type: ignore
+        layer = filename.upper().strip()
+        df = pd.read_csv(path, sep=" ", names=header_daily_bbip, index_col=False, skiprows=1)  # type: ignore
         if not force:
             df = df[df[HeaderDailyReport.DATE] == date]
         if not df.empty:
@@ -43,8 +45,12 @@ class DailyReportUpdaterHandler:
             files = [filename for filename in os.listdir(folderpath)]
             for filename in files:
                 if not self._force:
-                    df_data = pd.read_csv(os.path.join(folderpath, filename), sep=" ", header=None, names=header_upload_daily_data, skiprows=1)  # type: ignore
-                    df_data = df_data[df_data[HeaderBBIP.DATE] != self._date]
+                    if filename != LayerName.IP_BRAS:
+                        df_data = pd.read_csv(os.path.join(folderpath, filename), sep=" ", header=None, names=header_daily_bbip, skiprows=1)  # type: ignore
+                        df_data = df_data[df_data[HeaderBBIP.DATE] != self._date]
+                    else:
+                        df_data = pd.read_csv(os.path.join(folderpath, filename), sep=" ", header=None, names=header_daily_ip_bras, skiprows=1)  # type: ignore
+                        df_data = df_data[df_data[HeaderIPBras.DATE] != self._date]
                     if not df_data.empty:
                         df_data.to_csv(os.path.join(folderpath, filename), sep=" ")
                         continue
@@ -57,7 +63,7 @@ class DailyReportUpdaterHandler:
             folderpath = LayerDetector.get_folder_path(layer=LayerName.DAILY_REPORT)
             if not date:
                 date = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
-            df_data = pd.DataFrame(columns=header_daily_report)
+            df_data = pd.DataFrame(columns=header_daily)
             files = [filename for filename in os.listdir(folderpath)]
             for filename in files:
                 try:
@@ -72,7 +78,7 @@ class DailyReportUpdaterHandler:
                     continue
         except Exception as e:
             log.error(f"Failed to get data of daily report. {e}")
-            return pd.DataFrame(columns=header_daily_report)
+            return pd.DataFrame(columns=header_daily)
         else:
             self._date = date
             self._force = force

@@ -15,6 +15,7 @@
 
 fecha=$(date --date="yesterday" +%Y-%m-%d) 
 ruta="$HOMEPROJECT/systemgrd"
+ip_bras_capa="IP_BRAS"
 
 if [ -d "$ruta/routines/tmp" ]; then
   if [ -n "$(ls -A "$ruta/routines/tmp" 2>/dev/null)" ]; then
@@ -32,14 +33,14 @@ ls $HOMEPROJECT/sources/SCAN > $ruta/routines/tmp/lista
 
 cat $ruta/routines/tmp/lista | while read line1
 do
-  capa=`echo $line1 | sed 's/.txt//g'`
-  cat $HOMEPROJECT/sources/SCAN/$capa.txt | while read line2
+  capa=`echo $line1 | sed 's/ //g'`
+  cat $HOMEPROJECT/sources/SCAN/$capa | while read line2
   do
     url=`echo $line2 | awk '{print $1}' `
     interfaz=`echo $line2 | awk '{print $2}' `
     terminal=`echo $line2 | awk '{print $1}' | sed 's/\// /g' | awk -F " " '{print $NF}'`
     capacidad=`echo $line2 | awk '{print $3}' `
-    tipo=`echo $line2 | awk '{print $4}' `
+    tipo=`echo $line2 | awk '{print $4}'`
 
     wget -q --user=$USERSCAN --password=$PASSWORDSCAN --no-check-certificate $url -O $ruta/routines/tmp/$terminal > /dev/null 2>&1
 
@@ -58,20 +59,20 @@ do
       outmax=`echo $line3 | awk '{print $5}'`
 
       fechanormal=$(date -d @"$fechaunix" "+%Y-%m-%d %H:%M:%S")
-      if [ "$capa" = "IPBras" ]; then
+      if [ "$capa" = "$ip_bras_capa" ]; then
         echo $fechanormal $inpro $inmax | grep -f $ruta/routines/tmp/fechaayer >> $HOMEPROJECT/data/SCAN/$capa/$capacidad\%$interfaz
       else
         echo $fechanormal $inpro $outpro $inmax $outmax | grep -f $ruta/routines/tmp/fechaayer >> $HOMEPROJECT/data/SCAN/$capa/$tipo\%$interfaz\%$capacidad
       fi
     done
       
-    if [ "$capa" = "IPBras" ]; then
+    if [ "$capa" = "$ip_bras_capa" ]; then
       lineas=`cat $HOMEPROJECT/data/SCAN/$capa/$capacidad\%$interfaz | grep -f $ruta/routines/tmp/fechaayer | wc -l`
     else
       lineas=`cat $HOMEPROJECT/data/SCAN/$capa/$tipo\%$interfaz\%$capacidad | grep -f $ruta/routines/tmp/fechaayer | wc -l`
     fi
     hora=$(date +"%y-%m-%d %T")
-    echo $hora $capa $interfaz $lineas >> $HOMEPROJECT/data/logs/Alertas-SCAN.txt 
+    echo $hora $capa $interfaz $lineas >> $HOMEPROJECT/data/logs/Alertas-SCAN.log
     rm $ruta/routines/tmp/$terminal
   done  
 done

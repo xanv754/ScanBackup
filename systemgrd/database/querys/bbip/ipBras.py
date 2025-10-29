@@ -1,6 +1,6 @@
 from typing import List
 from pandas import DataFrame
-from systemgrd.constants import TableName, IPBrasHistoryFieldName, header_ip_bras
+from systemgrd.constants import TableName, IPBrasHistoryFieldName, header_scan_ip_bras
 from systemgrd.database.libs.database import DatabaseMongo
 from systemgrd.model import IPBrasModel
 from systemgrd.utils import ConfigurationHandler, log
@@ -38,7 +38,7 @@ class IPBrasMongoQuery:
 
     def get_ip_history(self, bras_name: str, date: str) -> DataFrame:
         try:
-            ip_history: DataFrame = DataFrame(columns=header_ip_bras)
+            ip_history: DataFrame = DataFrame(columns=header_scan_ip_bras)
             self._database.open_connection()
             if self._database.connected:
                 cursor = self._database.get_cursor(table=TableName.IP_BRAS_HISTORY)
@@ -57,11 +57,11 @@ class IPBrasMongoQuery:
             return ip_history
         except Exception as e:
             log.error(f"Failed to get IP history. {e}")
-            return DataFrame(columns=header_ip_bras)
+            return DataFrame(columns=header_scan_ip_bras)
 
     def get_ip_histories(self) -> DataFrame:
         try:
-            ip_histories: DataFrame = DataFrame(columns=header_ip_bras)
+            ip_histories: DataFrame = DataFrame(columns=header_scan_ip_bras)
             self._database.open_connection()
             if self._database.connected:
                 cursor = self._database.get_cursor(table=TableName.IP_BRAS_HISTORY)
@@ -71,11 +71,11 @@ class IPBrasMongoQuery:
             return ip_histories
         except Exception as e:
             log.error(f"Failed to get all IP histories. {e}")
-            return DataFrame(columns=header_ip_bras)
+            return DataFrame(columns=header_scan_ip_bras)
 
     def get_ip_histories_by_date(self, date: str) -> DataFrame:
         try:
-            ip_histories: DataFrame = DataFrame(columns=header_ip_bras)
+            ip_histories: DataFrame = DataFrame(columns=header_scan_ip_bras)
             self._database.open_connection()
             if self._database.connected:
                 cursor = self._database.get_cursor(table=TableName.IP_BRAS_HISTORY)
@@ -85,13 +85,13 @@ class IPBrasMongoQuery:
             return ip_histories
         except Exception as e:
             log.error(f"Failed to get all IP histories by date. {e}")
-            return DataFrame(columns=header_ip_bras)
+            return DataFrame(columns=header_scan_ip_bras)
 
     def get_ip_histories_by_date_range(
         self, start_date: str, end_date: str
     ) -> DataFrame:
         try:
-            ip_histories: DataFrame = DataFrame(columns=header_ip_bras)
+            ip_histories: DataFrame = DataFrame(columns=header_scan_ip_bras)
             self._database.open_connection()
             if self._database.connected:
                 cursor = self._database.get_cursor(table=TableName.IP_BRAS_HISTORY)
@@ -108,11 +108,11 @@ class IPBrasMongoQuery:
             return ip_histories
         except Exception as e:
             log.error(f"Failed to get IP histories by date range. {e}")
-            return DataFrame(columns=header_ip_bras)
+            return DataFrame(columns=header_scan_ip_bras)
 
     def get_ip_histories_by_date_with_aggregation(self, date: str) -> DataFrame:
         try:
-            ip_histories: DataFrame = DataFrame(columns=header_ip_bras)
+            ip_histories: DataFrame = DataFrame(columns=header_scan_ip_bras)
             self._database.open_connection()
             if self._database.connected:
                 cursor = self._database.get_cursor(table=TableName.IP_BRAS_HISTORY)
@@ -127,4 +127,4 @@ class IPBrasMongoQuery:
             return ip_histories
         except Exception as e:
             log.error(f"Failed to get IP histories by date with aggregation. {e}")
-            return DataFrame(columns=header_ip_bras)
+            return DataFrame(columns=header_scan_ip_bras)

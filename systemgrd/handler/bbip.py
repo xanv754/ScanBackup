@@ -1,6 +1,6 @@
 import pandas as pd
 from datetime import datetime, timedelta
-from systemgrd.constants import header_bbip, header_daily_report
+from systemgrd.constants import header_bbip, header_daily
 from systemgrd.database import (
     BBIPQuery,
     BBIPMongoQuery,
@@ -94,6 +94,6 @@ class BBIPHandler:
             log.error(
                 f"BBIP handler. Failed to get all daily report of borde layer. {e}"
             )
-            return pd.DataFrame(columns=header_daily_report)
+            return pd.DataFrame(columns=header_daily)
         else:
             return df_daily_report
