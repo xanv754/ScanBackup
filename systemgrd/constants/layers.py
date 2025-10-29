@@ -16,4 +16,12 @@ layers_BBIP_SCAN = [
     LayerName.IXP,
 ]
 
-foldername_BBIP_SCAN = ["Borde", "Bras", "Caching", "Rai", "IXP"]
+
+foldername_BBIP_SCAN = [
+    LayerName.BORDE,
+    LayerName.BRAS,
+    LayerName.CACHING,
+    LayerName.RAI,
+    LayerName.IXP,
+    LayerName.IP_BRAS
+]

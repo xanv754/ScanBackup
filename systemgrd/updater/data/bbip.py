@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 from datetime import datetime, timedelta
-from systemgrd.constants import HeaderBBIP, header_bbip, header_upload_scan_data
+from systemgrd.constants import HeaderBBIP, header_bbip, header_scan_bbip
 from systemgrd.database import BBIPMongoQuery
 from systemgrd.model import BBIPModel
 from systemgrd.utils import LayerDetector, log
@@ -21,7 +21,7 @@ class BBIPUpdaterHandler:
         type = filename.split("%")[0]
         interface = filename.split("%")[1]
         capacity = filename.split("%")[2]
-        df_data = pd.read_csv(path, sep=" ", header=None, names=header_upload_scan_data)  # type: ignore
+        df_data = pd.read_csv(path, sep=" ", header=None, names=header_scan_bbip)  # type: ignore
         if not force:
             df_data = df_data[df_data[HeaderBBIP.DATE] == date]
         if not df_data.empty:
@@ -41,7 +41,7 @@ class BBIPUpdaterHandler:
             files = [filename for filename in os.listdir(folderpath)]
             for filename in files:
                 if not self._force:
-                    df_data = pd.read_csv(os.path.join(folderpath, filename), sep=" ", header=None, names=header_upload_scan_data)  # type: ignore
+                    df_data = pd.read_csv(os.path.join(folderpath, filename), sep=" ", header=None, names=header_scan_bbip)  # type: ignore
                     df_data = df_data[df_data[HeaderBBIP.DATE] != self._date]
                     if not df_data.empty:
                         df_data = df_data.reset_index(drop=True)
@@ -69,7 +69,7 @@ class BBIPUpdaterHandler:
             if not date:
                 date = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
             files = [filename for filename in os.listdir(folderpath)]
-            df_to_upload = pd.DataFrame(columns=header_upload_scan_data)
+            df_to_upload = pd.DataFrame(columns=header_scan_bbip)
             for filename in files:
                 try:
                     df_to_upload = self._get_data_link(

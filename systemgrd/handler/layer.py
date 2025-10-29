@@ -4,7 +4,7 @@ from systemgrd.constants import (
     LayerName,
     HeaderBBIP,
     header_all_bbip,
-    header_daily_report,
+    header_daily,
 )
 from systemgrd.handler.bbip import BBIPHandler
 from systemgrd.utils import Validate, log
@@ -137,12 +137,12 @@ class LayerHandler:
                 df_daily_report.reset_index(drop=True, inplace=True)
                 return df_daily_report
             else:
-                return pd.DataFrame(columns=header_daily_report)
+                return pd.DataFrame(columns=header_daily)
         except Exception as e:
             log.error(
                 f"BBIP handler. Failed to get all daily reports by date of BBIP. {e}"
             )
-            return pd.DataFrame(columns=header_daily_report)
+            return pd.DataFrame(columns=header_daily)
 
     def get_all_daily_data_on_week(self) -> pd.DataFrame:
         try:
@@ -150,7 +150,7 @@ class LayerHandler:
                 raise Exception(
                     "An error occurred while connecting to the database. The method has skipped."
                 )
-            df_daily_report = pd.DataFrame(columns=header_daily_report)
+            df_daily_report = pd.DataFrame(columns=header_daily)
             date = datetime.now() - timedelta(days=datetime.now().weekday() + 7)
             date_to = (
                 datetime.now() - timedelta(days=datetime.now().weekday() + 1)
@@ -182,7 +182,7 @@ class LayerHandler:
                 raise Exception(
                     "An error occurred while connecting to the database. The method has skipped."
                 )
-            df_daily_report = pd.DataFrame(columns=header_daily_report)
+            df_daily_report = pd.DataFrame(columns=header_daily)
             if not date_to:
                 date_to_str = str(datetime.now().day)
             elif date_to and date_to < 10:
@@ -222,7 +222,7 @@ class LayerHandler:
                 raise Exception(
                     "An error occurred while connecting to the database. The method has skipped."
                 )
-            df_daily_report = pd.DataFrame(columns=header_daily_report)
+            df_daily_report = pd.DataFrame(columns=header_daily)
             for day in range(day_before, 0, -1):
                 date = (datetime.now() - timedelta(days=day)).strftime("%Y-%m-%d")
                 df = self.get_all_daily_report_by_date(date=date)

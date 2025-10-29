@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 from datetime import datetime, timedelta
-from systemgrd.constants import HeaderIPBras, LayerName, header_ip_bras
+from systemgrd.constants import HeaderIPBras, LayerName, header_scan_ip_bras
 from systemgrd.database.querys.bbip.ipBras import IPBrasMongoQuery
 from systemgrd.model import IPBrasModel
 from systemgrd.utils import LayerDetector, log
@@ -26,7 +26,7 @@ class IPHistoryUpdaterHandler:
             folderpath = LayerDetector.get_folder_path(layer=LayerName.IP_BRAS)
             if not date:
                 date = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
-            df_to_upload = pd.DataFrame(columns=header_ip_bras)
+            df_to_upload = pd.DataFrame(columns=header_scan_ip_bras)
             subdirs = [d for d in os.listdir(folderpath)]
             for subdir in subdirs:
                 subdir_path = os.path.join(folderpath, subdir)
@@ -35,7 +35,7 @@ class IPHistoryUpdaterHandler:
                     file_path = subdir_path
                     brasname = file_path.split("/")[-1]
                     df_data = pd.read_csv(
-                        file_path, sep=" ", header=None, names=header_ip_bras
+                        file_path, sep=" ", header=None, names=header_scan_ip_bras
                     )
                     df_data = df_data.dropna(
                         subset=[
@@ -48,7 +48,6 @@ class IPHistoryUpdaterHandler:
                         df_data = df_data[df_data[HeaderIPBras.DATE] == date]
                     if not df_data.empty:
                         df_data[HeaderIPBras.BRAS_NAME] = brasname
-                        log.info(f"Procesando archivo {brasname}: {len(df_data)} filas")
                         if df_to_upload.empty:
                             df_to_upload = df_data
                         else:
@@ -58,7 +57,7 @@ class IPHistoryUpdaterHandler:
                     continue
         except Exception as e:
             log.error(f"Failed to data load of IPBras layer. {e}")
-            return pd.DataFrame(columns=header_ip_bras)
+            return pd.DataFrame(columns=header_scan_ip_bras)
         else:
             self._date = date
             self._force = force
@@ -104,7 +103,7 @@ class IPHistoryUpdaterHandler:
     def _clean_data(self) -> None:
         """Clears all files in IPBras that have been successfully updated."""
         try:
-            folderpath = LayerDetector.get_folder_path(layer="IP_BRAS")
+            folderpath = LayerDetector.get_folder_path(layer=LayerName.IP_BRAS)
             subdirs = [
                 d
                 for d in os.listdir(folderpath)
@@ -123,7 +122,7 @@ class IPHistoryUpdaterHandler:
                             os.path.join(subdir_path, brasname),
                             sep=" ",
                             header=None,
-                            names=header_ip_bras,
+                            names=header_scan_ip_bras,
                         )
                         df_data = df_data[df_data[HeaderIPBras.DATE] != self._date]
                         if not df_data.empty:

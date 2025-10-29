@@ -16,7 +16,7 @@ class LayerDetector:
         elif layer == LayerName.IXP:
             return DataPath.SCAN_DATA_IXP
         elif layer == LayerName.IP_BRAS:
-            return DataPath.SCAN_DATA_IPBRAS
+            return DataPath.SCAN_DATA_IP_BRAS
         elif layer == LayerName.DAILY_REPORT:
             return DataPath.SCAN_REPORT_DAILY
         else:

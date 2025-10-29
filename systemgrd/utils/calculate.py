@@ -1,5 +1,5 @@
 import pandas as pd
-from systemgrd.constants import HeaderBBIP, HeaderDailyReport, header_daily_report
+from systemgrd.constants import HeaderBBIP, HeaderDailyReport, header_daily
 from systemgrd.utils.log import log
 
 
@@ -17,7 +17,7 @@ def calculate(df: pd.DataFrame) -> pd.DataFrame:
         Summary dataframe.
     """
     try:
-        summary_df = pd.DataFrame(columns=header_daily_report)
+        summary_df = pd.DataFrame(columns=header_daily)
         interfaces: list[str] = df[HeaderBBIP.NAME].unique()  # type: ignore
         for interface in interfaces:
             df_filtered: pd.DataFrame = df[df[HeaderBBIP.NAME] == interface]
@@ -59,4 +59,4 @@ def calculate(df: pd.DataFrame) -> pd.DataFrame:
         return summary_df
     except Exception as error:
         log.error(f"Error in calculate daily reports. {error}")
-        return pd.DataFrame(columns=header_daily_report)
+        return pd.DataFrame(columns=header_daily)
