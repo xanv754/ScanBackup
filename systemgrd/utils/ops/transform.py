@@ -1,6 +1,6 @@
 import pandas as pd
 from systemgrd.constants import HeaderBBIP, HeaderDailyReport, HeaderIPBras
-from systemgrd.utils.log import log
+from systemgrd.utils.configuration.log import log
 
 
 class TransformData:
@@ -46,7 +46,7 @@ class TransformData:
                     new_columns.append("Agregador")
             df.columns = new_columns
         except Exception as error:
-            log.error(f"Failed to translate header. {error}")
+            log.error(f"Fallo al traducir los encabezados del reporte - {error}")
             return df
         else:
             return df
@@ -79,5 +79,5 @@ class TransformData:
                 ]
             return df
         except Exception as error:
-            log.error(f"Failed to reorganize columns. {error}")
+            log.error(f"Fallo al reorganizar las columnas del reporte - {error}")
             return df

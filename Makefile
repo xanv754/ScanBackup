@@ -22,6 +22,7 @@ setup-folders:
 	mkdir -p $(HOMEPROJECT)/data/logs
 	mkdir -p $(HOMEPROJECT)/sources/SCAN/
 	mkdir -p $(HOMEPROJECT)/sources/BK_SCAN/
+	mkdir -p $(HOMEPROJECT)/systemgrd/routines/tmp/
 
 setup-files:
 	@echo "Creando archivos fuentes..."
@@ -59,3 +60,4 @@ clean-data:
 	rm -rf $(HOMEPROJECT)/data/SCAN/IXP/*
 	rm -rf $(HOMEPROJECT)/data/SCAN/IP_BRAS/*
 	rm -rf $(HOMEPROJECT)/data/SCAN/DAILY_REPORT/*
+	rm -rf $(HOMEPROJECT)/systemgrd/routines/tmp/*

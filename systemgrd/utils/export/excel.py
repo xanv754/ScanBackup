@@ -5,7 +5,7 @@ from openpyxl import load_workbook
 from openpyxl.styles.colors import Color
 from openpyxl.styles import Font, PatternFill, Border, Side
 from systemgrd.constants import cells, HeaderDailyReport
-from systemgrd.utils.transform import TransformData
+from systemgrd.utils.ops.transform import TransformData
 
 
 class ExcelExport:

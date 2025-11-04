@@ -154,15 +154,9 @@ def data(
             ixp_handler.join()
             ipbras_handler.join()
             log.info("Actualización de las capas finalizada")
-        log.info("Inicio de actualización de reportes diarios del sistema...")
-        status_operation = UpdaterHandler(
+        UpdaterHandler(
             layer=LayerName.DAILY_REPORT, uri=uri, date=date, force=force
         )
-        if not status_operation:
-            raise Exception()
-        else:
-            log.info("Actualización de reportes diarios cargado exitosamente")
-        log.info("Actualización de reportes diarios finalizada")
     except Exception as e:
         log.error(f"Actualización de datos fallida. {e}")
     finally:
@@ -183,21 +177,11 @@ def data(
     "--dev", is_flag=True, required=False, help="Carga el entorno de desarrollo."
 )
 def daily(date: str | None = None, force: bool = False, dev: bool = False):
-    try:
-        log.info("Inicio de actualización de reportes diarios del sistema...")
-        config = ConfigurationHandler(dev=dev)
-        uri = config.uri_mongo
-        status_operation = UpdaterHandler(
-            layer=LayerName.DAILY_REPORT, uri=uri, date=date, force=force
-        )
-        if not status_operation:
-            raise Exception()
-        else:
-            log.info("Actualización de reportes diarios cargado exitosamente")
-    except Exception as e:
-        log.error(f"Actualización de reportes diarios fallida. {e}")
-    finally:
-        log.info("Actualización de reportes diarios finalizada")
+    config = ConfigurationHandler(dev=dev)
+    uri = config.uri_mongo
+    UpdaterHandler(
+        layer=LayerName.DAILY_REPORT, uri=uri, date=date, force=force
+    )
 
 
 @cli.command(help="Recarga los enlaces para obtener la información de SCAN.")
@@ -238,7 +222,7 @@ def sources(
     rai: bool = False,
     ipbras: bool = False,
 ):
-    log.info("Inicio de la actualización de las fuentes de SCAN...")
+    log.info("Inicio de la actualización de las fuentes...")
     if borde:
         UpdaterSourceHandler(LayerName.BORDE)
     if bras:

@@ -5,7 +5,7 @@ from logging.handlers import TimedRotatingFileHandler
 from rich.logging import RichHandler
 
 
-ROOT_PATH = path.abspath(path.join(path.dirname(__file__), "..", ".."))
+ROOT_PATH = path.abspath(path.join(path.dirname(__file__), "..", "..", ".."))
 LOGS = path.join(ROOT_PATH, "data", "logs")
 LOG_FORMAT = "%(asctime)s %(levelname)s %(message)s"
 DATE_FORMAT = "%Y-%m-%d %H:%M:%S"

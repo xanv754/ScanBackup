@@ -20,8 +20,8 @@ class DailyReportMongoQuery(DailyReportQuery):
                 uri = config.uri_mongo
             database = DatabaseMongo(uri=uri)
             self._database = database
-        except Exception as e:
-            log.error(f"Failed to connect to MongoDB database. {e}")
+        except Exception as error:
+            log.error(f"Fallo al intentar conectarse a la base de datos del sistema - {error}")
 
     def new_report(self, data: List[DailyReportModel]):
         try:
@@ -33,8 +33,8 @@ class DailyReportMongoQuery(DailyReportQuery):
                 status_insert = response.acknowledged
                 self._database.close_connection()
             return status_insert
-        except Exception as e:
-            log.error(f"Failed to insert a daily report. {e}")
+        except Exception as error:
+            log.error(f"Fallo al registrar las nuevas interfaces en la colección de los reportes diarios - {error}")
             return False
 
     def get_report(self, layer_type: str, date: str):
@@ -55,6 +55,6 @@ class DailyReportMongoQuery(DailyReportQuery):
                         traffic = data
                 self._database.close_connection()
             return traffic
-        except Exception as e:
-            log.error(f"Failed to get daily report. {e}")
+        except Exception as error:
+            log.error(f"Fallo al intentar obtener la data de reportes diarios de la capa: {layer_type} del día: {date} - {error}")
             return DataFrame(columns=header_daily)

@@ -1,6 +1,6 @@
 import pandas as pd
 from systemgrd.constants import HeaderBBIP, HeaderDailyReport, header_daily
-from systemgrd.utils.log import log
+from systemgrd.utils.configuration.log import log
 
 
 def calculate(df: pd.DataFrame) -> pd.DataFrame:
@@ -58,5 +58,5 @@ def calculate(df: pd.DataFrame) -> pd.DataFrame:
         summary_df.reset_index(drop=True, inplace=True)
         return summary_df
     except Exception as error:
-        log.error(f"Error in calculate daily reports. {error}")
+        log.error(f"Calculate. Error en los cálculos de los reportes diarios - {error}")
         return pd.DataFrame(columns=header_daily)

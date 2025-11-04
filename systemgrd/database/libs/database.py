@@ -222,8 +222,8 @@ class DatabaseMongo:
                     name="daily_report_by_date_typelayer_index",
                 )
             self.close_connection()
-        except Exception as e:
-            log.error(f"Failed to migrate MongoDB database. {e}")
+        except Exception as error:
+            log.error(f"Fallo al inicializar la base datos del sistema en MongoDB - {error}")
             return False
         else:
             return True
@@ -255,8 +255,8 @@ class DatabaseMongo:
             daily_report_collection.delete_many({})
             daily_report_collection.drop()
             self.close_connection()
-        except Exception as e:
-            log.error(f"Failed to rollback MongoDB database. {e}")
+        except Exception as error:
+            log.error(f"Fallo al destruir la base de datos del sistema en MongoDB - {error}")
             return False
         else:
             return True

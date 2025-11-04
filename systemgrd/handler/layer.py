@@ -19,15 +19,15 @@ class LayerHandler:
     def __init__(self, uri: str | None = None, dev: bool = False):
         try:
             self.bbip_handler = BBIPHandler(uri=uri, dev=dev)
-        except Exception as e:
-            log.error(f"BBIP handler. Failed connecting to the database. {e}")
+        except Exception as error:
+            log.error(f"Layer handler. Fallo al intentarse conectarse a la base de datos del sistema - {error}")
             self.__error_connection = True
 
     def get_all_interfaces(self) -> pd.DataFrame:
         try:
             if self.__error_connection:
                 raise Exception(
-                    "An error occurred while connecting to the database. The method has skipped."
+                    "Ha ocurrido un error con la base de datos del sistema. La petición ha sido suspendida"
                 )
             df_borde = self.bbip_handler.get_all_interfaces(LayerName.BORDE)
             df_borde[HeaderBBIP.TYPE_LAYER] = LayerName.BORDE
@@ -52,18 +52,18 @@ class LayerHandler:
                 return df_interfaces
             else:
                 return pd.DataFrame(columns=header_all_bbip)
-        except Exception as e:
-            log.error(f"BBIP handler. Failed to get all interfaces of BBIP. {e}")
+        except Exception as error:
+            log.error(f"Layer handler. Fallo en la petición de todas las interfaces del BBIP - {error}")
             return pd.DataFrame(columns=header_all_bbip)
 
     def get_all_interfaces_by_date(self, date: str) -> pd.DataFrame:
         try:
             if self.__error_connection:
                 raise Exception(
-                    "An error occurred while connecting to the database. The method has skipped."
+                    "Ha ocurrido un error con la base de datos del sistema. La petición ha sido suspendida"
                 )
             if not Validate.date(date):
-                raise Exception("The date is not valid.")
+                raise Exception("Fecha no válida")
             df_borde = self.bbip_handler.get_all_interfaces_by_date(
                 layer=LayerName.BORDE, date=date
             )
@@ -97,9 +97,9 @@ class LayerHandler:
                 return df_interfaces
             else:
                 return pd.DataFrame(columns=header_all_bbip)
-        except Exception as e:
+        except Exception as error:
             log.error(
-                f"BBIP handler. Failed to get all interfaces of BBIP for date {date}. {e}"
+                f"Layer handler. Fallo en la petición de todas las interfaces del BBIP para el día: {date} - {error}"
             )
             return pd.DataFrame(columns=header_all_bbip)
 
@@ -107,7 +107,7 @@ class LayerHandler:
         try:
             if self.__error_connection:
                 raise Exception(
-                    "An error occurred while connecting to the database. The method has skipped."
+                    "Ha ocurrido un error con la base de datos del sistema. La petición ha sido suspendida"
                 )
             if date and not Validate.date(date):
                 raise Exception("The date is not valid.")
@@ -138,17 +138,15 @@ class LayerHandler:
                 return df_daily_report
             else:
                 return pd.DataFrame(columns=header_daily)
-        except Exception as e:
-            log.error(
-                f"BBIP handler. Failed to get all daily reports by date of BBIP. {e}"
-            )
+        except Exception as error:
+            log.error(f"Layer handler. Fallo en la petición de todos los reportes diarios del BBIP del día: {date} - {error}")
             return pd.DataFrame(columns=header_daily)
 
     def get_all_daily_data_on_week(self) -> pd.DataFrame:
         try:
             if self.__error_connection:
                 raise Exception(
-                    "An error occurred while connecting to the database. The method has skipped."
+                    "Ha ocurrido un error con la base de datos del sistema. La petición ha sido suspendida"
                 )
             df_daily_report = pd.DataFrame(columns=header_daily)
             date = datetime.now() - timedelta(days=datetime.now().weekday() + 7)
@@ -166,10 +164,8 @@ class LayerHandler:
                     df_daily_report.drop_duplicates(inplace=True)
                     df_daily_report.reset_index(drop=True, inplace=True)
                 date = date + timedelta(days=1)
-        except Exception as e:
-            log.error(
-                f"BBIP handler. Failed to get all daily reports on week of BBIP. {e}"
-            )
+        except Exception as error:
+            log.error(f"Layer handler. Fallo en la petición de todos los reportes diarios de la semana del BBIP - {error}")
             return pd.DataFrame()
         else:
             return df_daily_report
@@ -180,7 +176,7 @@ class LayerHandler:
         try:
             if self.__error_connection:
                 raise Exception(
-                    "An error occurred while connecting to the database. The method has skipped."
+                    "Ha ocurrido un error con la base de datos del sistema. La petición ha sido suspendida"
                 )
             df_daily_report = pd.DataFrame(columns=header_daily)
             if not date_to:
@@ -208,10 +204,8 @@ class LayerHandler:
                     df_daily_report.drop_duplicates(inplace=True)
                     df_daily_report.reset_index(drop=True, inplace=True)
                 first_date = first_date + timedelta(days=1)
-        except Exception as e:
-            log.error(
-                f"Traffic handler. Failed to get all daily reports by first month of BBIP. {e}"
-            )
+        except Exception as error:
+            log.error(f"Layer handler. Fallo en la petición de todos los reportes diarios del BBIP del 01 hasta {date_to} - {error}")
             return pd.DataFrame()
         else:
             return df_daily_report
@@ -220,7 +214,7 @@ class LayerHandler:
         try:
             if self.__error_connection:
                 raise Exception(
-                    "An error occurred while connecting to the database. The method has skipped."
+                    "Ha ocurrido un error con la base de datos del sistema. La petición ha sido suspendida"
                 )
             df_daily_report = pd.DataFrame(columns=header_daily)
             for day in range(day_before, 0, -1):
@@ -232,10 +226,8 @@ class LayerHandler:
                     df_daily_report = pd.concat([df_daily_report, df], axis=0)
                     df_daily_report.drop_duplicates(inplace=True)
                     df_daily_report.reset_index(drop=True, inplace=True)
-        except Exception as e:
-            log.error(
-                f"BBIP handler. Failed to get all daily reports by days before of BBIP. {e}"
-            )
+        except Exception as error:
+            log.error(f"Layer handler. Fallo en la petición de todos los reportes diarios del BBIP {day_before} días antes - {error}")
             return pd.DataFrame()
         else:
             return df_daily_report
