@@ -22,7 +22,7 @@ class SummaryReportBBIP:
         df_ixp = df_ixp.drop(columns=[HeaderDailyReport.TYPE_LAYER])
         return df_borde, df_bras, df_caching, df_rai, df_ixp
 
-    def summary_diary(self, date: str | None = None, dev: bool = False) -> bool:
+    def summary_diary(self, date: str | None = None, dev: bool = False, default: bool = False) -> bool:
         try:
             handler = LayerHandler(dev=dev)
             df_data = handler.get_all_daily_report_by_date(date=date)
@@ -36,11 +36,14 @@ class SummaryReportBBIP:
                 LayerName.RAI: df_rai,
                 LayerName.IXP: df_ixp,
             }
-            log.info("Resumen diario obtenido. Exportando...")
-            excel = ExcelExport(filename="Resumen_Diario", data=data)
-            excel.export(daily=True)
-        except Exception as e:
-            log.error(f"Failed to get summary report of diary. {e}")
+            log.info("Data del reporte diario de BBIP obtenido. Exportando...")
+            if not default:
+                excel = ExcelExport(filename="Data_Diario_BBIP", data=data)
+                excel.export(daily=True)
+            else:
+                pass
+        except Exception as error:
+            log.error(f"Summary report. Fallo al obtener el reporte diario del BBIP - {error}")
             return False
         else:
             return True
@@ -67,11 +70,11 @@ class SummaryReportBBIP:
                 LayerName.RAI: df_rai,
                 LayerName.IXP: df_ixp,
             }
-            log.info("Resumen semanal obtenido. Exportando...")
-            excel = ExcelExport(filename="Resumen_Semanal", data=data)
+            log.info("Data del reporte semanal del BBIP obtenido. Exportando...")
+            excel = ExcelExport(filename="Data_Semanal_BBIP", data=data)
             excel.export()
-        except Exception as e:
-            log.error(f"Failed to get summary report of weekly. {e}")
+        except Exception as error:
+            log.error(f"Summary report. Fallo al obtener el reporte semanal del BBIP - {error}")
             return False
         else:
             return True
@@ -98,11 +101,11 @@ class SummaryReportBBIP:
                 LayerName.RAI: df_rai,
                 LayerName.IXP: df_ixp,
             }
-            log.info("Resumen quincenal obtenido. Exportando...")
-            excel = ExcelExport(filename="Resumen_Quincenal", data=data)
+            log.info("Data del reporte quincenal del BBIP obtenido. Exportando...")
+            excel = ExcelExport(filename="Data_Quincenal_BBIP", data=data)
             excel.export()
-        except Exception as e:
-            log.error(f"Failed to get summary report of fortnightly. {e}")
+        except Exception as error:
+            log.error(f"Summary report. Fallo al obtener el reporte quincenal del BBIP - {error}")
             return False
         else:
             return True
@@ -129,11 +132,11 @@ class SummaryReportBBIP:
                 LayerName.RAI: df_rai,
                 LayerName.IXP: df_ixp,
             }
-            log.info("Resumen mensual obtenido. Exportando...")
-            excel = ExcelExport(filename="Resumen_Mensual", data=data)
+            log.info("Data del reporte mensual del BBIP obtenido. Exportando...")
+            excel = ExcelExport(filename="Data_Mensual_BBIP", data=data)
             excel.export()
-        except Exception as e:
-            log.error(f"Failed to get summary report of monthly. {e}")
+        except Exception as error:
+            log.error(f"Summary report. Fallo al obtener el reporte mensual del BBIP - {error}")
             return False
         else:
             return True

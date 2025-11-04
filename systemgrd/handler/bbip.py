@@ -21,8 +21,8 @@ class BBIPHandler:
         try:
             self.bbip_query = BBIPMongoQuery(uri=uri, dev=dev)
             self.daily_query = DailyReportMongoQuery(uri=uri, dev=dev)
-        except Exception as e:
-            log.error(f"BBIP handler. Failed connecting to the database. {e}")
+        except Exception as error:
+            log.error(f"BBIP handler. Fallo al intentarse conectarse a la base de datos del sistema - {error}")
             self._error_connection = True
 
     def get_all_interfaces(self, layer: str) -> pd.DataFrame:
@@ -35,12 +35,12 @@ class BBIPHandler:
         try:
             if self._error_connection:
                 raise Exception(
-                    "An error occurred while connecting to the database. The method has skipped."
+                    "Ha ocurrido un error con la base de datos del sistema. La petición ha sido suspendida"
                 )
             collection = LayerDetector.get_table_name(layer=layer)
             df_interfaces = self.bbip_query.get_interfaces(collection=collection)
-        except Exception as e:
-            log.error(f"BBIP handler. Failed to get all interfaces of borde layer. {e}")
+        except Exception as error:
+            log.error(f"BBIP handler. Fallo en la petición de todas las interfaces de la capa: {layer} - {error}")
             return pd.DataFrame(columns=header_bbip)
         else:
             return df_interfaces
@@ -57,7 +57,7 @@ class BBIPHandler:
         try:
             if self._error_connection:
                 raise Exception(
-                    "An error occurred while connecting to the database. The method has skipped."
+                    "Ha ocurrido un error con la base de datos del sistema. La petición ha sido suspendida"
                 )
             if not Validate.date(date):
                 raise Exception("The date is not valid.")
@@ -65,8 +65,8 @@ class BBIPHandler:
             df_interfaces = self.bbip_query.get_interfaces_by_date(
                 collection=collection, date=date
             )
-        except Exception as e:
-            log.error(f"BBIP handler. Failed to get all interfaces of borde layer. {e}")
+        except Exception as error:
+            log.error(f"BBIP handler. Fallo en la petición de todas las interfaces de la capa: {layer} del día: {date} - {error}")
             return pd.DataFrame(columns=header_bbip)
         else:
             return df_interfaces
@@ -83,17 +83,15 @@ class BBIPHandler:
         try:
             if self._error_connection:
                 raise Exception(
-                    "An error occurred while connecting to the database. The method has skipped."
+                    "Ha ocurrido un error con la base de datos del sistema. La petición ha sido suspendida"
                 )
             if date and not Validate.date(date):
                 raise Exception("The date is not valid.")
             elif not date:
                 date = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
             df_daily_report = self.daily_query.get_report(layer_type=layer, date=date)
-        except Exception as e:
-            log.error(
-                f"BBIP handler. Failed to get all daily report of borde layer. {e}"
-            )
+        except Exception as error:
+            log.error(f"BBIP handler. Fallo en la petición de los reportes diarios de la capa: {layer} del día: {date} - {error}")
             return pd.DataFrame(columns=header_daily)
         else:
             return df_daily_report

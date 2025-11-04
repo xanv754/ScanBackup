@@ -40,7 +40,7 @@ class BBIPResponseAdapter:
             df = pd.read_csv(buffer, sep=";", header=None, names=header_bbip)  # type: ignore
             return df
         except Exception as error:
-            log.error(f"Failed to BBIP response adapter. {error}")
+            log.error(f"Fallo del adaptador para transformar la respuesta de la base de datos (BBIP) - {error}")
             return pd.DataFrame(columns=header_bbip)
 
 
@@ -74,5 +74,5 @@ class DailyReportResponseAdapter:
             df = pd.read_csv(buffer, sep=";", header=None, names=header_daily)  # type: ignore
             return df
         except Exception as error:
-            log.error(f"Failed to BBIP response adapter. {error}")
+            log.error(f"Fallo del adaptador para transformar la respuesta de la base de datos (reportes diarios) - {error}")
             return pd.DataFrame(columns=header_daily)

@@ -31,11 +31,11 @@ class UpdaterHandler:
             data = bbip_handler.get_data(layer=layer, date=date, force=force)
             status_operation = bbip_handler.load_data(layer=layer, data=data, uri=uri)
             if status_operation:
-                log.info(f"Data de {layer} cargado exitosamente")
+                log.info(f"Data de la capa: {layer} cargado exitosamente")
             else:
-                log.error(f"Carga de la data de {layer} fallida")
-        except Exception as e:
-            log.error(f"Failed to load data of {layer} layer. {e}")
+                log.error(f"Carga de la data de la capa: {layer} fallida")
+        except Exception as error:
+            log.error(f"Fallo al actualizar los datos de la capa: {layer} del BBIP en el sistema - {error}")
 
     def _updater_ip_history(self, uri: str, date: str | None, force: bool) -> None:
         """Updater IP history collection in database."""
@@ -44,15 +44,16 @@ class UpdaterHandler:
             data = ip_history_handler.get_data(date=date, force=force)
             status_operation = ip_history_handler.load_data(data=data, uri=uri)
             if status_operation:
-                log.info("Data de IPBras cargado exitosamente")
+                log.info("Data de la capa: IP_BRAS cargado exitosamente")
             else:
-                log.error("Carga de la data de IPBras fallida")
-        except Exception as e:
-            log.error(f"Failed to load data of IPBras layer. {e}")
+                log.error("Carga de la data de la capa: IP_BRAS fallida")
+        except Exception as error:
+            log.error(f"Fallo al actualizar los datos de la capa: IP_BRAS del BBIP en el sistema - {error}")
 
     def _updater_daily_summary(self, uri: str, date: str | None, force: bool) -> None:
         """Updater daily summary collection in database."""
         try:
+            log.info("Inicio de actualización de reportes diarios del sistema...")
             daily_handler = DailyReportUpdaterHandler()
             reports = daily_handler.get_data(date=date, force=force)
             status_operation = daily_handler.load_data(data=reports, uri=uri)
@@ -60,8 +61,10 @@ class UpdaterHandler:
                 log.info("Actualización de reportes diarios cargado exitosamente")
             else:
                 log.error(f"Carga de los reportes diarios fallido")
-        except Exception as e:
-            log.error(f"Failed to load data of daily summary. {e}")
+        except Exception as error:
+            log.error(f"Fallo al actualizar los datos de los reportes diarios en el sistema - {error}")
+        finally:
+            log.info("Actualización de reportes diarios finalizada")
 
 
 class UpdaterSourceHandler:
@@ -80,15 +83,15 @@ class UpdaterSourceHandler:
             elif layer == LayerName.IP_BRAS:
                 scrapper = IPBrasSourceScrapping()
             else:
-                raise Exception("Layer not valid to updater sources")
+                raise Exception("Capa no válida para actualizar los enlaces")
 
             links = scrapper.get_sources()
-            log.info(f"Guardando {layer} capa...")
+            log.info(f"Guardando enlaces de la capa {layer}...")
             status_update = scrapper.save_sources(sources=links, layer=layer)
             if status_update:
-                log.info(f"Enlaces de SCAN {layer} actualizados.")
+                log.info(f"Enlaces de la capa {layer} actualizados")
             else:
-                log.error(f"Fallo al actualizar los enlaces de SCAN {layer}.")
-        except Exception as e:
-            log.error(f"Failed to load data of {layer} sources. {e}")
+                log.error(f"Fallo al actualizar los enlaces para la capa {layer}")
+        except Exception as error:
+            log.error(f"Fallo al intentar actualizar los enlaces de la capa {layer} - {error}")
             return None

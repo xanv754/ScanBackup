@@ -1,7 +1,5 @@
 #/bin/bash
-
 # ---------------------------- INFO ----------------------------
-#
 # Script que captura los datos de tráfico del día anterior,
 # de todas las interfaces declaradas dentro de la carpeta
 # `sources/SCAN/` del sistema. Obtiendo la información de 
@@ -10,73 +8,73 @@
 # permanente en la base de datos del sistema.
 #
 # Para más información del sistema, léase `README.md`.
-#
 # --------------------------------------------------------------
 
-fecha=$(date --date="yesterday" +%Y-%m-%d) 
-ruta="$HOMEPROJECT/systemgrd"
-ip_bras_capa="IP_BRAS"
+systemDate="${1:-$(date --date="yesterday" +%Y-%m-%d)}"
+specifyLayer="${2:-}"
+specifyLayer="$(echo "$specifyLayer" | awk '{print toupper($0)}')"
+home="$HOMEPROJECT/systemgrd"
+layerIPBras="IP_BRAS"
 
-if [ -d "$ruta/routines/tmp" ]; then
-  if [ -n "$(ls -A "$ruta/routines/tmp" 2>/dev/null)" ]; then
-    rm $ruta/routines/tmp/*
+if [ -d "$home/routines/tmp" ]; then
+  if [ -n "$(ls -A "$home/routines/tmp" 2>/dev/null)" ]; then
+    rm $home/routines/tmp/*
   fi
 else
-  mkdir $ruta/routines/tmp
+  mkdir $home/routines/tmp
 fi
-echo "$(date +"%Y-%m-%d %H:%M:%S") INFO Captura de datos iniciada..."
-echo "$(date +"%Y-%m-%d %H:%M:%S") INFO Captura de datos iniciada..." >> $HOMEPROJECT/data/logs/SysGRD.log
+echo "$(date +"%Y-%m-%d %H:%M:%S") INFO Captura de datos del $systemDate iniciada..."
+echo "$(date +"%Y-%m-%d %H:%M:%S") INFO Captura de datos del $systemDate iniciada..." >> $HOMEPROJECT/data/logs/SysGRD.log
 
-cd $ruta/routines
-echo $fecha > $ruta/routines/tmp/fechaayer
-ls $HOMEPROJECT/sources/SCAN > $ruta/routines/tmp/lista
+cd $home/routines
+echo $systemDate > $home/routines/tmp/fechaayer
+if [ -z "$specifyLayer" ]; then
+  ls $HOMEPROJECT/sources/SCAN > $home/routines/tmp/lista
+else
+  echo "$specifyLayer" > $home/routines/tmp/lista
+fi
 
-cat $ruta/routines/tmp/lista | while read line1
+cat $home/routines/tmp/lista | while read line1
 do
-  capa=`echo $line1 | sed 's/ //g'`
-  cat $HOMEPROJECT/sources/SCAN/$capa | while read line2
+  layer=`echo $line1 | sed 's/ //g'`
+  cat $HOMEPROJECT/sources/SCAN/$layer | while read line2
   do
     url=`echo $line2 | awk '{print $1}' `
-    interfaz=`echo $line2 | awk '{print $2}' `
+    interfaceName=`echo $line2 | awk '{print $2}' `
     terminal=`echo $line2 | awk '{print $1}' | sed 's/\// /g' | awk -F " " '{print $NF}'`
-    capacidad=`echo $line2 | awk '{print $3}' `
-    tipo=`echo $line2 | awk '{print $4}'`
+    capacity=`echo $line2 | awk '{print $3}' `
+    type=`echo $line2 | awk '{print $4}'`
 
-    wget -q --user=$USERSCAN --password=$PASSWORDSCAN --no-check-certificate $url -O $ruta/routines/tmp/$terminal > /dev/null 2>&1
+    wget -q --user=$USERSCAN --password=$PASSWORDSCAN --no-check-certificate $url -O $home/routines/tmp/$terminal > /dev/null 2>&1
 
-    sed -i '1d' $ruta/routines/tmp/$terminal
-    cat $ruta/routines/tmp/$terminal | head -500 | while read line3
+    sed -i '1d' $home/routines/tmp/$terminal
+    cat $home/routines/tmp/$terminal | head -500 | while read line3
     do
-      # Fecha y hora en formato UNIX
-      fechaunix=`echo $line3 | awk '{print $1}'` 
-      # Valor de trafico de entrada promedio en bytes por segunda
-      inpro=`echo $line3 | awk '{print $2}'` 
-      # Valor de trafico de salida promedio en byte por segunda
-      outpro=`echo $line3 | awk '{print $3}'`
-      # Valor de trafico de entrada maximo en byte por segunda
-      inmax=`echo $line3 | awk '{print $4}'` 
-      # Valor de trafico de salida maximo en byte por segunda
-      outmax=`echo $line3 | awk '{print $5}'`
+      UNIXtime=`echo $line3 | awk '{print $1}'` 
+      inProm=`echo $line3 | awk '{print $2}'` 
+      outProm=`echo $line3 | awk '{print $3}'`
+      inPromMax=`echo $line3 | awk '{print $4}'` 
+      outPromMax=`echo $line3 | awk '{print $5}'`
 
-      fechanormal=$(date -d @"$fechaunix" "+%Y-%m-%d %H:%M:%S")
-      if [ "$capa" = "$ip_bras_capa" ]; then
-        echo $fechanormal $inpro $inmax | grep -f $ruta/routines/tmp/fechaayer >> $HOMEPROJECT/data/SCAN/$capa/$capacidad\%$interfaz
+      time=$(date -d @"$UNIXtime" "+%Y-%m-%d %H:%M:%S")
+      if [ "$layer" = "$layerIPBras" ]; then
+        echo $time $inProm $inPromMax | grep -f $home/routines/tmp/fechaayer >> $HOMEPROJECT/data/SCAN/$layer/$capacity\%$interfaceName
       else
-        echo $fechanormal $inpro $outpro $inmax $outmax | grep -f $ruta/routines/tmp/fechaayer >> $HOMEPROJECT/data/SCAN/$capa/$tipo\%$interfaz\%$capacidad
+        echo $time $inProm $outProm $inPromMax $outPromMax | grep -f $home/routines/tmp/fechaayer >> $HOMEPROJECT/data/SCAN/$layer/$type\%$interfaceName\%$capacity
       fi
     done
       
-    if [ "$capa" = "$ip_bras_capa" ]; then
-      lineas=`cat $HOMEPROJECT/data/SCAN/$capa/$capacidad\%$interfaz | grep -f $ruta/routines/tmp/fechaayer | wc -l`
+    if [ "$layer" = "$layerIPBras" ]; then
+      lineas=`cat $HOMEPROJECT/data/SCAN/$layer/$capacity\%$interfaceName | grep -f $home/routines/tmp/fechaayer | wc -l`
     else
-      lineas=`cat $HOMEPROJECT/data/SCAN/$capa/$tipo\%$interfaz\%$capacidad | grep -f $ruta/routines/tmp/fechaayer | wc -l`
+      lineas=`cat $HOMEPROJECT/data/SCAN/$layer/$type\%$interfaceName\%$capacity | grep -f $home/routines/tmp/fechaayer | wc -l`
     fi
-    hora=$(date +"%y-%m-%d %T")
-    echo $hora $capa $interfaz $lineas >> $HOMEPROJECT/data/logs/Alertas-SCAN.log
-    rm $ruta/routines/tmp/$terminal
+    hour=$(date +"%y-%m-%d %T")
+    echo $hour $layer $interfaceName $lineas >> $HOMEPROJECT/data/logs/Alertas-SCAN.log
+    rm $home/routines/tmp/$terminal
   done  
 done
 
-rm $ruta/routines/tmp/*
-echo "$(date +"%Y-%m-%d %H:%M:%S") INFO Captura de datos finalizada"
-echo "$(date +"%Y-%m-%d %H:%M:%S") INFO Captura de datos finalizada" >> $HOMEPROJECT/data/logs/SysGRD.log
+rm $home/routines/tmp/*
+echo "$(date +"%Y-%m-%d %H:%M:%S") INFO Captura de datos del $systemDate finalizada"
+echo "$(date +"%Y-%m-%d %H:%M:%S") INFO Captura de datos del $systemDate finalizada" >> $HOMEPROJECT/data/logs/SysGRD.log
