@@ -5,7 +5,7 @@ from systemgrd.database.libs.database import DatabaseMongo
 from systemgrd.database.querys.bbip.query import BBIPQuery
 from systemgrd.database.utils.adapter import BBIPResponseAdapter
 from systemgrd.model import BBIPModel
-from systemgrd.utils import ConfigurationHandler, log
+from systemgrd.utils import log, URIEnvironment
 
 
 class BBIPMongoQuery(BBIPQuery):
@@ -16,8 +16,8 @@ class BBIPMongoQuery(BBIPQuery):
     def __init__(self, uri: str | None = None, dev: bool = False):
         try:
             if not uri or dev:
-                config = ConfigurationHandler(dev=dev)
-                uri = config.uri_mongo
+                config = URIEnvironment(dev=dev)
+                uri = config.get_uri_db()
             database = DatabaseMongo(uri=uri)
             self._database = database
         except Exception as error:

@@ -2,7 +2,7 @@ import click
 from multiprocessing import Process
 from systemgrd.constants import LayerName
 from systemgrd.updater.updater import UpdaterHandler, UpdaterSourceHandler
-from systemgrd.utils import ConfigurationHandler, log
+from systemgrd.utils import log, URIEnvironment
 
 
 @click.group
@@ -77,8 +77,8 @@ def data(
 ):
     try:
         log.info("Inicio de actualización de datos del sistema...")
-        config = ConfigurationHandler(dev=dev)
-        uri = config.uri_mongo
+        config = URIEnvironment(dev=dev)
+        uri = config.get_uri_db()
         if borde and not bras and not caching and not rai and not ixp and not ipbras:
             borde_handler = Process(
                 target=UpdaterHandler, args=(LayerName.BORDE, uri, date, force)
@@ -177,8 +177,8 @@ def data(
     "--dev", is_flag=True, required=False, help="Carga el entorno de desarrollo."
 )
 def daily(date: str | None = None, force: bool = False, dev: bool = False):
-    config = ConfigurationHandler(dev=dev)
-    uri = config.uri_mongo
+    config = URIEnvironment(dev=dev)
+    uri = config.get_uri_db()
     UpdaterHandler(
         layer=LayerName.DAILY_REPORT, uri=uri, date=date, force=force
     )
