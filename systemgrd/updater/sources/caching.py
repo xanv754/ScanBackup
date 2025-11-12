@@ -1,90 +1,85 @@
+import re
+from unidecode import unidecode
 from bs4 import BeautifulSoup
 from systemgrd.model import Source
-from systemgrd.updater.sources.scrapping import SourceScrapping
+from systemgrd.updater.sources.scrapping import Scrapping
 from systemgrd.utils import log
 
 
-class CachingSourceScrapping(SourceScrapping):
-
-    def _conditional_special_case(self, service: str) -> str:
-        """Special case for some services."""
-        if "ALIANZA" in service:
-            return "FACEBOOK"
-        else:
-            return service
-
-    def _get_list_services(self, soup: BeautifulSoup) -> list[tuple[str, str]]:
-        """Scrapping the information to obtain a list of bras existing."""
-        services = []
-        blocks = soup.find("div", class_="sidebar").find("nav", class_="mt-2").find("ul", class_="nav nav-pills nav-sidebar flex-column").find("li", class_="nav-item menu-open").find("ul", class_="nav nav-treeview").find_all("li", class_="nav-item")  # type: ignore
-        del blocks[0]
-        for item in blocks:  # type: ignore
-            block = item.find("a", class_="nav-link")  # type: ignore
-            link = block.get("href")  # type: ignore
-            if link == "#":
-                continue
-            service = block.find("p").get_text(strip=True)  # type: ignore
-            service = service.replace("Suma", "").strip().upper()  # type: ignore
-            service = self._conditional_special_case(service)  # type: ignore
-            services.append((service, link))  # type: ignore
-        return services  # type: ignore
-
-    def _get_info_interfaces(self) -> list[Source]:
-        """Scrapping the information to obtain the sources for each interface."""
+class CachingHuawei(Scrapping):
+    _PREFFIX_JUNK_WORD = "ROUTER"
+    _SUFFIX_JUNK_WORD = "TRAFICO DE RED"
+    _SERVICE_SPECIAL = "ALIANZA"
+    _SERVICE_SPECIAL_TRANSFORM = "FACEBOOK (META)"
+    _domain = ".net"
+    
+    def __init__(self, url: str, layer: str, add_sources: bool = False) -> None:
+        super().__init__(url, layer, add_sources)
+        
+    def get_sources(self, html: BeautifulSoup) -> list[Source]:
+        sources = []
+        JUNK_WORD = "SUMATORIA"
+        def get_services(page: BeautifulSoup) -> list[tuple[str, str]]:
+            JUNK_WORD = "Suma"
+            services = []
+            blocks = page.find("div", class_="sidebar").find("nav", class_="mt-2").find("ul", class_="nav nav-pills nav-sidebar flex-column").find("li", class_="nav-item menu-open").find("ul", class_="nav nav-treeview").find_all("li", class_="nav-item")
+            del blocks[0]
+            for item in blocks:
+                block = item.find("a", class_="nav-link")
+                link = block.get("href")
+                if link == "#": continue
+                service = block.find("p").get_text(strip=True)
+                service = service.replace(JUNK_WORD, "").strip().upper()
+                if self._SERVICE_SPECIAL in service: service = self._SERVICE_SPECIAL_TRANSFORM
+                services.append((link, service))
+            return services
+        interfaces = get_services(html)
+        link_base = self.get_url().split(self._domain)[0] + self._domain
+        for interface in interfaces:
+            link = interface[0]
+            model = interface[1]
+            page = self.get_html(link_base + link)
+            if not page: continue
+            blocks = page.find("section", class_="content").find("div", class_="row").find("div", class_="col-md-12").find_all("div", class_="col-sm-12")
+            for item in blocks:
+                name_interface = item.find("li", {"id": "subtitulo"}).get_text(strip=True).upper()
+                if JUNK_WORD in name_interface: continue
+                name_interface = unidecode(name_interface)
+                name_interface = name_interface.split(self._PREFFIX_JUNK_WORD)
+                if len(name_interface) > 1: name_interface = name_interface[1].strip()
+                else: name_interface = name_interface[0].strip()
+                name_interface = name_interface.split(self._SUFFIX_JUNK_WORD)[0]
+                name_interface = name_interface.rstrip(' -')
+                link_graphic = item.find("li", {"id": "graficas"}).find("a").get("href")
+                capacity = self.get_capacity(link_base + link_graphic, name_interface)
+                link = link_graphic.replace(".html", ".log")
+                source = Source(
+                    link=link_base + link, 
+                    name=name_interface, 
+                    capacity=capacity, 
+                    model=model
+                )
+                sources.append(source)
+        return sources
+    
+    def get_capacity(self, url: str, interface: str) -> str:
         try:
-            sources = []
-            junk_interface = "Sumatoria"
-            soup = self.get_html(self.config.scan_url_caching)
-            if not soup:
-                log.error("Failed to obtain sources from SCAN Caching.")
-                return []
-            services = self._get_list_services(soup)
-            for service in services:
-                soup = self.get_html(f"{self.url_base}{service[1]}")
-                if not soup:
-                    log.error(f"Failed to obtain info from SCAN Caching {service[0]}.")
-                    continue
-                blocks = soup.find("section", class_="content").find("div", class_="row").find("div", class_="col-md-12").find_all("div", class_="col-sm-12")  # type: ignore
-                for item in blocks:  # type: ignore
-                    name = item.find("li", {"id": "subtitulo"}).get_text(strip=True)  # type: ignore
-                    if not name or junk_interface in name:
-                        continue
-                    name = name.split(" - ")[0].replace("Router ", "").replace(" ", "_").replace("/", "").replace("(", "").replace(")", "").replace("%", "").replace("|", "-")  # type: ignore
-                    link_original = item.find("li", {"id": "graficas"}).find("a").get("href")  # type: ignore
-                    capacity = self.get_capacity(f"{self.url_base}{link_original}")  # type: ignore
-                    link = link_original.replace(".html", ".log")  # type: ignore
-                    source = Source(link=f"{self.url_base}{link}", name=name, capacity=capacity, model=service[0])  # type: ignore
-                    sources.append(source)  # type: ignore
+            FLAGS = ["G"]
+            capacity = None
+            
+            interface = re.sub(r'[-()\\]', ' ', interface)
+            interface = re.sub(r'\s+', ' ', interface).strip()
+            interfaces = interface.split(" ")
+            for word in interfaces:
+                for FLAG in FLAGS:
+                    if FLAG in word: 
+                        try:
+                            capacity = float(word[:-1])
+                        except: continue
+                        break
+                if capacity: break
+            if not capacity: return "0"
+            return str(capacity)
         except Exception as error:
-            log.error(f"Failed to obtain info from SCAN Caching interfaces. {error}")
-            return []
-        else:
-            return sources  # type: ignore
-
-    def get_capacity(self, param: str) -> str:
-        try:
-            soup = self.get_html(param)
-            if not soup:
-                raise Exception("Failed to obtain HTML from source.")
-            block = soup.find("span", class_="d-block mb-3").find_next("p").find_next("i")  # type: ignore
-            capacity = block.get_text(strip=True).split(": ")[1].split("Gb")[0].strip().replace(",", ".")  # type: ignore
-            capacity = round(float(capacity))
-            if 5 <= capacity <= 10:
-                capacity = 10
-            elif (capacity % 10) > 5:
-                capacity = capacity + (10 - (capacity % 10))
-            elif (capacity % 10) <= 5:
-                capacity = capacity + 1.5
-            else:
-                capacity = self.with_capacity
-            capacity = str(float(capacity))
-            return capacity
-        except Exception as error:
-            log.error(
-                f"Failed to obtain capacity info from SCAN Caching interface ({param}) - {error}"
-            )
-            return self.with_capacity
-
-    def get_sources(self) -> list[Source]:
-        self.set_url_base(self.config.scan_url_caching)
-        return self._get_info_interfaces()
+            log.error(f"Fallo al obtener la capacidad del enlace {interface} de la capa {self._layer} - {error}")
+            return "0"

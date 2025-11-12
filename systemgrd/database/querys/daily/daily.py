@@ -5,7 +5,7 @@ from systemgrd.database.libs.database import DatabaseMongo
 from systemgrd.database.querys.daily.query import DailyReportQuery
 from systemgrd.database.utils.adapter import DailyReportResponseAdapter
 from systemgrd.model import DailyReportModel
-from systemgrd.utils import ConfigurationHandler, log
+from systemgrd.utils import log, URIEnvironment
 
 
 class DailyReportMongoQuery(DailyReportQuery):
@@ -16,8 +16,8 @@ class DailyReportMongoQuery(DailyReportQuery):
     def __init__(self, uri: str | None = None, dev: bool = False):
         try:
             if not uri or dev:
-                config = ConfigurationHandler(dev=dev)
-                uri = config.uri_mongo
+                config = URIEnvironment(dev=dev)
+                uri = config.get_uri_db()
             database = DatabaseMongo(uri=uri)
             self._database = database
         except Exception as error:

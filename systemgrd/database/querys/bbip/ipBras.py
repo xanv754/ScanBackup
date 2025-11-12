@@ -3,7 +3,7 @@ from pandas import DataFrame
 from systemgrd.constants import TableName, IPBrasHistoryFieldName, header_scan_ip_bras
 from systemgrd.database.libs.database import DatabaseMongo
 from systemgrd.model import IPBrasModel
-from systemgrd.utils import ConfigurationHandler, log
+from systemgrd.utils import log, URIEnvironment
 
 
 class IPBrasMongoQuery:
@@ -14,8 +14,8 @@ class IPBrasMongoQuery:
     def __init__(self, uri: str | None = None, dev: bool = False):
         try:
             if not uri:
-                config = ConfigurationHandler(dev=dev)
-                uri = config.uri_mongo
+                config = URIEnvironment(dev=dev)
+                uri = config.get_uri_db()
             database = DatabaseMongo(uri=uri)
             self._database = database
         except Exception as e:

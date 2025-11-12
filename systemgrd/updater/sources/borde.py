@@ -1,72 +1,180 @@
+from unidecode import unidecode
 from bs4 import BeautifulSoup
 from systemgrd.model import Source
-from systemgrd.updater.sources.scrapping import SourceScrapping
+from systemgrd.updater.sources.scrapping import Scrapping
 from systemgrd.utils import log
 
 
-class BordeSourceScrapping(SourceScrapping):
-
-    def _get_info_interfaces(self, soup: BeautifulSoup, model: str) -> list[Source]:
-        """Scrapping the information to obtain the sources for each interface."""
+class BordeHuawei(Scrapping):
+    _PREFFIX_JUNK_WORD = "ENLACE INTERNACIONAL"
+    _SUFFIX_JUNK_WORD = "TRAFICO DE RED"
+    _model = "HUAWEI"
+    _domain = ".net"
+    
+    def __init__(self, url: str, layer: str, add_sources: bool = False) -> None:
+        super().__init__(url, layer, add_sources)
+        
+    def get_sources(self, html: BeautifulSoup) -> list[Source]:
+        sources = []
+        interfaces = html.find_all("ul", class_="list-group")
+        link_base = self.get_url().split(self._domain)[0] + self._domain
+        del interfaces[0]
+        for interface in interfaces:
+            link_graphic = interface.find("li", {"id": "graficas"}).find("a").get("href")
+            link = link_graphic.replace(".html", ".log")
+            name_interface = interface.find("li", {"id": "subtitulo"}).get_text(strip=True).upper()
+            name_interface = unidecode(name_interface)
+            name_interface = name_interface.split(self._PREFFIX_JUNK_WORD)
+            if len(name_interface) > 1: name_interface = name_interface[1].strip()
+            else: name_interface = name_interface[0].strip()
+            name_interface = name_interface.split(self._SUFFIX_JUNK_WORD)
+            name_interface = name_interface[0].strip()
+            name_interface = name_interface.rstrip(' -')
+            capacity = self.get_capacity(link_base + link_graphic, name_interface)
+            source = Source(
+                link=link_base + link,
+                name=name_interface,
+                capacity=capacity,
+                model=self._model,
+            )
+            sources.append(source)
+        return sources
+    
+    def get_capacity(self, url: str, interface: str) -> str:
         try:
-            sources = []
-            junk_word = "Enlace Internacional "
-            interfaces = soup.find_all("ul", class_="list-group")
-            del interfaces[0]
-            for interface in interfaces:
-                link_original = interface.find("li", {"id": "graficas"}).find("a").get("href")  # type: ignore
-                link = link_original.replace(".html", ".log")  # type: ignore
-                name = interface.find("li", {"id": "subtitulo"}).get_text(strip=True)  # type: ignore
-                preffix = name.split("-")[0].strip().split(junk_word)[1].strip()  # type: ignore
-                preffix = self.clear_name_format(preffix)  # type: ignore
-                suffix = name.split(" - ")[1].strip()  # type: ignore
-                suffix = self.clear_name_format(suffix)  # type: ignore
-                name = preffix + "_-_" + suffix
-                capacity = self.get_capacity(self.url_base + "/" + link_original)  # type: ignore
-                source = Source(
-                    link=f"{self.url_base}{link}",
-                    name=name,
-                    capacity=capacity,
-                    model=model,
-                )
-                sources.append(source)  # type: ignore
+            FLAG = "GE"
+            capacity = None
+            
+            if FLAG in interface:
+                content = interface.split(" ")
+                for word in content:
+                    if FLAG in word: capacity = str(word.split(FLAG)[0])
+            else:
+                soup = self.get_html(url)
+                if not soup: raise Exception()
+                block = soup.find("span", class_="d-block mb-3").find_next("p").find_next("i")
+                content = block.get_text(strip=True).split(" ")
+                for word in content:
+                    try:
+                        word = word.replace(",", ".")
+                        capacity = int(round(float(word)))
+                    except: continue
+            if not capacity: capacity = "0"
+            else: return str(capacity)
         except Exception as error:
-            log.error(f"Failed to obtain info from SCAN Borde interfaces. {error}")
-            return []
-        else:
-            return sources  # type: ignore
-
-    def _scrap_borde_huawei(self) -> list[Source]:
-        """Scrapping the information to obtain the sources borde Huawei."""
-        soup = self.get_html(self.config.scan_url_borde_huawei)
-        if not soup:
-            log.error("Failed to obtain sources from SCAN Borde Huawei.")
-            return []
-        return self._get_info_interfaces(soup, "HUAWEI")
-
-    def _scrap_cisco(self) -> list[Source]:
-        """Scrapping the information to obtain the sources borde Cisco."""
-        soup = self.get_html(self.config.scan_url_borde_cisco)
-        if not soup:
-            log.error("Failed to obtain sources from SCAN Borde Cisco.")
-            return []
-        return self._get_info_interfaces(soup, "CISCO")
-
-    def get_capacity(self, param: str) -> str:
+            log.error(f"Fallo al obtener la capacidad del enlace {interface} de la capa {self._layer} - {error}")
+            return "0"
+        
+        
+class BordeCisco(Scrapping):
+    _PREFFIX_JUNK_WORD = "ROUTER"
+    _SUFFIX_JUNK_WORD = "TRAFICO DE RED"
+    _model = "CISCO"
+    _domain = ".net"
+    
+    def __init__(self, url: str, layer: str, add_sources: bool = False) -> None:
+        super().__init__(url, layer, add_sources)
+        
+    def get_sources(self, html: BeautifulSoup) -> list[Source]:
+        sources = []
+        interfaces = html.find_all("ul", class_="list-group")
+        link_base = self.get_url().split(self._domain)[0] + self._domain
+        for interface in interfaces:
+            link_graphic = interface.find("li", {"id": "graficas"}).find("a").get("href")
+            link = link_graphic.replace(".html", ".log")
+            name_interface = interface.find("li", {"id": "subtitulo"}).get_text(strip=True).upper()
+            name_interface = unidecode(name_interface)
+            name_interface = name_interface.split(self._PREFFIX_JUNK_WORD)
+            if len(name_interface) > 1: name_interface = name_interface[1].strip()
+            else: name_interface = name_interface[0].strip()
+            name_interface = name_interface.split(self._SUFFIX_JUNK_WORD)
+            name_interface = name_interface[0].strip()
+            name_interface = name_interface.rstrip(' -')
+            capacity = self.get_capacity(link_base + link_graphic, name_interface)
+            source = Source(
+                link=link_base + link,
+                name=name_interface,
+                capacity=capacity,
+                model=self._model,
+            )
+            sources.append(source)
+        return sources
+    
+    def get_capacity(self, url: str, interface: str) -> str:
         try:
-            soup = self.get_html(param)
-            if not soup:
-                raise Exception("Failed to obtain HTML from source.")
-            block = soup.find("span", class_="d-block mb-3").find_next("p").find_next("i")  # type: ignore
-            capacity = block.get_text(strip=True).split(": ")[1].split("Gb")[0].strip().replace(",", ".")  # type: ignore
-            capacity = str(int(round(float(capacity))))
-            return capacity
+            capacity = None
+            soup = self.get_html(url)
+            if not soup: raise Exception()
+            block = soup.find("span", class_="d-block mb-3").find_next("p").find_next("i")
+            content = block.get_text(strip=True).split(" ")
+            for word in content:
+                try:
+                    word = word.replace(",", ".")
+                    capacity = int(round(float(word)))
+                except: continue
+            if not capacity: capacity = "0"
+            else: return str(capacity)
         except Exception as error:
-            log.error(f"Failed to obtain capacity from {param}. {error}")
-            return self.with_capacity
+            log.error(f"Fallo al obtener la capacidad del enlace {interface} de la capa {self._layer} - {error}")
+            return "0"
+        
 
-    def get_sources(self) -> list[Source]:
-        self.set_url_base(self.config.scan_url_borde_huawei)
-        interfaces_hw = self._scrap_borde_huawei()
-        interfaces_cisco = self._scrap_cisco()
-        return interfaces_hw + interfaces_cisco
+class BordeJuniper(Scrapping):
+    _PREFFIX_JUNK_WORD = "ENLACE INTERNACIONAL"
+    _SUFFIX_JUNK_WORD = "TRAFICO DE RED"
+    _model = "JUNIPER"
+    _domain = ".net"
+    
+    def __init__(self, url: str, layer: str, add_sources: bool = False) -> None:
+        super().__init__(url, layer, add_sources)
+        
+    def get_sources(self, html: BeautifulSoup) -> list[Source]:
+        sources = []
+        interfaces = html.find_all("ul", class_="list-group")
+        link_base = self.get_url().split(self._domain)[0] + self._domain
+        del interfaces[0]
+        for interface in interfaces:
+            link_graphic = interface.find("li", {"id": "graficas"}).find("a").get("href")
+            link = link_graphic.replace(".html", ".log")
+            name_interface = interface.find("li", {"id": "subtitulo"}).get_text(strip=True).upper()
+            name_interface = unidecode(name_interface)
+            name_interface = name_interface.split(self._PREFFIX_JUNK_WORD)
+            if len(name_interface) > 1: name_interface = name_interface[1].strip()
+            else: name_interface = name_interface[0].strip()
+            name_interface = name_interface.split(self._SUFFIX_JUNK_WORD)
+            name_interface = name_interface[0].strip()
+            name_interface = name_interface.rstrip(' -')
+            capacity = self.get_capacity(link_base + link_graphic, name_interface)
+            source = Source(
+                link=link_base + link,
+                name=name_interface,
+                capacity=capacity,
+                model=self._model,
+            )
+            sources.append(source)
+        return sources
+    
+    def get_capacity(self, url: str, interface: str) -> str:
+        try:
+            FLAG = "GB"
+            capacity = None
+            
+            if FLAG in interface:
+                content = interface.split(" ")
+                for word in content:
+                    if FLAG in word: capacity = str(word.split(FLAG)[0])
+            else:
+                soup = self.get_html(url)
+                if not soup: raise Exception()
+                block = soup.find("span", class_="d-block mb-3").find_next("p").find_next("i")
+                content = block.get_text(strip=True).split(" ")
+                for word in content:
+                    try:
+                        word = word.replace(",", ".")
+                        capacity = int(round(float(word)))
+                    except: continue
+            if not capacity: capacity = "0"
+            else: return str(capacity)
+        except Exception as error:
+            log.error(f"Fallo al obtener la capacidad del enlace {interface} de la capa {self._layer} - {error}")
+            return "0"

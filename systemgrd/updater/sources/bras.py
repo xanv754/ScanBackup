@@ -1,90 +1,75 @@
+import re
+from unidecode import unidecode
 from bs4 import BeautifulSoup
 from systemgrd.model import Source
-from systemgrd.updater.sources.scrapping import SourceScrapping
+from systemgrd.updater.sources.scrapping import Scrapping
 from systemgrd.utils import log
 
 
-class BrasSourceScrapping(SourceScrapping):
-
-    def _get_list_bras(
-        self, soup: BeautifulSoup, uplink: bool
-    ) -> list[tuple[str, str]]:
-        """Scrapping the information to obtain a list of bras existing."""
-        elements = []
-        if uplink:
-            content = "UPLINK POR BRAS"
-        else:
-            content = "DOWNLINK POR BRAS"
-        menu = soup.find("div", class_="sidebar").find("nav").find("ul", class_="nav nav-pills nav-sidebar flex-column").find_all("li", class_="nav-item menu")  # type: ignore
-        for level in menu:  # type: ignore
-            block = level.find("ul", class_="nav nav-treeview").find_all("li", class_="nav-item")  # type: ignore
-            for item in block:  # type: ignore
-                if item.find("p").get_text(strip=True) == content:  # type: ignore
-                    all_bras = item.find("ul", class_="nav nav-treeview").find_all("li", class_="nav-item")  # type: ignore
-                    for bras in all_bras:  # type: ignore
-                        link = bras.find("a").get("href")  # type: ignore
-                        name = bras.find("p").get_text(strip=True)  # type: ignore
-                        elements.append((name, link))  # type: ignore
-        return elements  # type: ignore
-
-    def _get_info_interfaces(self, soup: BeautifulSoup, uplink: bool) -> list[Source]:
-        """Scrapping the information to obtain the sources for each interface."""
+class BrasHuawei(Scrapping):
+    _UP_JUNK_WORD = "UPLINK POR BRAS"
+    _DOWN_JUNK_WORD = "DOWNLINK POR BRAS"
+    _SUFFIX_JUNK_WORD = "TRAFICO DE RED"
+    _model_up = "UPLINK"
+    _model_down = "DOWNLINK"
+    _domain = ".net"
+    
+    def __init__(self, url: str, layer: str, add_sources: bool = False) -> None:
+        super().__init__(url, layer, add_sources)
+        
+    def get_sources(self, html: BeautifulSoup) -> list[Source]:
+        sources = []
+        def get_interfaces(page: BeautifulSoup, model: str, junk_word: str) -> list[tuple[str, str]]:
+            elements = []
+            menu = page.find("div", class_="sidebar").find("nav").find("ul", class_="nav nav-pills nav-sidebar flex-column").find_all("li", class_="nav-item menu")
+            for level in menu:
+                block = level.find("ul", class_="nav nav-treeview").find_all("li", class_="nav-item")
+                for item in block:
+                    if item.find("p").get_text(strip=True) == junk_word:
+                        all_bras = item.find("ul", class_="nav nav-treeview").find_all("li", class_="nav-item")
+                        for bras in all_bras:
+                            link = bras.find("a").get("href")
+                            name = bras.find("p").get_text(strip=True)
+                            elements.append((link, name, model))
+            return elements
+        interfaces_up = get_interfaces(page=html, model=self._model_up, junk_word=self._UP_JUNK_WORD)
+        interfaces_down = get_interfaces(page=html, model=self._model_down, junk_word=self._DOWN_JUNK_WORD)
+        interfaces = interfaces_up + interfaces_down
+        link_base = self.get_url().split(self._domain)[0] + self._domain
+        for bras in interfaces:
+            soup = self.get_html(link_base + bras[0])
+            if not soup: continue
+            blocks = soup.find("section", class_="content").find_all("div", class_="col-sm-12")
+            del blocks[0]
+            for block in blocks:  
+                name_interface = block.find("li", {"id": "subtitulo"}).get_text(strip=True).upper()
+                name_interface = unidecode(name_interface)
+                name_interface = name_interface.split(self._SUFFIX_JUNK_WORD)[0]
+                name_interface = name_interface.rstrip(' -')
+                link_graphic = block.find("li", {"id": "graficas"}).find("a").get("href")  
+                capacity = self.get_capacity(link_base + link_graphic, name_interface)
+                link = link_graphic.replace(".html", ".log")  
+                source = Source(
+                    link=link_base + link,
+                    name=name_interface,
+                    capacity=capacity,
+                    model=bras[2],
+                )
+                sources.append(source)
+        return sources
+                
+    def get_capacity(self, url: str, interface: str) -> str:
         try:
-            sources = []
-            list_bras = self._get_list_bras(soup, uplink=uplink)
-            for bras in list_bras:
-                soup = self.get_html(self.url_base + bras[1])  # type: ignore
-                if not soup:
-                    log.error(f"Failed to obtain info from SCAN Bras {bras[0]}.")
-                    continue
-                blocks = soup.find("section", class_="content").find_all("div", class_="col-sm-12")  # type: ignore
-                del blocks[0]
-                for block in blocks:  # type: ignore
-                    name = block.find("li", {"id": "subtitulo"}).get_text(strip=True)  # type: ignore
-                    preffix = name.split(" - ")[0].strip()  # type: ignore
-                    preffix = self.clear_name_format(preffix)  # type: ignore
-                    suffix = name.split(" - ")[1].strip()  # type: ignore
-                    suffix = self.clear_name_format(suffix)  # type: ignore
-                    name = preffix + "_-_" + suffix
-                    link_original = block.find("li", {"id": "graficas"}).find("a").get("href")  # type: ignore
-                    link = link_original.replace(".html", ".log")  # type: ignore
-                    capacity = self.get_capacity(name)
-                    if uplink:
-                        model = "UPLINK"
-                    else:
-                        model = "DOWNLINK"
-                    source = Source(
-                        link=f"{self.url_base}{link}",
-                        name=name,
-                        capacity=capacity,
-                        model=model,
-                    )
-                    sources.append(source)  # type: ignore
+            FLAG = "GB"
+            capacity = None
+            if FLAG in interface:
+                interface = re.sub(r'[-()\\]', ' ', interface)
+                interface = re.sub(r'\s+', ' ', interface).strip()
+                interfaces = interface.split(" ")
+                for word in interfaces:
+                    if FLAG in word: capacity = str(word.split(FLAG)[0])
+            if not capacity: capacity = "5"
+            return capacity
         except Exception as error:
-            log.error(f"Failed to obtain info from SCAN Bras interfaces. {error}")
-            return []
-        else:
-            return sources  # type: ignore
-
-    def get_capacity(self, param: str) -> str:
-        try:
-            name_split = param.split("_")
-            for content in name_split:
-                content = content.upper().strip()
-                if "GB" in content:
-                    content = content.replace("GB", "")
-                    return content
-            return "5"
-        except Exception as error:
-            log.error(f"Failed to obtain capacity from {param}. {error}")
-            return self.with_capacity
-
-    def get_sources(self) -> list[Source]:
-        self.set_url_base(self.config.scan_url_bras)
-        soup = self.get_html(url=self.config.scan_url_bras)
-        if not soup:
-            log.error("Failed to obtain sources from SCAN Bras.")
-            return []
-        sources_uplink = self._get_info_interfaces(soup, uplink=True)
-        sources_downlink = self._get_info_interfaces(soup, uplink=False)
-        return sources_uplink + sources_downlink
+            log.error(f"Fallo al obtener la capacidad del enlace {interface} de la capa {self._layer} - {error}")
+            return "0"

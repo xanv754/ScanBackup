@@ -2,12 +2,22 @@ from systemgrd.constants import LayerName
 from systemgrd.updater.data.bbip import BBIPUpdaterHandler
 from systemgrd.updater.data.dailyReport import DailyReportUpdaterHandler
 from systemgrd.updater.data.ipHistory import IPHistoryUpdaterHandler
-from systemgrd.updater.sources.borde import BordeSourceScrapping
-from systemgrd.updater.sources.bras import BrasSourceScrapping
-from systemgrd.updater.sources.caching import CachingSourceScrapping
-from systemgrd.updater.sources.rai import RAISourceScrapping
-from systemgrd.updater.sources.ipbras import IPBrasSourceScrapping
-from systemgrd.utils import log
+from systemgrd.updater.sources.borde import BordeHuawei, BordeCisco, BordeJuniper
+from systemgrd.updater.sources.bras import BrasHuawei
+from systemgrd.updater.sources.caching import CachingHuawei
+from systemgrd.updater.sources.rai import RaiHuawei, RaiZte
+from systemgrd.utils import (
+    URLBordeCiscoEnvironment,
+    URLBordeJuniperEnvironment,
+    URLBordeHuaweiEnvironment,
+    URLBrasHuaweiEnvironment,
+    URLCachingHuaweiEnvironment,
+    URLIpBrasEnvironment,
+    URLIxpEnvironment,
+    URLRaiHuaweiEnvironment,
+    URLRaiZteEnvironment,
+    log
+)
 
 
 class UpdaterHandler:
@@ -69,25 +79,44 @@ class UpdaterHandler:
 
 class UpdaterSourceHandler:
 
-    def __init__(self, layer: str) -> None:
+    def __init__(self, layer: str, dev: bool = False) -> None:
         try:
             log.info(f"Inicio de actualización de la capa {layer}...")
             if layer == LayerName.BORDE:
-                scrapper = BordeSourceScrapping()
+                if dev: url = URLBordeHuaweiEnvironment(dev=True).get_url()
+                else: url = URLBordeHuaweiEnvironment(prod=True).get_url()
+                scrapper_huawei = BordeHuawei(url=url, layer=LayerName.BORDE)
+                status_update = scrapper_huawei.run()
+                if dev: url = URLBordeCiscoEnvironment(dev=True).get_url()
+                else: url = URLBordeCiscoEnvironment(prod=True).get_url()
+                scrapper_cisco = BordeCisco(url=url, layer=LayerName.BORDE, add_sources=True)
+                status_update = scrapper_cisco.run()
+                if dev: url = URLBordeJuniperEnvironment(dev=True).get_url()
+                else: url = URLBordeJuniperEnvironment(prod=True).get_url()
+                scrapper_juniper = BordeJuniper(url=url, layer=LayerName.BORDE, add_sources=True)
+                status_update = scrapper_juniper.run()
             elif layer == LayerName.BRAS:
-                scrapper = BrasSourceScrapping()
+                if dev: url = URLBrasHuaweiEnvironment(dev=True).get_url()
+                else: url = URLBrasHuaweiEnvironment(prod=True).get_url()
+                scrapper_huawei = BrasHuawei(url=url, layer=LayerName.BRAS)
+                status_update = scrapper_huawei.run()
             elif layer == LayerName.CACHING:
-                scrapper = CachingSourceScrapping()
+                if dev: url = URLCachingHuaweiEnvironment(dev=True).get_url()
+                else: url = URLCachingHuaweiEnvironment(prod=True).get_url()
+                scrapper_huawei = CachingHuawei(url=url, layer=LayerName.CACHING)
+                status_update = scrapper_huawei.run()
             elif layer == LayerName.RAI:
-                scrapper = RAISourceScrapping()
-            elif layer == LayerName.IP_BRAS:
-                scrapper = IPBrasSourceScrapping()
+                if dev: url = URLRaiHuaweiEnvironment(dev=True).get_url()
+                else: url = URLRaiHuaweiEnvironment(prod=True).get_url()
+                scrapper_huawei = RaiHuawei(url=url, layer=LayerName.RAI)
+                status_update = scrapper_huawei.run()
+                if dev: url = URLRaiZteEnvironment(dev=True).get_url()
+                else: url = URLRaiZteEnvironment(prod=True).get_url()
+                scrapper_zte = RaiZte(url=url, layer=LayerName.RAI, add_sources=True)
+                status_update = scrapper_zte.run()
             else:
                 raise Exception("Capa no válida para actualizar los enlaces")
 
-            links = scrapper.get_sources()
-            log.info(f"Guardando enlaces de la capa {layer}...")
-            status_update = scrapper.save_sources(sources=links, layer=layer)
             if status_update:
                 log.info(f"Enlaces de la capa {layer} actualizados")
             else:
@@ -95,3 +124,7 @@ class UpdaterSourceHandler:
         except Exception as error:
             log.error(f"Fallo al intentar actualizar los enlaces de la capa {layer} - {error}")
             return None
+
+
+if __name__ == "__main__":
+    UpdaterSourceHandler(layer="BORDE")

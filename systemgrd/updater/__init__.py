@@ -1,7 +1,7 @@
-from systemgrd.updater.updater import UpdaterHandler, UpdaterSourceHandler
+from systemgrd.updater.updater import UpdaterHandler
 from systemgrd.updater.data.bbip import BBIPUpdaterHandler
 from systemgrd.updater.data.dailyReport import DailyReportUpdaterHandler
-from systemgrd.updater.sources.scrapping import SourceScrapping
+# from systemgrd.updater.sources.scrapping import SourceScrapping
 
 
 __all__ = [
@@ -9,5 +9,5 @@ __all__ = [
     "UpdaterSourceHandler",
     "BBIPUpdaterHandler",
     "DailyReportUpdaterHandler",
-    "SourceScrapping",
+    # "SourceScrapping",
 ]
