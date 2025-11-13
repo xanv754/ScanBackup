@@ -3,9 +3,9 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "systemgrd"
+name = "scanbackup"
 version = "0.1.0"
-description = "Sistema GRD"
+description = "Sistema para el respaldo de la data de SCAN"
 readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"
@@ -38,4 +38,4 @@ urls = { Homepage = "https://github.com/xanv754/SystemCGPRD" }
 dev = ["black"]
 
 [tool.setuptools]
-packages = ["systemgrd"]
+packages = ["scanbackup"]
