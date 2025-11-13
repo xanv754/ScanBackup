@@ -29,6 +29,7 @@ dependencies = [
     "python-dotenv>=1.1.0",
     "requests>=2.32",
     "rich>=13.9.4",
+    "unidecode>=1.4.0",
     "uvicorn>=0.34.3"
 ]
 urls = { Homepage = "https://github.com/xanv754/SystemCGPRD" }
