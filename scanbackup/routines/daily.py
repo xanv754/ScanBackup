@@ -103,7 +103,7 @@ class GenerateDailySummary:
             })
             return summary_data
         except Exception as error:
-            log.error(f"Fallo en cálculo de la data de BBIP de la interfaz: {interface} - {error}")
+            log.error(f"Rutina resúmenes diarios. Fallo en cálculo de la data de BBIP de la interfaz: {interface} - {error}")
             return pd.DataFrame(columns=header_daily_bbip)
             
     def _calculate_summary_ip_data(self, interface: str, data: pd.DataFrame) -> pd.DataFrame:
@@ -119,7 +119,7 @@ class GenerateDailySummary:
             })
             return summary_data
         except Exception as error:
-            log.error(f"Fallo en cálculo de la data de IPBras de la interfaz: {interface} - {error}")
+            log.error(f"Rutina resúmenes diarios. Fallo en cálculo de la data de IPBras de la interfaz: {interface} - {error}")
             return pd.DataFrame(columns=header_daily_ip_bras)
     
     def run(self) -> None:
@@ -158,9 +158,9 @@ class GenerateDailySummary:
                     summary_report.reset_index(drop=True, inplace=True)
                 if not summary_report.empty: summary_report.to_csv(self._get_daily_path(layer), index=False, sep=self._separator, decimal=self._export_decimal)
         except Exception as error:
-            log.error(f"Generación de reportes diarios fallido. {error}")
+            log.error(f"Rutina resúmenes diarios. Generación de reportes diarios fallido. {error}")
         else:
-            log.info("Generación de reportes diarios finalizada")
+            log.info("Rutina resúmenes diarios. Generación de reportes diarios finalizada")
 
 
 @click.command(help="Genera el reporte diario de la data obtenida de SCAN")

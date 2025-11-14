@@ -1,5 +1,5 @@
 #/bin/bash
-# ---------------------------- INFO ----------------------------
+# ---------------------------- INFO Rutina Scan. ----------------------------
 # Script que captura los datos de tráfico del día anterior,
 # de todas las interfaces declaradas dentro de la carpeta
 # `sources/SCAN/` del sistema. Obtiendo la información de 
@@ -24,8 +24,8 @@ if [ -d "$home/routines/tmp" ]; then
 else
   mkdir $home/routines/tmp
 fi
-echo "$(date +"%Y-%m-%d %H:%M:%S") INFO Captura de datos del $systemDate iniciada..."
-echo "$(date +"%Y-%m-%d %H:%M:%S") INFO Captura de datos del $systemDate iniciada..." >> $HOMEPROJECT/data/logs/SysGRD.log
+echo "$(date +"%Y-%m-%d %H:%M:%S") INFO Rutina Scan. Captura de datos del $systemDate iniciada..."
+echo "$(date +"%Y-%m-%d %H:%M:%S") INFO Rutina Scan. Captura de datos del $systemDate iniciada..." >> $HOMEPROJECT/data/logs/SysGRD.log
 
 cd $home/routines
 echo $systemDate > $home/routines/tmp/fechaayer
@@ -103,5 +103,5 @@ do
 done
 
 rm $home/routines/tmp/*
-echo "$(date +"%Y-%m-%d %H:%M:%S") INFO Captura de datos del $systemDate finalizada"
-echo "$(date +"%Y-%m-%d %H:%M:%S") INFO Captura de datos del $systemDate finalizada" >> $HOMEPROJECT/data/logs/SysGRD.log
+echo "$(date +"%Y-%m-%d %H:%M:%S") INFO Rutina Scan. Captura de datos del $systemDate finalizada"
+echo "$(date +"%Y-%m-%d %H:%M:%S") INFO Rutina Scan. Captura de datos del $systemDate finalizada" >> $HOMEPROJECT/data/logs/SysGRD.log
