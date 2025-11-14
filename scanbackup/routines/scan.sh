@@ -40,7 +40,6 @@ do
   layer=`echo $line1 | sed 's/ //g'`
   cat $HOMEPROJECT/sources/SCAN/$layer | while read line2
   do
-
     cols2=$(echo "$line2" | awk -F "$separator" '{print NF}')
     if [ "$cols2" -lt 4 ]; then
         echo "$(date +"%Y-%m-%d %H:%M:%S") ERROR Rutina Scan. Línea corrupta en sources ($layer): '$line2' ($cols2 columnas) - No se obtuvo la información esperada"
