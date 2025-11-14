@@ -52,11 +52,11 @@ class IPHistoryUpdaterHandler:
                             df_to_upload = df_data
                         else:
                             df_to_upload = pd.concat([df_to_upload, df_data], axis=0)
-                except Exception as e:
-                    log.error(f"Something went wrong to load data: {brasname}. {e}")
+                except Exception as error:
+                    log.error(f"Ha ocurrido un error al cargar la data del archivo: {brasname} - {error}")
                     continue
-        except Exception as e:
-            log.error(f"Failed to data load of IPBras layer. {e}")
+        except Exception as error:
+            log.error(f"BBIP Updater. IPBRAS: Fallo al cargar la data de la capa - {error}")
             return pd.DataFrame(columns=header_scan_ip_bras)
         else:
             self._date = date
@@ -74,8 +74,8 @@ class IPHistoryUpdaterHandler:
         """
         try:
             if data.empty:
-                log.warning("The system received empty data IPBras when it updated.")
-                return False
+                log.warning(f"IPBRAS: Data vacía obtenida")
+                return True
             chunk_size = 1000
             query = IPBrasMongoQuery(uri=uri)
             from scanbackup.constants import TableName
@@ -85,19 +85,17 @@ class IPHistoryUpdaterHandler:
                 data_json = chunk.to_dict(orient="records")
                 try:
                     json = [IPBrasModel(**item) for item in data_json]
-                except Exception as e:
+                except Exception as error:
                     log.error(
-                        f"Failed to validate data with the model. IPBras updater system has suspended. {e}"
+                        f"BBIP Updater. IPBRAS: Fallo al validar los data de la capa contra el modelo. El sistema de actualización para la capa se ha suspendido"
                     )
                     return False
                 response = query.new_interface(TableName.IP_BRAS_HISTORY, json)
-                if not response:
-                    log.error("Failed to insert chunk, aborting load.")
-                    return False
+                if not response: raise Exception()
             self._clean_data()
             return True
-        except Exception as e:
-            log.error(f"Failed to load data of IPBras layer. {e}")
+        except Exception as error:
+            log.error(f"BBIP Updater. IPBRAS: Fallo al cargar los datos de la capa en la base de datos - {error}")
             return False
 
     def _clean_data(self) -> None:
@@ -134,5 +132,5 @@ class IPHistoryUpdaterHandler:
                             )
                             continue
                     os.remove(os.path.join(subdir_path, brasname))
-        except Exception as e:
-            log.error(f"Failed to data clean data file of IPBras layer. {e}")
+        except Exception as error:
+            log.error(f"BBIP Updater. IPBRAS: Fallo al limpiar los archivos de la capa - {error}")

@@ -40,17 +40,42 @@ do
   layer=`echo $line1 | sed 's/ //g'`
   cat $HOMEPROJECT/sources/SCAN/$layer | while read line2
   do
+
+    cols2=$(echo "$line2" | awk -F "$separator" '{print NF}')
+    if [ "$cols2" -lt 4 ]; then
+        echo "$(date +"%Y-%m-%d %H:%M:%S") ERROR Rutina Scan. Línea corrupta en sources ($layer): '$line2' ($cols2 columnas) - No se obtuvo la información esperada"
+        echo "$(date +"%Y-%m-%d %H:%M:%S") ERROR Rutina Scan. Línea corrupta en sources ($layer): '$line2' ($cols2 columnas) - No se obtuvo la información esperada" >> $HOMEPROJECT/data/logs/SysGRD.log
+        continue
+    fi
+
     url=`echo $line2 | awk -F "$separator" '{print $1}' `
     interfaceName=`echo $line2 | awk -F "$separator" '{print $2}' | sed 's/\//\&/g' `
     terminal=`echo $line2 | awk -F "$separator" '{print $1}' | sed 's/\// /g' | awk -F " " '{print $NF}'`
     capacity=`echo $line2 | awk -F "$separator" '{print $3}' `
     type=`echo $line2 | awk -F "$separator" '{print $4}'`
 
-    wget -q --user=$USERSCAN --password=$PASSWORDSCAN --no-check-certificate $url -O $home/routines/tmp/$terminal > /dev/null 2>&1
+    wget -q --timeout=180 --tries=2 --user=$USERSCAN --password=$PASSWORDSCAN --no-check-certificate $url -O $home/routines/tmp/$terminal > /dev/null 2>&1
+    if [ $? -ne 0 ]; then
+      echo "$(date +"%Y-%m-%d %H:%M:%S") ERROR Rutina Scan. Falló wget de la URL: $url"
+      echo "$(date +"%Y-%m-%d %H:%M:%S") ERROR Rutina Scan. Falló wget de la URL: $url" >> $HOMEPROJECT/data/logs/SysGRD.log
+      continue
+    fi
 
     sed -i '1d' $home/routines/tmp/$terminal
+    if [ $? -ne 0 ]; then
+      echo "$(date +"%Y-%m-%d %H:%M:%S") ERROR Rutina Scan. 'sed' falló en el archivo $terminal"
+      echo "$(date +"%Y-%m-%d %H:%M:%S") ERROR Rutina Scan. 'sed' falló en el archivo $terminal" >> $HOMEPROJECT/data/logs/SysGRD.log
+    fi
+
     cat $home/routines/tmp/$terminal | head -500 | while read line3
     do
+      cols=$(echo "$line3" | awk '{print NF}')
+      if [ "$cols" -lt 1 ]; then
+        echo "$(date +"%Y-%m-%d %H:%M:%S") ERROR Rutina Scan. Línea corrupta en $terminal: '$line3' ($cols columnas)"
+        echo "$(date +"%Y-%m-%d %H:%M:%S") ERROR Rutina Scan. Línea corrupta en $terminal: '$line3' ($cols columnas)" >> $HOMEPROJECT/data/logs/SysGRD.log
+        continue
+      fi
+
       UNIXtime=`echo $line3 | awk '{print $1}'` 
       inProm=`echo $line3 | awk '{print $2}'` 
       outProm=`echo $line3 | awk '{print $3}'`
@@ -70,6 +95,7 @@ do
     else
       lineas=`cat "$HOMEPROJECT/data/SCAN/${layer}/${type}%${interfaceName}%${capacity}" | grep -f $home/routines/tmp/fechaayer | wc -l`
     fi
+
     hour=$(date +"%y-%m-%d %T")
     echo $hour $layer $interfaceName $lineas >> $HOMEPROJECT/data/logs/Alertas-SCAN.log
     rm $home/routines/tmp/$terminal
