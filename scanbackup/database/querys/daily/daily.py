@@ -28,7 +28,7 @@ class DailySummaryMongoQuery(DailySummaryQuery):
             status_insert = False
             self._database.open_connection()
             if self._database.connected:
-                collection = self._database.get_cursor(table=TableName.DAILY_REPORT)
+                collection = self._database.get_cursor(table=TableName.DAILY_SUMMARY)
                 response = collection.insert_many([json.model_dump() for json in data])
                 status_insert = response.acknowledged
                 self._database.close_connection()
@@ -42,7 +42,7 @@ class DailySummaryMongoQuery(DailySummaryQuery):
             traffic: DataFrame = DataFrame(columns=header_daily)
             self._database.open_connection()
             if self._database.connected:
-                collection = self._database.get_cursor(table=TableName.DAILY_REPORT)
+                collection = self._database.get_cursor(table=TableName.DAILY_SUMMARY)
                 result = collection.find(
                     {
                         DailySummaryFieldName.DATE: date,

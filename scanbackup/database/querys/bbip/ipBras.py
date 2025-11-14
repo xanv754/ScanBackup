@@ -1,7 +1,8 @@
 from typing import List
 from pandas import DataFrame
-from scanbackup.constants import TableName, IPBrasHistoryFieldName, header_scan_ip_bras
+from scanbackup.constants import TableName, IPBrasFieldName, header_ip_bras
 from scanbackup.database.libs.database import DatabaseMongo
+from scanbackup.database.utils.adapter import IPBrasResponseAdapter
 from scanbackup.model import IPBrasModel
 from scanbackup.utils import log, URIEnvironment
 
@@ -18,113 +19,85 @@ class IPBrasMongoQuery:
                 uri = config.get_uri_db()
             database = DatabaseMongo(uri=uri)
             self._database = database
-        except Exception as e:
-            log.error(f"Failed to connect to MongoDB database. {e}")
+        except Exception as error:
+            log.error(f"Fallo al intentar conectarse a la base de datos del sistema - {error}")
 
-    def new_interface(self, collection: str, data: List[IPBrasModel]) -> bool:
+    def new_bras(self, data: List[IPBrasModel]) -> bool:
+        """Register new data of IP bras.
+
+        :param data: List of new bras of IP Bras to register.
+        :type data: List[IPBrasModel]
+        :return bool: Insertion status. If True, the interface has been registered correctly. Otherwise returns False.
+        """
         try:
             status_insert = False
             self._database.open_connection()
             if self._database.connected:
-                cursor = self._database.get_cursor(table=collection)
+                cursor = self._database.get_cursor(table=TableName.IP_BRAS)
                 response = cursor.insert_many([json.model_dump() for json in data])
                 status_insert = response.acknowledged
-            self._database.close_connection()
-        except Exception as e:
-            log.error(f"Failed to create new IP Bras interfaces in {collection}. {e}")
+                self._database.close_connection()
+        except Exception as error:
+            log.error(f"Fallo al registrar las nuevas interfaces en la colección: {TableName.IP_BRAS} - {error}")
             return False
         else:
             return status_insert
 
-    def get_ip_history(self, bras_name: str, date: str) -> DataFrame:
+    def get_bras(self, brasname: str) -> DataFrame:
+        """Gets data of IP Bras of a bras.
+
+        :param brasname: Name of the interface
+        :type brasname: str
+        :return DataFrame: Data obtained from the query
+        """
         try:
-            ip_history: DataFrame = DataFrame(columns=header_scan_ip_bras)
+            data: DataFrame = DataFrame(columns=header_ip_bras)
             self._database.open_connection()
             if self._database.connected:
-                cursor = self._database.get_cursor(table=TableName.IP_BRAS_HISTORY)
-                result = cursor.find_one(
-                    {
-                        IPBrasHistoryFieldName.BRAS_NAME: bras_name,
-                        IPBrasHistoryFieldName.DATE: date,
-                    }
-                )
+                cursor = self._database.get_cursor(table=TableName.IP_BRAS)
+                result = cursor.find_one({IPBrasFieldName.BRAS_NAME: brasname})
                 if result:
-                    # Crear adapter simple para IPBras si BBIPResponseAdapter no funciona
-                    data = DataFrame([result])
-                    if not data.empty:
-                        ip_history = data
-            self._database.close_connection()
-            return ip_history
-        except Exception as e:
-            log.error(f"Failed to get IP history. {e}")
-            return DataFrame(columns=header_scan_ip_bras)
+                    data = IPBrasResponseAdapter.to_dataframe([result])
+                self._database.close_connection()
+            return data
+        except Exception as error:
+            log.error(f"Fallo al intentar obtener la data de IP del agregador: {brasname} - {error}")
+            return DataFrame(columns=header_ip_bras)
 
-    def get_ip_histories(self) -> DataFrame:
+    def get_all_bras(self) -> DataFrame:
+        """Gets data of IP Bras of all bras.
+
+        :return DataFrame: Data obtained from the query
+        """
         try:
-            ip_histories: DataFrame = DataFrame(columns=header_scan_ip_bras)
+            data: DataFrame = DataFrame(columns=header_ip_bras)
             self._database.open_connection()
             if self._database.connected:
-                cursor = self._database.get_cursor(table=TableName.IP_BRAS_HISTORY)
+                cursor = self._database.get_cursor(table=TableName.IP_BRAS)
                 cursor = cursor.find()
-                ip_histories = DataFrame(list(cursor))
-            self._database.close_connection()
-            return ip_histories
-        except Exception as e:
-            log.error(f"Failed to get all IP histories. {e}")
-            return DataFrame(columns=header_scan_ip_bras)
+                data = IPBrasResponseAdapter.to_dataframe(cursor)
+                self._database.close_connection()
+            return data
+        except Exception as error:
+            log.error(f"Fallo al intentar obtener toda la data de IP de los agregadores - {error}")
+            return DataFrame(columns=header_ip_bras)
 
-    def get_ip_histories_by_date(self, date: str) -> DataFrame:
+    def get_bras_by_date(self, date: str) -> DataFrame:
+        """Gets all data of IP Bras of all bras filtered by a date.
+
+        :param date: Date of the data. Format: YYYY-MM-DD
+        :type date: str
+        :return DataFrame: Data obtained from the query
+        """
         try:
-            ip_histories: DataFrame = DataFrame(columns=header_scan_ip_bras)
+            data: DataFrame = DataFrame(columns=header_ip_bras)
             self._database.open_connection()
             if self._database.connected:
-                cursor = self._database.get_cursor(table=TableName.IP_BRAS_HISTORY)
-                cursor = cursor.find({IPBrasHistoryFieldName.DATE: date})
-                ip_histories = DataFrame(list(cursor))
-            self._database.close_connection()
-            return ip_histories
-        except Exception as e:
-            log.error(f"Failed to get all IP histories by date. {e}")
-            return DataFrame(columns=header_scan_ip_bras)
-
-    def get_ip_histories_by_date_range(
-        self, start_date: str, end_date: str
-    ) -> DataFrame:
-        try:
-            ip_histories: DataFrame = DataFrame(columns=header_scan_ip_bras)
-            self._database.open_connection()
-            if self._database.connected:
-                cursor = self._database.get_cursor(table=TableName.IP_BRAS_HISTORY)
-                cursor = cursor.find(
-                    {
-                        IPBrasHistoryFieldName.DATE: {
-                            "$gte": start_date,
-                            "$lte": end_date,
-                        }
-                    }
-                )
-                ip_histories = DataFrame(list(cursor))
-            self._database.close_connection()
-            return ip_histories
-        except Exception as e:
-            log.error(f"Failed to get IP histories by date range. {e}")
-            return DataFrame(columns=header_scan_ip_bras)
-
-    def get_ip_histories_by_date_with_aggregation(self, date: str) -> DataFrame:
-        try:
-            ip_histories: DataFrame = DataFrame(columns=header_scan_ip_bras)
-            self._database.open_connection()
-            if self._database.connected:
-                cursor = self._database.get_cursor(table=TableName.IP_BRAS_HISTORY)
-                pipeline = [
-                    {"$match": {IPBrasHistoryFieldName.DATE: date}},
-                    {"$sort": {IPBrasHistoryFieldName.TIME: 1}},
-                    {"$limit": 1000},
-                ]
-                cursor = cursor.aggregate(pipeline)
-                ip_histories = DataFrame(list(cursor))
-            self._database.close_connection()
-            return ip_histories
-        except Exception as e:
-            log.error(f"Failed to get IP histories by date with aggregation. {e}")
-            return DataFrame(columns=header_scan_ip_bras)
+                cursor = self._database.get_cursor(table=TableName.IP_BRAS)
+                cursor = cursor.find({IPBrasFieldName.DATE: date})
+                data = IPBrasResponseAdapter.to_dataframe(cursor)
+                self._database.close_connection()
+            return data
+        except Exception as error:
+            log.error(f"Fallo al intentar obtener toda data de IP de los agregadores filtrado por el día {date} - {error}")
+            return DataFrame(columns=header_ip_bras)

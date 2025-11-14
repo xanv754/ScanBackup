@@ -3,9 +3,9 @@ class TableName:
     BRAS = "BRAS_HISTORY"
     CACHING = "CACHING_HISTORY"
     RAI = "RAI_HISTORY"
-    IP_BRAS_HISTORY = "IPBRAS_HISTORY"
+    IP_BRAS = "IPBRAS_HISTORY"
     IXP = "IXP_HISTORY"
-    DAILY_REPORT = "DAILY_SUMMARY_HISTORY"
+    DAILY_SUMMARY = "DAILY_SUMMARY_HISTORY"
 
 
 class BBIPFieldName:
@@ -20,12 +20,13 @@ class BBIPFieldName:
     OUT_MAX = "outMaxProm"
 
 
-class IPBrasHistoryFieldName:
+class IPBrasFieldName:
     DATE = "date"
     TIME = "time"
     BRAS_NAME = "brasname"
     IN_PROM = "inProm"
     IN_MAX = "inMaxProm"
+    CAPACITY = "capacity"
 
 
 class DailySummaryFieldName:

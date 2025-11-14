@@ -1,7 +1,7 @@
 from scanbackup.constants import LayerName
 from scanbackup.updater.data.bbip import BBIPUpdaterHandler
-from scanbackup.updater.data.dailyReport import DailySummaryUpdaterHandler
-from scanbackup.updater.data.ipHistory import IPHistoryUpdaterHandler
+from scanbackup.updater.data.dailySummary import DailySummaryUpdaterHandler
+from scanbackup.updater.data.ipBras import IPBrasUpdaterHandler
 from scanbackup.updater.sources.borde import BordeHuawei, BordeCisco, BordeJuniper
 from scanbackup.updater.sources.bras import BrasHuawei
 from scanbackup.updater.sources.caching import CachingHuawei
@@ -29,7 +29,7 @@ class UpdaterHandler:
         if layer == LayerName.DAILY_SUMMARY:
             self._updater_daily_summary(uri=uri, date=date, force=force)
         elif layer == LayerName.IP_BRAS:
-            self._updater_ip_history(uri=uri, date=date, force=force)
+            self._updater_ip_bras(uri=uri, date=date, force=force)
         else:
             self._updater_bbip(layer=layer, uri=uri, date=date, force=force)
 
@@ -50,10 +50,10 @@ class UpdaterHandler:
         finally:
             log.info(f"System Updater. {layer}: Actualización finalizada")
 
-    def _updater_ip_history(self, uri: str, date: str | None, force: bool) -> None:
+    def _updater_ip_bras(self, uri: str, date: str | None, force: bool) -> None:
         """Updater IP history collection in database."""
         try:
-            ip_history_handler = IPHistoryUpdaterHandler()
+            ip_history_handler = IPBrasUpdaterHandler()
             data = ip_history_handler.get_data(date=date, force=force)
             status_operation = ip_history_handler.load_data(data=data, uri=uri)
             if status_operation:
