@@ -8,7 +8,8 @@ from scanbackup.constants import (
     HeaderIPBras,
     header_daily,
     header_daily_bbip,
-    header_daily_ip_bras
+    header_ip_bras,
+    header_daily_ip_bras,
 )
 from scanbackup.database import DailySummaryMongoQuery
 from scanbackup.model import DailySummaryModel
@@ -28,7 +29,12 @@ class DailySummaryUpdaterHandler:
         """Read all summary daily of a layer specified through a path."""
         filename = os.path.basename(path)
         layer = filename.upper().strip()
-        df = pd.read_csv(path, sep=self._separator, names=header_daily_bbip, index_col=False, skiprows=1)
+        if not LayerName.IP_BRAS: df = pd.read_csv(path, sep=self._separator, names=header_daily_bbip, index_col=False, skiprows=1)
+        else:
+            df = pd.read_csv(path, sep=self._separator, names=header_ip_bras, index_col=False, skiprows=1)
+            df[HeaderBBIP.OUT_MAX] = 0
+            df[HeaderBBIP.OUT_PROM] = 0
+            df[HeaderBBIP.TYPE_LAYER] = LayerName.IP_BRAS
         if not force:
             df = df[df[HeaderDailySummary.DATE] == date]
         if not df.empty:
