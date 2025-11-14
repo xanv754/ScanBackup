@@ -36,15 +36,23 @@ setup: venv setup-folders setup-files
 	$(HOMEPROJECT)/.venv/bin/python -m scanbackup.database start
 	@echo "Sistema instanciado correctamente."
 
-run-base:
+run-scan:
 	bash $(HOMEPROJECT)/scanbackup/routines/scan.sh
+
+run-daily:
 	$(HOMEPROJECT)/.venv/bin/python -m scanbackup.routines.daily
 
-run: run-base
+run-updater:
 	$(HOMEPROJECT)/.venv/bin/python -m scanbackup.updater data
 
-run-dev: run-base
+run-updater-dev:
 	$(HOMEPROJECT)/.venv/bin/python -m scanbackup.updater data --dev
+
+run-base: run-scan run-daily
+
+run: run-base run-updater
+
+run-dev: run-base run-updater-dev
 
 updater-sources:
 	$(HOMEPROJECT)/.venv/bin/python -m scanbackup.updater sources
