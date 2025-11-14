@@ -75,92 +75,80 @@ def data(
     force: bool = False,
     dev: bool = False,
 ):
-    try:
-        log.info("Inicio de actualización de datos del sistema...")
-        config = URIEnvironment(dev=dev)
-        uri = config.get_uri_db()
-        if borde and not bras and not caching and not rai and not ixp and not ipbras:
-            borde_handler = Process(
-                target=UpdaterHandler, args=(LayerName.BORDE, uri, date, force)
-            )
-            borde_handler.start()
-            borde_handler.join()
-            log.info("Actualización de la capa finalizada")
-        elif bras and not borde and not caching and not rai and not ixp and not ipbras:
-            bras_handler = Process(
-                target=UpdaterHandler, args=(LayerName.BRAS, uri, date, force)
-            )
-            bras_handler.start()
-            bras_handler.join()
-            log.info("Actualización de la capa finalizada")
-        elif caching and not borde and not bras and not rai and not ixp and not ipbras:
-            caching_handler = Process(
-                target=UpdaterHandler, args=(LayerName.CACHING, uri, date, force)
-            )
-            caching_handler.start()
-            caching_handler.join()
-            log.info("Actualización de la capa finalizada")
-        elif rai and not borde and not bras and not caching and not ixp and not ipbras:
-            rai_handler = Process(
-                target=UpdaterHandler, args=(LayerName.RAI, uri, date, force)
-            )
-            rai_handler.start()
-            rai_handler.join()
-            log.info("Actualización de la capa finalizada")
-        elif ixp and not borde and not bras and not caching and not rai and not ipbras:
-            ixp_handler = Process(
-                target=UpdaterHandler, args=(LayerName.IXP, uri, date, force)
-            )
-            ixp_handler.start()
-            ixp_handler.join()
-            log.info("Actualización de la capa finalizada")
-        elif ipbras and not borde and not bras and not caching and not rai and not ixp:
-            ipbras_handler = Process(
-                target=UpdaterHandler, args=(LayerName.IP_BRAS, uri, date, force)
-            )
-            ipbras_handler.start()
-            ipbras_handler.join()
-            log.info("Actualización de la capa finalizada")
-        else:
-            borde_handler = Process(
-                target=UpdaterHandler, args=(LayerName.BORDE, uri, date, force)
-            )
-            borde_handler.start()
-            bras_handler = Process(
-                target=UpdaterHandler, args=(LayerName.BRAS, uri, date, force)
-            )
-            bras_handler.start()
-            caching_handler = Process(
-                target=UpdaterHandler, args=(LayerName.CACHING, uri, date, force)
-            )
-            caching_handler.start()
-            rai_handler = Process(
-                target=UpdaterHandler, args=(LayerName.RAI, uri, date, force)
-            )
-            rai_handler.start()
-            ixp_handler = Process(
-                target=UpdaterHandler, args=(LayerName.IXP, uri, date, force)
-            )
-            ixp_handler.start()
-            ipbras_handler = Process(
-                target=UpdaterHandler, args=(LayerName.IP_BRAS, uri, date, force)
-            )
-            ipbras_handler.start()
-            
-            borde_handler.join()
-            bras_handler.join()
-            caching_handler.join()
-            rai_handler.join()
-            ixp_handler.join()
-            ipbras_handler.join()
-            log.info("Actualización de las capas finalizada")
-        UpdaterHandler(
-            layer=LayerName.DAILY_SUMMARY, uri=uri, date=date, force=force
+    log.info("Inicio de actualización de datos del sistema...")
+    config = URIEnvironment(dev=dev)
+    uri = config.get_uri_db()
+    if borde and not bras and not caching and not rai and not ixp and not ipbras:
+        borde_handler = Process(
+            target=UpdaterHandler, args=(LayerName.BORDE, uri, date, force)
         )
-    except Exception as e:
-        log.error(f"Actualización de datos fallida. {e}")
-    finally:
-        log.info("Actualización del sistema finalizada")
+        borde_handler.start()
+        borde_handler.join()
+    elif bras and not borde and not caching and not rai and not ixp and not ipbras:
+        bras_handler = Process(
+            target=UpdaterHandler, args=(LayerName.BRAS, uri, date, force)
+        )
+        bras_handler.start()
+        bras_handler.join()
+    elif caching and not borde and not bras and not rai and not ixp and not ipbras:
+        caching_handler = Process(
+            target=UpdaterHandler, args=(LayerName.CACHING, uri, date, force)
+        )
+        caching_handler.start()
+        caching_handler.join()
+    elif rai and not borde and not bras and not caching and not ixp and not ipbras:
+        rai_handler = Process(
+            target=UpdaterHandler, args=(LayerName.RAI, uri, date, force)
+        )
+        rai_handler.start()
+        rai_handler.join()
+    elif ixp and not borde and not bras and not caching and not rai and not ipbras:
+        ixp_handler = Process(
+            target=UpdaterHandler, args=(LayerName.IXP, uri, date, force)
+        )
+        ixp_handler.start()
+        ixp_handler.join()
+    elif ipbras and not borde and not bras and not caching and not rai and not ixp:
+        ipbras_handler = Process(
+            target=UpdaterHandler, args=(LayerName.IP_BRAS, uri, date, force)
+        )
+        ipbras_handler.start()
+        ipbras_handler.join()
+    else:
+        borde_handler = Process(
+            target=UpdaterHandler, args=(LayerName.BORDE, uri, date, force)
+        )
+        borde_handler.start()
+        bras_handler = Process(
+            target=UpdaterHandler, args=(LayerName.BRAS, uri, date, force)
+        )
+        bras_handler.start()
+        caching_handler = Process(
+            target=UpdaterHandler, args=(LayerName.CACHING, uri, date, force)
+        )
+        caching_handler.start()
+        rai_handler = Process(
+            target=UpdaterHandler, args=(LayerName.RAI, uri, date, force)
+        )
+        rai_handler.start()
+        ixp_handler = Process(
+            target=UpdaterHandler, args=(LayerName.IXP, uri, date, force)
+        )
+        ixp_handler.start()
+        ipbras_handler = Process(
+            target=UpdaterHandler, args=(LayerName.IP_BRAS, uri, date, force)
+        )
+        ipbras_handler.start()
+        
+        borde_handler.join()
+        bras_handler.join()
+        caching_handler.join()
+        rai_handler.join()
+        ixp_handler.join()
+        ipbras_handler.join()
+    UpdaterHandler(
+        layer=LayerName.DAILY_SUMMARY, uri=uri, date=date, force=force
+    )
 
 
 @cli.command(help="Carga la data de los reportes diarios en el sistema.")

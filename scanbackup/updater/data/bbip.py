@@ -14,15 +14,15 @@ class BBIPUpdaterHandler:
     _date: str
     _force: bool = False
 
-    def _get_data_link(
+    def _get_data_information(
         self, path: str, data_uploading: pd.DataFrame, date: str, force: bool
     ) -> pd.DataFrame:
-        """Read all links in a layer specified through a path."""
+        """Read all data in a layer specified through a path."""
         filename = os.path.basename(path)
         type = filename.split("%")[0]
         interface = filename.split("%")[1].replace("&", "/")
         capacity = filename.split("%")[2]
-        df_data = pd.read_csv(path, sep=self._separator, header=None, names=header_scan_bbip)  # type: ignore
+        df_data = pd.read_csv(path, sep=self._separator, header=None, names=header_scan_bbip)
         if not force:
             df_data = df_data[df_data[HeaderBBIP.DATE] == date]
         if not df_data.empty:
@@ -42,7 +42,7 @@ class BBIPUpdaterHandler:
             files = [filename for filename in os.listdir(folderpath)]
             for filename in files:
                 if not self._force:
-                    df_data = pd.read_csv(os.path.join(folderpath, filename), sep=self._separator, header=None, names=header_scan_bbip)  # type: ignore
+                    df_data = pd.read_csv(os.path.join(folderpath, filename), sep=self._separator, header=None, names=header_scan_bbip)
                     df_data = df_data[df_data[HeaderBBIP.DATE] != self._date]
                     if not df_data.empty:
                         df_data = df_data.reset_index(drop=True)
@@ -50,7 +50,7 @@ class BBIPUpdaterHandler:
                         continue
                 os.remove(os.path.join(folderpath, filename))
         except Exception as error:
-            log.error(f"BBIP Updater. Fallo al limpiar los archivos de la capa: {layer} - {error}")
+            log.error(f"BBIP Updater. {layer}: Fallo al limpiar los archivos de la capa - {error}")
 
     def get_data(
         self, layer: str, date: str | None = None, force: bool = False
@@ -73,7 +73,7 @@ class BBIPUpdaterHandler:
             df_to_upload = pd.DataFrame(columns=header_scan_bbip)
             for filename in files:
                 try:
-                    df_to_upload = self._get_data_link(
+                    df_to_upload = self._get_data_information(
                         path=os.path.join(folderpath, filename),
                         data_uploading=df_to_upload,
                         date=date,
@@ -83,7 +83,7 @@ class BBIPUpdaterHandler:
                     log.error(f"Ha ocurrido un error al cargar la data del archivo: {filename} - {error}")
                     continue
         except Exception as error:
-            log.error(f"BBIP Updater. Fallo al cargar la data de la capa: {layer} - {error}")
+            log.error(f"BBIP Updater. {layer}: Fallo al cargar la data de la capa - {error}")
             return pd.DataFrame(columns=header_bbip)
         else:
             self._date = date
@@ -103,15 +103,15 @@ class BBIPUpdaterHandler:
         """
         try:
             if data.empty:
-                log.warning(f"El sistema no encontró data para la capa: {layer} cuando intentó actualizarla")
-                return False
+                log.warning(f"{layer}: Data vacía obtenida")
+                return True
             query = BBIPMongoQuery(uri=uri)
-            data_json = data.to_dict(orient="records")  # type: ignore
+            data_json = data.to_dict(orient="records")
             try:
-                json = [BBIPModel(**item) for item in data_json]  # type: ignore
+                json = [BBIPModel(**item) for item in data_json]
             except Exception as error:
                 log.error(
-                    f"BBIP Updater. Fallo al validar los data de la capa: {layer} contra el modelo. El sistema de actualización para la capa se ha suspendido - {error}"
+                    f"BBIP Updater. {layer}: Fallo al validar los data de la capa contra el modelo. El sistema de actualización para la capa se ha suspendido - {error}"
                 )
                 return False
             else:
@@ -121,5 +121,5 @@ class BBIPUpdaterHandler:
                     self._clean_data(layer=layer)
                 return response
         except Exception as error:
-            log.error(f"BBIP Updater. Fallo al cargar los datos de la capa: {layer} en la base de datos - {error}")
+            log.error(f"BBIP Updater. {layer}: Fallo al cargar los datos de la capa en la base de datos - {error}")
             return False

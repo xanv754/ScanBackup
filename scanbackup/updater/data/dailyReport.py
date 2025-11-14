@@ -15,8 +15,8 @@ from scanbackup.model import DailySummaryModel
 from scanbackup.utils import LayerDetector, log
 
 
-class DailyReportUpdaterHandler:
-    """Daily report data updater handler."""
+class DailySummaryUpdaterHandler:
+    """Daily summary data updater handler."""
 
     _separator: str = ";"
     _date: str
@@ -28,7 +28,7 @@ class DailyReportUpdaterHandler:
         """Read all summary daily of a layer specified through a path."""
         filename = os.path.basename(path)
         layer = filename.upper().strip()
-        df = pd.read_csv(path, sep=self._separator, names=header_daily_bbip, index_col=False, skiprows=1)  # type: ignore
+        df = pd.read_csv(path, sep=self._separator, names=header_daily_bbip, index_col=False, skiprows=1)
         if not force:
             df = df[df[HeaderDailySummary.DATE] == date]
         if not df.empty:
@@ -47,17 +47,17 @@ class DailyReportUpdaterHandler:
             for filename in files:
                 if not self._force:
                     if filename != LayerName.IP_BRAS:
-                        df_data = pd.read_csv(os.path.join(folderpath, filename), sep=self._separator, header=None, names=header_daily_bbip, skiprows=1)  # type: ignore
+                        df_data = pd.read_csv(os.path.join(folderpath, filename), sep=self._separator, header=None, names=header_daily_bbip, skiprows=1)
                         df_data = df_data[df_data[HeaderBBIP.DATE] != self._date]
                     else:
-                        df_data = pd.read_csv(os.path.join(folderpath, filename), sep=self._separator, header=None, names=header_daily_ip_bras, skiprows=1)  # type: ignore
+                        df_data = pd.read_csv(os.path.join(folderpath, filename), sep=self._separator, header=None, names=header_daily_ip_bras, skiprows=1)
                         df_data = df_data[df_data[HeaderIPBras.DATE] != self._date]
                     if not df_data.empty:
                         df_data.to_csv(os.path.join(folderpath, filename), sep=self._separator)
                         continue
                 os.remove(os.path.join(folderpath, filename))
         except Exception as error:
-            log.error(f"Daily Report Updater. Fallo al limpiar la data de los reportes diarios - {error}")
+            log.error(f"Daily Summary Updater. DAILY SUMMARY: Fallo al limpiar los archivos de la capa - {error}")
 
     def get_data(self, date: str | None = None, force: bool = False) -> pd.DataFrame:
         """Get data to be loaded in the database.
@@ -83,10 +83,10 @@ class DailyReportUpdaterHandler:
                         force=force,
                     )
                 except Exception as error:
-                    log.error(f"Ha ocurrido un error al cargar la data del archivo: {filename} - {error}")
+                    log.error(f"Daily Summary Updater. DAILY SUMMARY: Ha ocurrido un error al cargar la data del archivo: {filename} - {error}")
                     continue
         except Exception as error:
-            log.error(f"Daily Report Updater. Fallo al obtener la data de los reportes diarios - {error}")
+            log.error(f"Daily Summary Updater. DAILY SUMMARY: Fallo al obtener la data de los resúmenes diarios - {error}")
             return pd.DataFrame(columns=header_daily)
         else:
             self._date = date
@@ -104,15 +104,15 @@ class DailyReportUpdaterHandler:
         """
         try:
             if data.empty:
-                log.warning(f"El sistema no encontró data en los reportes diarios para actualizar la base de datos")
+                log.warning(f"DAILY SUMMARY: Data vacía obtenida")
                 return False
             query = DailySummaryMongoQuery(uri=uri)
-            data_json = data.to_dict(orient="records")  # type: ignore
+            data_json = data.to_dict(orient="records")
             try:
-                json = [DailySummaryModel(**item) for item in data_json]  # type: ignore
+                json = [DailySummaryModel(**item) for item in data_json]
             except Exception as error:
                 log.error(
-                    f"Fallo al validar los data de los reportes diarios contra el modelo. El sistema de actualización de los reportes diarios se ha suspendido - {error}"
+                    f"BBIP Updater. DAILY SUMMARY: Fallo al validar los data de los resúmenes diarios contra el modelo. El sistema de actualización se ha suspendido - {error}"
                 )
                 return False
             else:
@@ -121,5 +121,5 @@ class DailyReportUpdaterHandler:
                     self._clean_data()
                 return response
         except Exception as error:
-            log.error(f"Daily Report Updater. Fallo al cargar los datos de los reportes diarios en la base de datos - {error}")
+            log.error(f"Daily Summary Updater. DAILY SUMMARY: Fallo al cargar los datos de los resúmenes diarios en la base de datos - {error}")
             return False

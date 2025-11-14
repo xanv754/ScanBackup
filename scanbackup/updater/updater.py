@@ -1,6 +1,6 @@
 from scanbackup.constants import LayerName
 from scanbackup.updater.data.bbip import BBIPUpdaterHandler
-from scanbackup.updater.data.dailyReport import DailyReportUpdaterHandler
+from scanbackup.updater.data.dailyReport import DailySummaryUpdaterHandler
 from scanbackup.updater.data.ipHistory import IPHistoryUpdaterHandler
 from scanbackup.updater.sources.borde import BordeHuawei, BordeCisco, BordeJuniper
 from scanbackup.updater.sources.bras import BrasHuawei
@@ -42,11 +42,13 @@ class UpdaterHandler:
             data = bbip_handler.get_data(layer=layer, date=date, force=force)
             status_operation = bbip_handler.load_data(layer=layer, data=data, uri=uri)
             if status_operation:
-                log.info(f"Data de la capa: {layer} cargado exitosamente")
+                log.info(f"System Updater. {layer}: Data de la capa cargada exitosamente")
             else:
-                log.error(f"Carga de la data de la capa: {layer} fallida")
+                log.error(f"System Updater. {layer}: Fallo en la carga de la data de la capa")
         except Exception as error:
-            log.error(f"Fallo al actualizar los datos de la capa: {layer} del BBIP en el sistema - {error}")
+            log.error(f"System Updater. {layer}: Fallo al actualizar los datos de la capa del BBIP en el sistema - {error}")
+        finally:
+            log.info(f"System Updater. {layer}: Actualización finalizada")
 
     def _updater_ip_history(self, uri: str, date: str | None, force: bool) -> None:
         """Updater IP history collection in database."""
@@ -55,27 +57,29 @@ class UpdaterHandler:
             data = ip_history_handler.get_data(date=date, force=force)
             status_operation = ip_history_handler.load_data(data=data, uri=uri)
             if status_operation:
-                log.info("Data de la capa: IP_BRAS cargado exitosamente")
+                log.info("BBIP Updayer. IPBRAS: Data de la capa cargada exitosamente")
             else:
-                log.error("Carga de la data de la capa: IP_BRAS fallida")
+                log.error(f"System Updater. IPBRAS: Fallo en la carga de la data de la capa")
         except Exception as error:
-            log.error(f"Fallo al actualizar los datos de la capa: IP_BRAS del BBIP en el sistema - {error}")
+            log.error(f"System Updater. IPBRAS: Fallo al actualizar los datos de la capa del BBIP en el sistema - {error}")
+        finally:
+            log.info(f"System Updater. IPBRAS: Actualización finalizada")
 
     def _updater_daily_summary(self, uri: str, date: str | None, force: bool) -> None:
         """Updater daily summary collection in database."""
         try:
-            log.info("Inicio de actualización de reportes diarios del sistema...")
-            daily_handler = DailyReportUpdaterHandler()
+            log.info("Inicio de actualización de los resúmenes diarios del sistema...")
+            daily_handler = DailySummaryUpdaterHandler()
             reports = daily_handler.get_data(date=date, force=force)
             status_operation = daily_handler.load_data(data=reports, uri=uri)
             if status_operation:
-                log.info("Actualización de reportes diarios cargado exitosamente")
+                log.info(f"System Updater. DAILY SUMMARY: Data de la capa cargada exitosamente")
             else:
-                log.error(f"Carga de los reportes diarios fallido")
+                log.error(f"System Updater. DAILY SUMMARY: Fallo en la carga de la data de la capa")
         except Exception as error:
-            log.error(f"Fallo al actualizar los datos de los reportes diarios en el sistema - {error}")
+            log.error(f"System Updater. DAILY SUMMARY: Fallo al actualizar los datos de la capa del BBIP en el sistema - {error}")
         finally:
-            log.info("Actualización de reportes diarios finalizada")
+            log.info("System Updater. DAILY SUMMARY: Actualización de los resúmenes diarios finalizada")
 
 
 class UpdaterSourceHandler:
@@ -85,14 +89,14 @@ class UpdaterSourceHandler:
         try:
             log.info(f"Inicio de actualización de la capa {layer}...")
             if layer == LayerName.BORDE:
-                if dev: url = URLBordeHuaweiEnvironment(dev=True).get_url()
-                else: url = URLBordeHuaweiEnvironment().get_url()
-                scrapper_huawei = BordeHuawei(url=url, layer=LayerName.BORDE)
-                status_update = scrapper_huawei.run()
                 if dev: url = URLBordeCiscoEnvironment(dev=True).get_url()
                 else: url = URLBordeCiscoEnvironment().get_url()
                 scrapper_cisco = BordeCisco(url=url, layer=LayerName.BORDE, add_sources=True)
                 status_update = scrapper_cisco.run()
+                if dev: url = URLBordeHuaweiEnvironment(dev=True).get_url()
+                else: url = URLBordeHuaweiEnvironment().get_url()
+                scrapper_huawei = BordeHuawei(url=url, layer=LayerName.BORDE)
+                status_update = scrapper_huawei.run()
                 if dev: url = URLBordeJuniperEnvironment(dev=True).get_url()
                 else: url = URLBordeJuniperEnvironment().get_url()
                 scrapper_juniper = BordeJuniper(url=url, layer=LayerName.BORDE, add_sources=True)
