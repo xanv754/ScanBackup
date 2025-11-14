@@ -94,7 +94,8 @@ header_ip_bras = [
     HeaderIPBras.TIME,
     HeaderIPBras.IN_PROM,
     HeaderIPBras.IN_MAX,
-    HeaderIPBras.BRAS_NAME
+    HeaderIPBras.BRAS_NAME, 
+    HeaderIPBras.CAPACITY
 ]
 
 header_scan_ip_bras = [
