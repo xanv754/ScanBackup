@@ -109,8 +109,8 @@ class GenerateDailySummary:
     def _calculate_summary_ip_data(self, interface: str, data: pd.DataFrame) -> pd.DataFrame:
         """Returns the daily summary data of IPBras layer."""
         try:
-            in_average = (data[HeaderIPBras.IN_PROM].mean()) * FACTOR_IP_BRAS
-            in_max_average = (float(data[HeaderIPBras.IN_MAX].max())) * FACTOR_IP_BRAS
+            in_average = round(data[HeaderIPBras.IN_PROM].mean())
+            in_max_average = round(float(data[HeaderIPBras.IN_MAX].max()))
             summary_data = pd.DataFrame({
                 HeaderIPBras.DATE: [self.date],
                 HeaderIPBras.BRAS_NAME: [interface],

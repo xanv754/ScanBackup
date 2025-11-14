@@ -30,6 +30,7 @@ class HeaderIPBras:
     TIME = "time"
     IN_PROM = "inProm"
     IN_MAX = "inMaxProm"
+    CAPACITY = "capacity"
 
 
 class HeaderDailySummary:
@@ -86,6 +87,14 @@ header_scan_bbip = [
     HeaderBBIP.IN_MAX,
     HeaderBBIP.OUT_PROM,
     HeaderBBIP.OUT_MAX,
+]
+
+header_ip_bras = [
+    HeaderIPBras.DATE,
+    HeaderIPBras.TIME,
+    HeaderIPBras.IN_PROM,
+    HeaderIPBras.IN_MAX,
+    HeaderIPBras.BRAS_NAME
 ]
 
 header_scan_ip_bras = [

@@ -47,8 +47,8 @@ class LayerDetector:
         elif layer == LayerName.IXP:
             return TableName.IXP
         elif layer == LayerName.IP_BRAS:
-            return TableName.IP_BRAS_HISTORY
+            return TableName.IP_BRAS
         elif layer == LayerName.DAILY_SUMMARY:
-            return TableName.DAILY_REPORT
+            return TableName.DAILY_SUMMARY
         else:
             raise FileNotFoundError(f"No se ha encontrado la especificación de la capa: {layer} en el sistema")

@@ -22,4 +22,5 @@ class IPBrasModel(BaseModel):
     date: str
     time: str
     inProm: float
-    inMax: float | None = None  # Hacer opcional para manejar NaN
+    inMaxProm: float
+    capacity: float

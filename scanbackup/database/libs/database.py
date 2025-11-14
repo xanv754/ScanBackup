@@ -4,7 +4,7 @@ from pymongo.collection import Collection
 from scanbackup.constants import (
     TableName,
     BBIPFieldName,
-    IPBrasHistoryFieldName,
+    IPBrasFieldName,
     DailySummaryFieldName,
 )
 from scanbackup.database.schemas.borde import BORDE_SCHEMA as BORDE_SCHEMA_MONGO
@@ -12,11 +12,11 @@ from scanbackup.database.schemas.bras import BRAS_SCHEMA as BRAS_SCHEMA_MONGO
 from scanbackup.database.schemas.caching import CACHING_SCHEMA as CACHING_SCHEMA_MONGO
 from scanbackup.database.schemas.rai import RAI_SCHEMA as RAI_SCHEMA_MONGO
 from scanbackup.database.schemas.ixp import IXP_SCHEMA as IXP_SCHEMA_MONGO
-from scanbackup.database.schemas.ipHistory import (
-    IP_HISTORY_SCHEMA as IP_HISTORY_SCHEMA_MONGO,
+from scanbackup.database.schemas.ipBras import (
+    IP_HISTORY_SCHEMA as IP_BRAS_SCHEMA_MONGO,
 )
 from scanbackup.database.schemas.dailySummary import (
-    DAILY_SUMMARY_SCHEMA as DAILY_REPORT_SCHEMA_MONGO,
+    DAILY_SUMMARY_SCHEMA as DAILY_SUMMARY_SCHEMA_MONGO,
 )
 from scanbackup.utils import log
 
@@ -177,29 +177,29 @@ class DatabaseMongo:
                 collection.create_index(
                     [(BBIPFieldName.DATE, ASCENDING)], name="ixp_by_date_index"
                 )
-            if not self._check_collection(TableName.IP_BRAS_HISTORY):
+            if not self._check_collection(TableName.IP_BRAS):
                 db.create_collection(
-                    TableName.IP_BRAS_HISTORY, validator=IP_HISTORY_SCHEMA_MONGO
+                    TableName.IP_BRAS, validator=IP_BRAS_SCHEMA_MONGO
                 )
-                collection = db[TableName.IP_BRAS_HISTORY]
+                collection = db[TableName.IP_BRAS]
                 collection.create_index(
                     [
-                        (IPBrasHistoryFieldName.BRAS_NAME, ASCENDING),
-                        (IPBrasHistoryFieldName.DATE, ASCENDING),
-                        (IPBrasHistoryFieldName.TIME, ASCENDING),
+                        (IPBrasFieldName.BRAS_NAME, ASCENDING),
+                        (IPBrasFieldName.DATE, ASCENDING),
+                        (IPBrasFieldName.TIME, ASCENDING),
                     ],
                     unique=True,
-                    name="unique_ip_history_index",
+                    name="unique_ip_bras_index",
                 )
                 collection.create_index(
-                    [(IPBrasHistoryFieldName.DATE, ASCENDING)],
+                    [(IPBrasFieldName.DATE, ASCENDING)],
                     name="ip_bras_by_date_index",
                 )
-            if not self._check_collection(TableName.DAILY_REPORT):
+            if not self._check_collection(TableName.DAILY_SUMMARY):
                 db.create_collection(
-                    TableName.DAILY_REPORT, validator=DAILY_REPORT_SCHEMA_MONGO
+                    TableName.DAILY_SUMMARY, validator=DAILY_SUMMARY_SCHEMA_MONGO
                 )
-                collection = db[TableName.DAILY_REPORT]
+                collection = db[TableName.DAILY_SUMMARY]
                 collection.create_index(
                     [
                         (DailySummaryFieldName.NAME, ASCENDING),
@@ -208,18 +208,18 @@ class DatabaseMongo:
                         (DailySummaryFieldName.DATE, ASCENDING),
                     ],
                     unique=True,
-                    name="unique_daily_report_index",
+                    name="unique_daily_summary_index",
                 )
                 collection.create_index(
                     [(DailySummaryFieldName.DATE, ASCENDING)],
-                    name="daily_report_by_date_index",
+                    name="daily_summary_by_date_index",
                 )
                 collection.create_index(
                     [
                         (DailySummaryFieldName.DATE, ASCENDING),
                         (DailySummaryFieldName.TYPE_LAYER, ASCENDING),
                     ],
-                    name="daily_report_by_date_typelayer_index",
+                    name="daily_summary_by_date_typelayer_index",
                 )
             self.close_connection()
         except Exception as error:
@@ -248,10 +248,10 @@ class DatabaseMongo:
             ixp_collection: Collection[Any] = db[TableName.IXP]
             ixp_collection.delete_many({})
             ixp_collection.drop()
-            ip_history_collection: Collection[Any] = db[TableName.IP_BRAS_HISTORY]
+            ip_history_collection: Collection[Any] = db[TableName.IP_BRAS]
             ip_history_collection.delete_many({})
             ip_history_collection.drop()
-            daily_report_collection: Collection[Any] = db[TableName.DAILY_REPORT]
+            daily_report_collection: Collection[Any] = db[TableName.DAILY_SUMMARY]
             daily_report_collection.delete_many({})
             daily_report_collection.drop()
             self.close_connection()
