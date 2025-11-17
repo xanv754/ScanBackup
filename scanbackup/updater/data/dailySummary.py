@@ -8,7 +8,6 @@ from scanbackup.constants import (
     HeaderIPBras,
     header_daily,
     header_daily_bbip,
-    header_ip_bras,
     header_daily_ip_bras,
 )
 from scanbackup.database import DailySummaryMongoQuery
@@ -28,21 +27,20 @@ class DailySummaryUpdaterHandler:
     ) -> pd.DataFrame:
         """Read all summary daily of a layer specified through a path."""
         filename = os.path.basename(path)
-        layer = filename.upper().strip()
-        if not LayerName.IP_BRAS: df = pd.read_csv(path, sep=self._separator, names=header_daily_bbip, index_col=False, skiprows=1)
+        layer = filename.split("/")[-1].upper().strip()
+        if layer != LayerName.IP_BRAS: df = pd.read_csv(path, sep=self._separator, names=header_daily_bbip, index_col=False, skiprows=1)
         else:
-            df = pd.read_csv(path, sep=self._separator, names=header_ip_bras, index_col=False, skiprows=1)
+            df = pd.read_csv(path, sep=self._separator, names=header_daily_ip_bras, index_col=False, skiprows=1)
             df[HeaderBBIP.OUT_MAX] = 0
             df[HeaderBBIP.OUT_PROM] = 0
-            df[HeaderBBIP.TYPE_LAYER] = LayerName.IP_BRAS
-        if not force:
-            df = df[df[HeaderDailySummary.DATE] == date]
+            df[HeaderDailySummary.USE] = 0
+            df[HeaderBBIP.TYPE] = LayerName.IP_BRAS
+            df.rename(columns={HeaderIPBras.BRAS_NAME: HeaderBBIP.NAME}, inplace=True)
+        if not force: df = df[df[HeaderDailySummary.DATE] == date]
         if not df.empty:
             df[HeaderDailySummary.TYPE_LAYER] = layer
-            if data_upload.empty:
-                data_upload = df
-            else:
-                data_upload = pd.concat([data_upload, df], axis=0)
+            if data_upload.empty: data_upload = df
+            else: data_upload = pd.concat([data_upload, df], axis=0)
         return data_upload
 
     def _clean_data(self) -> None:
