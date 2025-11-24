@@ -23,7 +23,7 @@ class DailySummaryUpdaterHandler:
     _force: bool = False
 
     def _get_summary(
-        self, path: str, data_upload: pd.DataFrame, date: str, force: bool
+        self, path: str, data_uploading: pd.DataFrame, date: str, force: bool
     ) -> pd.DataFrame:
         """Read all summary daily of a layer specified through a path."""
         filename = os.path.basename(path)
@@ -39,9 +39,9 @@ class DailySummaryUpdaterHandler:
         if not force: df = df[df[HeaderDailySummary.DATE] == date]
         if not df.empty:
             df[HeaderDailySummary.TYPE_LAYER] = layer
-            if data_upload.empty: data_upload = df
-            else: data_upload = pd.concat([data_upload, df], axis=0)
-        return data_upload
+            if data_uploading.empty: data_uploading = df
+            else: data_uploading = pd.concat([data_uploading, df], axis=0)
+        return data_uploading
 
     def _clean_data(self) -> None:
         """Clears all files in a layer that have been successfully updated."""
@@ -82,7 +82,7 @@ class DailySummaryUpdaterHandler:
                 try:
                     df_data = self._get_summary(
                         path=os.path.join(folderpath, filename),
-                        data_upload=df_data,
+                        data_uploading=df_data,
                         date=date,
                         force=force,
                     )
