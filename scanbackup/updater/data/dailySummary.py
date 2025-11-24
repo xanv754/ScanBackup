@@ -89,6 +89,15 @@ class DailySummaryUpdaterHandler:
                 except Exception as error:
                     log.error(f"Daily Summary Updater. DAILY SUMMARY: Ha ocurrido un error al cargar la data del archivo: {filename} - {error}")
                     continue
+            if not df_data.empty: 
+                df_data = df_data.drop_duplicates(
+                    subset=[
+                        HeaderDailySummary.NAME, HeaderDailySummary.DATE, 
+                        HeaderDailySummary.CAPACITY, HeaderDailySummary.TYPE_LAYER, 
+                        HeaderDailySummary.TYPE
+                    ], 
+                    keep="first"
+                )
         except Exception as error:
             log.error(f"Daily Summary Updater. DAILY SUMMARY: Fallo al obtener la data de los resúmenes diarios - {error}")
             return pd.DataFrame(columns=header_daily)

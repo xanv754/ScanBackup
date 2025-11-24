@@ -83,16 +83,16 @@ do
 
       time=$(date -d @"$UNIXtime" "+%Y-%m-%d;%H:%M:%S")
       if [ "$layer" = "$layerIPBras" ]; then
-        echo $time$separator$inProm$separator$inPromMax | grep -f $home/routines/tmp/fechaayer >> "$HOMEPROJECT/data/SCAN/${layer}/${capacity}%${interfaceName}"
+        echo $time$separator$inProm$separator$inPromMax | grep -f $home/routines/tmp/fechaayer >> "$HOMEPROJECT/data/SCAN/${layer}/${capacity}${separator}${interfaceName}"
       else
-        echo $time$separator$inProm$separator$outProm$separator$inPromMax$separator$outPromMax | grep -f $home/routines/tmp/fechaayer >> "$HOMEPROJECT/data/SCAN/${layer}/${type}%${interfaceName}%${capacity}"
+        echo $time$separator$inProm$separator$outProm$separator$inPromMax$separator$outPromMax | grep -f $home/routines/tmp/fechaayer >> "$HOMEPROJECT/data/SCAN/${layer}/${type}${separator}${interfaceName}${separator}${capacity}"
       fi
     done
       
     if [ "$layer" = "$layerIPBras" ]; then
-      lineas=`cat "$HOMEPROJECT/data/SCAN/${layer}/${capacity}%${interfaceName}" | grep -f $home/routines/tmp/fechaayer | wc -l`
+      lineas=`cat "$HOMEPROJECT/data/SCAN/${layer}/${capacity}${separator}${interfaceName}" | grep -f $home/routines/tmp/fechaayer | wc -l`
     else
-      lineas=`cat "$HOMEPROJECT/data/SCAN/${layer}/${type}%${interfaceName}%${capacity}" | grep -f $home/routines/tmp/fechaayer | wc -l`
+      lineas=`cat "$HOMEPROJECT/data/SCAN/${layer}/${type}${separator}${interfaceName}${separator}${capacity}" | grep -f $home/routines/tmp/fechaayer | wc -l`
     fi
 
     hour=$(date +"%y-%m-%d %T")

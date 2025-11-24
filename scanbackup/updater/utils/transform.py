@@ -1,5 +1,5 @@
 import pandas as pd
-from scanbackup.constants import header_source
+from scanbackup.constants import header_source, HeaderSource
 from scanbackup.model import Source
 from scanbackup.utils import log
 
@@ -16,6 +16,8 @@ class TransForm:
         try:
             json = [interface.model_dump() for interface in models]
             df = pd.DataFrame(json)
+            df[HeaderSource.NAME] = df[HeaderSource.NAME].astype(str)
+            df[HeaderSource.NAME] = df[HeaderSource.NAME].apply(lambda x: x.replace(";", " "))
             return df
         except Exception as error:
             log.error(f"Fallo al transformar la lista de modelos a un dataframe - {error}")
