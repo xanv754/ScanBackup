@@ -10,7 +10,7 @@ LOGS = path.join(ROOT_PATH, "data", "logs")
 LOG_FORMAT = "%(asctime)s %(levelname)s %(message)s"
 DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 FORMATTER = logging.Formatter(LOG_FORMAT, DATE_FORMAT)
-
+NAME_FILE = "ScanBackup.log"
 
 class LogHandler:
     """Handler to realize all operation about log system."""
@@ -33,7 +33,7 @@ class LogHandler:
             )
             self.__console_handler.setFormatter(FORMATTER)
             self.__file_handler = TimedRotatingFileHandler(
-                f"{LOGS}/SysGRD.log",
+                f"{LOGS}/{NAME_FILE}",
                 when="W0",
                 interval=1,
                 backupCount=4,
