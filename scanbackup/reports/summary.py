@@ -26,10 +26,16 @@ class SummaryReportBBIP:
         df_ixp = df_ixp.drop(columns=[HeaderDailySummary.TYPE_LAYER])
         return df_borde, df_bras, df_caching, df_rai, df_ixp
 
-    def summary_diary(self, date: str | None = None, dev: bool = False, default: bool = False) -> bool:
+    def summary_diary(self, date: str | None = None, default: bool = False, dev: bool = False) -> bool:
         """Gets all layer data required for the daily report.
 
-        :return Dict: Dictionary with data segmented by layers.
+        :param date: Date to get data.
+        :type date: str | None
+        :param dev: If True, get data from development environment.
+        :type dev: bool
+        :param default: If True, get data in the same format as you received it.
+        :type default: bool
+        :returns bool: True if the data was successfully retrieved, False otherwise.
         """
         try:
             handler = LayerHandler(dev=dev)
