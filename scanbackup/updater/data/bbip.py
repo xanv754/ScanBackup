@@ -82,6 +82,14 @@ class BBIPUpdaterHandler:
                 except Exception as error:
                     log.error(f"Ha ocurrido un error al cargar la data del archivo: {filename} - {error}")
                     continue
+            if not df_to_upload.empty: 
+                df_to_upload = df_to_upload.drop_duplicates(
+                    subset=[
+                        HeaderBBIP.NAME, HeaderBBIP.DATE, 
+                        HeaderBBIP.TIME, HeaderBBIP.CAPACITY
+                    ], 
+                    keep="first"
+                )
         except Exception as error:
             log.error(f"BBIP Updater. {layer}: Fallo al cargar la data de la capa - {error}")
             return pd.DataFrame(columns=header_bbip)
