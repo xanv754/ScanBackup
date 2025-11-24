@@ -37,7 +37,7 @@ setup: venv setup-folders setup-files
 	@echo "Sistema instanciado correctamente."
 
 run-scan:
-	bash $(HOMEPROJECT)/scanbackup/routines/scan.sh
+	bash $(HOMEPROJECT)/scanbackup/routines/scanner.sh
 
 run-daily:
 	$(HOMEPROJECT)/.venv/bin/python -m scanbackup.routines.daily
