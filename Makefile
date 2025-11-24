@@ -31,7 +31,7 @@ setup-files:
 	touch $(HOMEPROJECT)/sources/SCAN/IXP
 	touch $(HOMEPROJECT)/sources/SCAN/IPBRAS
 	
-setup: venv setup-folders setup-files
+setup: venv setup-files
 	@echo "Inicializando base de datos..."
 	$(HOMEPROJECT)/.venv/bin/python -m scanbackup.database start
 	@echo "Sistema instanciado correctamente."
