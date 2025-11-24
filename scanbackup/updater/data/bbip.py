@@ -10,7 +10,8 @@ from scanbackup.utils import LayerDetector, log
 class BBIPUpdaterHandler:
     """BBIP data updater handler."""
 
-    _separator: str = ";"
+    _separator_data: str = ";"
+    _separator_name: str = ";"
     _date: str
     _force: bool = False
 
@@ -19,10 +20,10 @@ class BBIPUpdaterHandler:
     ) -> pd.DataFrame:
         """Read all data in a layer specified through a path."""
         filename = os.path.basename(path)
-        type = filename.split("%")[0]
-        interface = filename.split("%")[1].replace("&", "/")
-        capacity = filename.split("%")[2]
-        df_data = pd.read_csv(path, sep=self._separator, header=None, names=header_scan_bbip)
+        type = filename.split(self._separator_name)[0]
+        interface = filename.split(self._separator_name)[1].replace("&", "/")
+        capacity = filename.split(self._separator_name)[2]
+        df_data = pd.read_csv(path, sep=self._separator_data, header=None, names=header_scan_bbip)
         if not force:
             df_data = df_data[df_data[HeaderBBIP.DATE] == date]
         if not df_data.empty:
@@ -42,11 +43,11 @@ class BBIPUpdaterHandler:
             files = [filename for filename in os.listdir(folderpath)]
             for filename in files:
                 if not self._force:
-                    df_data = pd.read_csv(os.path.join(folderpath, filename), sep=self._separator, header=None, names=header_scan_bbip)
+                    df_data = pd.read_csv(os.path.join(folderpath, filename), sep=self._separator_data, header=None, names=header_scan_bbip)
                     df_data = df_data[df_data[HeaderBBIP.DATE] != self._date]
                     if not df_data.empty:
                         df_data = df_data.reset_index(drop=True)
-                        df_data.to_csv(os.path.join(folderpath, filename), sep=self._separator)
+                        df_data.to_csv(os.path.join(folderpath, filename), sep=self._separator_data)
                         continue
                 os.remove(os.path.join(folderpath, filename))
         except Exception as error:
