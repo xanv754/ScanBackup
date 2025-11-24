@@ -12,16 +12,17 @@ class IPBrasUpdaterHandler:
 
     _date: str
     _force: bool = False
-    _separator: str = ";"
+    _separator_data: str = ";"
+    _separator_name: str = ";"
     
     def _get_data_information(
         self, path: str, data_uploading: pd.DataFrame, date: str, force: bool
     ) -> pd.DataFrame:
         """Read all data in a layer specified through a path."""
         filename = os.path.basename(path)
-        capacity = filename.split("%")[0]
-        bras = filename.split("%")[1]
-        df_data = pd.read_csv(path, sep=self._separator, header=None, names=header_scan_ip_bras)
+        capacity = filename.split(self._separator_name)[0]
+        bras = filename.split(self._separator_name)[1]
+        df_data = pd.read_csv(path, sep=self._separator_data, header=None, names=header_scan_ip_bras)
         if not force: df_data = df_data[df_data[HeaderIPBras.DATE] == date]
         if not df_data.empty:
             df_data[HeaderIPBras.BRAS_NAME] = bras
@@ -39,11 +40,11 @@ class IPBrasUpdaterHandler:
             files = [filename for filename in os.listdir(folderpath)]
             for filename in files:
                 if not self._force:
-                    df_data = pd.read_csv(os.path.join(folderpath, filename), sep=self._separator, header=None, names=header_scan_ip_bras)
+                    df_data = pd.read_csv(os.path.join(folderpath, filename), sep=self._separator_data, header=None, names=header_scan_ip_bras)
                     df_data = df_data[df_data[HeaderIPBras.DATE] != self._date]
                     if not df_data.empty:
                         df_data = df_data.reset_index(drop=True)
-                        df_data.to_csv(os.path.join(folderpath, filename), sep=self._separator)
+                        df_data.to_csv(os.path.join(folderpath, filename), sep=self._separator_data)
                         continue
                 os.remove(os.path.join(folderpath, filename))
         except Exception as error:
