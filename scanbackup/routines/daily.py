@@ -1,25 +1,3 @@
-"""
-Este script crea los reportes diarios de los datos obtenidos
-del aplicativo SCAN.
-
-Detalles de Proceso:
-- Se captura la fecha del día anterior.
-- Se obtiene la capa de la interfaz a analizar.
-- Se obtiene la interfaz a analizar.
-- Se obtiene la capacidad de la interfaz.
-- Se obtiene el tipo de la interfaz.
-- Se obtiene los datos del trend de la interfaz, filtrados por el día anterior.
-- Se calcula el promedio de la interfaz.
-- Se calcula el uso de la interfaz.
-- Se crea un diccionario donde se relacionan las variables calculadas
-  con los nombres de las columnas del reporte.
-- Se crea un dataframe temporal donde se escriben los resultados.
-- Se concatena el dataframe temporal con el dataframe donde se guarda toda la data.
-- Se exporta el dataframe en un archivo CSV.
-
-Para más información del sistema, léase `README.md`.
-"""
-
 import os
 import click
 import pandas as pd
