@@ -36,7 +36,7 @@ setup: venv setup-files
 	$(PWDSCANBACKUP)/.venv/bin/python -m scanbackup.database start
 	@echo "Sistema instanciado correctamente."
 
-run-scan:
+run-scanner:
 	bash $(PWDSCANBACKUP)/scanbackup/routines/scanner.sh
 
 run-daily:
@@ -48,7 +48,7 @@ run-updater:
 run-updater-dev:
 	$(PWDSCANBACKUP)/.venv/bin/python -m scanbackup.updater data --dev
 
-run-base: run-scan run-daily
+run-base: run-scanner run-daily
 
 run: run-base run-updater
 
