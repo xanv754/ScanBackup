@@ -81,20 +81,16 @@ do
       outProm=`echo $line3 | awk '{print $3}'`
       inPromMax=`echo $line3 | awk '{print $4}'` 
       outPromMax=`echo $line3 | awk '{print $5}'`
-
       time=$(date -d @"$UNIXtime" "+%Y-%m-%d;%H:%M:%S")
+
       if [ "$layer" = "$layerIPBras" ]; then
-        echo $time$separator$inProm$separator$inPromMax | grep -f $home/routines/tmp/fechaayer >> "$PWDSCANBACKUP/data/SCAN/${layer}/${capacity}${separator}${interfaceName}"
+        echo $time$separator$inProm$separator$inPromMax | grep -f $home/routines/tmp/fechaayer >> "$PWDSCANBACKUP/data/SCAN/${layer}/${type}${separator}${interfaceName}${separator}${capacity}"
       else
         echo $time$separator$inProm$separator$outProm$separator$inPromMax$separator$outPromMax | grep -f $home/routines/tmp/fechaayer >> "$PWDSCANBACKUP/data/SCAN/${layer}/${type}${separator}${interfaceName}${separator}${capacity}"
       fi
     done
       
-    if [ "$layer" = "$layerIPBras" ]; then
-      lineas=`cat "$PWDSCANBACKUP/data/SCAN/${layer}/${capacity}${separator}${interfaceName}" | grep -f $home/routines/tmp/fechaayer | wc -l`
-    else
-      lineas=`cat "$PWDSCANBACKUP/data/SCAN/${layer}/${type}${separator}${interfaceName}${separator}${capacity}" | grep -f $home/routines/tmp/fechaayer | wc -l`
-    fi
+    lineas=`cat "$PWDSCANBACKUP/data/SCAN/${layer}/${type}${separator}${interfaceName}${separator}${capacity}" | grep -f $home/routines/tmp/fechaayer | wc -l`
 
     hour=$(date +"%y-%m-%d %T")
     echo $hour $layer $interfaceName $lineas >> $PWDSCANBACKUP/data/logs/Alertas-SCAN.log

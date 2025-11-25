@@ -24,3 +24,4 @@ class IPBrasModel(BaseModel):
     inProm: float
     inMaxProm: float
     capacity: float
+    type: str

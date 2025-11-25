@@ -7,7 +7,7 @@ from scanbackup.updater.sources.scrapping import Scrapping
 class IPBrasHuawei(Scrapping):
     _PREFFIX_JUNK_WORD = "SUMATORIA"
     _SUFFIX_JUNK_WORD = " - "
-    _model = "IP"
+    _model = "HUAWEI"
     _domain = ".net"
     
     def __init__(self, url: str, layer: str, add_sources: bool = False) -> None:

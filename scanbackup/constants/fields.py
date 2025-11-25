@@ -27,6 +27,7 @@ class IPBrasFieldName:
     IN_PROM = "inProm"
     IN_MAX = "inMaxProm"
     CAPACITY = "capacity"
+    TYPE = "type"
 
 
 class DailySummaryFieldName:

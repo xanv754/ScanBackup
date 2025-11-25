@@ -20,13 +20,15 @@ class IPBrasUpdaterHandler:
     ) -> pd.DataFrame:
         """Read all data in a layer specified through a path."""
         filename = os.path.basename(path)
-        capacity = filename.split(self._separator_name)[0]
+        type = filename.split(self._separator_name)[0]
         bras = filename.split(self._separator_name)[1]
+        capacity = filename.split(self._separator_name)[2]
         df_data = pd.read_csv(path, sep=self._separator_data, header=None, names=header_scan_ip_bras)
         if not force: df_data = df_data[df_data[HeaderIPBras.DATE] == date]
         if not df_data.empty:
             df_data[HeaderIPBras.BRAS_NAME] = bras
             df_data[HeaderIPBras.CAPACITY] = capacity
+            df_data[HeaderIPBras.TYPE] = type
             if data_uploading.empty:
                 data_uploading = df_data
             else:

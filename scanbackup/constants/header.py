@@ -31,6 +31,7 @@ class HeaderIPBras:
     IN_PROM = "inProm"
     IN_MAX = "inMaxProm"
     CAPACITY = "capacity"
+    TYPE = "type"
 
 
 class HeaderDailySummary:
@@ -92,10 +93,11 @@ header_scan_bbip = [
 header_ip_bras = [
     HeaderIPBras.DATE,
     HeaderIPBras.TIME,
+    HeaderIPBras.BRAS_NAME, 
+    HeaderIPBras.CAPACITY,
     HeaderIPBras.IN_PROM,
     HeaderIPBras.IN_MAX,
-    HeaderIPBras.BRAS_NAME, 
-    HeaderIPBras.CAPACITY
+    HeaderIPBras.TYPE
 ]
 
 header_scan_ip_bras = [
@@ -135,4 +137,6 @@ header_daily_ip_bras = [
     HeaderIPBras.BRAS_NAME,
     HeaderDailySummary.IN_PROM,
     HeaderDailySummary.IN_MAX,
+    HeaderDailySummary.TYPE,
+    HeaderDailySummary.CAPACITY
 ]
