@@ -203,12 +203,19 @@ def daily(date: str | None = None, force: bool = False, dev: bool = False):
     is_flag=True,
     help="Actualizar solo los enlaces de SCAN para la capa IPBras.",
 )
+@click.option(
+    "--ixp",
+    required=False,
+    is_flag=True,
+    help="Actualizar solo los enlaces de SCAN para la capa IXP.",
+)
 def sources(
     borde: bool = False,
     bras: bool = False,
     caching: bool = False,
     rai: bool = False,
     ipbras: bool = False,
+    ixp: bool = False
 ):
     log.info("Inicio de la actualización de las fuentes...")
     if borde:
@@ -221,12 +228,15 @@ def sources(
         UpdaterSourceHandler(LayerName.RAI)
     if ipbras:
         UpdaterSourceHandler(LayerName.IP_BRAS)
-    if not borde and not bras and not caching and not rai and not ipbras:
+    if ixp:
+        UpdaterSourceHandler(LayerName.IXP)
+    if not borde and not bras and not caching and not rai and not ipbras and not ixp:
         UpdaterSourceHandler(LayerName.BORDE)
         UpdaterSourceHandler(LayerName.BRAS)
         UpdaterSourceHandler(LayerName.CACHING)
         UpdaterSourceHandler(LayerName.RAI)
         UpdaterSourceHandler(LayerName.IP_BRAS)
+        UpdaterSourceHandler(LayerName.IXP)
     log.info("Actualización de las fuentes terminadas...")
 
 
