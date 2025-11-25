@@ -31,10 +31,9 @@ class DailySummaryUpdaterHandler:
         if layer != LayerName.IP_BRAS: df = pd.read_csv(path, sep=self._separator, names=header_daily_bbip, index_col=False, skiprows=1)
         else:
             df = pd.read_csv(path, sep=self._separator, names=header_daily_ip_bras, index_col=False, skiprows=1)
-            df[HeaderBBIP.OUT_MAX] = 0
-            df[HeaderBBIP.OUT_PROM] = 0
+            df[HeaderDailySummary.OUT_MAX] = 0
+            df[HeaderDailySummary.OUT_PROM] = 0
             df[HeaderDailySummary.USE] = 0
-            df[HeaderBBIP.TYPE] = LayerName.IP_BRAS
             df.rename(columns={HeaderIPBras.BRAS_NAME: HeaderBBIP.NAME}, inplace=True)
         if not force: df = df[df[HeaderDailySummary.DATE] == date]
         if not df.empty:

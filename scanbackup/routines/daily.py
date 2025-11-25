@@ -13,13 +13,13 @@ from scanbackup.utils import log
 
 
 FACTOR_BBIP: float = 0.000000008022
-FACTOR_IP_BRAS: float = 0.000000008022
 
 
 class GenerateDailySummary:
     _export_decimal = "."
     _folder_path = DataPath.SCAN_REPORT_DAILY
-    _separator = ";"
+    _separator_data = ";"
+    _separator_name = ";"
     date: str
     layers: list[str]
     
@@ -54,7 +54,7 @@ class GenerateDailySummary:
         else: columns = header_daily_bbip
         filepath = self._get_daily_path(layer)
         if os.path.exists(filepath): 
-            df = pd.read_csv(filepath, sep=self._separator, skiprows=1, names=columns)
+            df = pd.read_csv(filepath, sep=self._separator_data, skiprows=1, names=columns)
         else:
             df = pd.DataFrame(columns=columns)
         return df
@@ -62,6 +62,7 @@ class GenerateDailySummary:
     def _calculate_summary_data(self, interface: str, type: str, capacity: float, data: pd.DataFrame) -> pd.DataFrame:
         """Returns the daily summary data of a BBIP layer."""
         try:
+            if data.empty: pd.DataFrame(columns=header_daily_bbip)
             in_average = (data[HeaderBBIP.IN_PROM].mean()) * FACTOR_BBIP
             out_average = (data[HeaderBBIP.OUT_PROM].mean()) * FACTOR_BBIP
             in_max_average = (float(data[HeaderBBIP.IN_MAX].max())) * FACTOR_BBIP
@@ -84,16 +85,19 @@ class GenerateDailySummary:
             log.error(f"Rutina resúmenes diarios. Fallo en cálculo de la data de BBIP de la interfaz: {interface} - {error}")
             return pd.DataFrame(columns=header_daily_bbip)
             
-    def _calculate_summary_ip_data(self, interface: str, data: pd.DataFrame) -> pd.DataFrame:
+    def _calculate_summary_ip_data(self, interface: str, type: str, capacity: float, data: pd.DataFrame) -> pd.DataFrame:
         """Returns the daily summary data of IPBras layer."""
         try:
+            if data.empty: pd.DataFrame(columns=header_daily_ip_bras)
             in_average = round(data[HeaderIPBras.IN_PROM].mean())
             in_max_average = round(float(data[HeaderIPBras.IN_MAX].max()))
             summary_data = pd.DataFrame({
                 HeaderIPBras.DATE: [self.date],
                 HeaderIPBras.BRAS_NAME: [interface],
                 HeaderIPBras.IN_PROM: [in_average],
-                HeaderIPBras.IN_MAX: [in_max_average]
+                HeaderIPBras.IN_MAX: [in_max_average],
+                HeaderIPBras.TYPE: [type],
+                HeaderIPBras.CAPACITY: [capacity]
             })
             return summary_data
         except Exception as error:
@@ -110,23 +114,17 @@ class GenerateDailySummary:
                 else: summary_report = pd.DataFrame(columns=header_daily_ip_bras)
                 for filename in os.listdir(folder_data):
                     filepath = os.path.join(folder_data, filename)
-                    name = filename.rsplit("%")[1].replace("&", "/")
-                    if layer != LayerName.IP_BRAS: 
-                        capacity = float(filename.split("%")[-1])
-                        type = filename.rsplit("%")[0]
-                    else:
-                        capacity = float(filename.split("%")[0])
-                    if layer != LayerName.IP_BRAS: 
-                        data = pd.read_csv(filepath, sep=self._separator, names=header_scan_bbip)
-                        data = data[data[HeaderBBIP.DATE] == self.date]
-                    else: 
-                        data = pd.read_csv(filepath, sep=self._separator, names=header_scan_ip_bras)
-                        data = data[data[HeaderIPBras.DATE] == self.date]
-                    if data.empty: continue
+                    name = filename.rsplit(self._separator_name)[1].replace("&", "/")
+                    capacity = float(filename.split(self._separator_name)[-1])
+                    type = filename.rsplit(self._separator_name)[0]
                     if layer != LayerName.IP_BRAS:
+                        data = pd.read_csv(filepath, sep=self._separator_data, names=header_scan_bbip)
+                        data = data[data[HeaderBBIP.DATE] == self.date]
                         summary_data = self._calculate_summary_data(interface=name, type=type, capacity=capacity, data=data)
-                    else:
-                        summary_data = self._calculate_summary_ip_data(interface=name, data=data)
+                    else: 
+                        data = pd.read_csv(filepath, sep=self._separator_data, names=header_scan_ip_bras)
+                        data = data[data[HeaderIPBras.DATE] == self.date]
+                        summary_data = self._calculate_summary_ip_data(interface=name, type=type, capacity=capacity, data=data)
                     if summary_report.empty: summary_report = summary_data
                     else: summary_report = pd.concat([summary_report, summary_data], axis=0)
                     summary_report.reset_index(drop=True, inplace=True)
@@ -134,7 +132,7 @@ class GenerateDailySummary:
                 if not old_daily_report.empty and not summary_report.empty:
                     summary_report = pd.concat([old_daily_report, summary_report], axis=0)
                     summary_report.reset_index(drop=True, inplace=True)
-                if not summary_report.empty: summary_report.to_csv(self._get_daily_path(layer), index=False, sep=self._separator, decimal=self._export_decimal)
+                if not summary_report.empty: summary_report.to_csv(self._get_daily_path(layer), index=False, sep=self._separator_data, decimal=self._export_decimal)
         except Exception as error:
             log.error(f"Rutina resúmenes diarios. Generación de reportes diarios fallido. {error}")
         else:

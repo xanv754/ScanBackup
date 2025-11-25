@@ -12,6 +12,7 @@ IP_HISTORY_SCHEMA: Dict[str, Dict[str, Any]] = {
             IPBrasFieldName.CAPACITY,
             IPBrasFieldName.IN_PROM,
             IPBrasFieldName.IN_MAX,
+            IPBrasFieldName.TYPE
         ],
         "properties": {
             IPBrasFieldName.DATE: {
@@ -37,6 +38,10 @@ IP_HISTORY_SCHEMA: Dict[str, Dict[str, Any]] = {
             IPBrasFieldName.IN_MAX: {
                 "bsonType": ["int", "long", "double"],
                 "description": "In max of the traffic",
+            },
+            IPBrasFieldName.TYPE: {
+                "bsonType": "string",
+                "description": "Service of the Caching layer",
             },
         },
     }

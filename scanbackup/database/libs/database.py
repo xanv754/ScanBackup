@@ -187,6 +187,7 @@ class DatabaseMongo:
                         (IPBrasFieldName.BRAS_NAME, ASCENDING),
                         (IPBrasFieldName.DATE, ASCENDING),
                         (IPBrasFieldName.TIME, ASCENDING),
+                        (IPBrasFieldName.TYPE, ASCENDING),
                     ],
                     unique=True,
                     name="unique_ip_bras_index",

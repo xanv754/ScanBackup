@@ -59,7 +59,7 @@ class UpdaterHandler:
             data = ip_history_handler.get_data(date=date, force=force)
             status_operation = ip_history_handler.load_data(data=data, uri=uri)
             if status_operation:
-                log.info("BBIP Updayer. IPBRAS: Data de la capa cargada exitosamente")
+                log.info("BBIP Updater. IPBRAS: Data de la capa cargada exitosamente")
             else:
                 log.error(f"System Updater. IPBRAS: Fallo en la carga de la data de la capa")
         except Exception as error:
