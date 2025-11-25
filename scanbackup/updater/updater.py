@@ -7,6 +7,7 @@ from scanbackup.updater.sources.bras import BrasHuawei
 from scanbackup.updater.sources.caching import CachingHuawei
 from scanbackup.updater.sources.rai import RaiHuawei, RaiZte
 from scanbackup.updater.sources.ixp import IxpHuawei
+from scanbackup.updater.sources.ipBras import IPBrasHuawei
 from scanbackup.utils import (
     URLBordeCiscoEnvironment,
     URLBordeJuniperEnvironment,
@@ -126,6 +127,11 @@ class UpdaterSourceHandler:
                 else: url = URLIxpEnvironment().get_url()
                 scrapper_ixp = IxpHuawei(url=url, layer=LayerName.IXP)
                 status_update = scrapper_ixp.run()
+            elif layer == LayerName.IP_BRAS:
+                if dev: url = URLIpBrasEnvironment(dev=True).get_url()
+                else: url = URLIpBrasEnvironment().get_url()
+                scrapper_ip_bras = IPBrasHuawei(url=url, layer=LayerName.IP_BRAS)
+                status_update = scrapper_ip_bras.run()
             else:
                 raise Exception("Capa no válida para actualizar los enlaces")
 
