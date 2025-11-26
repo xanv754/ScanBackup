@@ -62,7 +62,8 @@ class GenerateDailySummary:
     def _calculate_summary_data(self, interface: str, type: str, capacity: float, data: pd.DataFrame) -> pd.DataFrame:
         """Returns the daily summary data of a BBIP layer."""
         try:
-            if data.empty: pd.DataFrame(columns=header_daily_bbip)
+            data = data[data[HeaderBBIP.DATE] == self.date]
+            if data.empty: return pd.DataFrame(columns=header_daily_bbip)
             in_average = (data[HeaderBBIP.IN_PROM].mean()) * FACTOR_BBIP
             out_average = (data[HeaderBBIP.OUT_PROM].mean()) * FACTOR_BBIP
             in_max_average = (float(data[HeaderBBIP.IN_MAX].max())) * FACTOR_BBIP
@@ -88,7 +89,8 @@ class GenerateDailySummary:
     def _calculate_summary_ip_data(self, interface: str, type: str, capacity: float, data: pd.DataFrame) -> pd.DataFrame:
         """Returns the daily summary data of IPBras layer."""
         try:
-            if data.empty: pd.DataFrame(columns=header_daily_ip_bras)
+            data = data[data[HeaderIPBras.DATE] == self.date]
+            if data.empty: return pd.DataFrame(columns=header_daily_bbip)
             in_average = round(data[HeaderIPBras.IN_PROM].mean())
             in_max_average = round(float(data[HeaderIPBras.IN_MAX].max()))
             summary_data = pd.DataFrame({
@@ -119,12 +121,11 @@ class GenerateDailySummary:
                     type = filename.rsplit(self._separator_name)[0]
                     if layer != LayerName.IP_BRAS:
                         data = pd.read_csv(filepath, sep=self._separator_data, names=header_scan_bbip)
-                        data = data[data[HeaderBBIP.DATE] == self.date]
                         summary_data = self._calculate_summary_data(interface=name, type=type, capacity=capacity, data=data)
                     else: 
                         data = pd.read_csv(filepath, sep=self._separator_data, names=header_scan_ip_bras)
-                        data = data[data[HeaderIPBras.DATE] == self.date]
                         summary_data = self._calculate_summary_ip_data(interface=name, type=type, capacity=capacity, data=data)
+                    if summary_data.empty: continue
                     if summary_report.empty: summary_report = summary_data
                     else: summary_report = pd.concat([summary_report, summary_data], axis=0)
                     summary_report.reset_index(drop=True, inplace=True)
