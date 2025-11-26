@@ -12,6 +12,7 @@ DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 FORMATTER = logging.Formatter(LOG_FORMAT, DATE_FORMAT)
 NAME_FILE = "ScanBackup.log"
 
+
 class LogHandler:
     """Handler to realize all operation about log system."""
 

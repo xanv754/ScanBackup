@@ -23,7 +23,9 @@ class BBIPUpdaterHandler:
         type = filename.split(self._separator_name)[0]
         interface = filename.split(self._separator_name)[1].replace("&", "/")
         capacity = filename.split(self._separator_name)[2]
-        df_data = pd.read_csv(path, sep=self._separator_data, header=None, names=header_scan_bbip)
+        df_data = pd.read_csv(
+            path, sep=self._separator_data, header=None, names=header_scan_bbip
+        )
         if not force:
             df_data = df_data[df_data[HeaderBBIP.DATE] == date]
         if not df_data.empty:
@@ -43,15 +45,24 @@ class BBIPUpdaterHandler:
             files = [filename for filename in os.listdir(folderpath)]
             for filename in files:
                 if not self._force:
-                    df_data = pd.read_csv(os.path.join(folderpath, filename), sep=self._separator_data, header=None, names=header_scan_bbip)
+                    df_data = pd.read_csv(
+                        os.path.join(folderpath, filename),
+                        sep=self._separator_data,
+                        header=None,
+                        names=header_scan_bbip,
+                    )
                     df_data = df_data[df_data[HeaderBBIP.DATE] != self._date]
                     if not df_data.empty:
                         df_data = df_data.reset_index(drop=True)
-                        df_data.to_csv(os.path.join(folderpath, filename), sep=self._separator_data)
+                        df_data.to_csv(
+                            os.path.join(folderpath, filename), sep=self._separator_data
+                        )
                         continue
                 os.remove(os.path.join(folderpath, filename))
         except Exception as error:
-            log.error(f"BBIP Updater. {layer}: Fallo al limpiar los archivos de la capa - {error}")
+            log.error(
+                f"BBIP Updater. {layer}: Fallo al limpiar los archivos de la capa - {error}"
+            )
 
     def get_data(
         self, layer: str, date: str | None = None, force: bool = False
@@ -81,18 +92,24 @@ class BBIPUpdaterHandler:
                         force=force,
                     )
                 except Exception as error:
-                    log.error(f"Ha ocurrido un error al cargar la data del archivo: {filename} - {error}")
+                    log.error(
+                        f"Ha ocurrido un error al cargar la data del archivo: {filename} - {error}"
+                    )
                     continue
-            if not df_to_upload.empty: 
+            if not df_to_upload.empty:
                 df_to_upload = df_to_upload.drop_duplicates(
                     subset=[
-                        HeaderBBIP.NAME, HeaderBBIP.DATE, 
-                        HeaderBBIP.TIME, HeaderBBIP.CAPACITY
-                    ], 
-                    keep="first"
+                        HeaderBBIP.NAME,
+                        HeaderBBIP.DATE,
+                        HeaderBBIP.TIME,
+                        HeaderBBIP.CAPACITY,
+                    ],
+                    keep="first",
                 )
         except Exception as error:
-            log.error(f"BBIP Updater. {layer}: Fallo al cargar la data de la capa - {error}")
+            log.error(
+                f"BBIP Updater. {layer}: Fallo al cargar la data de la capa - {error}"
+            )
             return pd.DataFrame(columns=header_bbip)
         else:
             self._date = date
@@ -130,5 +147,7 @@ class BBIPUpdaterHandler:
                     self._clean_data(layer=layer)
                 return response
         except Exception as error:
-            log.error(f"BBIP Updater. {layer}: Fallo al cargar los datos de la capa en la base de datos - {error}")
+            log.error(
+                f"BBIP Updater. {layer}: Fallo al cargar los datos de la capa en la base de datos - {error}"
+            )
             return False

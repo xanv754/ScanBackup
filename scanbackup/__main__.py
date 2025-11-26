@@ -14,7 +14,9 @@ def cli():
 
 
 @cli.command(help="Obtiene el reporte diario del BBIP.")
-@click.option("--date", required=False, help="Obtiene el reporte diario del día del BBIP.")
+@click.option(
+    "--date", required=False, help="Obtiene el reporte diario del día del BBIP."
+)
 @click.option(
     "--dev", is_flag=True, required=False, help="Carga el entorno de desarrollo."
 )

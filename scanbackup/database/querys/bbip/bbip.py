@@ -21,7 +21,9 @@ class BBIPMongoQuery(BBIPQuery):
             database = DatabaseMongo(uri=uri)
             self._database = database
         except Exception as error:
-            log.error(f"Fallo al intentar conectarse a la base de datos del sistema - {error}")
+            log.error(
+                f"Fallo al intentar conectarse a la base de datos del sistema - {error}"
+            )
 
     def new_interface(self, collection: str, data: List[BBIPModel]) -> bool:
         try:
@@ -33,7 +35,9 @@ class BBIPMongoQuery(BBIPQuery):
                 status_insert = response.acknowledged
                 self._database.close_connection()
         except Exception as error:
-            log.error(f"Fallo al registrar las nuevas interfaces en la colección: {collection} - {error}")
+            log.error(
+                f"Fallo al registrar las nuevas interfaces en la colección: {collection} - {error}"
+            )
             return False
         else:
             return status_insert
@@ -52,7 +56,9 @@ class BBIPMongoQuery(BBIPQuery):
                 self._database.close_connection()
             return interface
         except Exception as error:
-            log.error(f"Fallo al intentar obtener una interfaz de la colección: {collection} - {error}")
+            log.error(
+                f"Fallo al intentar obtener una interfaz de la colección: {collection} - {error}"
+            )
             return DataFrame(columns=header_bbip)
 
     def get_interfaces(self, collection: str) -> DataFrame:
@@ -66,7 +72,9 @@ class BBIPMongoQuery(BBIPQuery):
                 self._database.close_connection()
             return interfaces
         except Exception as error:
-            log.error(f"Fallo al intentar obtener todas las interfaces de la colección: {collection} - {error}")
+            log.error(
+                f"Fallo al intentar obtener todas las interfaces de la colección: {collection} - {error}"
+            )
             return DataFrame(columns=header_bbip)
 
     def get_interfaces_by_date(self, collection: str, date: str) -> DataFrame:
@@ -80,5 +88,7 @@ class BBIPMongoQuery(BBIPQuery):
                 self._database.close_connection()
             return interfaces
         except Exception as error:
-            log.error(f"Fallo al intentar obtener las interfaces de la colección: {collection} del día: {date} - {error}")
+            log.error(
+                f"Fallo al intentar obtener las interfaces de la colección: {collection} del día: {date} - {error}"
+            )
             return DataFrame(columns=header_bbip)

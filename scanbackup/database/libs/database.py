@@ -178,9 +178,7 @@ class DatabaseMongo:
                     [(BBIPFieldName.DATE, ASCENDING)], name="ixp_by_date_index"
                 )
             if not self._check_collection(TableName.IP_BRAS):
-                db.create_collection(
-                    TableName.IP_BRAS, validator=IP_BRAS_SCHEMA_MONGO
-                )
+                db.create_collection(TableName.IP_BRAS, validator=IP_BRAS_SCHEMA_MONGO)
                 collection = db[TableName.IP_BRAS]
                 collection.create_index(
                     [
@@ -224,7 +222,9 @@ class DatabaseMongo:
                 )
             self.close_connection()
         except Exception as error:
-            log.error(f"Fallo al inicializar la base datos del sistema en MongoDB - {error}")
+            log.error(
+                f"Fallo al inicializar la base datos del sistema en MongoDB - {error}"
+            )
             return False
         else:
             return True
@@ -257,7 +257,9 @@ class DatabaseMongo:
             daily_report_collection.drop()
             self.close_connection()
         except Exception as error:
-            log.error(f"Fallo al destruir la base de datos del sistema en MongoDB - {error}")
+            log.error(
+                f"Fallo al destruir la base de datos del sistema en MongoDB - {error}"
+            )
             return False
         else:
             return True

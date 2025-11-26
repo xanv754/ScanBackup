@@ -22,7 +22,9 @@ class BBIPHandler:
             self.bbip_query = BBIPMongoQuery(uri=uri, dev=dev)
             self.daily_query = DailySummaryMongoQuery(uri=uri, dev=dev)
         except Exception as error:
-            log.error(f"BBIP handler. Fallo al intentarse conectarse a la base de datos del sistema - {error}")
+            log.error(
+                f"BBIP handler. Fallo al intentarse conectarse a la base de datos del sistema - {error}"
+            )
             self._error_connection = True
 
     def get_all_interfaces(self, layer: str) -> pd.DataFrame:
@@ -40,7 +42,9 @@ class BBIPHandler:
             collection = LayerDetector.get_table_name(layer=layer)
             df_interfaces = self.bbip_query.get_interfaces(collection=collection)
         except Exception as error:
-            log.error(f"BBIP handler. Fallo en la petición de todas las interfaces de la capa: {layer} - {error}")
+            log.error(
+                f"BBIP handler. Fallo en la petición de todas las interfaces de la capa: {layer} - {error}"
+            )
             return pd.DataFrame(columns=header_bbip)
         else:
             return df_interfaces
@@ -66,7 +70,9 @@ class BBIPHandler:
                 collection=collection, date=date
             )
         except Exception as error:
-            log.error(f"BBIP handler. Fallo en la petición de todas las interfaces de la capa: {layer} del día: {date} - {error}")
+            log.error(
+                f"BBIP handler. Fallo en la petición de todas las interfaces de la capa: {layer} del día: {date} - {error}"
+            )
             return pd.DataFrame(columns=header_bbip)
         else:
             return df_interfaces
@@ -91,7 +97,9 @@ class BBIPHandler:
                 date = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
             df_daily_report = self.daily_query.get_report(layer_type=layer, date=date)
         except Exception as error:
-            log.error(f"BBIP handler. Fallo en la petición de los reportes diarios de la capa: {layer} del día: {date} - {error}")
+            log.error(
+                f"BBIP handler. Fallo en la petición de los reportes diarios de la capa: {layer} del día: {date} - {error}"
+            )
             return pd.DataFrame(columns=header_daily)
         else:
             return df_daily_report

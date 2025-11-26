@@ -93,11 +93,11 @@ header_scan_bbip = [
 header_ip_bras = [
     HeaderIPBras.DATE,
     HeaderIPBras.TIME,
-    HeaderIPBras.BRAS_NAME, 
+    HeaderIPBras.BRAS_NAME,
     HeaderIPBras.CAPACITY,
     HeaderIPBras.IN_PROM,
     HeaderIPBras.IN_MAX,
-    HeaderIPBras.TYPE
+    HeaderIPBras.TYPE,
 ]
 
 header_scan_ip_bras = [
@@ -138,5 +138,5 @@ header_daily_ip_bras = [
     HeaderDailySummary.IN_PROM,
     HeaderDailySummary.IN_MAX,
     HeaderDailySummary.TYPE,
-    HeaderDailySummary.CAPACITY
+    HeaderDailySummary.CAPACITY,
 ]
