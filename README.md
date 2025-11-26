@@ -112,7 +112,7 @@ python3 -m scanbackup quincenal
 python3 -m scanbackup mensual
 ```
 
-Para más información sobre los comandos disponibles ejecutando el sistema, se puede leer la sección [Comandos](./COMMAND.md).
+Para más información sobre los comandos disponibles ejecutando el sistema, se puede leer la sección [Comandos](./COMMANDS.md).
 
 
 
