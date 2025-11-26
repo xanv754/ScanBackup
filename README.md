@@ -81,9 +81,9 @@ python3 –m scanbackup.database start
 # Pruebas unitarias
 Para ejecutar las pruebas unitarias del sistema, necesario tener el archivo `env.testing` con todas las [Variables de Entorno Requeridas](#variables-de-entorno-requeridas). Los siguientes comandos ejecutan las pruebas pertinentes:
 ```bash
-python -m unittest discover -s scanbackup/test/querys -p "*_test.py"
-python -m unittest discover -s scanbackup/test/updater -p "*_test.py"
-python -m unittest discover -s scanbackup/test/handler -p "*_test.py"
+python3 -m unittest discover -s scanbackup/test/querys -p "*_test.py"
+python3 -m unittest discover -s scanbackup/test/updater -p "*_test.py"
+python3 -m unittest discover -s scanbackup/test/handler -p "*_test.py"
 ```
 
 > *Nota:* Tenga en cuenta que siempre puede ejecutar pruebas unitarias individualmente siguiendo la [Documentación oficial de Unittest](!https://docs.python.org/es/3/library/unittest.html) de python.
@@ -106,10 +106,10 @@ make run
 
 Para poder ejecutar el generador de reportes, se debe ejecutar alguno de los siguientes comandos según corresponda:
 ```bash
-python -m scanbackup diario
-python -m scanbackup semanal
-python -m scanbackup quincenal
-python -m scanbackup mensual
+python3 -m scanbackup diario
+python3 -m scanbackup semanal
+python3 -m scanbackup quincenal
+python3 -m scanbackup mensual
 ```
 
 Para más información sobre los comandos disponibles ejecutando el sistema, se puede leer la sección [Comandos](./COMMAND.md).
