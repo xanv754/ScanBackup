@@ -10,24 +10,29 @@
     - [Limpieza de Data y Archivos Temporales](#limpieza-de-data-y-archivos-temporales)
     - [Actualización de Fuentes](#actualización-de-fuentes)
 - [Interfaz de Línea de Comandos del Sistema](#interfaz-de-línea-de-comandos-del-sistema)
-    - [Especificar Fecha para Recolección de Datos](#especificar-fecha-para-recolección-de-datos)
-    - [Especificar Capa de BBIP para Recolección de Datos](#especificar-capa-de-bbip-para-recolección-de-datos)
-    - [Especificar Fecha para el Procesamiento de Datos](#especificar-fecha-para-el-procesamiento-de-datos)
-    - [Especificar Capa de BBIP para el Procesamiento de Datos](#especificar-capa-de-bbip-para-el-procesamiento-de-datos)
-    - [Almacenamiento de Datos](#almacenamiento-de-datos)
-    - [Especificar Fecha para Almacenamiento de Datos](#especificar-fecha-para-almacenamiento-de-datos)
-    - [Especificar Capa de BBIP para Almacenamiento de Datos](#especificar-capa-de-bbip-para-almacenamiento-de-datos)
-    - [Forzar la Carga de Toda la Data Recolectada](#forzar-la-carga-de-toda-la-data-recolectada)
-    - [Especificar Carga de los Resúmenes Diarios](#especificar-carga-de-los-resúmenes-diarios)
-    - [Especificar Fecha para la Carga de los Resúmenes Diarios](#especificar-fecha-para-la-carga-de-los-resúmenes-diarios)
-    - [Forzar la Cargar de Todos los Resúmenes Diarios](#forzar-la-cargar-de-todos-los-resúmenes-diarios)
-    - [Especificar Capa para Actualizar las Fuentes](#especificar-capa-para-actualizar-las-fuentes)
-    - [Construcción de la Base de Datos](#construcción-de-la-base-de-datos)
-    - [Destrucción de la Base de Datos](#destrucción-de-la-base-de-datos)
-    - [Generación de Reporte Diario](#generación-de-reporte-diario)
-    - [Generación de Reporte Semanal](#generación-de-reporte-semanal)
-    - [Generación de Reporte Quincenal](#generación-de-reporte-quincenal)
-    - [Generación de Reporte Mensual](#generación-de-reporte-mensual)
+    - [Recolección de Datos Manual](#recolección-de-datos-manual)
+        - [Recolección en Día Específico](#recolección-en-día-específico)
+        - [Recolección en Capa Específica](#recolección-en-capa-específica)
+    - [Procesamiento de Datos Manual](#procesamiento-de-datos-manual)
+        - [Procesamiento de Día Específico](#procesamiento-de-día-específico)
+        - [Procesamiento de Capa Específica](#procesamiento-de-capa-específica)
+    - [Almacenamiento de Datos Manual](#almacenamiento-de-datos-manual)
+        - [Almacenamiento de Día Específico](#almacenamiento-de-día-específico)
+        - [Almacenamiento de Capa Específica](#almacenamiento-de-capa-específica)
+        - [Almacenamiento de Toda la Data Existente](#almacenamiento-de-toda-la-data-existente)
+    - [Almacenamiento Único de Data Procesada](#almacenamiento-único-de-data-procesada)
+        - [Almacenamiento de Día Específico](#almacenamiento-de-día-específico-1)
+        - [Almacenamiento de Toda la Data Existente](#almacenamiento-de-toda-la-data-existente-1)
+    - [Actualización de Archivos Fuentes del Sistema](#actualización-de-archivos-fuentes-del-sistema)
+        - [Actualización de las Fuentes de una Capa Específica](#actualización-de-las-fuentes-de-una-capa-específica)
+    - [Operaciones en la Base de Datos](#operaciones-en-la-base-de-datos)
+        - [Construcción de la Base de Datos](#construcción-de-la-base-de-datos)
+        - [Destrucción de la Base de Datos](#destrucción-de-la-base-de-datos)
+    - [Generación de Reportes](#generación-de-reportes)
+        - [Generación de Reporte Diario](#generación-de-reporte-diario)
+        - [Generación de Reporte Semanal](#generación-de-reporte-semanal)
+        - [Generación de Reporte Quincenal](#generación-de-reporte-quincenal)
+        - [Generación de Reporte Mensual](#generación-de-reporte-mensual)
 
 # Comandos
 ## Makefile
@@ -116,51 +121,57 @@ make updater-sources
 ## Interfaz de Línea de Comandos del Sistema
 Para la ejecución de los comandos descritos a continuación, se recuerda la activación del entorno virtual.
 
-### Especificar Fecha para Recolección de Datos
-Para recolectar los datos de SCAN de una fecha específica, se debe ejecutar el siguiente comando:
+### Recolección de Datos Manual
+Para realizar la ejecución manual para recolectar los datos de SCAN, se debe ejecutar el siguiente comando:
+```bash
+bash $(pwd)/scanbackup/routines/scanner.sh 
+```
+
+Esto iniciará la ejecución de consulta de tráfico de las interfaces especificas en los archivos fuentes del sistema. Para más información, revisar: [Archivos Fuentes del Sistema](./DOCUMENTATION.md#archivos-fuentes-del-sistema).
+
+#### Recolección en Día Específico
+Si se requiere especificar una fecha para recolectar información, se debe ejecutar el siguiente comando:
 ```bash
 bash $(pwd)/scanbackup/routines/scanner.sh <FECHA>
 ```
 
-Donde `<FECHA>` es la fecha del día que se desea recolectar en el formato `YYYY-MM-DD`. 
+Donde `<FECHA>` es la fecha del día que se desea recolectar en el formato `YYYY-MM-DD`. Por defecto, si no se especifica, se recolectará los datos del día anterior al actual.
 
-Por defecto, si no se especifica, se recolectará los datos del día anterior al actual.
-
-### Especificar Capa de BBIP para Recolección de Datos
-Para recolectar los datos de SCAN de una capa específica, se debe ejecutar el siguiente comando:
+#### Recolección en Capa Específica
+Si se requiere especificar una capa para recolectar información solo de esa capa, se debe ejecutar el siguiente comando:
 ```bash
 bash $(pwd)/scanbackup/routines/scanner.sh <FECHA> <LAYER>
 ```
 
 Donde `<FECHA>` es la fecha del día que se desea recolectar en el formato `YYYY-MM-DD` y `<LAYER>` es la capa de la que se desea recolectar los datos. 
 
-Las capas disponibles son: `BORDE`, `BRAS`, `CACHING`, `RAI`, `IXP`, `IPBRAS`.
+> **Nota**: Las capas disponibles son: `BORDE`, `BRAS`, `CACHING`, `RAI`, `IXP`, `IPBRAS`. Por defecto, si no se especifica, se recolectará los datos de todas las capas del día anterior al actual.
 
-Por defecto, si no se especifica, se recolectará los datos de todas las capas del día anterior al actual.
+### Procesamiento de Datos Manual
+Para realizar la ejecución manual para procesar los datos recolectados de SCAN, se debe ejecutar el siguiente comando:
+```bash
+python3 -m scanbackup.routines.daily
+```
 
-### Especificar Fecha para el Procesamiento de Datos
-Para procesar los datos de SCAN de una fecha específica y obtener los promedios diarios, se debe ejecutar el siguiente comando:
+#### Procesamiento de Día Específico
+Si se requiere especificar una fecha solo para procesar la data recolectada de SCAN que pertenezca a ese día, se debe ejecutar el siguiente comando:
 ```bash
 python3 -m scanbackup.routines.daily --date <FECHA>
 ```
 
-Donde `<FECHA>` es la fecha del día que se desea procesar en el formato `YYYY-MM-DD`. 
+Donde `<FECHA>` es la fecha del día que se desea procesar en el formato `YYYY-MM-DD`. Por defecto, si no se especifica, se procesará los datos del día anterior al actual.
 
-Por defecto, si no se especifica, se procesará los datos del día anterior al actual.
-
-### Especificar Capa de BBIP para el Procesamiento de Datos
-Para procesar los datos de SCAN de una capa específica y obtener los promedios diarios, se debe ejecutar el siguiente comando:
+#### Procesamiento de Capa Específica
+Si se requiere especificar una capa solo para procesar la data recolectada de SCAN que pertenezca a esa capa, se debe ejecutar el siguiente comando:
 ```bash
 python3 -m scanbackup.routines.daily --layer <LAYER>
 ```
 
 Donde `<LAYER>` es la capa de la que se desea procesar los datos.
 
-Las capas disponibles son: `BORDE`, `BRAS`, `CACHING`, `RAI`, `IXP`, `IPBRAS`.
+> **Nota**: Las capas disponibles son: `BORDE`, `BRAS`, `CACHING`, `RAI`, `IXP`, `IPBRAS`. Por defecto, si no se especifica, se procesará los datos de todas las capas.
 
-Por defecto, si no se especifica, se procesará los datos de todas las capas.
-
-### Almacenamiento de Datos
+### Almacenamiento de Datos Manual
 Para almacenar toda la data recolectada y procesada, se debe ejecutar el siguiente comando:
 ```bash
 python3 -m scanbackup.updater data
@@ -175,7 +186,7 @@ python3 -m scanbackup.updater data --dev
 
 **IMPORTANTE**: Para esto se debe creado el archivo `.env.development` con las variables de entorno requeridas.
 
-### Especificar Fecha para Almacenamiento de Datos
+#### Almacenamiento de Día Específico
 Para almacenar los datos de SCAN de una fecha específica, se debe ejecutar el siguiente comando:
 ```bash
 python3 -m scanbackup.updater data --date <FECHA>
@@ -185,7 +196,7 @@ Donde `<FECHA>` es la fecha del día que se desea almacenar en el formato `YYYY-
 
 > Nota: La bandera `--dev` es válida para combinación.
 
-### Especificar Capa de BBIP para Almacenamiento de Datos
+#### Almacenamiento de Capa Específica
 Para almacenar los datos de SCAN de una capa específica, se debe ejecutar el siguiente comando según la capa deseada:
 ```bash
 python3 -m scanbackup.updater data --borde 
@@ -198,7 +209,7 @@ python3 -m scanbackup.updater data --ipbras
 
 > Nota: La bandera `--date` y `--dev` es válida para combinación.
 
-### Forzar la Carga de Toda la Data Recolectada
+#### Almacenamiento de Toda la Data Existente
 Para subir toda la data recolectada y procesada, sin importar las fechas, se debe ejecutar el siguiente comando:
 ```bash
 python3 -m scanbackup.updater data --force
@@ -208,8 +219,8 @@ Esto subirá la data recolectada y procesada de todas las capas de todas las fec
 
 > Nota: La bandera `--dev` es válida para combinación.
 
-### Especificar Carga de los Resúmenes Diarios
-Para subir solo la data procesada de los resúmenes diarios, se debe ejecutar el siguiente comando:
+### Almacenamiento Único de Data Procesada
+Para subir solo la data procesada de los resúmenes de promedios de tráfico diarios, se debe ejecutar el siguiente comando:
 ```bash
 python3 -m scanbackup.updater daily
 ```
@@ -223,7 +234,7 @@ python3 -m scanbackup.updater daily --dev
 
 **IMPORTANTE**: Para esto se debe creado el archivo `.env.development` con las variables de entorno requeridas.
 
-### Especificar Fecha para la Carga de los Resúmenes Diarios
+#### Almacenamiento de Día Específico
 Para subir solo la data procesada de los resúmenes diarios de una fecha específica, se debe ejecutar el siguiente comando:
 ```bash
 python3 -m scanbackup.updater daily --date <FECHA>
@@ -233,7 +244,7 @@ Donde `<FECHA>` es la fecha del día que se desea almacenar en el formato `YYYY-
 
 > Nota: La bandera `--dev` es válida para combinación.
 
-### Forzar la Cargar de Todos los Resúmenes Diarios
+#### Almacenamiento de Toda la Data Existente
 Para subir todos los resúmenes diarios, sin importar las fechas, se debe ejecutar el siguiente comando:
 ```bash
 python3 -m scanbackup.updater daily --force
@@ -243,7 +254,21 @@ Esto subirá los resúmenes diarios de todas las capas de todas las fechas que s
 
 > Nota: La bandera `--dev` es válida para combinación.
 
-### Especificar Capa para Actualizar las Fuentes
+### Actualización de Archivos Fuentes del Sistema
+> **Nota**: Se deben especificar las variables de entorno opcionales para el correcto funcionamiento de este apartado. Véase: [Otras Variables de Entorno](./README.md#otras-variables-de-entorno).
+
+Para actualizar de forma automática los archivos fuentes del sistema (también válido para crear los archivos fuentes del sistema por primera vez), se debe ejecutar el siguiente comando:
+```bash
+python3 -m scanbackup.updater sources
+```
+
+Esto realizará un *web scrapping* en el sistema SCAN para obtener todas las interfaces de las distintas capas del sistema para su consulta.
+
+**IMPORTANTE**: Este módulo puede verse afectado con un cambio considerable en la estructura de la página de SCAN. Se recomienda ejecutar este comando con precaución. *NO SE AUTOMATICE DIARIAMENTE*. También debe tener en cuenta que, en algunos casos, pudiera faltar la capacidad de las interfaces si no se logra obtener. Se debe escribir la misma manualmente en el archivo.
+
+**SIEMPRE REALICE UNA REVISIÓN DE LOS ARCHIVOS FUENTES UNA VEZ FINALIZADA LA AUTOMATIZACIÓN.**
+
+#### Actualización de las Fuentes de una Capa Específica
 Para actualizar las fuentes del sistema solo para una capa específica, se debe ejecutar el siguiente comando según la capa deseada:
 ```bash
 python3 -m scanbackup.updater sources --borde 
@@ -253,7 +278,8 @@ python3 -m scanbackup.updater sources --rai
 python3 -m scanbackup.updater sources --ipbras
 ```
 
-### Construcción de la Base de Datos
+### Operaciones en la Base de Datos
+#### Construcción de la Base de Datos
 Para construir la base de datos, se debe ejecutar el siguiente comando:
 ```bash
 python3 -m scanbackup.database start
@@ -268,8 +294,7 @@ python3 -m scanbackup.database start --dev
 
 **IMPORTANTE**: Para esto se debe creado el archivo `.env.development` con las variables de entorno requeridas.
 
-
-### Destrucción de la Base de Datos
+#### Destrucción de la Base de Datos
 Para destruir la base de datos, se debe ejecutar el siguiente comando:
 ```bash
 python3 -m scanbackup.database drop
@@ -284,7 +309,8 @@ python3 -m scanbackup.database drop --dev
 
 **IMPORTANTE**: Para esto se debe creado el archivo `.env.development` con las variables de entorno requeridas.
 
-### Generación de Reporte Diario
+### Generación de Reportes
+#### Generación de Reporte Diario
 Para generar el reporte diario, se debe ejecutar el siguiente comando:
 ```bash
 python3 -m scanbackup diario
@@ -308,7 +334,7 @@ Donde `<FECHA>` es la fecha del día que se desea generar el reporte en el forma
 
 > Nota: La bandera `--dev` es válida para combinación.
 
-### Generación de Reporte Semanal
+#### Generación de Reporte Semanal
 Para generar el reporte semanal, se debe ejecutar el siguiente comando:
 ```bash
 python3 -m scanbackup semanal
@@ -332,7 +358,7 @@ Esto generará un reporte desde de la semana contando los 7 días hacia atrás i
 
 > Nota: La bandera `--dev` es válida para combinación.
 
-### Generación de Reporte Quincenal
+#### Generación de Reporte Quincenal
 Para generar el reporte quincenal, se debe ejecutar el siguiente comando:
 ```bash
 python3 -m scanbackup quincenal
@@ -356,7 +382,7 @@ Esto generará un reporte desde de la quincena contando los 15 días hacia atrá
 
 > Nota: La bandera `--dev` es válida para combinación.
 
-### Generación de Reporte Mensual
+#### Generación de Reporte Mensual
 Para generar el reporte mensual, se debe ejecutar el siguiente comando:
 ```bash
 python3 -m scanbackup mensual
