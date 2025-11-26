@@ -20,6 +20,8 @@ Un sistema diseñado para la recolección de datos de tráfico de todas las inte
 
 **IMPORTANTE:** Antes de realizar cualquier operación o modificación del sistema, se recomienda leer todo este archivo para entender el funcionamiento del sistema y sus procedimientos.
 
+También puedes visualizar la documentación del funcionamiento en: [Funcionamiento del Sistema](./DOCUMENTATION.md)
+
 # Requerimientos
 El sistema requiere la instalación de:
 - Python 3.10 o superior. 
