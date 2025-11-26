@@ -18,7 +18,9 @@ class SummaryReportBBIP:
         df_borde = df_borde.drop(columns=[HeaderDailySummary.TYPE_LAYER])
         df_bras = df_data[df_data[HeaderDailySummary.TYPE_LAYER] == LayerName.BRAS]
         df_bras = df_bras.drop(columns=[HeaderDailySummary.TYPE_LAYER])
-        df_caching = df_data[df_data[HeaderDailySummary.TYPE_LAYER] == LayerName.CACHING]
+        df_caching = df_data[
+            df_data[HeaderDailySummary.TYPE_LAYER] == LayerName.CACHING
+        ]
         df_caching = df_caching.drop(columns=[HeaderDailySummary.TYPE_LAYER])
         df_rai = df_data[df_data[HeaderDailySummary.TYPE_LAYER] == LayerName.RAI]
         df_rai = df_rai.drop(columns=[HeaderDailySummary.TYPE_LAYER])
@@ -26,7 +28,9 @@ class SummaryReportBBIP:
         df_ixp = df_ixp.drop(columns=[HeaderDailySummary.TYPE_LAYER])
         return df_borde, df_bras, df_caching, df_rai, df_ixp
 
-    def summary_diary(self, date: str | None = None, default: bool = False, dev: bool = False) -> bool:
+    def summary_diary(
+        self, date: str | None = None, default: bool = False, dev: bool = False
+    ) -> bool:
         """Gets all layer data required for the daily report.
 
         :param date: Date to get data.
@@ -57,7 +61,9 @@ class SummaryReportBBIP:
             else:
                 pass
         except Exception as error:
-            log.error(f"Summary report. Fallo al obtener el reporte diario del BBIP - {error}")
+            log.error(
+                f"Summary report. Fallo al obtener el reporte diario del BBIP - {error}"
+            )
             return False
         else:
             return True
@@ -92,7 +98,9 @@ class SummaryReportBBIP:
             excel = ExcelExport(filename="Data_Semanal_BBIP", data=data)
             excel.export()
         except Exception as error:
-            log.error(f"Summary report. Fallo al obtener el reporte semanal del BBIP - {error}")
+            log.error(
+                f"Summary report. Fallo al obtener el reporte semanal del BBIP - {error}"
+            )
             return False
         else:
             return True
@@ -127,7 +135,9 @@ class SummaryReportBBIP:
             excel = ExcelExport(filename="Data_Quincenal_BBIP", data=data)
             excel.export()
         except Exception as error:
-            log.error(f"Summary report. Fallo al obtener el reporte quincenal del BBIP - {error}")
+            log.error(
+                f"Summary report. Fallo al obtener el reporte quincenal del BBIP - {error}"
+            )
             return False
         else:
             return True
@@ -162,7 +172,9 @@ class SummaryReportBBIP:
             excel = ExcelExport(filename="Data_Mensual_BBIP", data=data)
             excel.export()
         except Exception as error:
-            log.error(f"Summary report. Fallo al obtener el reporte mensual del BBIP - {error}")
+            log.error(
+                f"Summary report. Fallo al obtener el reporte mensual del BBIP - {error}"
+            )
             return False
         else:
             return True

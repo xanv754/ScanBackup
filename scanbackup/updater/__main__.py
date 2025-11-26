@@ -139,16 +139,14 @@ def data(
             target=UpdaterHandler, args=(LayerName.IP_BRAS, uri, date, force)
         )
         ipbras_handler.start()
-        
+
         borde_handler.join()
         bras_handler.join()
         caching_handler.join()
         rai_handler.join()
         ixp_handler.join()
         ipbras_handler.join()
-    UpdaterHandler(
-        layer=LayerName.DAILY_SUMMARY, uri=uri, date=date, force=force
-    )
+    UpdaterHandler(layer=LayerName.DAILY_SUMMARY, uri=uri, date=date, force=force)
 
 
 @cli.command(help="Carga la data de los reportes diarios en el sistema.")
@@ -167,9 +165,7 @@ def data(
 def daily(date: str | None = None, force: bool = False, dev: bool = False):
     config = URIEnvironment(dev=dev)
     uri = config.get_uri_db()
-    UpdaterHandler(
-        layer=LayerName.DAILY_SUMMARY, uri=uri, date=date, force=force
-    )
+    UpdaterHandler(layer=LayerName.DAILY_SUMMARY, uri=uri, date=date, force=force)
 
 
 @cli.command(help="Recarga los enlaces para obtener la información de SCAN.")
@@ -215,7 +211,7 @@ def sources(
     caching: bool = False,
     rai: bool = False,
     ipbras: bool = False,
-    ixp: bool = False
+    ixp: bool = False,
 ):
     log.info("Inicio de la actualización de las fuentes...")
     if borde:

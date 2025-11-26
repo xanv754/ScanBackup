@@ -12,7 +12,7 @@ IP_HISTORY_SCHEMA: Dict[str, Dict[str, Any]] = {
             IPBrasFieldName.CAPACITY,
             IPBrasFieldName.IN_PROM,
             IPBrasFieldName.IN_MAX,
-            IPBrasFieldName.TYPE
+            IPBrasFieldName.TYPE,
         ],
         "properties": {
             IPBrasFieldName.DATE: {

@@ -41,7 +41,9 @@ class BBIPResponseAdapter:
             df = pd.read_csv(buffer, sep=";", header=None, names=header_bbip)
             return df
         except Exception as error:
-            log.error(f"Fallo del adaptador para transformar la respuesta de la base de datos (BBIP) - {error}")
+            log.error(
+                f"Fallo del adaptador para transformar la respuesta de la base de datos (BBIP) - {error}"
+            )
             return pd.DataFrame(columns=header_bbip)
 
 
@@ -75,7 +77,9 @@ class DailySummaryResponseAdapter:
             df = pd.read_csv(buffer, sep=";", header=None, names=header_daily)
             return df
         except Exception as error:
-            log.error(f"Fallo del adaptador para transformar la respuesta de la base de datos (reportes diarios) - {error}")
+            log.error(
+                f"Fallo del adaptador para transformar la respuesta de la base de datos (reportes diarios) - {error}"
+            )
             return pd.DataFrame(columns=header_daily)
 
 
@@ -104,5 +108,7 @@ class IPBrasResponseAdapter:
             df = pd.read_csv(buffer, sep=";", header=None, names=header_bbip)
             return df
         except Exception as error:
-            log.error(f"Fallo del adaptador para transformar la respuesta de la base de datos (BBIP) - {error}")
+            log.error(
+                f"Fallo del adaptador para transformar la respuesta de la base de datos (BBIP) - {error}"
+            )
             return pd.DataFrame(columns=header_bbip)

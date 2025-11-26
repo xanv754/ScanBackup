@@ -21,7 +21,9 @@ class DailySummaryMongoQuery(DailySummaryQuery):
             database = DatabaseMongo(uri=uri)
             self._database = database
         except Exception as error:
-            log.error(f"Fallo al intentar conectarse a la base de datos del sistema - {error}")
+            log.error(
+                f"Fallo al intentar conectarse a la base de datos del sistema - {error}"
+            )
 
     def new_report(self, data: List[DailySummaryModel]):
         try:
@@ -34,7 +36,9 @@ class DailySummaryMongoQuery(DailySummaryQuery):
                 self._database.close_connection()
             return status_insert
         except Exception as error:
-            log.error(f"Fallo al registrar las nuevas interfaces en la colección de los reportes diarios - {error}")
+            log.error(
+                f"Fallo al registrar las nuevas interfaces en la colección de los reportes diarios - {error}"
+            )
             return False
 
     def get_report(self, layer_type: str, date: str):
@@ -56,5 +60,7 @@ class DailySummaryMongoQuery(DailySummaryQuery):
                 self._database.close_connection()
             return traffic
         except Exception as error:
-            log.error(f"Fallo al intentar obtener la data de reportes diarios de la capa: {layer_type} del día: {date} - {error}")
+            log.error(
+                f"Fallo al intentar obtener la data de reportes diarios de la capa: {layer_type} del día: {date} - {error}"
+            )
             return DataFrame(columns=header_daily)

@@ -4,9 +4,7 @@ from scanbackup.utils.configuration.env import Environment
 class URIEnvironment(Environment):
     """A class that inherits from `Environment` to get the database URI from environment variables."""
 
-    def __init__(
-        self, dev: bool = False, testing: bool = False
-    ) -> None:
+    def __init__(self, dev: bool = False, testing: bool = False) -> None:
         super().__init__(dev, testing)
 
     def get_uri_db(self) -> str:

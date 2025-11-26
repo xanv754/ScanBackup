@@ -26,7 +26,9 @@ class LayerDetector:
         elif layer == LayerName.DAILY_SUMMARY:
             return DataPath.SCAN_REPORT_DAILY
         else:
-            raise FileNotFoundError(f"No se ha encontrado la especificación de la capa: {layer} en el sistema")
+            raise FileNotFoundError(
+                f"No se ha encontrado la especificación de la capa: {layer} en el sistema"
+            )
 
     @staticmethod
     def get_table_name(layer: str) -> str:
@@ -51,4 +53,6 @@ class LayerDetector:
         elif layer == LayerName.DAILY_SUMMARY:
             return TableName.DAILY_SUMMARY
         else:
-            raise FileNotFoundError(f"No se ha encontrado la especificación de la capa: {layer} en el sistema")
+            raise FileNotFoundError(
+                f"No se ha encontrado la especificación de la capa: {layer} en el sistema"
+            )
