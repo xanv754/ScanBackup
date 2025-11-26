@@ -86,7 +86,7 @@ python -m unittest discover -s scanbackup/test/updater -p "*_test.py"
 python -m unittest discover -s scanbackup/test/handler -p "*_test.py"
 ```
 
-> *Nota:* Tenga en cuenta que siempre puede ejecutar pruebas unitarias individualmente siguiendo la documentación oficial de Unittest de python.
+> *Nota:* Tenga en cuenta que siempre puede ejecutar pruebas unitarias individualmente siguiendo la [Documentación oficial de Unittest](!https://docs.python.org/es/3/library/unittest.html) de python.
 
 # Comandos Básicos
 ## Configuración del Sistema
