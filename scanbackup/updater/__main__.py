@@ -78,43 +78,43 @@ def data(
     log.info("Inicio de actualización de datos del sistema...")
     config = URIEnvironment(dev=dev)
     uri = config.get_uri_db()
-    if borde and not bras and not caching and not rai and not ixp and not ipbras:
+    if borde:
         borde_handler = Process(
             target=UpdaterHandler, args=(LayerName.BORDE, uri, date, force)
         )
         borde_handler.start()
         borde_handler.join()
-    elif bras and not borde and not caching and not rai and not ixp and not ipbras:
+    if bras:
         bras_handler = Process(
             target=UpdaterHandler, args=(LayerName.BRAS, uri, date, force)
         )
         bras_handler.start()
         bras_handler.join()
-    elif caching and not borde and not bras and not rai and not ixp and not ipbras:
+    if caching:
         caching_handler = Process(
             target=UpdaterHandler, args=(LayerName.CACHING, uri, date, force)
         )
         caching_handler.start()
         caching_handler.join()
-    elif rai and not borde and not bras and not caching and not ixp and not ipbras:
+    if rai:
         rai_handler = Process(
             target=UpdaterHandler, args=(LayerName.RAI, uri, date, force)
         )
         rai_handler.start()
         rai_handler.join()
-    elif ixp and not borde and not bras and not caching and not rai and not ipbras:
+    if ixp:
         ixp_handler = Process(
             target=UpdaterHandler, args=(LayerName.IXP, uri, date, force)
         )
         ixp_handler.start()
         ixp_handler.join()
-    elif ipbras and not borde and not bras and not caching and not rai and not ixp:
+    if ipbras:
         ipbras_handler = Process(
             target=UpdaterHandler, args=(LayerName.IP_BRAS, uri, date, force)
         )
         ipbras_handler.start()
         ipbras_handler.join()
-    else:
+    if not borde and not bras and not caching and not rai and not ixp and not ipbras:
         borde_handler = Process(
             target=UpdaterHandler, args=(LayerName.BORDE, uri, date, force)
         )
