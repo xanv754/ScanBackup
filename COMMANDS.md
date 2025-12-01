@@ -132,7 +132,7 @@ Esto iniciará la ejecución de consulta de tráfico de las interfaces especific
 #### Recolección en Día Específico
 Si se requiere especificar una fecha para recolectar información, se debe ejecutar el siguiente comando:
 ```bash
-bash $(pwd)/ScanBackup/routines/scanner.sh <FECHA>
+bash $(pwd)/scanbackup/routines/scanner.sh <FECHA>
 ```
 
 Donde `<FECHA>` es la fecha del día que se desea recolectar en el formato `YYYY-MM-DD`. Por defecto, si no se especifica, se recolectará los datos del día anterior al actual.
@@ -140,7 +140,7 @@ Donde `<FECHA>` es la fecha del día que se desea recolectar en el formato `YYYY
 #### Recolección en Capa Específica
 Si se requiere especificar una capa para recolectar información solo de esa capa, se debe ejecutar el siguiente comando:
 ```bash
-bash $(pwd)/ScanBackup/routines/scanner.sh <FECHA> <LAYER>
+bash $(pwd)/scanbackup/routines/scanner.sh <FECHA> <LAYER>
 ```
 
 Donde `<FECHA>` es la fecha del día que se desea recolectar en el formato `YYYY-MM-DD` y `<LAYER>` es la capa de la que se desea recolectar los datos. 
@@ -406,3 +406,4 @@ Esto generará un reporte desde de la mensual contando los 30 días hacia atrás
 
 
 > Nota: La bandera `--dev` es válida para combinación.
+
