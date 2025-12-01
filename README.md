@@ -64,11 +64,14 @@ SCAN_URL_IXP="url" # Página principal de los enlaces
 > *Nota:* Esto puede ser omitido si no se espera realizar la ejecución del mismo. Por defecto, se puede omitir.
 
 # Instalación 
-> *Nota*: Se recomienda realizar la instalación del sistema con el comando disponible del makefile. Revisar [Configuración-del-Sistema](./COMMAND.md#configuración-del-sistema). 
+> *Nota*: Se recomienda realizar la instalación del sistema con el comando disponible del makefile. Revisar [Configuración-del-Sistema](./COMMAND.md#configuración-del-sistema).
 
-El proyecto cuenta con un archivo `pyproject.toml` que contiene toda la información necesaria para instalar el sistema. 
+Para realizar la configuración ideal, se debe ejecutar el siguiente comando:
+```bash
+make setup
+```
 
-Para instalar el sistema, se debe ejecutar el siguiente comando:
+El proyecto cuenta con un archivo `pyproject.toml` que contiene toda la información necesaria para instalar el sistema. Para instalar el sistema de forma manual, se debe ejecutar el siguiente comando:
 ```bash
 pip install .
 ```
