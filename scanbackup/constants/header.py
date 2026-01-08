@@ -85,8 +85,8 @@ header_scan_bbip = [
     HeaderBBIP.DATE,
     HeaderBBIP.TIME,
     HeaderBBIP.IN_PROM,
-    HeaderBBIP.IN_MAX,
     HeaderBBIP.OUT_PROM,
+    HeaderBBIP.IN_MAX,
     HeaderBBIP.OUT_MAX,
 ]
 
