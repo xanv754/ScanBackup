@@ -14,7 +14,7 @@ class IPBrasUpdaterHandler:
     _force: bool = False
     _separator_data: str = ";"
     _separator_name: str = ";"
-    
+
     def _get_data_information(
         self, path: str, data_uploading: pd.DataFrame, date: str, force: bool
     ) -> pd.DataFrame:
@@ -23,8 +23,11 @@ class IPBrasUpdaterHandler:
         type = filename.split(self._separator_name)[0]
         bras = filename.split(self._separator_name)[1]
         capacity = filename.split(self._separator_name)[2]
-        df_data = pd.read_csv(path, sep=self._separator_data, header=None, names=header_scan_ip_bras)
-        if not force: df_data = df_data[df_data[HeaderIPBras.DATE] == date]
+        df_data = pd.read_csv(
+            path, sep=self._separator_data, header=None, names=header_scan_ip_bras
+        )
+        if not force:
+            df_data = df_data[df_data[HeaderIPBras.DATE] == date]
         if not df_data.empty:
             df_data[HeaderIPBras.BRAS_NAME] = bras
             df_data[HeaderIPBras.CAPACITY] = capacity
@@ -42,16 +45,24 @@ class IPBrasUpdaterHandler:
             files = [filename for filename in os.listdir(folderpath)]
             for filename in files:
                 if not self._force:
-                    df_data = pd.read_csv(os.path.join(folderpath, filename), sep=self._separator_data, header=None, names=header_scan_ip_bras)
+                    df_data = pd.read_csv(
+                        os.path.join(folderpath, filename),
+                        sep=self._separator_data,
+                        header=None,
+                        names=header_scan_ip_bras,
+                    )
                     df_data = df_data[df_data[HeaderIPBras.DATE] != self._date]
                     if not df_data.empty:
                         df_data = df_data.reset_index(drop=True)
-                        df_data.to_csv(os.path.join(folderpath, filename), sep=self._separator_data)
+                        df_data.to_csv(
+                            os.path.join(folderpath, filename), sep=self._separator_data
+                        )
                         continue
                 os.remove(os.path.join(folderpath, filename))
         except Exception as error:
-            log.error(f"BBIP Updater. {LayerName.IP_BRAS}: Fallo al limpiar los archivos de la capa - {error}")
-
+            log.error(
+                f"BBIP Updater. {LayerName.IP_BRAS}: Fallo al limpiar los archivos de la capa - {error}"
+            )
 
     def get_data(self, date: str | None = None, force: bool = False) -> pd.DataFrame:
         """Get data to be loaded in the database.
@@ -77,10 +88,14 @@ class IPBrasUpdaterHandler:
                         force=force,
                     )
                 except Exception as error:
-                    log.error(f"Ha ocurrido un error al cargar la data del archivo: {filename} - {error}")
+                    log.error(
+                        f"Ha ocurrido un error al cargar la data del archivo: {filename} - {error}"
+                    )
                     continue
         except Exception as error:
-            log.error(f"BBIP Updater. IPBRAS: Fallo al cargar la data de la capa - {error}")
+            log.error(
+                f"BBIP Updater. IPBRAS: Fallo al cargar la data de la capa - {error}"
+            )
             return pd.DataFrame(columns=header_scan_ip_bras)
         else:
             self._date = date
@@ -111,8 +126,11 @@ class IPBrasUpdaterHandler:
                 return False
             else:
                 response = query.new_bras(json)
-                if response: self._clean_data()
+                if response:
+                    self._clean_data()
                 return response
         except Exception as error:
-            log.error(f"BBIP Updater. IPBRAS: Fallo al cargar los datos de la capa en la base de datos - {error}")
+            log.error(
+                f"BBIP Updater. IPBRAS: Fallo al cargar los datos de la capa en la base de datos - {error}"
+            )
             return False

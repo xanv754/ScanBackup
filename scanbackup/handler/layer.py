@@ -20,7 +20,9 @@ class LayerHandler:
         try:
             self.bbip_handler = BBIPHandler(uri=uri, dev=dev)
         except Exception as error:
-            log.error(f"Layer handler. Fallo al intentarse conectarse a la base de datos del sistema - {error}")
+            log.error(
+                f"Layer handler. Fallo al intentarse conectarse a la base de datos del sistema - {error}"
+            )
             self.__error_connection = True
 
     def get_all_interfaces(self) -> pd.DataFrame:
@@ -57,7 +59,9 @@ class LayerHandler:
             else:
                 return pd.DataFrame(columns=header_all_bbip)
         except Exception as error:
-            log.error(f"Layer handler. Fallo en la petición de todas las interfaces del BBIP - {error}")
+            log.error(
+                f"Layer handler. Fallo en la petición de todas las interfaces del BBIP - {error}"
+            )
             return pd.DataFrame(columns=header_all_bbip)
 
     def get_all_interfaces_by_date(self, date: str) -> pd.DataFrame:
@@ -155,7 +159,9 @@ class LayerHandler:
             else:
                 return pd.DataFrame(columns=header_daily)
         except Exception as error:
-            log.error(f"Layer handler. Fallo en la petición de todos los reportes diarios del BBIP del día: {date} - {error}")
+            log.error(
+                f"Layer handler. Fallo en la petición de todos los reportes diarios del BBIP del día: {date} - {error}"
+            )
             return pd.DataFrame(columns=header_daily)
 
     def get_all_daily_data_on_week(self) -> pd.DataFrame:
@@ -185,7 +191,9 @@ class LayerHandler:
                     df_daily_report.reset_index(drop=True, inplace=True)
                 date = date + timedelta(days=1)
         except Exception as error:
-            log.error(f"Layer handler. Fallo en la petición de todos los reportes diarios de la semana del BBIP - {error}")
+            log.error(
+                f"Layer handler. Fallo en la petición de todos los reportes diarios de la semana del BBIP - {error}"
+            )
             return pd.DataFrame()
         else:
             return df_daily_report
@@ -231,7 +239,9 @@ class LayerHandler:
                     df_daily_report.reset_index(drop=True, inplace=True)
                 first_date = first_date + timedelta(days=1)
         except Exception as error:
-            log.error(f"Layer handler. Fallo en la petición de todos los reportes diarios del BBIP del 01 hasta {date_to} - {error}")
+            log.error(
+                f"Layer handler. Fallo en la petición de todos los reportes diarios del BBIP del 01 hasta {date_to} - {error}"
+            )
             return pd.DataFrame()
         else:
             return df_daily_report
@@ -259,7 +269,9 @@ class LayerHandler:
                     df_daily_report.drop_duplicates(inplace=True)
                     df_daily_report.reset_index(drop=True, inplace=True)
         except Exception as error:
-            log.error(f"Layer handler. Fallo en la petición de todos los reportes diarios del BBIP {day_before} días antes - {error}")
+            log.error(
+                f"Layer handler. Fallo en la petición de todos los reportes diarios del BBIP {day_before} días antes - {error}"
+            )
             return pd.DataFrame()
         else:
             return df_daily_report

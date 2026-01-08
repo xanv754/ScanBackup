@@ -22,7 +22,7 @@ paths_BBIP_SCAN = [
     DataPath.SCAN_DATA_BRAS,
     DataPath.SCAN_DATA_CACHING,
     DataPath.SCAN_DATA_RAI,
-    DataPath.SCAN_DATA_IP_BRAS
+    DataPath.SCAN_DATA_IP_BRAS,
 ]
 
 

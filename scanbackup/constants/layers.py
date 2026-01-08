@@ -23,5 +23,5 @@ foldername_BBIP_SCAN = [
     LayerName.CACHING,
     LayerName.RAI,
     LayerName.IXP,
-    LayerName.IP_BRAS
+    LayerName.IP_BRAS,
 ]
