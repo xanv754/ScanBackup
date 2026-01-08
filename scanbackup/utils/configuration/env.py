@@ -13,9 +13,7 @@ class Environment:
     _env: Dict[str, str | None] | None
     _base_path: str = path.abspath(path.join(path.dirname(__file__), "..", "..", ".."))
 
-    def __init__(
-        self, dev: bool = False, test: bool = False
-    ) -> None:
+    def __init__(self, dev: bool = False, test: bool = False) -> None:
         self._env = self._get_env_file(dev, test)
 
     def _get_env_file(
@@ -52,7 +50,7 @@ class Environment:
         except Exception as error:
             log.error(f"Error en las variables de entorno del sistema - {error}")
             exit(1)
-            
+
     def get_env(self, name: str, optional: bool = True) -> str | None:
         """Gets the URL to update the sources.
 
@@ -66,6 +64,9 @@ class Environment:
                 return env
             raise Exception("No se ha podido encontrar las variables de entorno")
         except Exception as error:
-            log.error(f"No se ha encontrado las variables de entorno requeridas - {error}")
-            if optional: return None
+            log.error(
+                f"No se ha encontrado las variables de entorno requeridas - {error}"
+            )
+            if optional:
+                return None
             exit(1)

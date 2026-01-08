@@ -11,7 +11,7 @@ from scanbackup.utils.configuration.sources import (
     URLIpBrasEnvironment,
     URLIxpEnvironment,
     URLRaiHuaweiEnvironment,
-    URLRaiZteEnvironment
+    URLRaiZteEnvironment,
 )
 from scanbackup.utils.configuration.user import UserEnvironment
 from scanbackup.utils.export.excel import ExcelExport
@@ -39,5 +39,5 @@ __all__ = [
     "URLIxpEnvironment",
     "URLRaiHuaweiEnvironment",
     "URLRaiZteEnvironment",
-    "UserEnvironment"
+    "UserEnvironment",
 ]

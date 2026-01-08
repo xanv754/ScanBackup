@@ -20,7 +20,9 @@ class IPBrasMongoQuery:
             database = DatabaseMongo(uri=uri)
             self._database = database
         except Exception as error:
-            log.error(f"Fallo al intentar conectarse a la base de datos del sistema - {error}")
+            log.error(
+                f"Fallo al intentar conectarse a la base de datos del sistema - {error}"
+            )
 
     def new_bras(self, data: List[IPBrasModel]) -> bool:
         """Register new data of IP bras.
@@ -38,7 +40,9 @@ class IPBrasMongoQuery:
                 status_insert = response.acknowledged
                 self._database.close_connection()
         except Exception as error:
-            log.error(f"Fallo al registrar las nuevas interfaces en la colección: {TableName.IP_BRAS} - {error}")
+            log.error(
+                f"Fallo al registrar las nuevas interfaces en la colección: {TableName.IP_BRAS} - {error}"
+            )
             return False
         else:
             return status_insert
@@ -61,7 +65,9 @@ class IPBrasMongoQuery:
                 self._database.close_connection()
             return data
         except Exception as error:
-            log.error(f"Fallo al intentar obtener la data de IP del agregador: {brasname} - {error}")
+            log.error(
+                f"Fallo al intentar obtener la data de IP del agregador: {brasname} - {error}"
+            )
             return DataFrame(columns=header_ip_bras)
 
     def get_all_bras(self) -> DataFrame:
@@ -79,7 +85,9 @@ class IPBrasMongoQuery:
                 self._database.close_connection()
             return data
         except Exception as error:
-            log.error(f"Fallo al intentar obtener toda la data de IP de los agregadores - {error}")
+            log.error(
+                f"Fallo al intentar obtener toda la data de IP de los agregadores - {error}"
+            )
             return DataFrame(columns=header_ip_bras)
 
     def get_bras_by_date(self, date: str) -> DataFrame:
@@ -99,5 +107,7 @@ class IPBrasMongoQuery:
                 self._database.close_connection()
             return data
         except Exception as error:
-            log.error(f"Fallo al intentar obtener toda data de IP de los agregadores filtrado por el día {date} - {error}")
+            log.error(
+                f"Fallo al intentar obtener toda data de IP de los agregadores filtrado por el día {date} - {error}"
+            )
             return DataFrame(columns=header_ip_bras)

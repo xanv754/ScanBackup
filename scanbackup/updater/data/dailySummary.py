@@ -28,18 +28,34 @@ class DailySummaryUpdaterHandler:
         """Read all summary daily of a layer specified through a path."""
         filename = os.path.basename(path)
         layer = filename.split("/")[-1].upper().strip()
-        if layer != LayerName.IP_BRAS: df = pd.read_csv(path, sep=self._separator, names=header_daily_bbip, index_col=False, skiprows=1)
+        if layer != LayerName.IP_BRAS:
+            df = pd.read_csv(
+                path,
+                sep=self._separator,
+                names=header_daily_bbip,
+                index_col=False,
+                skiprows=1,
+            )
         else:
-            df = pd.read_csv(path, sep=self._separator, names=header_daily_ip_bras, index_col=False, skiprows=1)
+            df = pd.read_csv(
+                path,
+                sep=self._separator,
+                names=header_daily_ip_bras,
+                index_col=False,
+                skiprows=1,
+            )
             df[HeaderDailySummary.OUT_MAX] = 0
             df[HeaderDailySummary.OUT_PROM] = 0
             df[HeaderDailySummary.USE] = 0
             df.rename(columns={HeaderIPBras.BRAS_NAME: HeaderBBIP.NAME}, inplace=True)
-        if not force: df = df[df[HeaderDailySummary.DATE] == date]
+        if not force:
+            df = df[df[HeaderDailySummary.DATE] == date]
         if not df.empty:
             df[HeaderDailySummary.TYPE_LAYER] = layer
-            if data_uploading.empty: data_uploading = df
-            else: data_uploading = pd.concat([data_uploading, df], axis=0)
+            if data_uploading.empty:
+                data_uploading = df
+            else:
+                data_uploading = pd.concat([data_uploading, df], axis=0)
         return data_uploading
 
     def _clean_data(self) -> None:
@@ -50,17 +66,33 @@ class DailySummaryUpdaterHandler:
             for filename in files:
                 if not self._force:
                     if filename != LayerName.IP_BRAS:
-                        df_data = pd.read_csv(os.path.join(folderpath, filename), sep=self._separator, header=None, names=header_daily_bbip, skiprows=1)
+                        df_data = pd.read_csv(
+                            os.path.join(folderpath, filename),
+                            sep=self._separator,
+                            header=None,
+                            names=header_daily_bbip,
+                            skiprows=1,
+                        )
                         df_data = df_data[df_data[HeaderBBIP.DATE] != self._date]
                     else:
-                        df_data = pd.read_csv(os.path.join(folderpath, filename), sep=self._separator, header=None, names=header_daily_ip_bras, skiprows=1)
+                        df_data = pd.read_csv(
+                            os.path.join(folderpath, filename),
+                            sep=self._separator,
+                            header=None,
+                            names=header_daily_ip_bras,
+                            skiprows=1,
+                        )
                         df_data = df_data[df_data[HeaderIPBras.DATE] != self._date]
                     if not df_data.empty:
-                        df_data.to_csv(os.path.join(folderpath, filename), sep=self._separator)
+                        df_data.to_csv(
+                            os.path.join(folderpath, filename), sep=self._separator
+                        )
                         continue
                 os.remove(os.path.join(folderpath, filename))
         except Exception as error:
-            log.error(f"Daily Summary Updater. DAILY SUMMARY: Fallo al limpiar los archivos de la capa - {error}")
+            log.error(
+                f"Daily Summary Updater. DAILY SUMMARY: Fallo al limpiar los archivos de la capa - {error}"
+            )
 
     def get_data(self, date: str | None = None, force: bool = False) -> pd.DataFrame:
         """Get data to be loaded in the database.
@@ -86,19 +118,25 @@ class DailySummaryUpdaterHandler:
                         force=force,
                     )
                 except Exception as error:
-                    log.error(f"Daily Summary Updater. DAILY SUMMARY: Ha ocurrido un error al cargar la data del archivo: {filename} - {error}")
+                    log.error(
+                        f"Daily Summary Updater. DAILY SUMMARY: Ha ocurrido un error al cargar la data del archivo: {filename} - {error}"
+                    )
                     continue
-            if not df_data.empty: 
+            if not df_data.empty:
                 df_data = df_data.drop_duplicates(
                     subset=[
-                        HeaderDailySummary.NAME, HeaderDailySummary.DATE, 
-                        HeaderDailySummary.CAPACITY, HeaderDailySummary.TYPE_LAYER, 
-                        HeaderDailySummary.TYPE
-                    ], 
-                    keep="first"
+                        HeaderDailySummary.NAME,
+                        HeaderDailySummary.DATE,
+                        HeaderDailySummary.CAPACITY,
+                        HeaderDailySummary.TYPE_LAYER,
+                        HeaderDailySummary.TYPE,
+                    ],
+                    keep="first",
                 )
         except Exception as error:
-            log.error(f"Daily Summary Updater. DAILY SUMMARY: Fallo al obtener la data de los resúmenes diarios - {error}")
+            log.error(
+                f"Daily Summary Updater. DAILY SUMMARY: Fallo al obtener la data de los resúmenes diarios - {error}"
+            )
             return pd.DataFrame(columns=header_daily)
         else:
             self._date = date
@@ -133,5 +171,7 @@ class DailySummaryUpdaterHandler:
                     self._clean_data()
                 return response
         except Exception as error:
-            log.error(f"Daily Summary Updater. DAILY SUMMARY: Fallo al cargar los datos de los resúmenes diarios en la base de datos - {error}")
+            log.error(
+                f"Daily Summary Updater. DAILY SUMMARY: Fallo al cargar los datos de los resúmenes diarios en la base de datos - {error}"
+            )
             return False

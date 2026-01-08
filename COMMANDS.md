@@ -404,4 +404,6 @@ python3 -m scanbackup mensual --literal
 
 Esto generará un reporte desde de la mensual contando los 30 días hacia atrás iniciando desde el día actual.
 
+
 > Nota: La bandera `--dev` es válida para combinación.
+

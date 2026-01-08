@@ -34,7 +34,7 @@ El sistema requiere un archivo `.env.production` o `.env` con las siguientes var
 ```bash
 URI_MONGO="mongodb://localhost:27017/ScanBackupDB"
 ```
-> *Nota*: Para la carga de variables de entorno en modo desarrollador se debe tener el archivo `.env.development` y especificar la opción en los comandos correspondientes (`--dev`).
+> **Nota**: Para la carga de variables de entorno en modo desarrollador se debe tener el archivo `.env.development` y especificar la opción en los comandos correspondientes (`--dev`).
 
 ## Variables en Shell
 El sistema requiere que se añadan las siguientes variables a nuestro archivo de shell (`.bashrc` o `.zshrc`):
@@ -43,7 +43,7 @@ export PWDSCANBACKUP="/home/user/ScanBackup" # Debe reemplazarse por la ruta del
 export USERSCAN="usuario" # Debe reemplazarse por el usuario
 export PASSWORDSCAN="contraseña" # Debe reemplazarse por la contraseña
 ```
-> *Nota:* Esto es importante para el correcto funcionamiento de la captura de data.
+> **Nota:** Esto es importante para el correcto funcionamiento de la captura de data.
 
 ## Otras Variables de Entorno
 Solo para el funcionamiento del actualizador de las fuentes de enlaces, se debe añadir las siguientes variables de entorno en el archivo `.env.production` o `.env`:
@@ -64,11 +64,14 @@ SCAN_URL_IXP="url" # Página principal de los enlaces
 > *Nota:* Esto puede ser omitido si no se espera realizar la ejecución del mismo. Por defecto, se puede omitir.
 
 # Instalación 
-> *Nota*: Se recomienda realizar la instalación del sistema con el comando disponible del makefile. Revisar [Configuración-del-Sistema](./COMMAND.md#configuración-del-sistema). 
+> **Nota**: Se recomienda realizar la instalación del sistema con el comando disponible del makefile. Revisar [Configuración-del-Sistema](./COMMAND.md#configuración-del-sistema).
 
-El proyecto cuenta con un archivo `pyproject.toml` que contiene toda la información necesaria para instalar el sistema. 
+Para realizar la configuración ideal del sistema, se debe ejecutar el siguiente comando:
+```bash
+make setup
+```
 
-Para instalar el sistema, se debe ejecutar el siguiente comando:
+De otra forma, el proyecto cuenta con un archivo `pyproject.toml` que contiene toda la información necesaria para instalar el sistema, así que se puede instalar solo la librería ejecutando el siguiente comando:
 ```bash
 pip install .
 ```
@@ -78,6 +81,8 @@ Si se realiza de esta manera, una vez finalizada la instalación de dependencias
 python3 –m scanbackup.database start
 ```
 
+> **Nota**: Es importante que recuerde que el sistema necesita la creación de algunas carpetas para alojar datos temporales, y algunos otros archivos. Revise la documentación si necesita más información.
+
 # Pruebas unitarias
 Para ejecutar las pruebas unitarias del sistema, necesario tener el archivo `env.testing` con todas las [Variables de Entorno Requeridas](#variables-de-entorno-requeridas). Los siguientes comandos ejecutan las pruebas pertinentes:
 ```bash
@@ -86,7 +91,7 @@ python3 -m unittest discover -s scanbackup/test/updater -p "*_test.py"
 python3 -m unittest discover -s scanbackup/test/handler -p "*_test.py"
 ```
 
-> *Nota:* Tenga en cuenta que siempre puede ejecutar pruebas unitarias individualmente siguiendo la [Documentación oficial de Unittest](!https://docs.python.org/es/3/library/unittest.html) de python.
+> **Nota:** Tenga en cuenta que siempre puede ejecutar pruebas unitarias individualmente siguiendo la [Documentación oficial de Unittest](!https://docs.python.org/es/3/library/unittest.html) de python.
 
 # Comandos Básicos
 ## Configuración del Sistema
@@ -102,7 +107,7 @@ make run
 ```
 
 ## Generador de Reportes
-> Nota: Se debe tener activado el entorno virtual antes de ejecutar este comando.
+> **Nota**: Se debe tener activado el entorno virtual antes de ejecutar este comando.
 
 Para poder ejecutar el generador de reportes, se debe ejecutar alguno de los siguientes comandos según corresponda:
 ```bash

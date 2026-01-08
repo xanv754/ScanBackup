@@ -17,8 +17,12 @@ class TransForm:
             json = [interface.model_dump() for interface in models]
             df = pd.DataFrame(json)
             df[HeaderSource.NAME] = df[HeaderSource.NAME].astype(str)
-            df[HeaderSource.NAME] = df[HeaderSource.NAME].apply(lambda x: x.replace(";", " "))
+            df[HeaderSource.NAME] = df[HeaderSource.NAME].apply(
+                lambda x: x.replace(";", " ")
+            )
             return df
         except Exception as error:
-            log.error(f"Fallo al transformar la lista de modelos a un dataframe - {error}")
+            log.error(
+                f"Fallo al transformar la lista de modelos a un dataframe - {error}"
+            )
             return pd.DataFrame(columns=header_source)

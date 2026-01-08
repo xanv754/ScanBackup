@@ -8,5 +8,5 @@ __all__ = [
     "UpdaterSourceHandler",
     "BBIPUpdaterHandler",
     "DailySummaryUpdaterHandler",
-    "IPBrasUpdaterHandler"
+    "IPBrasUpdaterHandler",
 ]
