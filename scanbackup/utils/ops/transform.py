@@ -24,14 +24,6 @@ class TransformData:
                     new_columns.append("Hora")
                 elif column == HeaderBBIP.TYPE_LAYER:
                     new_columns.append("Capa")
-                elif column == HeaderBBIP.IN_PROM:
-                    new_columns.append("In")
-                elif column == HeaderBBIP.OUT_PROM:
-                    new_columns.append("Out")
-                elif column == HeaderBBIP.IN_MAX:
-                    new_columns.append("In Max")
-                elif column == HeaderBBIP.OUT_MAX:
-                    new_columns.append("Out Max")
                 elif column == HeaderDailySummary.IN_MAX:
                     new_columns.append("In Max Prom")
                 elif column == HeaderDailySummary.OUT_MAX:

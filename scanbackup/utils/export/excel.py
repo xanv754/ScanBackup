@@ -72,11 +72,12 @@ class ExcelExport:
                     if not daily and cells[column] == "H":
                         sheet.cell(row=row, column=column).number_format = number_format
                     if (
-                        cells[column] == "B"
-                        or cells[column] == "C"
-                        or cells[column] == "D"
+                        cells[column] == "C"
                         or cells[column] == "E"
                         or cells[column] == "F"
+                        or cells[column] == "G"
+                        or cells[column] == "H"
+                        or cells[column] == "I"
                     ):
                         sheet.cell(row=row, column=column).number_format = number_format
 

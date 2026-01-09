@@ -69,9 +69,7 @@ class GenerateDailySummary:
             columns = header_daily_bbip
         filepath = self._get_daily_path(layer)
         if os.path.exists(filepath):
-            df = pd.read_csv(
-                filepath, sep=self._separator_data, skiprows=1, names=columns
-            )
+            df = pd.read_csv(filepath, sep=self._separator_data, skiprows=1, names=columns)
         else:
             df = pd.DataFrame(columns=columns)
         return df
@@ -99,8 +97,8 @@ class GenerateDailySummary:
                     HeaderDailySummary.DATE: [self.date],
                     HeaderDailySummary.CAPACITY: [capacity],
                     HeaderDailySummary.IN_PROM: [in_average],
-                    HeaderDailySummary.IN_MAX: [in_max_average],
                     HeaderDailySummary.OUT_PROM: [out_average],
+                    HeaderDailySummary.IN_MAX: [in_max_average],
                     HeaderDailySummary.OUT_MAX: [out_max_average],
                     HeaderDailySummary.USE: [use],
                 }
@@ -170,20 +168,16 @@ class GenerateDailySummary:
                         summary_data = self._calculate_summary_ip_data(
                             interface=name, type=type, capacity=capacity, data=data
                         )
-                    if summary_data.empty:
-                        continue
+                    if summary_data.empty: continue
                     if summary_report.empty:
                         summary_report = summary_data
                     else:
-                        summary_report = pd.concat(
-                            [summary_report, summary_data], axis=0
-                        )
+                        summary_report = pd.concat([summary_report, summary_data], axis=0, ignore_index=True)
                     summary_report.reset_index(drop=True, inplace=True)
+
                 old_daily_report = self._get_report(layer)
                 if not old_daily_report.empty and not summary_report.empty:
-                    summary_report = pd.concat(
-                        [old_daily_report, summary_report], axis=0
-                    )
+                    summary_report = pd.concat([old_daily_report, summary_report], axis=0, ignore_index=True)
                     summary_report.reset_index(drop=True, inplace=True)
                 if not summary_report.empty:
                     summary_report.to_csv(
