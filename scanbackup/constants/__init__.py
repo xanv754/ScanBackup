@@ -27,7 +27,6 @@ from scanbackup.constants.layers import (
 from scanbackup.constants.path import DataPath, paths_BBIP_SCAN
 from scanbackup.constants.cells import cells
 
-
 __all__ = [
     "cells",
     "DataPath",

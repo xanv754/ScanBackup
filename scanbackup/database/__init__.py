@@ -16,7 +16,6 @@ from scanbackup.database.querys.bbip.ipBras import IPBrasMongoQuery
 from scanbackup.database.querys.daily.query import DailySummaryQuery
 from scanbackup.database.querys.daily.daily import DailySummaryMongoQuery
 
-
 __all__ = [
     "BORDE_SCHEMA_MONGO",
     "BRAS_SCHEMA_MONGO",

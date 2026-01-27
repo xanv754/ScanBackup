@@ -1,7 +1,6 @@
 from typing import Any, Dict
 from scanbackup.constants import IPBrasFieldName
 
-
 IP_HISTORY_SCHEMA: Dict[str, Dict[str, Any]] = {
     "$jsonSchema": {
         "bsonType": "object",

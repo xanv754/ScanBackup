@@ -1,7 +1,6 @@
 from typing import Any, Dict
 from scanbackup.constants import BBIPFieldName
 
-
 RAI_SCHEMA: Dict[str, Dict[str, Any]] = {
     "$jsonSchema": {
         "bsonType": "object",
