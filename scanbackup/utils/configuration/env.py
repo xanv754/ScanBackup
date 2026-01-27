@@ -3,7 +3,6 @@ from typing import Dict
 from dotenv import load_dotenv, dotenv_values
 from scanbackup.utils.configuration.log import log
 
-
 load_dotenv(override=True)
 
 

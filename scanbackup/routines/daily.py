@@ -16,7 +16,6 @@ from scanbackup.constants import (
 )
 from scanbackup.utils import log
 
-
 FACTOR_BBIP: float = 0.000000008022
 
 

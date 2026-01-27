@@ -10,7 +10,6 @@ from scanbackup.model import Source
 from scanbackup.utils import log, UserEnvironment
 from scanbackup.updater.utils.transform import TransForm
 
-
 requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)
 
 

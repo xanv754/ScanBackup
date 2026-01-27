@@ -19,7 +19,6 @@ from scanbackup.utils.ops.transform import TransformData
 from scanbackup.utils.ops.validate import Validate
 from scanbackup.utils.ops.layer import LayerDetector
 
-
 __all__ = [
     "log",
     "calculate",
