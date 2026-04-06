@@ -79,17 +79,28 @@ def quincenal(literal: bool = False, dev: bool = False):
     "--dev", is_flag=True, required=False, help="Carga el entorno de desarrollo."
 )
 @click.option(
-    "--year", required=False, help="Obtiene el reporte mensual del BBIP de un mes especìfico. DEBE ESPECIFICAR EL AÑO TAMBIÉN."
+    "--year",
+    required=False,
+    help="Obtiene el reporte mensual del BBIP de un mes especìfico. DEBE ESPECIFICAR EL AÑO TAMBIÉN.",
 )
 @click.option(
-    "--month", required=False, help="Obtiene el reporte mensual del BBIP de un mes especìfico. DEBE ESPECIFICAR EL AÑO TAMBIÉN."
+    "--month",
+    required=False,
+    help="Obtiene el reporte mensual del BBIP de un mes especìfico. DEBE ESPECIFICAR EL AÑO TAMBIÉN.",
 )
-def mensual(literal: bool = False, dev: bool = False, year: str | None = None, month: str | None = None):
+def mensual(
+    literal: bool = False,
+    dev: bool = False,
+    year: str | None = None,
+    month: str | None = None,
+):
     log.info("Obteniendo reporte mensual del BBIP...")
     if not year and not month:
         status_operation = SummaryReportBBIP().summary_monthly(literal=literal, dev=dev)
     elif year and month:
-         status_operation = SummaryReportBBIP().summary_monthly(year=int(year), month=int(month), dev=dev)
+        status_operation = SummaryReportBBIP().summary_monthly(
+            year=int(year), month=int(month), dev=dev
+        )
     else:
         log.error("Es necesario especificar mes y año")
     if not status_operation:
