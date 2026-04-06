@@ -142,7 +142,7 @@ class SummaryReportBBIP:
         else:
             return True
 
-    def summary_monthly(self, literal: bool = False, dev: bool = False) -> bool:
+    def summary_monthly(self, literal: bool = False, dev: bool = False, month: int | None = None, year: int | None = None) -> bool:
         """Gets all layer data required for the monthly report.
 
         :return Dict: Dictionary with data segmented by layers.
@@ -151,6 +151,8 @@ class SummaryReportBBIP:
             handler = LayerHandler(dev=dev)
             if literal:
                 df_data = handler.get_all_daily_data_by_days_before(day_before=30)
+            elif month and year:
+                df_data = handler.get_all_daily_data_by_month(month=month, year=year)
             else:
                 df_data = handler.get_all_daily_data_by_first_month()
             df_borde, df_bras, df_caching, df_rai, df_ixp = self._get_data_layers(

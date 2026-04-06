@@ -1,5 +1,6 @@
 import pandas as pd
-from datetime import timedelta, datetime
+import calendar
+from datetime import date, timedelta, datetime
 from scanbackup.constants import (
     LayerName,
     HeaderBBIP,
@@ -271,6 +272,47 @@ class LayerHandler:
         except Exception as error:
             log.error(
                 f"Layer handler. Fallo en la petición de todos los reportes diarios del BBIP {day_before} días antes - {error}"
+            )
+            return pd.DataFrame()
+        else:
+            return df_daily_report
+
+    def get_all_daily_data_by_month(
+        self, month: int, year: int
+    ) -> pd.DataFrame:
+        """Get the BBIP daily summary for the specified month and year.
+
+        :param month: Month date
+        :type month: int
+        :param year: Year date
+        :type year: int
+        :return DataFrame: Daily summary data
+        """
+        try:
+            if self.__error_connection:
+                raise Exception(
+                    "Ha ocurrido un error con la base de datos del sistema. La petición ha sido suspendida"
+                )
+            df_daily_report = pd.DataFrame(columns=header_daily)
+            first_date = date(year, month, 1)
+            _, last_date = calendar.monthrange(year, month)
+            last_date = date(year, month, last_date)
+            while first_date.strftime("%Y-%m-%d") != last_date.strftime("%Y-%m-%d"):
+                df = self.get_all_daily_summary_by_date(
+                    date=first_date.strftime("%Y-%m-%d")
+                )
+                if df_daily_report.empty and not df.empty:
+                    df_daily_report = df
+                elif not df.empty:
+                    df_daily_report = pd.concat(
+                        [df_daily_report, df], ignore_index=True
+                    )
+                    df_daily_report.drop_duplicates(inplace=True)
+                    df_daily_report.reset_index(drop=True, inplace=True)
+                first_date = first_date + timedelta(days=1)
+        except Exception as error:
+            log.error(
+                f"Layer handler. Fallo en la petición de todos los reportes diarios del BBIP del 01 hasta {month} - {error}"
             )
             return pd.DataFrame()
         else:
