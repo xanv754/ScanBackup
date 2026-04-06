@@ -404,6 +404,12 @@ python3 -m scanbackup mensual --literal
 
 Esto generará un reporte desde de la mensual contando los 30 días hacia atrás iniciando desde el día actual.
 
+> Nota: La bandera `--dev` es válida para combinación.
+
+Además de esto, se puede obtener el reporte mensual de meses anteriores (del 01 al último del mes). Para ello se debe especificar el mes y el año de la siguiente manera:
+```bash
+python3 -m scanbackup mensual --month MM --year YYYY
+```
 
 > Nota: La bandera `--dev` es válida para combinación.
 
