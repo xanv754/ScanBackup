@@ -277,9 +277,7 @@ class LayerHandler:
         else:
             return df_daily_report
 
-    def get_all_daily_data_by_month(
-        self, month: int, year: int
-    ) -> pd.DataFrame:
+    def get_all_daily_data_by_month(self, month: int, year: int) -> pd.DataFrame:
         """Get the BBIP daily summary for the specified month and year.
 
         :param month: Month date

@@ -142,7 +142,13 @@ class SummaryReportBBIP:
         else:
             return True
 
-    def summary_monthly(self, literal: bool = False, dev: bool = False, month: int | None = None, year: int | None = None) -> bool:
+    def summary_monthly(
+        self,
+        literal: bool = False,
+        dev: bool = False,
+        month: int | None = None,
+        year: int | None = None,
+    ) -> bool:
         """Gets all layer data required for the monthly report.
 
         :return Dict: Dictionary with data segmented by layers.
