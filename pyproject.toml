@@ -34,6 +34,9 @@ dependencies = [
 ]
 urls = { Homepage = "https://github.com/xanv754/SystemCGPRD" }
 
+[project.scripts]
+scanbackup = "scanbackup.__main__:cli"
+
 [project.optional-dependencies]
 dev = ["black"]
 
