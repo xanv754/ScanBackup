@@ -17,7 +17,7 @@ class ScanCredentialEnvironment(BaseEnvironment):
     def __init__(self, dev: bool = False, testing: bool = False) -> None:
         super().__init__(dev, testing)
 
-    def get_credentials(self) -> str:
+    def get_credentials(self) -> ScanCredentialSchema:
         """Gets the SCAN credentials from the environment variables.
 
         :return ScanCredentialSchema: SCAN credentials.
