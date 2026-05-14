@@ -1,4 +1,5 @@
 from scanbackup.shared.constants.bbip_layers import LayerBBIP
+from scanbackup.shared.constants.scan_header import SCANHeader
 from scanbackup.shared.config.paths import PathConfig
 from scanbackup.shared.config.metadata import (
     LOG_EXTENSION,
@@ -18,6 +19,8 @@ from scanbackup.shared.config.metadata import (
     PASSWORD_SCAN_CREDENTIALS,
     SCAN_COLLECTOR_FORMAT_DATE,
     SCAN_COLLECTOR_SEPARATOR_FILE,
+    REPLACE_SYMBOL_PORTS,
+    REPLACE_SYMBOL_SPACE,
 )
 from scanbackup.shared.outputs.logs import Log
 from scanbackup.shared.outputs.terminal import Terminal
@@ -40,6 +43,7 @@ __all__ = [
     "LayerBBIP",
     "PathConfig",
     "URIEnvironment",
+    "SCANHeader",
     "ScanCredentialSchema",
     "ScanCredentialEnvironment",
     "LOG_EXTENSION",
@@ -58,6 +62,8 @@ __all__ = [
     "PASSWORD_SCAN_CREDENTIALS",
     "SCAN_COLLECTOR_SEPARATOR_FILE",
     "SCAN_COLLECTOR_FORMAT_DATE",
+    "REPLACE_SYMBOL_PORTS",
+    "REPLACE_SYMBOL_SPACE",
     "ScanBackupError",
     "EnvConfigError",
     "EnvFileNotFoundError",

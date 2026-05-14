@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class LayerBBIP(Enum):
     BORDE = "BORDE"
     BRAS = "BRAS"
@@ -7,5 +8,3 @@ class LayerBBIP(Enum):
     RAI = "RAI"
     IP_BRAS = "IPBRAS"
     IXP = "IXP"
-    DAILY_SUMMARY = "DAILY_SUMMARY" #TODO: Cambiar de sitio
-
