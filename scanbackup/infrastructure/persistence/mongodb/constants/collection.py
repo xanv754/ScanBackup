@@ -1,0 +1,11 @@
+from enum import Enum
+
+
+class MongoCollectionName(str, Enum):
+    BORDE = "BORDE_BBIP_HISTORY"
+    BRAS = "BRAS_BBIP_HISTORY"
+    CACHING = "CACHING_BBIP_HISTORY"
+    RAI = "RAI_HISTORY"
+    IP_BRAS = "IP_BRAS_BBIP_HISTORY"
+    IXP = "IXP_BBIP_HISTORY"
+    DAILY_SUMMARY = "BBIP_DAILY_SUMMARY"
