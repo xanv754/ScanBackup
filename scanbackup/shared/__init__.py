@@ -36,6 +36,10 @@ from scanbackup.shared.config.environment.scan_credentials import (
     ScanCredentialSchema,
 )
 from scanbackup.shared.errors.exporters.excel import ExcelExportError
+from scanbackup.shared.errors.scanners.scan import (
+    SCANScannerError,
+    SCANScannerConfigError,
+)
 
 __all__ = [
     "Log",
@@ -69,4 +73,6 @@ __all__ = [
     "EnvFileNotFoundError",
     "MissingEnvironmentVariableError",
     "ExcelExportError",
+    "SCANScannerError",
+    "SCANScannerConfigError",
 ]

@@ -2,19 +2,25 @@ from calendar import month
 import click
 from scanbackup.reports import SummaryReportBBIP
 from scanbackup.utils import log
+from scanbackup.infrastructure.collectors import cli_collector
 
 
 @click.group()
 def cli():
     """Scan Backup CLI.
 
-    Un sistema para gestión y almacenamiento de los datos de los reportes de la
-    Coordinación Gestión Producto Red de Datos.
+    Un sistema para gestión y almacenamiento del tráfico de enlaces existentes en SCAN
+    para uso de la Coordinación Gestión Producto Red de Datos.
     """
     pass
 
 
-@cli.command(help="Obtiene el reporte diario del BBIP.")
+@click.group()
+def reports():
+    """Generador de reportes de tráfico de SCAN"""
+
+
+@reports.command(help="Obtiene el reporte diario del BBIP.")
 @click.option(
     "--date", required=False, help="Obtiene el reporte diario del día del BBIP."
 )
@@ -30,7 +36,7 @@ def diario(date: str | None = None, dev: bool = False):
         log.info("Reporte diario del BBIP generado con éxito")
 
 
-@cli.command(help="Obtiene el reporte semanal del BBIP.")
+@reports.command(help="Obtiene el reporte semanal del BBIP.")
 @click.option(
     "--literal",
     is_flag=True,
@@ -49,7 +55,7 @@ def semanal(literal: bool = False, dev: bool = False):
         log.info("Reporte semanal del BBIP generado con éxito")
 
 
-@cli.command(help="Obtiene el reporte quincenal del BBIP.")
+@reports.command(help="Obtiene el reporte quincenal del BBIP.")
 @click.option(
     "--literal",
     is_flag=True,
@@ -68,7 +74,7 @@ def quincenal(literal: bool = False, dev: bool = False):
         log.info("Reporte quincenal del BBIP generado con éxito")
 
 
-@cli.command(help="Obtiene el reporte mensual del BBIP.")
+@reports.command(help="Obtiene el reporte mensual del BBIP.")
 @click.option(
     "--literal",
     is_flag=True,
@@ -109,5 +115,7 @@ def mensual(
         log.info("Reporte mensual del BBIP generado con éxito")
 
 
+cli.add_command(cli_collector, name="scanner")
+cli.add_command(reports)
 if __name__ == "__main__":
     cli()

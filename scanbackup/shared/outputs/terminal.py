@@ -37,5 +37,5 @@ class Terminal:
         status.update(message)
 
     @classmethod
-    def get_status(cls, initial_message: str) -> Status:
+    def status(cls, initial_message: str) -> Status:
         return cls._console.status(initial_message)
