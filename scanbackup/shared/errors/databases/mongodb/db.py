@@ -9,25 +9,33 @@ class MongoDatabaseError(ScanBackupError):
         super().__init__(module=module, message=message, error=error)
 
 
-class CreateCollectionMongoError(MongoDatabaseError):
+class MongoCreateCollectionError(MongoDatabaseError):
     def __init__(self, name: str, error: any = None) -> None:
         message = f"Error al crear la colección {name}"
         super().__init__(message=message, error=error)
 
 
-class ExportCollectionMongoError(MongoDatabaseError):
+class MongoExportCollectionError(MongoDatabaseError):
     def __init__(self, name: str, error: any = None) -> None:
         message = f"Error al exportar la data de la colección {name}"
         super().__init__(message=message, error=error)
 
 
-class ImportCollectionMongoError(MongoDatabaseError):
+class MongoImportCollectionError(MongoDatabaseError):
     def __init__(self, name: str, error: any = None) -> None:
         message = f"Error al importar la data en la colección {name}"
         super().__init__(message=message, error=error)
 
 
-class DeleteCollectionMongoError(MongoDatabaseError):
+class MongoDeleteCollectionError(MongoDatabaseError):
     def __init__(self, name: str, error: any = None) -> None:
         message = f"Error al borrar la data y eliminar la colección {name}"
+        super().__init__(message=message, error=error)
+
+
+class MongoConnectionError(MongoDatabaseError):
+    def __init__(self, error: any = None, extra_msg: str | None = None) -> None:
+        message = f"Error al conectarse a la base de datos"
+        if extra_msg:
+            message = message + f". {extra_msg}"
         super().__init__(message=message, error=error)

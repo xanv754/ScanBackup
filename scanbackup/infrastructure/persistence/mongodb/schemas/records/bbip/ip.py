@@ -7,6 +7,7 @@ class IPActiveField(str, Enum):
     TIME = "time"
     IN_PROM = "inProm"
     IN_MAX = "inMax"
+    DEVICE = "id_source"
 
 
 IP_HISTORY_SCHEMA: Dict[str, Dict[str, Any]] = {
@@ -17,6 +18,7 @@ IP_HISTORY_SCHEMA: Dict[str, Dict[str, Any]] = {
             IPActiveField.TIME.value,
             IPActiveField.IN_PROM.value,
             IPActiveField.IN_MAX.value,
+            IPActiveField.DEVICE.value,
         ],
         "properties": {
             IPActiveField.DATE.value: {
@@ -34,6 +36,10 @@ IP_HISTORY_SCHEMA: Dict[str, Dict[str, Any]] = {
             IPActiveField.IN_MAX.value: {
                 "bsonType": ["int", "long", "double"],
                 "description": "In max of IP actives",
+            },
+            IPActiveField.DEVICE.value: {
+                "bsonType": ["objectId"],
+                "description": "MongoDB ObjectId referencing the source device in the IP source collection",
             },
         },
     }

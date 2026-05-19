@@ -6,6 +6,7 @@ class BBIPActiveSourceField(str, Enum):
     LINK = "link"
     DEVICE = "device"
     ESTATUS = "status"
+    LAYER = "layer"
 
 
 SOURCE_IP_BBIP_SCHEMA: Dict[str, Dict[str, Any]] = {
@@ -28,6 +29,10 @@ SOURCE_IP_BBIP_SCHEMA: Dict[str, Dict[str, Any]] = {
             BBIPActiveSourceField.STATUS.value: {
                 "bsonType": "string",
                 "description": "Current status of the device",
+            },
+            BBIPActiveSourceField.LAYER.value: {
+                "bsonType": "string",
+                "description": "Layer name of the device",
             },
         },
     }

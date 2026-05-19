@@ -42,10 +42,11 @@ from scanbackup.shared.errors.scanners.scan import (
 )
 from scanbackup.shared.errors.databases.mongodb.db import (
     MongoDatabaseError,
-    CreateCollectionMongoError,
-    ExportCollectionMongoError,
-    ImportCollectionMongoError,
-    DeleteCollectionMongoError,
+    MongoCreateCollectionError,
+    MongoExportCollectionError,
+    MongoImportCollectionError,
+    MongoDeleteCollectionError,
+    MongoConnectionError,
 )
 
 __all__ = [
@@ -83,8 +84,9 @@ __all__ = [
     "SCANScannerError",
     "SCANScannerConfigError",
     "MongoDatabaseError",
-    "CreateCollectionMongoError",
-    "ExportCollectionMongoError",
-    "ImportCollectionMongoError",
-    "DeleteCollectionMongoError",
+    "MongoCreateCollectionError",
+    "MongoExportCollectionError",
+    "MongoImportCollectionError",
+    "MongoDeleteCollectionError",
+    "MongoConnectionError",
 ]
