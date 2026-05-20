@@ -116,7 +116,7 @@ def mensual(
 
 
 cli.add_command(cli_collector, name="scanner")
-cli.add_command(cli_collector, name="database")
+cli.add_command(cli_database, name="database")
 cli.add_command(reports)
 if __name__ == "__main__":
     cli()
