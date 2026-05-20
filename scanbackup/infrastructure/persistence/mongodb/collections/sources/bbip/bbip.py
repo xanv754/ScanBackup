@@ -8,6 +8,8 @@ from scanbackup.shared import (
     MongoExportCollectionError,
     MongoImportCollectionError,
     MongoDeleteCollectionError,
+    DatabaseDataContentError,
+    FileEmptyError,
     SCAN_COLLECTOR_SEPARATOR_FILE,
 )
 from scanbackup.infrastructure.persistence.mongodb.constants.collection import (
@@ -94,16 +96,23 @@ class BBIPSourceCollection:
         input_path: Path,
         delimiter: str = SCAN_COLLECTOR_SEPARATOR_FILE,
     ) -> None:
+        total_neccesary_col = len([field.value for field in BBIPSourceField])
         name_collection = MongoCollectionName.BBIP_SOURCES.value
         try:
             collection = database[name_collection]
+            documents = []
             with input_path.open("r", newline="", encoding="utf-8") as f:
                 reader = csv.DictReader(f, delimiter=delimiter)
-                documents = [
-                    {k: v for k, v in row.items() if k != "_id"} for row in reader
-                ]
+                for i, row in enumerate(reader, start=1):
+                    total_columns = len(row)
+                    if total_columns != total_neccesary_col:
+                        raise DatabaseDataContentError(
+                            extra_msg=f"Columnas faltantes en la línea {i}"
+                        )
+
+                    documents.append({k: v for k, v in row.items() if k != "_id"})
             if not documents:
-                return
+                raise FileEmptyError(filepath=input_path, module="Mongo Database")
             try:
                 collection.insert_many(documents, ordered=False)
             except BulkWriteError as bwe:
@@ -114,6 +123,8 @@ class BBIPSourceCollection:
                 ]
                 if non_duplicate_errors:
                     raise MongoImportCollectionError(name_collection, error=bwe)
+        except FileEmptyError:
+            return
         except BulkWriteError:
             raise
         except Exception as error:
