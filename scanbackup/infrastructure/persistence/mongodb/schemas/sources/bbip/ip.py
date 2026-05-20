@@ -5,7 +5,7 @@ from typing import Any, Dict
 class BBIPActiveSourceField(str, Enum):
     LINK = "link"
     DEVICE = "device"
-    ESTATUS = "status"
+    STATUS = "status"
     LAYER = "layer"
 
 
