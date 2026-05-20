@@ -104,11 +104,6 @@ class BBIPCollection:
                 reader = csv.DictReader(f, delimiter=delimiter)
                 operations = []
                 for i, row in enumerate(reader, start=1):
-                    if not row:
-                        raise FileEmptyError(
-                            filepath=input_path, module="Mongo Database"
-                        )
-
                     total_columns = len(row)
                     if (
                         total_columns < total_necessary_col
@@ -136,7 +131,5 @@ class BBIPCollection:
                         )
             if operations:
                 collection.bulk_write(operations)
-        except FileEmptyError:
-            return
         except Exception as error:
             raise MongoImportCollectionError(name_collection.value, error=error)

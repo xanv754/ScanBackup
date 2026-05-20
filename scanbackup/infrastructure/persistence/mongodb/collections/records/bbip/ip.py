@@ -145,7 +145,5 @@ class IPCollection:
                         )
             if operations:
                 collection.bulk_write(operations, ordered=False)
-        except FileEmptyError:
-            return
         except Exception as error:
             raise MongoImportCollectionError(name_collection.value, error=error)
