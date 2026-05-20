@@ -1,7 +1,7 @@
 import csv
 from pathlib import Path
 from bson import ObjectId
-from pymongo import ASCENDING
+from pymongo import ASCENDING, ReplaceOne
 from pymongo.database import Database
 from pymongo.errors import CollectionInvalid
 from scanbackup.shared import (
@@ -9,6 +9,8 @@ from scanbackup.shared import (
     MongoExportCollectionError,
     MongoImportCollectionError,
     MongoDeleteCollectionError,
+    DatabaseDataContentError,
+    FileEmptyError,
     SCAN_COLLECTOR_SEPARATOR_FILE,
 )
 from scanbackup.infrastructure.persistence.mongodb.constants.collection import (
@@ -97,27 +99,51 @@ class IPCollection:
         delimiter: str = SCAN_COLLECTOR_SEPARATOR_FILE,
     ) -> None:
         try:
+            total_neccesary_col = len(IPActiveField)
             collection = database[name_collection]
+
+            if input_path.stat().st_size == 0:
+                raise FileEmptyError(filepath=input_path, module="Mongo Database")
+
+            operations = []
             with input_path.open("r", newline="", encoding="utf-8") as f:
                 reader = csv.DictReader(f, delimiter=delimiter)
-                for row in reader:
+                for i, row in enumerate(reader, start=1):
+                    total_columns = len(row)
+                    if (
+                        total_columns < total_neccesary_col
+                        or total_columns > total_neccesary_col + 1
+                    ):
+                        raise DatabaseDataContentError(
+                            extra_msg=f"Total de columnas inválido en la línea {i}"
+                        )
+
                     row[IPActiveField.DEVICE.value] = ObjectId(
                         row[IPActiveField.DEVICE.value]
                     )
+
                     if "_id" in row:
                         doc_id = ObjectId(row.pop("_id"))
-                        collection.replace_one({"_id": doc_id}, row, upsert=True)
+                        operations.append(ReplaceOne({"_id": doc_id}, row, upsert=True))
                     else:
-                        collection.replace_one(
-                            {
-                                IPActiveField.DEVICE.value: row[
-                                    IPActiveField.DEVICE.value
-                                ],
-                                IPActiveField.DATE.value: row[IPActiveField.DATE.value],
-                                IPActiveField.TIME.value: row[IPActiveField.TIME.value],
-                            },
-                            row,
-                            upsert=True,
+                        operations.append(
+                            ReplaceOne(
+                                {
+                                    IPActiveField.DEVICE.value: row[
+                                        IPActiveField.DEVICE.value
+                                    ],
+                                    IPActiveField.DATE.value: row[
+                                        IPActiveField.DATE.value
+                                    ],
+                                    IPActiveField.TIME.value: row[
+                                        IPActiveField.TIME.value
+                                    ],
+                                },
+                                row,
+                                upsert=True,
+                            )
                         )
+            if operations:
+                collection.bulk_write(operations, ordered=False)
         except Exception as error:
             raise MongoImportCollectionError(name_collection.value, error=error)
