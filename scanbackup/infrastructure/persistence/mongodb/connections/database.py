@@ -2,7 +2,7 @@ from typing import Any, Dict
 from pathlib import Path
 from pymongo import MongoClient
 from pymongo.collection import Collection
-from shared import (
+from scanbackup.shared import (
     MongoDatabaseError,
     MongoConnectionError,
     MongoCreateCollectionError,
