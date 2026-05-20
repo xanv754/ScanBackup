@@ -1,7 +1,7 @@
 import csv
 from pathlib import Path
 from bson import ObjectId
-from pymongo import ASCENDING
+from pymongo import ASCENDING, ReplaceOne
 from pymongo.database import Database
 from pymongo.errors import CollectionInvalid
 from scanbackup.shared import (
@@ -9,6 +9,8 @@ from scanbackup.shared import (
     MongoExportCollectionError,
     MongoImportCollectionError,
     MongoDeleteCollectionError,
+    DatabaseDataContentError,
+    FileEmptyError,
     SCAN_COLLECTOR_SEPARATOR_FILE,
 )
 from scanbackup.infrastructure.persistence.mongodb.constants.collection import (
@@ -79,6 +81,7 @@ class BBIPCollection:
                 ]
                 writer = csv.DictWriter(f, fieldnames=fields, delimiter=delimiter)
                 writer.writeheader()
+
                 for doc in documents:
                     doc[BBIPField.DEVICE.value] = str(doc[BBIPField.DEVICE.value])
                     if include_id:
@@ -95,23 +98,45 @@ class BBIPCollection:
         delimiter: str = SCAN_COLLECTOR_SEPARATOR_FILE,
     ) -> None:
         try:
+            total_necessary_col = len(BBIPField)
             collection = database[name_collection]
             with input_path.open("r", newline="", encoding="utf-8") as f:
                 reader = csv.DictReader(f, delimiter=delimiter)
-                for row in reader:
+                operations = []
+                for i, row in enumerate(reader, start=1):
+                    if not row:
+                        raise FileEmptyError(
+                            filepath=input_path, module="Mongo Database"
+                        )
+
+                    total_columns = len(row)
+                    if (
+                        total_columns < total_necessary_col
+                        or total_columns > total_necessary_col + 1
+                    ):
+                        raise DatabaseDataContentError(
+                            extra_msg=f"Columnas faltantes en la línea {i}"
+                        )
+
                     row[BBIPField.DEVICE.value] = ObjectId(row[BBIPField.DEVICE.value])
                     if "_id" in row:
                         doc_id = ObjectId(row.pop("_id"))
-                        collection.replace_one({"_id": doc_id}, row, upsert=True)
+                        operations.append(ReplaceOne({"_id": doc_id}, row, upsert=True))
                     else:
-                        collection.replace_one(
-                            {
-                                BBIPField.DEVICE.value: row[BBIPField.DEVICE.value],
-                                BBIPField.DATE.value: row[BBIPField.DATE.value],
-                                BBIPField.TIME.value: row[BBIPField.TIME.value],
-                            },
-                            row,
-                            upsert=True,
+                        operations.append(
+                            ReplaceOne(
+                                {
+                                    BBIPField.DEVICE.value: row[BBIPField.DEVICE.value],
+                                    BBIPField.DATE.value: row[BBIPField.DATE.value],
+                                    BBIPField.TIME.value: row[BBIPField.TIME.value],
+                                },
+                                row,
+                                upsert=True,
+                            )
                         )
+            if operations:
+                collection.bulk_write(operations)
+        except FileEmptyError:
+            return
         except Exception as error:
             raise MongoImportCollectionError(name_collection.value, error=error)
