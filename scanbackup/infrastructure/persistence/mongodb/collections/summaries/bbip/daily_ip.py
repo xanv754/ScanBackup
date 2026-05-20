@@ -9,6 +9,7 @@ from scanbackup.shared import (
     MongoExportCollectionError,
     MongoImportCollectionError,
     MongoDeleteCollectionError,
+    FileEmptyError,
     SCAN_COLLECTOR_SEPARATOR_FILE,
 )
 from scanbackup.infrastructure.persistence.mongodb.constants.collection import (
@@ -114,7 +115,7 @@ class IPDailySummaryCollection:
                     for row in reader
                 ]
             if not documents:
-                return
+                raise FileEmptyError(filepath=input_path, module="Mongo Database")
             try:
                 collection.insert_many(documents, ordered=False)
             except BulkWriteError as bwe:

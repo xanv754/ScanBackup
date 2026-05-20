@@ -100,6 +100,10 @@ class BBIPCollection:
         try:
             total_necessary_col = len(BBIPField)
             collection = database[name_collection]
+
+            if input_path.stat().st_size == 0:
+                raise FileEmptyError(filepath=input_path, module="Mongo Database")
+
             with input_path.open("r", newline="", encoding="utf-8") as f:
                 reader = csv.DictReader(f, delimiter=delimiter)
                 operations = []
@@ -131,5 +135,7 @@ class BBIPCollection:
                         )
             if operations:
                 collection.bulk_write(operations)
+        except FileEmptyError:
+            return
         except Exception as error:
             raise MongoImportCollectionError(name_collection.value, error=error)
