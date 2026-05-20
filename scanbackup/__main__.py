@@ -1,8 +1,8 @@
-from calendar import month
 import click
 from scanbackup.reports import SummaryReportBBIP
 from scanbackup.utils import log
 from scanbackup.infrastructure.collectors import cli_collector
+from scanbackup.infrastructure.persistence.mongodb import cli_database
 
 
 @click.group()
@@ -116,6 +116,7 @@ def mensual(
 
 
 cli.add_command(cli_collector, name="scanner")
+cli.add_command(cli_collector, name="database")
 cli.add_command(reports)
 if __name__ == "__main__":
     cli()
