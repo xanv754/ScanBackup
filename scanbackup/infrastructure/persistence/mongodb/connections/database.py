@@ -1,7 +1,12 @@
 from typing import Any, Dict
 from pymongo import MongoClient
 from pymongo.collection import Collection
-from shared import MongoConnectionError, MongoDatabaseError
+from shared import (
+    MongoConnectionError,
+    MongoDatabaseError,
+    MongoCreateCollectionError,
+    MongoDeleteCollectionError,
+)
 from scanbackup.infrastructure.persistence.mongodb.constants.collection import (
     MongoCollectionName,
 )
@@ -140,8 +145,14 @@ class DatabaseMongo:
             if not self._check_collection(MongoCollectionName.IP_DAILY_SUMMARY):
                 IPDailySummaryCollection.create(database=db)
             self.close_connection()
+        except MongoCreateCollectionError:
+            raise
+        except MongoConnectionError:
+            raise
         except Exception as error:
-            pass
+            raise MongoDatabaseError(
+                error=error, message="Error inesperado al crear colecciones"
+            )
 
     def drop(self) -> None:
         """Deletes all collections in the database."""
@@ -149,5 +160,11 @@ class DatabaseMongo:
             self.open_connection(self._uri)
             db = self._client[self._name_db]
             self.close_connection()
+        except MongoDeleteCollectionError:
+            raise
+        except MongoConnectionError:
+            raise
         except Exception as error:
-            pass
+            raise MongoDatabaseError(
+                error=error, message="Error inesperado al eliminar colecciones"
+            )
