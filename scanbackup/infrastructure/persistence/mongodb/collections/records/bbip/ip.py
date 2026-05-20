@@ -23,6 +23,8 @@ from scanbackup.infrastructure.persistence.mongodb.schemas.records.bbip.ip impor
 
 
 class IPCollection:
+    LAYERS_VALID: list[MongoCollectionName] = [MongoCollectionName.IP_BRAS]
+
     @staticmethod
     def create(name_collection: MongoCollectionName, database: Database) -> None:
         try:
@@ -99,6 +101,9 @@ class IPCollection:
         delimiter: str = SCAN_COLLECTOR_SEPARATOR_FILE,
     ) -> None:
         try:
+            if name_collection is not IPCollection.LAYERS_VALID:
+                raise ValueError("Nombre de colección inválido")
+
             total_neccesary_col = len(IPActiveField)
             collection = database[name_collection]
 

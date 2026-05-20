@@ -23,6 +23,16 @@ from scanbackup.infrastructure.persistence.mongodb.schemas.records.bbip.traffic 
 
 
 class BBIPCollection:
+    LAYERS_VALID: list[MongoCollectionName] = [
+        MongoCollectionName.BORDE,
+        MongoCollectionName.BRAS,
+        MongoCollectionName.CACHING,
+        MongoCollectionName.RAI,
+        MongoCollectionName.DINT,
+        MongoCollectionName.DIST,
+        MongoCollectionName.IXP,
+    ]
+
     @staticmethod
     def create(name_collection: MongoCollectionName, database: Database) -> None:
         try:
@@ -98,6 +108,9 @@ class BBIPCollection:
         delimiter: str = SCAN_COLLECTOR_SEPARATOR_FILE,
     ) -> None:
         try:
+            if name_collection is not BBIPCollection.LAYERS_VALID:
+                raise ValueError("Nombre de colección inválido")
+
             total_necessary_col = len(BBIPField)
             collection = database[name_collection]
 

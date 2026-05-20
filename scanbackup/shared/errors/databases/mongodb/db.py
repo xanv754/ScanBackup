@@ -16,8 +16,12 @@ class MongoCreateCollectionError(MongoDatabaseError):
 
 
 class MongoExportCollectionError(MongoDatabaseError):
-    def __init__(self, name: str, error: any = None) -> None:
+    def __init__(
+        self, name: str, error: any = None, extra_msg: str | None = None
+    ) -> None:
         message = f"Error al exportar la data de la colección {name}"
+        if not extra_msg:
+            message = message + f". {extra_msg}"
         super().__init__(message=message, error=error)
 
 
