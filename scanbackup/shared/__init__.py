@@ -18,7 +18,6 @@ from scanbackup.shared.config.metadata import (
     USERNAME_SCAN_CREDENTIALS,
     PASSWORD_SCAN_CREDENTIALS,
     SCAN_COLLECTOR_FORMAT_DATE,
-    SCAN_COLLECTOR_SEPARATOR_FILE,
     REPLACE_SYMBOL_PORTS,
     REPLACE_SYMBOL_SPACE,
 )
@@ -48,6 +47,12 @@ from scanbackup.shared.errors.databases.mongodb.db import (
     MongoDeleteCollectionError,
     MongoConnectionError,
 )
+from scanbackup.shared.errors.databases.data import (
+    DataImportError,
+    DatabaseDataNotFoundError,
+    DatabaseDataContentError,
+)
+from scanbackup.shared.errors.general.files import FileEmptyError
 
 __all__ = [
     "Log",
@@ -89,4 +94,8 @@ __all__ = [
     "MongoImportCollectionError",
     "MongoDeleteCollectionError",
     "MongoConnectionError",
+    "DatabaseDataNotFoundError",
+    "DatabaseDataContentError",
+    "FileEmptyError",
+    "DataImportError",
 ]
