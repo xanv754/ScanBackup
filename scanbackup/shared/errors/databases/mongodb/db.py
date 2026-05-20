@@ -35,7 +35,7 @@ class MongoDeleteCollectionError(MongoDatabaseError):
 
 class MongoConnectionError(MongoDatabaseError):
     def __init__(self, error: any = None, extra_msg: str | None = None) -> None:
-        message = f"Error al conectarse a la base de datos"
+        message = "Error al conectarse a la base de datos"
         if extra_msg:
             message = message + f". {extra_msg}"
         super().__init__(message=message, error=error)
