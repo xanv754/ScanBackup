@@ -35,7 +35,7 @@ from scanbackup.infrastructure.persistence.mongodb.collections.summaries.bbip.da
 )
 
 
-class DatabaseMongo:
+class MongoDatabase:
     _client: MongoClient[Any]
     _name_db: str
     _uri: str
@@ -103,7 +103,7 @@ class DatabaseMongo:
                 error=error, extra_msg="Fallo al cerrar conexión"
             )
 
-    def initialize(self) -> bool:
+    def initialize(self) -> None:
         """Create all collections and schemas in the database."""
         try:
             self.open_connection(self._uri)
