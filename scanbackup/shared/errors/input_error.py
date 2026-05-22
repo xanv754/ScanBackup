@@ -1,12 +1,12 @@
+from scanbackup.shared.errors.system import ModuleSystem
 from scanbackup.shared.outputs.terminal import Terminal
 from scanbackup.shared.outputs.logs import Log
 
 
 class FileEmptyError(Exception):
-    def __init__(self, filepath: str, module: str | None = None) -> None:
-        message = f"Archivo {filepath} vacío"
-        if module:
-            message = module + ": " + message
+    def __init__(self, filepath: str) -> None:
+        module = ModuleSystem.INPUT.value
+        message = f"{module}: Archivo {filepath} vacío"
         self.message = message
         Log.warning(self.message)
         Terminal.warning(preffix=module, message=self.message)
@@ -17,10 +17,9 @@ class FileEmptyError(Exception):
 
 
 class FileExtensionError(Exception):
-    def __init__(self, filepath: str, module: str | None = None) -> None:
-        message = f"Extensión del archivo {filepath} no válida"
-        if module:
-            message = module + ": " + message
+    def __init__(self, filepath: str) -> None:
+        module = ModuleSystem.INPUT.value
+        message = f"{module}: Extensión del archivo {filepath} no válida"
         self.message = message
         Log.warning(self.message)
         Terminal.warning(preffix=module, message=self.message)

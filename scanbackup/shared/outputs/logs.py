@@ -1,34 +1,40 @@
 import logging
 from pathlib import Path
 from logging.handlers import TimedRotatingFileHandler
-from scanbackup.shared.config.paths import PathConfig
-from scanbackup.shared.config.metadata import (
-    LOG_FORMAT,
-    DATE_FORMAT,
-)
-
-FORMATTER = logging.Formatter(LOG_FORMAT, DATE_FORMAT)
+from scanbackup.shared.config.config import Configuration
 
 
 class LogHandler:
     """Handler to realize all operation about log system."""
 
     file_handler: TimedRotatingFileHandler
-    filepath: Path = PathConfig.LOG_FILE
     logger: logging.Logger
+    filepath: str
 
     def __init__(self) -> None:
         try:
-            PathConfig.create_folder(PathConfig.FOLDER_LOG)
+            config = Configuration()
+            metadata = config.get_cfg_metadata()
+            log_cfg = metadata.logs
+
+            filepath = Path(
+                Path(__file__).resolve().parent.parent.parent.parent
+                / metadata.dir_data
+                / log_cfg.dir_name
+                / f"{log_cfg.filename}.{log_cfg.extension}"
+            )
+
+            formatter = logging.Formatter(log_cfg.msg_format, log_cfg.date_format)
+
             self.file_handler = TimedRotatingFileHandler(
-                self.filepath,
+                filepath,
                 when="W0",
                 interval=1,
                 backupCount=4,
                 encoding="utf-8",
                 utc=True,
             )
-            self.file_handler.setFormatter(FORMATTER)
+            self.file_handler.setFormatter(formatter)
             logging.basicConfig(
                 level=logging.INFO,
                 handlers=[self.file_handler],
@@ -37,6 +43,8 @@ class LogHandler:
         except Exception as e:
             print(f"Log Error - {e}")
             exit(1)
+        else:
+            self.filepath = filepath.resolve()
 
 
 handler = LogHandler()

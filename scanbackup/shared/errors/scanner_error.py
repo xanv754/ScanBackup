@@ -1,11 +1,11 @@
-from scanbackup.shared.errors.system import ScanBackupError
+from scanbackup.shared.errors.system import ScanBackupError, ModuleSystem
 
 
-class SCANScannerError(ScanBackupError):
+class ScannerError(ScanBackupError):
     def __init__(
         self, message: str | None = None, error: any = None, layer: str | None = None
     ) -> None:
-        module = "SCAN Scanner"
+        module = ModuleSystem.SCANNER.value
         if not message:
             message = "Error en la ejecución de captura de tráfico de SCAN"
         if layer:
@@ -13,8 +13,8 @@ class SCANScannerError(ScanBackupError):
         super().__init__(module=module, message=message, error=error)
 
 
-class SCANScannerConfigError(ScanBackupError):
+class ScannerConfigError(ScanBackupError):
     def __init__(self, error: any = None) -> None:
-        module = "SCAN Scanner"
+        module = ModuleSystem.SCANNER.value
         message = "Fallo configuración para la captura de data"
         super().__init__(module=module, message=message, error=error)

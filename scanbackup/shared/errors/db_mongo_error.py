@@ -1,12 +1,18 @@
-from scanbackup.shared.errors.system import ScanBackupError
+from scanbackup.shared.errors.system import ScanBackupError, ModuleSystem
 
 
 class MongoDatabaseError(ScanBackupError):
     def __init__(self, message: str | None = None, error: any = None) -> None:
-        module = "Mongo Database"
+        module = ModuleSystem.MONGO
         if not message:
             message = "Error desconocido al procesar operación"
         super().__init__(module=module, message=message, error=error)
+
+
+class MongoCollectionNotFoundError(MongoDatabaseError):
+    def __init__(self, name: str, error: any = None) -> None:
+        message = f"La colección {name} no fue encontrada en la base de datos"
+        super().__init__(message=message, error=error)
 
 
 class MongoCreateCollectionError(MongoDatabaseError):
