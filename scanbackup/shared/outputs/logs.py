@@ -1,4 +1,5 @@
 import logging
+from os import makedirs
 from pathlib import Path
 from logging.handlers import TimedRotatingFileHandler
 from scanbackup.shared.config.config import Configuration
@@ -23,6 +24,9 @@ class LogHandler:
                 / log_cfg.dir_name
                 / f"{log_cfg.filename}.{log_cfg.extension}"
             )
+
+            if not filepath.exists():
+                makedirs(filepath.parent, exist_ok=True)
 
             formatter = logging.Formatter(log_cfg.msg_format, log_cfg.date_format)
 
