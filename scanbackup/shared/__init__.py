@@ -52,7 +52,7 @@ from scanbackup.shared.errors.databases.data import (
     DatabaseDataNotFoundError,
     DatabaseDataContentError,
 )
-from scanbackup.shared.errors.general.files import FileEmptyError
+from scanbackup.shared.errors.general.files import FileEmptyError, FileExtensionError
 
 __all__ = [
     "Log",
@@ -98,4 +98,5 @@ __all__ = [
     "DatabaseDataContentError",
     "FileEmptyError",
     "DataImportError",
+    "FileExtensionError",
 ]

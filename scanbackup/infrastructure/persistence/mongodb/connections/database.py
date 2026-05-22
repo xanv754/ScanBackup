@@ -11,6 +11,7 @@ from scanbackup.shared import (
     MongoExportCollectionError,
     DatabaseDataNotFoundError,
     DatabaseDataContentError,
+    FileExtensionError,
 )
 from scanbackup.infrastructure.persistence.mongodb.constants.collection import (
     MongoCollectionName,
@@ -169,6 +170,8 @@ class MongoDatabase:
         try:
             if not filepath.exists():
                 raise DatabaseDataNotFoundError()
+            if filepath.suffix != ".csv" or filepath.suffix != ".txt":
+                raise FileExtensionError(filepath=filepath, module="Mongo Database")
             if name_collection is BBIPCollection.LAYERS_VALID:
                 BBIPCollection.import_data(
                     name_collection=name_collection,
@@ -209,6 +212,8 @@ class MongoDatabase:
                 )
             else:
                 raise ValueError("Nombre de colección inválido")
+        except FileExtensionError:
+            raise
         except MongoImportCollectionError:
             raise
         except DatabaseDataContentError:

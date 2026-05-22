@@ -14,3 +14,17 @@ class FileEmptyError(Exception):
 
     def __str__(self) -> str:
         return self.message
+
+
+class FileExtensionError(Exception):
+    def __init__(self, filepath: str, module: str | None = None) -> None:
+        message = f"Extensión del archivo {filepath} no válida"
+        if module:
+            message = module + ": " + message
+        self.message = message
+        Log.warning(self.message)
+        Terminal.warning(preffix=module, message=self.message)
+        super().__init__()
+
+    def __str__(self) -> str:
+        return self.message
