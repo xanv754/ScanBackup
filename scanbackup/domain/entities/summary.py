@@ -1,16 +1,24 @@
+from bson import ObjectId
+from datetime import date
 from pydantic import BaseModel
 
 
-class DailySummaryEntity(BaseModel):
+class BBIPDailySummaryEntity(BaseModel):
     """Data structure of the daily report."""
 
-    name: str
-    type: str
-    capacity: int | float
-    date: str
-    typeLayer: str
-    inProm: float
-    outProm: float
-    inMaxProm: float
-    outMaxProm: float
+    date: date
+    in_prom: float
+    in_max: float
+    out_prom: float
+    out_max: float
     use: float
+    id_source: ObjectId
+
+
+class IPDailySummaryEntity(BaseModel):
+    """Data structure of the daily report."""
+
+    date: date
+    in_prom: float
+    in_max: float
+    id_source: ObjectId

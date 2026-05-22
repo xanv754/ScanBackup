@@ -1,27 +1,25 @@
+from datetime import date, time
 from pydantic import BaseModel
+from bson import ObjectId
 
 
 class BBIPEntity(BaseModel):
     """Data structure of the Backbone IP."""
 
-    name: str
-    type: str
-    capacity: int | float
-    date: str
-    time: str
-    inProm: float
-    inMaxProm: float
-    outProm: float
-    outMaxProm: float
+    date: date
+    time: time
+    in_prom: float
+    in_max: float
+    out_prom: float
+    out_max: float
+    id_source: ObjectId
 
 
-class IPBrasEntity(BaseModel):
-    """Data model of the IP Bras."""
+class IPEntity(BaseModel):
+    """Data structure of the IP."""
 
-    brasname: str
-    date: str
-    time: str
-    inProm: float
-    inMaxProm: float
-    capacity: float
-    type: str
+    date: date
+    time: time
+    in_prom: float
+    in_max: float
+    id_source: ObjectId
