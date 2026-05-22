@@ -75,7 +75,7 @@ def drop(force: bool = False, dev: bool = False):
             terminal.info("Proceso finalizado con éxito")
 
 
-@cli.command("import", help="Importa datos de un archivo .csv a una colección")
+@cli.command("import", help="Importa datos de un archivo .csv a una colección.")
 @click.option(
     "--file",
     type=click.Path(exists=True),
@@ -117,6 +117,62 @@ def import_data(
             )
         except Exception:
             terminal.error("Importación de datos fallida")
+            exit(1)
+        else:
+            terminal.info("Proceso finalizado con éxito")
+
+
+@cli.command(
+    "export", help="Exporta todos los datos de una colección a un archivo .csv."
+)
+@click.option(
+    "--dir",
+    type=click.Path(exists=True, file_okay=False, dir_okay=True),
+    help="Directorio de exportación",
+)
+@click.option(
+    "--collection",
+    type=click.Choice(MongoCollectionName),
+    help="Colección a importar",
+)
+@click.option("--delimiter", help="Delimitador de campos")
+@click.option(
+    "--id",
+    is_flag=True,
+    help="Incluir ObjectID de registros en la exportación. Por defecto True",
+)
+@click.option(
+    "--dev", is_flag=True, help="Carga las variables del entorno de desarrollo"
+)
+def export_data(
+    collection: MongoCollectionName | None,
+    dir: str | None = None,
+    delimiter: str | None = None,
+    id: bool = True,
+    dev: bool = False,
+) -> None:
+    terminal = Terminal()
+
+    start_info = f"Exportación de datos de la colección {collection}"
+    Log.info(start_info)
+    terminal.info(start_info)
+
+    with terminal.status("Cargando configuración del sistema...") as status:
+        try:
+            config = URIEnvironment(dev=dev)
+            uri_mongo = config.get_uri_db()
+
+            terminal.loading(status, "Iniciando proceso...")
+
+            mongo_database = MongoDatabase(uri=uri_mongo)
+            mongo_database.export_data(
+                dirpath=dir,
+                name_collection=collection,
+                delimiter=delimiter,
+                include_id=id,
+            )
+        except Exception:
+            terminal.error("Exportación de datos fallida")
             exit(1)
         else:
             terminal.info("Proceso finalizado con éxito")

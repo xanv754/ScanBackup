@@ -227,21 +227,21 @@ class MongoDatabase:
 
     def export_data(
         self,
-        filepath: str | None = None,
+        dirpath: str | None = None,
         name_collection: MongoCollectionName | None = None,
         delimiter: str | None = None,
         include_id: bool = True,
     ) -> None:
-        if not filepath:
-            filepath = Path.home()
+        if not dirpath:
+            dirpath = Path.home()
         else:
-            filepath = Path(filepath)
+            dirpath = Path(dirpath)
         try:
             if not name_collection or name_collection == MongoCollectionName.BORDE:
                 BBIPCollection.export_data(
                     name_collection=MongoCollectionName.BORDE,
                     database=self._client,
-                    output_path=Path(filepath / f"{MongoCollectionName.BORDE}.csv"),
+                    output_path=Path(dirpath / f"{MongoCollectionName.BORDE}.csv"),
                     delimiter=delimiter,
                     include_id=include_id,
                 )
@@ -249,7 +249,7 @@ class MongoDatabase:
                 BBIPCollection.export_data(
                     name_collection=MongoCollectionName.BRAS,
                     database=self._client,
-                    output_path=Path(filepath / f"{MongoCollectionName.BRAS}.csv"),
+                    output_path=Path(dirpath / f"{MongoCollectionName.BRAS}.csv"),
                     delimiter=delimiter,
                     include_id=include_id,
                 )
@@ -257,7 +257,7 @@ class MongoDatabase:
                 BBIPCollection.export_data(
                     name_collection=MongoCollectionName.CACHING,
                     database=self._client,
-                    output_path=Path(filepath / f"{MongoCollectionName.CACHING}.csv"),
+                    output_path=Path(dirpath / f"{MongoCollectionName.CACHING}.csv"),
                     delimiter=delimiter,
                     include_id=include_id,
                 )
@@ -265,7 +265,7 @@ class MongoDatabase:
                 BBIPCollection.export_data(
                     name_collection=MongoCollectionName.RAI,
                     database=self._client,
-                    output_path=Path(filepath / f"{MongoCollectionName.RAI}.csv"),
+                    output_path=Path(dirpath / f"{MongoCollectionName.RAI}.csv"),
                     delimiter=delimiter,
                     include_id=include_id,
                 )
@@ -273,7 +273,7 @@ class MongoDatabase:
                 BBIPCollection.export_data(
                     name_collection=MongoCollectionName.DINT,
                     database=self._client,
-                    output_path=Path(filepath / f"{MongoCollectionName.DINT}.csv"),
+                    output_path=Path(dirpath / f"{MongoCollectionName.DINT}.csv"),
                     delimiter=delimiter,
                     include_id=include_id,
                 )
@@ -281,7 +281,7 @@ class MongoDatabase:
                 BBIPCollection.export_data(
                     name_collection=MongoCollectionName.DIST,
                     database=self._client,
-                    output_path=Path(filepath / f"{MongoCollectionName.DIST}.csv"),
+                    output_path=Path(dirpath / f"{MongoCollectionName.DIST}.csv"),
                     delimiter=delimiter,
                     include_id=include_id,
                 )
@@ -289,7 +289,7 @@ class MongoDatabase:
                 BBIPCollection.export_data(
                     name_collection=MongoCollectionName.IXP,
                     database=self._client,
-                    output_path=Path(filepath / f"{MongoCollectionName.IXP}.csv"),
+                    output_path=Path(dirpath / f"{MongoCollectionName.IXP}.csv"),
                     delimiter=delimiter,
                     include_id=include_id,
                 )
@@ -297,7 +297,7 @@ class MongoDatabase:
                 IPCollection.export_data(
                     name_collection=MongoCollectionName.IP_BRAS,
                     database=self._client,
-                    output_path=Path(filepath / f"{MongoCollectionName.IP_BRAS}.csv"),
+                    output_path=Path(dirpath / f"{MongoCollectionName.IP_BRAS}.csv"),
                     delimiter=delimiter,
                     include_id=include_id,
                 )
@@ -308,7 +308,7 @@ class MongoDatabase:
                 BBIPSourceCollection.export_data(
                     database=self._client,
                     output_path=Path(
-                        filepath / f"{MongoCollectionName.BBIP_SOURCES}.csv"
+                        dirpath / f"{MongoCollectionName.BBIP_SOURCES}.csv"
                     ),
                     delimiter=delimiter,
                     include_id=include_id,
@@ -316,9 +316,7 @@ class MongoDatabase:
             if not name_collection or name_collection == MongoCollectionName.IP_SOURCES:
                 IPSourceCollection.export_data(
                     database=self._client,
-                    output_path=Path(
-                        filepath / f"{MongoCollectionName.IP_SOURCES}.csv"
-                    ),
+                    output_path=Path(dirpath / f"{MongoCollectionName.IP_SOURCES}.csv"),
                     delimiter=delimiter,
                     include_id=include_id,
                 )
@@ -329,7 +327,7 @@ class MongoDatabase:
                 BBIPDailySummaryCollection.export_data(
                     database=self._client,
                     output_path=Path(
-                        filepath / f"{MongoCollectionName.BBIP_DAILY_SUMMARY}.csv"
+                        dirpath / f"{MongoCollectionName.BBIP_DAILY_SUMMARY}.csv"
                     ),
                     delimiter=delimiter,
                     include_id=include_id,
@@ -341,7 +339,7 @@ class MongoDatabase:
                 IPDailySummaryCollection.export_data(
                     database=self._client,
                     output_path=Path(
-                        filepath / f"{MongoCollectionName.IP_DAILY_SUMMARY}.csv"
+                        dirpath / f"{MongoCollectionName.IP_DAILY_SUMMARY}.csv"
                     ),
                     delimiter=delimiter,
                     include_id=include_id,
