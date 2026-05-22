@@ -1,4 +1,5 @@
 # Files
+config.yml
 data/*
 sources/*
 */routines/tmp/*
