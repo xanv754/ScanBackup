@@ -64,7 +64,7 @@ def drop(force: bool = False, dev: bool = False):
             terminal.loading(status, "Eliminando colecciones...")
 
             mongo_database = MongoDatabase(uri=uri_mongo)
-            mongo_database.drop()
+            mongo_database.drop(force)
         except Exception:
             terminal.error("Eliminación de la base de datos fallida")
             exit(1)
