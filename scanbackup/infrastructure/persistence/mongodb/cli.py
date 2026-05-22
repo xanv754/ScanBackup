@@ -33,7 +33,7 @@ def setup(dev: bool = False):
             terminal.loading(status, "Iniciando proceso...")
 
             mongo_database = MongoDatabase(uri=uri_mongo)
-            mongo_database.initialize()
+            mongo_database.create_collections()
         except Exception:
             terminal.error("Inicialización de la base de datos fallida")
             exit(1)
