@@ -1,7 +1,7 @@
 import click
 import time
 from scanbackup.infrastructure.collectors.executer_scan import SCANScanner
-from scanbackup.shared import Terminal
+from scanbackup.shared import Terminal, Log
 
 
 @click.group()
@@ -19,22 +19,31 @@ def cli_collector() -> None:
 @click.option(
     "--layer",
     required=False,
-    help="Captura el tráfico de UNA capa de SCAN en específico. Debe escribirse todo en mayúscula.",
-)
-@click.option(
-    "--dev", is_flag=True, required=False, help="Carga configuración de desarrollo."
+    help="Captura el tráfico de una capa de SCAN en específico. Debe escribirse todo en mayúscula.",
 )
 def run(date: str | None = None, layer: str | None = None, dev: bool = False) -> None:
     terminal = Terminal()
-    terminal.info("Iniciando captura de tráfico de SCAN...")
-    with terminal.status("Obteniendo información de las capas BBIP...") as status:
-        scanner = SCANScanner()
-        scanner.initialize(date=date, dev=dev)
-        if not layer:
-            scanner.execute_all()
+
+    start_info = "Captura de tráfico existente en SCAN"
+    Log.info(start_info)
+    terminal.info(start_info)
+
+    with terminal.status("Cargando configuración del sistema...") as status:
+        try:
+            scanner = SCANScanner()
+            scanner.initialize(date=date)
+
+            terminal.loading(status, "Iniciando captura de datos...")
+            if not layer:
+                scanner.execute_all()
+            else:
+                scanner.execute_layer(layer)
+        except Exception:
+            message = "Error en el proceso de captura de datos"
+            Log.error("Error en el proceso de captura de datos")
+            terminal.error(message)
+            exit(1)
         else:
-            scanner.execute_layer(layer)
-
-        time.sleep(10)
-
-    terminal.info("Captura de tráfico de SCAN finalizada.")
+            message = "Proceso finalizado con éxito"
+            Log.info(message)
+            terminal.info(message)

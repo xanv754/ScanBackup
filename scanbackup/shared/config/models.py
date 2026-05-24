@@ -22,8 +22,9 @@ class ScanCredentialSchema(BaseModel):
 class ScannerConfigModel(BaseModel):
     dir_storage: str
     dir_sources: str
-    file_delimiter: str
+    extension: str
     date_format: str
+    file_delimiter: str
     port_separator_replacement: str
     space_separator_replacement: str
     scan_credentials: ScanCredentialSchema

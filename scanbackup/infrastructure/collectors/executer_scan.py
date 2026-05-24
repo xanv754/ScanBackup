@@ -1,18 +1,16 @@
 import subprocess
+import shutil
 from pathlib import Path
 from datetime import datetime, timedelta
 from scanbackup.shared import (
-    LayerBBIP,
+    Configuration,
+    LayerConfigModel,
+    ScannerConfigModel,
+    MetadataConfigModel,
     SCANHeader,
-    PathConfig,
-    ScanCredentialSchema,
-    ScanCredentialEnvironment,
-    SCANScannerError,
-    SCANScannerConfigError,
-    REPLACE_SYMBOL_SPACE,
-    REPLACE_SYMBOL_PORTS,
-    SCAN_COLLECTOR_FORMAT_DATE,
-    SCAN_COLLECTOR_SEPARATOR_FILE,
+    LOG_HANDLER,
+    ScannerError,
+    ScannerConfigError,
 )
 
 
@@ -20,82 +18,101 @@ class SCANScanner:
     _instance: "SCANScanner | None" = None
     _date: str
     _layers: list[str] = []
-    _credentials: ScanCredentialSchema
+    _cfg_layers: LayerConfigModel
+    _cfg_metadata: MetadataConfigModel
+    _cfg_scanner: ScannerConfigModel
+    _dir_data_tmp: Path
+    _dir_data_src: Path
+    _dir_tmp: Path
+    _script_path: Path
 
     def __new__(cls) -> "SCANScanner":
         if not cls._instance:
             cls._instance = super(SCANScanner, cls).__new__(cls)
         return cls._instance
 
-    def _setup_directories(self) -> None:
-        PathConfig.create_folder(PathConfig.FOLDER_LOG)
-        PathConfig.create_folder(PathConfig.FOLDER_SOURCES)
-        PathConfig.create_folder(PathConfig.FOLDER_BBIP_DATA)
-        PathConfig.create_folder(PathConfig.FOLDER_TMP, empty=True)
+    def _setup_files_and_dirs(self) -> None:
+        root = Path(
+            Path(__file__).resolve().parent.parent.parent.parent
+            / self._cfg_metadata.dir_data
+        )
+        self._script_path = Path(Path(__file__).resolve().parent / "scan.sh")
+        self._dir_data_tmp = Path(root.resolve() / self._cfg_scanner.dir_storage)
+        self._dir_data_tmp.mkdir(parents=True, exist_ok=True)
+        self._dir_data_src = Path(root.resolve() / self._cfg_scanner.dir_sources)
+        self._dir_data_src.mkdir(parents=True, exist_ok=True)
+        self._dir_tmp = Path(root.resolve() / "tmp")
+        if self._dir_tmp.exists():
+            shutil.rmtree(self._dir_tmp)
+        self._dir_tmp.mkdir(parents=True, exist_ok=True)
 
     def _set_date(self, date: str | None = None) -> None:
         if not date:
             date = datetime.now() - timedelta(days=1)
-            date = date.strftime(SCAN_COLLECTOR_FORMAT_DATE)
+            date = date.strftime(self._cfg_scanner.date_format)
         self._date = date
 
-    def _set_config(self, dev: bool = False) -> None:
-        config = ScanCredentialEnvironment(dev=dev)
-        self._credentials = config.get_credentials()
+    def _set_config(self) -> None:
+        config = Configuration()
+        self._cfg_metadata = config.get_cfg_metadata()
+        self._cfg_scanner = self._cfg_metadata.scanner
+        self._cfg_layers = config.get_cfg_layers()
 
     def _get_header(self) -> list[str]:
         header_str = ""
         for header in SCANHeader:
-            header_str = header_str + header.value + SCAN_COLLECTOR_SEPARATOR_FILE
+            header_str = header_str + header.value + self._cfg_scanner.file_delimiter
         header_str = header_str[:-1]
         return header_str
 
-    def _source_exists(self, layer: LayerBBIP) -> bool:
-        layer_source = Path(PathConfig.FOLDER_SOURCES.resolve() / layer)
+    def _source_exists(self, file_layer: str) -> bool:
+        layer_source = Path(self._dir_data_src.resolve() / file_layer)
         return layer_source.is_file()
 
     def _execute(self) -> None:
         header_file = self._get_header()
         for layer in self._layers:
-            layer = layer.upper()
+            layer = layer.upper().strip()
+            if self._cfg_scanner.extension.strip() != "":
+                layer = f"{layer}.{self._cfg_scanner.extension.strip()}"
             if not self._source_exists(layer):
                 continue
             try:
                 command = [
                     "bash",
-                    PathConfig.SCAN_SCRIPT,
+                    self._script_path.resolve(),
                     self._date,
                     layer,
-                    SCAN_COLLECTOR_SEPARATOR_FILE,
-                    self._credentials.username.strip(),
-                    self._credentials.password.strip(),
+                    self._cfg_scanner.file_delimiter,
+                    self._cfg_scanner.scan_credentials.username.strip(),
+                    self._cfg_scanner.scan_credentials.password.strip(),
                     header_file,
-                    PathConfig.FOLDER_SOURCES.resolve(),
-                    PathConfig.FOLDER_BBIP_DATA.resolve(),
-                    PathConfig.FOLDER_TMP.resolve(),
-                    PathConfig.LOG_FILE.resolve(),
-                    REPLACE_SYMBOL_PORTS,
-                    REPLACE_SYMBOL_SPACE,
-                    SCAN_COLLECTOR_FORMAT_DATE,
+                    self._dir_data_src,
+                    self._dir_data_tmp,
+                    self._dir_tmp,
+                    LOG_HANDLER.filepath,
+                    self._cfg_scanner.port_separator_replacement,
+                    self._cfg_scanner.space_separator_replacement,
+                    self._cfg_scanner.date_format,
                 ]
                 subprocess.run(command, capture_output=True, text=True)
             except Exception as error:
-                SCANScannerError(error=error, layer=layer)
+                ScannerError(error=error, layer=layer)
                 continue
 
-    def initialize(self, date: str | None = None, dev: bool = False) -> None:
+    def initialize(self, date: str | None = None) -> None:
         try:
-            self._set_config(dev)
+            self._set_config()
             self._set_date(date)
-            self._setup_directories()
+            self._setup_files_and_dirs()
         except Exception as error:
-            SCANScannerConfigError(error=error)
+            ScannerConfigError(error=error)
             exit(1)
 
-    def execute_layer(self, layer_name: LayerBBIP) -> None:
+    def execute_layer(self, layer_name: str) -> None:
         self._layers.append(layer_name)
         self._execute()
 
     def execute_all(self) -> None:
-        self._layers = [layer.value for layer in LayerBBIP]
+        self._layers = [layer.value for layer in self._cfg_layers.bbip.names]
         self._execute()
