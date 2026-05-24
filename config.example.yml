@@ -1,0 +1,42 @@
+layers:
+  bbip:
+    schema_collection: "BBIP"
+    names:
+      - "example"
+  ip:
+    schema_collection: "IP"
+    names:
+      - "example"
+
+database:
+  host: "localhost"
+  port: "27017"
+  name: "scanbackup_db"
+  user: "user"
+  password: "password"
+
+metadata:
+  dir_data: "data"
+
+  logs:
+    dir_name: "logs"
+    filename: "scanbackup"
+    extension: "log"
+    msg_format: "%(asctime)s %(levelname)s %(message)s"
+    date_format: "%Y-%m-%d %H:%M:%S"
+
+  scanner:
+    dir_storage: "data"
+    dir_sources: "sources"
+    extension: "csv"
+    date_format: "%Y-%m-%d"
+    file_delimiter: ";"
+    port_separator_replacement: "&"
+    space_separator_replacement: "_"
+    scan_credentials:
+      username: "username"
+      password: "password"
+
+  reports:
+    preffix_name: "ScanBackup"
+    date_format: "%Y%m%d_%H%M%S"
