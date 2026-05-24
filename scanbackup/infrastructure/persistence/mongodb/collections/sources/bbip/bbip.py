@@ -35,7 +35,6 @@ class BBIPSourceCollection:
                 [
                     (BBIPSourceField.LAYER.value, ASCENDING),
                     (BBIPSourceField.TYPE.value, ASCENDING),
-                    (BBIPSourceField.CAPACITY.value, ASCENDING),
                     (BBIPSourceField.INTERFACE.value, ASCENDING),
                 ],
                 unique=True,

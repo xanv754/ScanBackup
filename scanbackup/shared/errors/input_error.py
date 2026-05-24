@@ -27,3 +27,18 @@ class FileExtensionError(Exception):
 
     def __str__(self) -> str:
         return self.message
+
+
+class ContentFileError(Exception):
+    def __init__(self, filepath: str, error: any = None) -> None:
+        self.module = ModuleSystem.INPUT.value
+        message = f"La entrada del archivo {filepath} no es la corecta. Puede que le falte información"
+        if error:
+            message = message + ".\n" + str(error)
+        self.message = message
+        Log.warning(self.message)
+        Terminal.error(preffix=self.module, message=self.message)
+        super().__init__(self.message)
+
+    def __str__(self) -> str:
+        return self.message

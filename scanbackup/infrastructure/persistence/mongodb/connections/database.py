@@ -1,6 +1,7 @@
 from typing import Any, Dict
 from pathlib import Path
 from pymongo import MongoClient
+from pymongo.database import Database
 from scanbackup.shared import (
     DatabaseConfigModel,
     LayerConfigModel,
@@ -83,12 +84,12 @@ class MongoDatabase:
         else:
             self.connected = True
 
-    def get_connection(self) -> MongoClient[Dict[str, Any]]:
+    def get_connection(self) -> Database:
         """Get a connection to the database.
 
-        :return MongoClient[Any]: Client of MongoDB
+        :return Database: Connection to database.
         """
-        return self._client
+        return self._client[self._config.name]
 
     def close_connection(self) -> None:
         """Close the connection to the database."""

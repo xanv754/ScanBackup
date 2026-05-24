@@ -19,9 +19,14 @@ from scanbackup.shared.errors.db_mongo_error import (
     MongoImportCollectionError,
     MongoDeleteCollectionError,
     MongoConnectionError,
+    MongoInsertFailedError,
 )
 from scanbackup.shared.errors.export_error import ExportError, ExcelExportError
-from scanbackup.shared.errors.input_error import FileEmptyError, FileExtensionError
+from scanbackup.shared.errors.input_error import (
+    FileEmptyError,
+    FileExtensionError,
+    ContentFileError,
+)
 from scanbackup.shared.errors.scanner_error import ScannerError, ScannerConfigError
 
 __all__ = [
@@ -42,10 +47,12 @@ __all__ = [
     "MongoImportCollectionError",
     "MongoDeleteCollectionError",
     "MongoConnectionError",
+    "MongoInsertFailedError",
     "ExportError",
     "ExcelExportError",
     "FileEmptyError",
     "FileExtensionError",
+    "ContentFileError",
     "ScannerError",
     "ScannerConfigError",
 ]

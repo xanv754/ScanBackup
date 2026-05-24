@@ -1,6 +1,6 @@
 import click
-
-from scanbackup.infrastructure.persistence.mongodb import cli_database
+from scanbackup.infrastructure import database_cli
+from scanbackup.application import updater_cli
 
 
 @click.group()
@@ -13,7 +13,8 @@ def cli():
     pass
 
 
-cli.add_command(cli_database, name="database")
+cli.add_command(database_cli, name="database")
+cli.add_command(updater_cli, name="updater")
 
 if __name__ == "__main__":
     cli()

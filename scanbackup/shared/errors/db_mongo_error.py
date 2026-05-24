@@ -49,3 +49,11 @@ class MongoConnectionError(MongoDatabaseError):
         if extra_msg:
             message = message + f". {extra_msg}"
         super().__init__(message=message, error=error)
+
+
+class MongoInsertFailedError(MongoDatabaseError):
+    def __init__(self, extra_msg: str | None = None, error: any = None) -> None:
+        message = "Error al insertar nueva información"
+        if extra_msg:
+            message = message + f". {extra_msg}"
+        super().__init__(message, error)
