@@ -5,7 +5,7 @@ class ExportError(ScanBackupError):
     def __init__(
         self, message: str | None = None, error: any = None, filename: str | None = None
     ) -> None:
-        module = ModuleSystem.REPORT
+        module = ModuleSystem.REPORT.value
         if not message:
             message = "Error en la exportación de reporte"
         if filename:

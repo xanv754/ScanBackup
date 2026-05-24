@@ -1,3 +1,5 @@
+from rich import box
+from rich.table import Table
 from rich.status import Status
 from rich.console import Console as RichConsole
 
@@ -39,3 +41,11 @@ class Terminal:
     @classmethod
     def status(cls, initial_message: str) -> Status:
         return cls._console.status(initial_message)
+
+    @classmethod
+    def list(cls, items: list[str], title: str | None = None) -> None:
+        table = Table(title=title, show_header=False, box=box.SIMPLE)
+        table.add_column("", style="default")
+        for item in items:
+            table.add_row(f"- {item}")
+        cls._console.print(table)

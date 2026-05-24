@@ -22,7 +22,7 @@ class FileImportNotFoundError(DataImportError):
         message = "Archivo"
         if filepath:
             message = message + filepath
-        message = "no encontrado"
+        message = message + "no encontrado"
         super().__init__(extra_msg=message, error=error)
 
 
@@ -31,4 +31,4 @@ class DataContentError(DataImportError):
         message = "Contenido del archivo inválido"
         if extra_msg:
             message = message + f". {extra_msg}"
-        super().__init__(error=error)
+        super().__init__(extra_msg=message, error=error)

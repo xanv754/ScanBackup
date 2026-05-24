@@ -3,7 +3,7 @@ from scanbackup.shared.errors.system import ScanBackupError, ModuleSystem
 
 class MongoDatabaseError(ScanBackupError):
     def __init__(self, message: str | None = None, error: any = None) -> None:
-        module = ModuleSystem.MONGO
+        module = ModuleSystem.MONGO.value
         if not message:
             message = "Error desconocido al procesar operación"
         super().__init__(module=module, message=message, error=error)
