@@ -1,7 +1,5 @@
-from bson import ObjectId
 from typing import Any, Dict
 from enum import Enum
-from pydantic import BaseModel
 
 
 class BBIPField(str, Enum):
@@ -12,16 +10,6 @@ class BBIPField(str, Enum):
     OUT_PROM = "outProm"
     OUT_MAX = "outMax"
     DEVICE = "id_source"
-
-
-class BBIPDocument(BaseModel):
-    date: str
-    time: str
-    in_prom: float
-    in_max: float
-    out_prom: float
-    out_max: float
-    device: ObjectId
 
 
 BBIP_TRAFFIC_SCHEMA: Dict[str, Dict[str, Any]] = {

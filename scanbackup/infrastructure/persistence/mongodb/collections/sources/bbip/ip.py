@@ -4,26 +4,27 @@ from pymongo import ASCENDING
 from pymongo.database import Database
 from pymongo.errors import CollectionInvalid, BulkWriteError
 from scanbackup.shared import (
+    FileEmptyError,
     MongoCreateCollectionError,
     MongoExportCollectionError,
     MongoImportCollectionError,
     MongoDeleteCollectionError,
-    FileEmptyError,
-    SCAN_COLLECTOR_SEPARATOR_FILE,
 )
 from scanbackup.infrastructure.persistence.mongodb.constants.collection import (
     MongoCollectionName,
 )
 from scanbackup.infrastructure.persistence.mongodb.schemas.sources.bbip.ip import (
-    BBIPActiveSourceField,
+    IPSourceField,
     SOURCE_IP_BBIP_SCHEMA,
 )
 
 
 class IPSourceCollection:
+    _NAME = MongoCollectionName.IP_SOURCES.value
+
     @staticmethod
     def create(database: Database) -> None:
-        name_collection = MongoCollectionName.IP_SOURCES.value
+        name_collection = IPSourceCollection._NAME
         try:
             database.create_collection(
                 name=name_collection, validator=SOURCE_IP_BBIP_SCHEMA
@@ -31,17 +32,17 @@ class IPSourceCollection:
             collection = database[name_collection]
             collection.create_index(
                 [
-                    (BBIPActiveSourceField.LAYER.value, ASCENDING),
-                    (BBIPActiveSourceField.TYPE.value, ASCENDING),
-                    (BBIPActiveSourceField.CAPACITY.value, ASCENDING),
-                    (BBIPActiveSourceField.INTERFACE.value, ASCENDING),
+                    (IPSourceField.LAYER.value, ASCENDING),
+                    (IPSourceField.TYPE.value, ASCENDING),
+                    (IPSourceField.CAPACITY.value, ASCENDING),
+                    (IPSourceField.INTERFACE.value, ASCENDING),
                 ],
                 unique=True,
                 name=f"unique_{name_collection.lower()}",
             )
             collection.create_index(
                 [
-                    (BBIPActiveSourceField.LAYER.value, ASCENDING),
+                    (IPSourceField.LAYER.value, ASCENDING),
                 ],
                 name=f"layer_{name_collection.lower()}",
             )
@@ -55,7 +56,7 @@ class IPSourceCollection:
 
     @staticmethod
     def delete(database: Database) -> None:
-        name_collection = MongoCollectionName.IP_SOURCES.value
+        name_collection = IPSourceCollection._NAME
         try:
             collection = database[name_collection]
             collection.delete_many({})
@@ -67,10 +68,10 @@ class IPSourceCollection:
     def export_data(
         database: Database,
         output_path: Path,
-        delimiter: str = SCAN_COLLECTOR_SEPARATOR_FILE,
+        delimiter: str,
         include_id: bool = False,
     ) -> None:
-        name_collection = MongoCollectionName.IP_SOURCES.value
+        name_collection = IPSourceCollection._NAME
         try:
             collection = database[name_collection]
             projection = {} if include_id else {"_id": 0}
@@ -78,7 +79,7 @@ class IPSourceCollection:
             output_path.parent.mkdir(parents=True, exist_ok=True)
             with output_path.open("w", newline="", encoding="utf-8") as f:
                 fields = (["_id"] if include_id else []) + [
-                    field.value for field in BBIPActiveSourceField
+                    field.value for field in IPSourceField
                 ]
                 writer = csv.DictWriter(f, fieldnames=fields, delimiter=delimiter)
                 writer.writeheader()
@@ -93,9 +94,9 @@ class IPSourceCollection:
     def import_data(
         database: Database,
         input_path: Path,
-        delimiter: str = SCAN_COLLECTOR_SEPARATOR_FILE,
+        delimiter: str,
     ) -> None:
-        name_collection = MongoCollectionName.BBIP_SOURCES.value
+        name_collection = IPSourceCollection._NAME
         try:
             collection = database[name_collection]
             with input_path.open("r", newline="", encoding="utf-8") as f:
@@ -103,8 +104,10 @@ class IPSourceCollection:
                 documents = [
                     {k: v for k, v in row.items() if k != "_id"} for row in reader
                 ]
+
             if not documents:
-                raise FileEmptyError(filepath=input_path, module="Mongo Database")
+                raise FileEmptyError(filepath=input_path)
+
             try:
                 collection.insert_many(documents, ordered=False)
             except BulkWriteError as bwe:

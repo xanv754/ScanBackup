@@ -5,13 +5,12 @@ from pymongo import ASCENDING, ReplaceOne
 from pymongo.database import Database
 from pymongo.errors import CollectionInvalid
 from scanbackup.shared import (
+    FileEmptyError,
     MongoCreateCollectionError,
     MongoExportCollectionError,
     MongoImportCollectionError,
     MongoDeleteCollectionError,
-    DatabaseDataContentError,
-    FileEmptyError,
-    SCAN_COLLECTOR_SEPARATOR_FILE,
+    DataContentError,
 )
 from scanbackup.infrastructure.persistence.mongodb.constants.collection import (
     MongoCollectionName,
@@ -23,16 +22,6 @@ from scanbackup.infrastructure.persistence.mongodb.schemas.records.bbip.traffic 
 
 
 class BBIPCollection:
-    LAYERS_VALID: list[MongoCollectionName] = [
-        MongoCollectionName.BORDE,
-        MongoCollectionName.BRAS,
-        MongoCollectionName.CACHING,
-        MongoCollectionName.RAI,
-        MongoCollectionName.DINT,
-        MongoCollectionName.DIST,
-        MongoCollectionName.IXP,
-    ]
-
     @staticmethod
     def create(name_collection: MongoCollectionName, database: Database) -> None:
         try:
@@ -77,7 +66,7 @@ class BBIPCollection:
         name_collection: MongoCollectionName,
         database: Database,
         output_path: Path,
-        delimiter: str = SCAN_COLLECTOR_SEPARATOR_FILE,
+        delimiter: str,
         include_id: bool = False,
     ) -> None:
         try:
@@ -105,17 +94,14 @@ class BBIPCollection:
         name_collection: MongoCollectionName,
         database: Database,
         input_path: Path,
-        delimiter: str = SCAN_COLLECTOR_SEPARATOR_FILE,
+        delimiter: str,
     ) -> None:
         try:
-            if name_collection is not BBIPCollection.LAYERS_VALID:
-                raise ValueError("Nombre de colección inválido")
-
             total_necessary_col = len(BBIPField)
             collection = database[name_collection]
 
             if input_path.stat().st_size == 0:
-                raise FileEmptyError(filepath=input_path, module="Mongo Database")
+                raise FileEmptyError(filepath=input_path)
 
             with input_path.open("r", newline="", encoding="utf-8") as f:
                 reader = csv.DictReader(f, delimiter=delimiter)
@@ -126,11 +112,33 @@ class BBIPCollection:
                         total_columns < total_necessary_col
                         or total_columns > total_necessary_col + 1
                     ):
-                        raise DatabaseDataContentError(
+                        raise DataContentError(
                             extra_msg=f"Columnas faltantes en la línea {i}"
                         )
 
-                    row[BBIPField.DEVICE.value] = ObjectId(row[BBIPField.DEVICE.value])
+                    try:
+                        row[BBIPField.DEVICE.value] = ObjectId(
+                            row[BBIPField.DEVICE.value]
+                        )
+                    except (ValueError, KeyError):
+                        raise DataContentError(
+                            extra_msg=f"Valor inválido de id, línea {i}"
+                        )
+
+                    float_fields = [
+                        (BBIPField.IN_MAX, "in max"),
+                        (BBIPField.IN_PROM, "in prom"),
+                        (BBIPField.OUT_MAX, "out max"),
+                        (BBIPField.OUT_PROM, "out prom"),
+                    ]
+                    for field, label in float_fields:
+                        try:
+                            row[field.value] = float(row[field.value])
+                        except (ValueError, KeyError):
+                            raise DataContentError(
+                                extra_msg=f"Valor inválido de {label}, línea {i}"
+                            )
+
                     if "_id" in row:
                         doc_id = ObjectId(row.pop("_id"))
                         operations.append(ReplaceOne({"_id": doc_id}, row, upsert=True))
@@ -150,5 +158,7 @@ class BBIPCollection:
                 collection.bulk_write(operations)
         except FileEmptyError:
             return
+        except DataContentError:
+            raise
         except Exception as error:
             raise MongoImportCollectionError(name_collection.value, error=error)

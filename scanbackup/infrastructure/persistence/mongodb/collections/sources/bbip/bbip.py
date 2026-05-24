@@ -4,13 +4,12 @@ from pymongo import ASCENDING
 from pymongo.database import Database
 from pymongo.errors import CollectionInvalid, BulkWriteError
 from scanbackup.shared import (
+    FileEmptyError,
     MongoCreateCollectionError,
     MongoExportCollectionError,
     MongoImportCollectionError,
     MongoDeleteCollectionError,
-    DatabaseDataContentError,
-    FileEmptyError,
-    SCAN_COLLECTOR_SEPARATOR_FILE,
+    DataContentError,
 )
 from scanbackup.infrastructure.persistence.mongodb.constants.collection import (
     MongoCollectionName,
@@ -22,9 +21,11 @@ from scanbackup.infrastructure.persistence.mongodb.schemas.sources.bbip.traffic 
 
 
 class BBIPSourceCollection:
+    _NAME = MongoCollectionName.BBIP_SOURCES.value
+
     @staticmethod
     def create(database: Database) -> None:
-        name_collection = MongoCollectionName.BBIP_SOURCES.value
+        name_collection = BBIPSourceCollection._NAME
         try:
             database.create_collection(
                 name=name_collection, validator=SOURCE_TRAFFIC_BBIP_SCHEMA
@@ -48,15 +49,15 @@ class BBIPSourceCollection:
             )
         except CollectionInvalid as error:
             raise MongoCreateCollectionError(
-                name_collection.value,
+                name_collection,
                 error=f"La colección no es válida para creación\n{error}",
             )
         except Exception as error:
-            raise MongoCreateCollectionError(name_collection.value, error=error)
+            raise MongoCreateCollectionError(name_collection, error=error)
 
     @staticmethod
     def delete(database: Database) -> None:
-        name_collection = MongoCollectionName.BBIP_SOURCES.value
+        name_collection = BBIPSourceCollection._NAME
         try:
             collection = database[name_collection]
             collection.delete_many({})
@@ -68,10 +69,10 @@ class BBIPSourceCollection:
     def export_data(
         database: Database,
         output_path: Path,
-        delimiter: str = SCAN_COLLECTOR_SEPARATOR_FILE,
+        delimiter: str,
         include_id: bool = False,
     ) -> None:
-        name_collection = MongoCollectionName.BBIP_SOURCES.value
+        name_collection = BBIPSourceCollection._NAME
         try:
             collection = database[name_collection]
             projection = {} if include_id else {"_id": 0}
@@ -88,31 +89,40 @@ class BBIPSourceCollection:
                         doc["_id"] = str(doc["_id"])
                     writer.writerow(doc)
         except Exception as error:
-            raise MongoExportCollectionError(name_collection.value, error=error)
+            raise MongoExportCollectionError(name_collection, error=error)
 
     @staticmethod
     def import_data(
         database: Database,
         input_path: Path,
-        delimiter: str = SCAN_COLLECTOR_SEPARATOR_FILE,
+        delimiter: str,
     ) -> None:
-        total_neccesary_col = len([field.value for field in BBIPSourceField])
-        name_collection = MongoCollectionName.BBIP_SOURCES.value
+        name_collection = BBIPSourceCollection._NAME
+        total_neccesary_col = len(BBIPSourceField)
         try:
             collection = database[name_collection]
             documents = []
             with input_path.open("r", newline="", encoding="utf-8") as f:
                 reader = csv.DictReader(f, delimiter=delimiter)
                 for i, row in enumerate(reader, start=1):
-                    total_columns = len(row)
-                    if total_columns != total_neccesary_col:
-                        raise DatabaseDataContentError(
+                    document = {k: v for k, v in row.items() if k != "_id"}
+                    if len(document) != total_neccesary_col:
+                        raise DataContentError(
                             extra_msg=f"Columnas faltantes en la línea {i}"
                         )
+                    try:
+                        document[BBIPSourceField.CAPACITY.value] = float(
+                            document[BBIPSourceField.CAPACITY.value]
+                        )
+                    except (ValueError, KeyError):
+                        raise DataContentError(
+                            extra_msg=f"Valor inválido de capacidad, línea {i}"
+                        )
+                    documents.append(document)
 
-                    documents.append({k: v for k, v in row.items() if k != "_id"})
             if not documents:
-                raise FileEmptyError(filepath=input_path, module="Mongo Database")
+                raise FileEmptyError(filepath=input_path)
+
             try:
                 collection.insert_many(documents, ordered=False)
             except BulkWriteError as bwe:
@@ -125,7 +135,7 @@ class BBIPSourceCollection:
                     raise MongoImportCollectionError(name_collection, error=bwe)
         except FileEmptyError:
             return
-        except BulkWriteError:
+        except MongoImportCollectionError:
             raise
         except Exception as error:
             raise MongoImportCollectionError(name_collection, error=error)

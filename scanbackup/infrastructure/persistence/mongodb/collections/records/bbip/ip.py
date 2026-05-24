@@ -5,13 +5,12 @@ from pymongo import ASCENDING, ReplaceOne
 from pymongo.database import Database
 from pymongo.errors import CollectionInvalid
 from scanbackup.shared import (
+    FileEmptyError,
     MongoCreateCollectionError,
     MongoExportCollectionError,
     MongoImportCollectionError,
     MongoDeleteCollectionError,
-    DatabaseDataContentError,
-    FileEmptyError,
-    SCAN_COLLECTOR_SEPARATOR_FILE,
+    DataContentError,
 )
 from scanbackup.infrastructure.persistence.mongodb.constants.collection import (
     MongoCollectionName,
@@ -23,8 +22,6 @@ from scanbackup.infrastructure.persistence.mongodb.schemas.records.bbip.ip impor
 
 
 class IPCollection:
-    LAYERS_VALID: list[MongoCollectionName] = [MongoCollectionName.IP_BRAS]
-
     @staticmethod
     def create(name_collection: MongoCollectionName, database: Database) -> None:
         try:
@@ -69,7 +66,7 @@ class IPCollection:
         name_collection: MongoCollectionName,
         database: Database,
         output_path: Path,
-        delimiter: str = SCAN_COLLECTOR_SEPARATOR_FILE,
+        delimiter: str,
         include_id: bool = False,
     ) -> None:
         try:
@@ -98,17 +95,14 @@ class IPCollection:
         name_collection: MongoCollectionName,
         database: Database,
         input_path: Path,
-        delimiter: str = SCAN_COLLECTOR_SEPARATOR_FILE,
+        delimiter: str,
     ) -> None:
         try:
-            if name_collection is not IPCollection.LAYERS_VALID:
-                raise ValueError("Nombre de colección inválido")
-
             total_neccesary_col = len(IPActiveField)
             collection = database[name_collection]
 
             if input_path.stat().st_size == 0:
-                raise FileEmptyError(filepath=input_path, module="Mongo Database")
+                raise FileEmptyError(filepath=input_path)
 
             operations = []
             with input_path.open("r", newline="", encoding="utf-8") as f:
@@ -119,13 +113,36 @@ class IPCollection:
                         total_columns < total_neccesary_col
                         or total_columns > total_neccesary_col + 1
                     ):
-                        raise DatabaseDataContentError(
+                        raise DataContentError(
                             extra_msg=f"Total de columnas inválido en la línea {i}"
                         )
 
-                    row[IPActiveField.DEVICE.value] = ObjectId(
-                        row[IPActiveField.DEVICE.value]
-                    )
+                    try:
+                        row[IPActiveField.DEVICE.value] = ObjectId(
+                            row[IPActiveField.DEVICE.value]
+                        )
+                    except (ValueError, KeyError):
+                        raise DataContentError(
+                            extra_msg=f"Valor inválido de id, línea {i}"
+                        )
+
+                    try:
+                        row[IPActiveField.IN_MAX] = float(
+                            row[IPActiveField.IN_MAX.value]
+                        )
+                    except (ValueError, KeyError):
+                        raise DataContentError(
+                            extra_msg=f"Valor inválido de in max, línea {i}"
+                        )
+
+                    try:
+                        row[IPActiveField.IN_PROM] = float(
+                            row[IPActiveField.IN_PROM.value]
+                        )
+                    except (ValueError, KeyError):
+                        raise DataContentError(
+                            extra_msg=f"Valor inválido de in prom, línea {i}"
+                        )
 
                     if "_id" in row:
                         doc_id = ObjectId(row.pop("_id"))
@@ -152,5 +169,7 @@ class IPCollection:
                 collection.bulk_write(operations, ordered=False)
         except FileEmptyError:
             return
+        except DataContentError:
+            raise
         except Exception as error:
             raise MongoImportCollectionError(name_collection.value, error=error)

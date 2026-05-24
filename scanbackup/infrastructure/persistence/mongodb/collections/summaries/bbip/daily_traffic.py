@@ -5,12 +5,12 @@ from pymongo import ASCENDING
 from pymongo.database import Database
 from pymongo.errors import CollectionInvalid, BulkWriteError
 from scanbackup.shared import (
+    DataContentError,
+    FileEmptyError,
     MongoCreateCollectionError,
     MongoExportCollectionError,
     MongoImportCollectionError,
     MongoDeleteCollectionError,
-    FileEmptyError,
-    SCAN_COLLECTOR_SEPARATOR_FILE,
 )
 from scanbackup.infrastructure.persistence.mongodb.constants.collection import (
     MongoCollectionName,
@@ -69,7 +69,7 @@ class BBIPDailySummaryCollection:
     def export_data(
         database: Database,
         output_path: Path,
-        delimiter: str = SCAN_COLLECTOR_SEPARATOR_FILE,
+        delimiter: str,
         include_id: bool = False,
     ) -> None:
         try:
@@ -99,23 +99,43 @@ class BBIPDailySummaryCollection:
     def import_data(
         database: Database,
         input_path: Path,
-        delimiter: str = SCAN_COLLECTOR_SEPARATOR_FILE,
+        delimiter: str,
     ) -> None:
         try:
             collection = database[BBIPDailySummaryCollection._NAME]
             with input_path.open("r", newline="", encoding="utf-8") as f:
                 reader = csv.DictReader(f, delimiter=delimiter)
-                documents = [
-                    {
-                        **{k: v for k, v in row.items() if k != "_id"},
-                        BBIPDailySummaryField.DEVICE.value: ObjectId(
+                documents = []
+                for i, row in enumerate(reader, start=1):
+                    row.pop("_id", None)
+
+                    try:
+                        row[BBIPDailySummaryField.DEVICE.value] = ObjectId(
                             row[BBIPDailySummaryField.DEVICE.value]
-                        ),
-                    }
-                    for row in reader
-                ]
+                        )
+                    except (ValueError, KeyError):
+                        raise DataContentError(
+                            extra_msg=f"Valor inválido de id, línea {i}"
+                        )
+
+                    float_fields = [
+                        (BBIPDailySummaryField.IN_MAX, "in max"),
+                        (BBIPDailySummaryField.IN_PROM, "in prom"),
+                        (BBIPDailySummaryField.OUT_MAX, "out max"),
+                        (BBIPDailySummaryField.OUT_PROM, "out prom"),
+                        (BBIPDailySummaryField.USE, "uso"),
+                    ]
+                    for field, label in float_fields:
+                        try:
+                            row[field.value] = float(row[field.value])
+                        except (ValueError, KeyError):
+                            raise DataContentError(
+                                extra_msg=f"Valor inválido de {label}, línea {i}"
+                            )
+
+                    documents.append(row)
             if not documents:
-                raise FileEmptyError(filepath=input_path, module="Mongo Database")
+                raise FileEmptyError(filepath=input_path)
             try:
                 collection.insert_many(documents, ordered=False)
             except BulkWriteError as bwe:

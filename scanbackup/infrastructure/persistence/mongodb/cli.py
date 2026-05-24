@@ -2,10 +2,7 @@ import click
 from scanbackup.infrastructure.persistence.mongodb.connections.database import (
     MongoDatabase,
 )
-from scanbackup.infrastructure.persistence.mongodb.constants.collection import (
-    MongoCollectionName,
-)
-from scanbackup.shared import URIEnvironment, Terminal, Log
+from scanbackup.shared import Configuration, Terminal, Log
 
 
 @click.group()
@@ -14,26 +11,27 @@ def cli():
     pass
 
 
-@cli.command(help="Crea una nueva base de datos en MondoDB para el sistema.")
-@click.option(
-    "--dev", is_flag=True, help="Carga las variables del entorno de desarrollo"
+@cli.command(
+    help="Crea todas las colecciones especificadas en la configuración del sistema."
 )
-def setup(dev: bool = False):
+def setup():
     terminal = Terminal()
 
-    start_info = "Inicialización colecciones de la base de datos"
+    start_info = "Inicialización colecciones en la base de datos"
     Log.info(start_info)
     terminal.info(start_info)
 
     with terminal.status("Cargando configuración del sistema...") as status:
         try:
-            config = URIEnvironment(dev=dev)
-            uri_mongo = config.get_uri_db()
+            config = Configuration()
+            cfg_db = config.get_cfg_database()
+            cfg_layers = config.get_cfg_layers()
 
             terminal.loading(status, "Iniciando proceso...")
 
-            mongo_database = MongoDatabase(uri=uri_mongo)
-            mongo_database.create_collections()
+            database = MongoDatabase()
+            database.set_uri(cfg_db)
+            database.create_collections(config=cfg_layers)
         except Exception:
             terminal.error("Inicialización de la base de datos fallida")
             exit(1)
@@ -42,78 +40,66 @@ def setup(dev: bool = False):
 
 
 @cli.command(
-    help="Eliminación de las colecciones. PRECAUCIÓN: esta acción no puede deshacerse una vez ejecutada"
+    help="Ver nombres de las colecciones actualmente existentes en la base de datos."
 )
-@click.option(
-    "--force",
-    is_flag=True,
-    help="Fuerza eliminación de las colecciones. ADVERTENCIA: esta acción no puede deshacerse una vez ejecutada",
-)
-@click.option(
-    "--dev", is_flag=True, help="Carga las variables del entorno de desarrollo"
-)
-def drop(force: bool = False, dev: bool = False):
+def inspect() -> None:
     terminal = Terminal()
 
-    start_info = "Eliminación de colecciones de la base de datos"
+    start_info = "Colecciones datos a la base de datos:"
     Log.info(start_info)
     terminal.info(start_info)
 
     with terminal.status("Cargando configuración del sistema...") as status:
         try:
-            config = URIEnvironment(dev=dev)
-            uri_mongo = config.get_uri_db()
+            config = Configuration()
+            cfg_db = config.get_cfg_database()
 
-            terminal.loading(status, "Iniciando proceso...")
+            terminal.loading(status, "Inspeccionando colecciones...")
 
-            mongo_database = MongoDatabase(uri=uri_mongo)
-            mongo_database.drop(force)
+            database = MongoDatabase()
+            database.set_uri(cfg_db)
+            collections = database.get_collection_names()
+            terminal.list(collections)
         except Exception:
-            terminal.error("Eliminación de la base de datos fallida")
+            terminal.error("Proceso fallido. Sin búsqueda")
             exit(1)
-        else:
-            terminal.info("Proceso finalizado con éxito")
 
 
-@cli.command("import", help="Importa datos de un archivo .csv a una colección.")
-@click.option(
-    "--file",
-    type=click.Path(exists=True),
-    required=True,
-    help="Archivo .csv a importar",
-)
+@cli.command("import", help="Importa la data de un archivo .csv a una colección.")
 @click.option(
     "--collection",
-    type=click.Choice(MongoCollectionName),
     required=True,
-    help="Colección a importar",
+    help="Nombre de la colección de la base de datos a la que se quiere importar los datos.",
 )
-@click.option("--delimiter", help="Delimitador de campos")
 @click.option(
-    "--dev", is_flag=True, help="Carga las variables del entorno de desarrollo"
+    "--filepath",
+    type=click.Path(exists=True),
+    required=True,
+    help="Ruta del archivo .csv a importar.",
 )
-def import_data(
-    file: str,
-    collection: MongoCollectionName,
-    delimiter: str | None = None,
-    dev: bool = False,
-) -> None:
+@click.option("--delimiter", required=False, help="Delimitador de campos del archivo.")
+def import_data(collection: str, filepath: str, delimiter: str | None = None) -> None:
     terminal = Terminal()
 
-    start_info = f"Importación de datos a la colección {collection}"
+    start_info = "Importando datos a la base de datos"
     Log.info(start_info)
     terminal.info(start_info)
 
     with terminal.status("Cargando configuración del sistema...") as status:
         try:
-            config = URIEnvironment(dev=dev)
-            uri_mongo = config.get_uri_db()
+            config = Configuration()
+            cfg_db = config.get_cfg_database()
+            cfg_layers = config.get_cfg_layers()
 
             terminal.loading(status, "Iniciando proceso...")
 
-            mongo_database = MongoDatabase(uri=uri_mongo)
-            mongo_database.import_data(
-                name_collection=collection, filepath=file, delimiter=delimiter
+            database = MongoDatabase()
+            database.set_uri(cfg_db)
+            database.import_data(
+                name_collection=collection,
+                config=cfg_layers,
+                filepath=filepath,
+                delimiter=delimiter,
             )
         except Exception:
             terminal.error("Importación de datos fallida")
@@ -122,52 +108,46 @@ def import_data(
             terminal.info("Proceso finalizado con éxito")
 
 
-@cli.command(
-    "export", help="Exporta todos los datos de una colección a un archivo .csv."
-)
-@click.option(
-    "--dir",
-    type=click.Path(exists=True, file_okay=False, dir_okay=True),
-    help="Directorio de exportación",
-)
+@cli.command("export", help="Exporta la data de colección en un archivo .csv.")
 @click.option(
     "--collection",
-    type=click.Choice(MongoCollectionName),
-    help="Colección a importar",
-)
-@click.option("--delimiter", help="Delimitador de campos")
-@click.option(
-    "--id",
-    is_flag=True,
-    help="Incluir ObjectID de registros en la exportación. Por defecto True",
+    required=True,
+    help="Nombre de la colección de la base de datos a la que se quiere exportar los datos.",
 )
 @click.option(
-    "--dev", is_flag=True, help="Carga las variables del entorno de desarrollo"
+    "--dirpath",
+    type=click.Path(exists=True, file_okay=False, dir_okay=True),
+    required=True,
+    help="Ruta de la carpeta a exportar la data.",
 )
+@click.option("--delimiter", required=False, help="Delimitador de campos del archivo.")
+@click.option("--id", is_flag=True, required=False, help="Incluir el ID en el archivo.")
 def export_data(
-    collection: MongoCollectionName | None,
-    dir: str | None = None,
+    collection: str,
+    dirpath: str,
     delimiter: str | None = None,
-    id: bool = True,
-    dev: bool = False,
+    id: bool = False,
 ) -> None:
     terminal = Terminal()
 
-    start_info = f"Exportación de datos de la colección {collection}"
+    start_info = "Exportando datos a la base de datos"
     Log.info(start_info)
     terminal.info(start_info)
 
     with terminal.status("Cargando configuración del sistema...") as status:
         try:
-            config = URIEnvironment(dev=dev)
-            uri_mongo = config.get_uri_db()
+            config = Configuration()
+            cfg_db = config.get_cfg_database()
+            cfg_layers = config.get_cfg_layers()
 
             terminal.loading(status, "Iniciando proceso...")
 
-            mongo_database = MongoDatabase(uri=uri_mongo)
-            mongo_database.export_data(
-                dirpath=dir,
+            database = MongoDatabase()
+            database.set_uri(cfg_db)
+            filepath_export = database.export_data(
+                config=cfg_layers,
                 name_collection=collection,
+                dirpath=dirpath,
                 delimiter=delimiter,
                 include_id=id,
             )
@@ -175,7 +155,9 @@ def export_data(
             terminal.error("Exportación de datos fallida")
             exit(1)
         else:
-            terminal.info("Proceso finalizado con éxito")
+            terminal.info(
+                f"Proceso finalizado con éxito. Archivo exportado en {filepath_export}"
+            )
 
 
 if __name__ == "__main__":
