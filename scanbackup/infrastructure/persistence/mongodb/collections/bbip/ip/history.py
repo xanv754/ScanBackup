@@ -15,7 +15,7 @@ from scanbackup.shared import (
 from scanbackup.infrastructure.persistence.mongodb.constants.collection import (
     MongoCollectionName,
 )
-from scanbackup.infrastructure.persistence.mongodb.schemas.records.bbip.ip import (
+from scanbackup.infrastructure.persistence.mongodb.schemas.bbip.ip.active import (
     IPActiveField,
     IP_HISTORY_SCHEMA,
 )

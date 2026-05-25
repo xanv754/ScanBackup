@@ -1,4 +1,4 @@
-from scanbackup.domain.repositories.sources.traffic_bbip import (
+from scanbackup.domain.repositories.bbip.sources.traffic import (
     TrafficBBIPSourceRepository,
 )
 from scanbackup.domain.entities.bbip.traffic.source import BBIPTrafficSourceEntity

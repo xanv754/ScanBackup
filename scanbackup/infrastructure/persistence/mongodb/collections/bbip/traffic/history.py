@@ -15,7 +15,7 @@ from scanbackup.shared import (
 from scanbackup.infrastructure.persistence.mongodb.constants.collection import (
     MongoCollectionName,
 )
-from scanbackup.infrastructure.persistence.mongodb.schemas.records.bbip.traffic import (
+from scanbackup.infrastructure.persistence.mongodb.schemas.bbip.traffic.data import (
     BBIPField,
     BBIP_TRAFFIC_SCHEMA,
 )

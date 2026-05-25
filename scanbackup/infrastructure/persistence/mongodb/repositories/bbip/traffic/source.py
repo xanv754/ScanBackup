@@ -8,7 +8,7 @@ from scanbackup.infrastructure.persistence.mongodb.connections.database import (
 from scanbackup.infrastructure.persistence.mongodb.constants.collection import (
     MongoCollectionName,
 )
-from scanbackup.infrastructure.persistence.mongodb.schemas.sources.bbip.traffic import (
+from scanbackup.infrastructure.persistence.mongodb.schemas.bbip.traffic.source import (
     BBIPSourceField,
 )
 from scanbackup.shared import (

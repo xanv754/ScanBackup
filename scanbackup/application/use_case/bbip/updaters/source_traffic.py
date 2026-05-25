@@ -1,8 +1,6 @@
 from pathlib import Path
 from scanbackup.domain import TrafficBBIPSourceRepository
-from scanbackup.application.mappers.traffic_bbip_source import (
-    BBIPTrafficSourceMapper,
-)
+from scanbackup.application.mappers.bbip.source_traffic import BBIPTrafficSourceMapper
 
 
 class UpdateBBIPSources:

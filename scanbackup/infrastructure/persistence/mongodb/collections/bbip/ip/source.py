@@ -13,7 +13,7 @@ from scanbackup.shared import (
 from scanbackup.infrastructure.persistence.mongodb.constants.collection import (
     MongoCollectionName,
 )
-from scanbackup.infrastructure.persistence.mongodb.schemas.sources.bbip.ip import (
+from scanbackup.infrastructure.persistence.mongodb.schemas.bbip.ip.source import (
     IPSourceField,
     SOURCE_IP_BBIP_SCHEMA,
 )

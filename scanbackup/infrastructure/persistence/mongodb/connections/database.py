@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Any
 from pathlib import Path
 from pymongo import MongoClient
 from pymongo.database import Database
@@ -10,7 +10,6 @@ from scanbackup.shared import (
     MongoConnectionError,
     MongoCollectionNotFoundError,
     MongoCreateCollectionError,
-    MongoDeleteCollectionError,
     MongoImportCollectionError,
     MongoExportCollectionError,
     FileImportNotFoundError,
@@ -21,22 +20,22 @@ from scanbackup.infrastructure.persistence.mongodb.constants.collection import (
     MongoCollectionName,
     SuffixCollectionName,
 )
-from scanbackup.infrastructure.persistence.mongodb.collections.records.bbip.traffic import (
+from scanbackup.infrastructure.persistence.mongodb.collections.bbip.traffic.history import (
     BBIPCollection,
 )
-from scanbackup.infrastructure.persistence.mongodb.collections.records.bbip.ip import (
+from scanbackup.infrastructure.persistence.mongodb.collections.bbip.ip.history import (
     IPCollection,
 )
-from scanbackup.infrastructure.persistence.mongodb.collections.sources.bbip.bbip import (
+from scanbackup.infrastructure.persistence.mongodb.collections.bbip.traffic.source import (
     BBIPSourceCollection,
 )
-from scanbackup.infrastructure.persistence.mongodb.collections.sources.bbip.ip import (
+from scanbackup.infrastructure.persistence.mongodb.collections.bbip.ip.source import (
     IPSourceCollection,
 )
-from scanbackup.infrastructure.persistence.mongodb.collections.summaries.bbip.daily_traffic import (
+from scanbackup.infrastructure.persistence.mongodb.collections.bbip.traffic.summaries.daily import (
     BBIPDailySummaryCollection,
 )
-from scanbackup.infrastructure.persistence.mongodb.collections.summaries.bbip.daily_ip import (
+from scanbackup.infrastructure.persistence.mongodb.collections.bbip.ip.summaries.daily import (
     IPDailySummaryCollection,
 )
 

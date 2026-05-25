@@ -1,7 +1,9 @@
 import click
 from pathlib import Path
 from scanbackup.infrastructure import MongoTrafficBBIPRepository
-from scanbackup.application.use_case.updater.bbip_sources import UpdateBBIPSources
+from scanbackup.application.use_case.bbip.updaters.source_traffic import (
+    UpdateBBIPSources,
+)
 from scanbackup.shared import Terminal, Log
 
 

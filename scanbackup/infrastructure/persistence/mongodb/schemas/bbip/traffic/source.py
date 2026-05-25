@@ -9,6 +9,7 @@ class BBIPSourceField(str, Enum):
     TYPE = "type"
     STATUS = "status"
     LAYER = "layer"
+    COMMENTS = "COMMENTS"
 
 
 SOURCE_TRAFFIC_BBIP_SCHEMA: Dict[str, Dict[str, Any]] = {
@@ -45,6 +46,10 @@ SOURCE_TRAFFIC_BBIP_SCHEMA: Dict[str, Dict[str, Any]] = {
             BBIPSourceField.LAYER.value: {
                 "bsonType": "string",
                 "description": "Layer name of the device",
+            },
+            BBIPSourceField.COMMENTS.value: {
+                "bsonType": "string",
+                "description": "Comments of the device",
             },
         },
     }
