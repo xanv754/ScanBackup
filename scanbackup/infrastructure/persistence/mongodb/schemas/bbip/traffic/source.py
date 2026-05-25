@@ -1,5 +1,5 @@
-from enum import Enum
 from typing import Any, Dict
+from enum import Enum
 
 
 class BBIPSourceField(str, Enum):
@@ -9,7 +9,7 @@ class BBIPSourceField(str, Enum):
     TYPE = "type"
     STATUS = "status"
     LAYER = "layer"
-    COMMENTS = "COMMENTS"
+    COMMENTS = "comments"
 
 
 SOURCE_TRAFFIC_BBIP_SCHEMA: Dict[str, Dict[str, Any]] = {

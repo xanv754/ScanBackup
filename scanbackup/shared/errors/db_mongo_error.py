@@ -57,3 +57,13 @@ class MongoInsertFailedError(MongoDatabaseError):
         if extra_msg:
             message = message + f". {extra_msg}"
         super().__init__(message, error)
+
+
+class MongoGetFailedError(MongoDatabaseError):
+    def __init__(
+        self, name_collection: str, extra_msg: str | None = None, error: any = None
+    ) -> None:
+        message = f"No se pudo obtener información de la colección {name_collection}"
+        if extra_msg:
+            message = message + f". {extra_msg}"
+        super().__init__(extra_msg, error)

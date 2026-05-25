@@ -16,6 +16,7 @@ from scanbackup.shared import (
     SourceStatus,
     MongoInsertFailedError,
     MongoConnectionError,
+    MongoGetFailedError,
 )
 
 
@@ -107,5 +108,25 @@ class MongoTrafficBBIPRepository(TrafficBBIPSourceRepository):
             raise MongoInsertFailedError(
                 error=error, extra_msg="Fallo al discontinuar fuentes"
             )
+        finally:
+            client.close_connection()
+
+    def get_sources_by_layer(self, layer: str) -> list[BBIPTrafficSourceEntity]:
+        name_collection = MongoCollectionName.BBIP_SOURCES.value
+        client = MongoDatabase()
+        try:
+            collection = self._get_collection(client)
+            documents = collection.find(
+                {
+                    BBIPSourceField.LAYER.value: layer,
+                    BBIPSourceField.STATUS.value: SourceStatus.ACTIVE.value,
+                },
+                {"_id": 0},
+            )
+            return [BBIPTrafficSourceEntity(**doc) for doc in documents]
+        except MongoConnectionError:
+            raise
+        except Exception as error:
+            raise MongoGetFailedError(name_collection, error=error)
         finally:
             client.close_connection()

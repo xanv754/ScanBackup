@@ -10,6 +10,7 @@ class BBIPTrafficSourceEntity(BaseModel):
     type: str
     status: str = SourceStatus.ACTIVE.value
     layer: str
+    comments: str
 
     @field_validator("layer")
     @classmethod
