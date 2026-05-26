@@ -22,7 +22,11 @@ from scanbackup.shared.errors.db_mongo_error import (
     MongoInsertFailedError,
     MongoGetFailedError,
 )
-from scanbackup.shared.errors.export_error import ExportError, ExcelExportError
+from scanbackup.shared.errors.export_error import (
+    ExportError,
+    ExcelExportError,
+    CSVExportError,
+)
 from scanbackup.shared.errors.input_error import (
     FileEmptyError,
     FileExtensionError,
@@ -52,6 +56,7 @@ __all__ = [
     "MongoGetFailedError",
     "ExportError",
     "ExcelExportError",
+    "CSVExportError",
     "FileEmptyError",
     "FileExtensionError",
     "ContentFileError",

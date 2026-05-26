@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from scanbackup.domain.entities.bbip.traffic.source import BBIPTrafficSourceEntity
 
 
-class TrafficBBIPSourceRepository(ABC):
+class BBIPTrafficSourceRepository(ABC):
     @abstractmethod
     def get_existing_keys(self) -> list[dict]:
         """Returns a list of dicts with {interface, layer, type} of all documents."""
@@ -20,5 +20,5 @@ class TrafficBBIPSourceRepository(ABC):
 
     @abstractmethod
     def get_sources_by_layer(self, layer: str) -> list[BBIPTrafficSourceEntity]:
-        """Returns all source data of  a layer."""
+        """Returns all source data of a layer."""
         pass

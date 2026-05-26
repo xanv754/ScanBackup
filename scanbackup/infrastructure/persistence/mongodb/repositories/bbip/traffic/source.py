@@ -1,7 +1,7 @@
 from pymongo import UpdateOne
 from pymongo.errors import BulkWriteError
 
-from scanbackup.domain import TrafficBBIPSourceRepository, BBIPTrafficSourceEntity
+from scanbackup.domain import BBIPTrafficSourceRepository, BBIPTrafficSourceEntity
 from scanbackup.infrastructure.persistence.mongodb.connections.database import (
     MongoDatabase,
 )
@@ -9,7 +9,7 @@ from scanbackup.infrastructure.persistence.mongodb.constants.collection import (
     MongoCollectionName,
 )
 from scanbackup.infrastructure.persistence.mongodb.schemas.bbip.traffic.source import (
-    BBIPSourceField,
+    BBIPTrafficSourceField,
 )
 from scanbackup.shared import (
     Configuration,
@@ -20,7 +20,7 @@ from scanbackup.shared import (
 )
 
 
-class MongoTrafficBBIPRepository(TrafficBBIPSourceRepository):
+class MongoBBIPTrafficRepository(BBIPTrafficSourceRepository):
     def _get_collection(self, client: MongoDatabase):
         config = Configuration().get_cfg_database()
         client.set_uri(config)
@@ -37,9 +37,9 @@ class MongoTrafficBBIPRepository(TrafficBBIPSourceRepository):
                     {},
                     {
                         "_id": 0,
-                        BBIPSourceField.INTERFACE.value: 1,
-                        BBIPSourceField.LAYER.value: 1,
-                        BBIPSourceField.TYPE.value: 1,
+                        BBIPTrafficSourceField.INTERFACE.value: 1,
+                        BBIPTrafficSourceField.LAYER.value: 1,
+                        BBIPTrafficSourceField.TYPE.value: 1,
                     },
                 )
             )
@@ -59,9 +59,9 @@ class MongoTrafficBBIPRepository(TrafficBBIPSourceRepository):
             operations = [
                 UpdateOne(
                     filter={
-                        BBIPSourceField.INTERFACE.value: entity.interface,
-                        BBIPSourceField.LAYER.value: entity.layer,
-                        BBIPSourceField.TYPE.value: entity.type,
+                        BBIPTrafficSourceField.INTERFACE.value: entity.interface,
+                        BBIPTrafficSourceField.LAYER.value: entity.layer,
+                        BBIPTrafficSourceField.TYPE.value: entity.type,
                     },
                     update={"$set": entity.model_dump(exclude_none=True)},
                     upsert=True,
@@ -91,11 +91,15 @@ class MongoTrafficBBIPRepository(TrafficBBIPSourceRepository):
                 filter={
                     "$nor": [
                         {
-                            BBIPSourceField.INTERFACE.value: k[
-                                BBIPSourceField.INTERFACE.value
+                            BBIPTrafficSourceField.INTERFACE.value: k[
+                                BBIPTrafficSourceField.INTERFACE.value
                             ],
-                            BBIPSourceField.LAYER.value: k[BBIPSourceField.LAYER.value],
-                            BBIPSourceField.TYPE.value: k[BBIPSourceField.TYPE.value],
+                            BBIPTrafficSourceField.LAYER.value: k[
+                                BBIPTrafficSourceField.LAYER.value
+                            ],
+                            BBIPTrafficSourceField.TYPE.value: k[
+                                BBIPTrafficSourceField.TYPE.value
+                            ],
                         }
                         for k in present_keys
                     ]
@@ -118,8 +122,8 @@ class MongoTrafficBBIPRepository(TrafficBBIPSourceRepository):
             collection = self._get_collection(client)
             documents = collection.find(
                 {
-                    BBIPSourceField.LAYER.value: layer,
-                    BBIPSourceField.STATUS.value: SourceStatus.ACTIVE.value,
+                    BBIPTrafficSourceField.LAYER.value: layer,
+                    BBIPTrafficSourceField.STATUS.value: SourceStatus.ACTIVE.value,
                 },
                 {"_id": 0},
             )

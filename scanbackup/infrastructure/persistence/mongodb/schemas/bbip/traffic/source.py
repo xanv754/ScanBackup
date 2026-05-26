@@ -2,7 +2,7 @@ from typing import Any, Dict
 from enum import Enum
 
 
-class BBIPSourceField(str, Enum):
+class BBIPTrafficSourceField(str, Enum):
     LINK = "link"
     INTERFACE = "interface"
     CAPACITY = "capacity"
@@ -16,38 +16,38 @@ SOURCE_TRAFFIC_BBIP_SCHEMA: Dict[str, Dict[str, Any]] = {
     "$jsonSchema": {
         "bsonType": "object",
         "required": [
-            BBIPSourceField.LINK.value,
-            BBIPSourceField.INTERFACE.value,
-            BBIPSourceField.CAPACITY.value,
-            BBIPSourceField.TYPE.value,
-            BBIPSourceField.STATUS.value,
+            BBIPTrafficSourceField.LINK.value,
+            BBIPTrafficSourceField.INTERFACE.value,
+            BBIPTrafficSourceField.CAPACITY.value,
+            BBIPTrafficSourceField.TYPE.value,
+            BBIPTrafficSourceField.STATUS.value,
         ],
         "properties": {
-            BBIPSourceField.LINK.value: {
+            BBIPTrafficSourceField.LINK.value: {
                 "bsonType": "string",
                 "description": "URL link to the device logs",
             },
-            BBIPSourceField.INTERFACE.value: {
+            BBIPTrafficSourceField.INTERFACE.value: {
                 "bsonType": "string",
                 "description": "Interface name of the device",
             },
-            BBIPSourceField.CAPACITY.value: {
+            BBIPTrafficSourceField.CAPACITY.value: {
                 "bsonType": ["int", "long", "double"],
                 "description": "Capacity of the device",
             },
-            BBIPSourceField.TYPE.value: {
+            BBIPTrafficSourceField.TYPE.value: {
                 "bsonType": "string",
                 "description": "Type of the device",
             },
-            BBIPSourceField.STATUS.value: {
+            BBIPTrafficSourceField.STATUS.value: {
                 "bsonType": "string",
                 "description": "Current status of the device",
             },
-            BBIPSourceField.LAYER.value: {
+            BBIPTrafficSourceField.LAYER.value: {
                 "bsonType": "string",
                 "description": "Layer name of the device",
             },
-            BBIPSourceField.COMMENTS.value: {
+            BBIPTrafficSourceField.COMMENTS.value: {
                 "bsonType": "string",
                 "description": "Comments of the device",
             },

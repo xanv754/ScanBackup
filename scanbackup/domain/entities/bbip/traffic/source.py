@@ -4,6 +4,7 @@ from scanbackup.shared import SourceStatus
 
 
 class BBIPTrafficSourceEntity(BaseModel):
+    id: str
     link: str
     interface: str
     capacity: float

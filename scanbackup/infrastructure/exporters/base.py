@@ -1,0 +1,19 @@
+from abc import ABC, abstractmethod
+from pathlib import Path
+from pydantic import BaseModel
+
+
+class Exporter(ABC):
+    def _get_home(self) -> str:
+        home = Path.home()
+        donwload_dir = home / "Downloads"
+        if donwload_dir.exists():
+            return donwload_dir.resolve()
+        donwload_dir = home / "Descargas"
+        if donwload_dir.exists():
+            return donwload_dir.resolve()
+        return home.resolve()
+
+    @abstractmethod
+    def export(self, filename: str, data: list[BaseModel]) -> None:
+        pass

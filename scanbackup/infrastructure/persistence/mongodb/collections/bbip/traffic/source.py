@@ -15,17 +15,17 @@ from scanbackup.infrastructure.persistence.mongodb.constants.collection import (
     MongoCollectionName,
 )
 from scanbackup.infrastructure.persistence.mongodb.schemas.bbip.traffic.source import (
-    BBIPSourceField,
+    BBIPTrafficSourceField,
     SOURCE_TRAFFIC_BBIP_SCHEMA,
 )
 
 
-class BBIPSourceCollection:
+class BBIPTrafficSourceCollection:
     _NAME = MongoCollectionName.BBIP_SOURCES.value
 
     @staticmethod
     def create(database: Database) -> None:
-        name_collection = BBIPSourceCollection._NAME
+        name_collection = BBIPTrafficSourceCollection._NAME
         try:
             database.create_collection(
                 name=name_collection, validator=SOURCE_TRAFFIC_BBIP_SCHEMA
@@ -33,16 +33,16 @@ class BBIPSourceCollection:
             collection = database[name_collection]
             collection.create_index(
                 [
-                    (BBIPSourceField.LAYER.value, ASCENDING),
-                    (BBIPSourceField.TYPE.value, ASCENDING),
-                    (BBIPSourceField.INTERFACE.value, ASCENDING),
+                    (BBIPTrafficSourceField.LAYER.value, ASCENDING),
+                    (BBIPTrafficSourceField.TYPE.value, ASCENDING),
+                    (BBIPTrafficSourceField.INTERFACE.value, ASCENDING),
                 ],
                 unique=True,
                 name=f"unique_{name_collection.lower()}",
             )
             collection.create_index(
                 [
-                    (BBIPSourceField.LAYER.value, ASCENDING),
+                    (BBIPTrafficSourceField.LAYER.value, ASCENDING),
                 ],
                 name=f"layer_{name_collection.lower()}",
             )
@@ -56,7 +56,7 @@ class BBIPSourceCollection:
 
     @staticmethod
     def delete(database: Database) -> None:
-        name_collection = BBIPSourceCollection._NAME
+        name_collection = BBIPTrafficSourceCollection._NAME
         try:
             collection = database[name_collection]
             collection.delete_many({})
@@ -71,7 +71,7 @@ class BBIPSourceCollection:
         delimiter: str,
         include_id: bool = False,
     ) -> None:
-        name_collection = BBIPSourceCollection._NAME
+        name_collection = BBIPTrafficSourceCollection._NAME
         try:
             collection = database[name_collection]
             projection = {} if include_id else {"_id": 0}
@@ -79,7 +79,7 @@ class BBIPSourceCollection:
             output_path.parent.mkdir(parents=True, exist_ok=True)
             with output_path.open("w", newline="", encoding="utf-8") as f:
                 fields = (["_id"] if include_id else []) + [
-                    field.value for field in BBIPSourceField
+                    field.value for field in BBIPTrafficSourceField
                 ]
                 writer = csv.DictWriter(f, fieldnames=fields, delimiter=delimiter)
                 writer.writeheader()
@@ -96,8 +96,8 @@ class BBIPSourceCollection:
         input_path: Path,
         delimiter: str,
     ) -> None:
-        name_collection = BBIPSourceCollection._NAME
-        total_neccesary_col = len(BBIPSourceField)
+        name_collection = BBIPTrafficSourceCollection._NAME
+        total_neccesary_col = len(BBIPTrafficSourceField)
         try:
             collection = database[name_collection]
             documents = []
@@ -110,8 +110,8 @@ class BBIPSourceCollection:
                             extra_msg=f"Columnas faltantes en la línea {i}"
                         )
                     try:
-                        document[BBIPSourceField.CAPACITY.value] = float(
-                            document[BBIPSourceField.CAPACITY.value]
+                        document[BBIPTrafficSourceField.CAPACITY.value] = float(
+                            document[BBIPTrafficSourceField.CAPACITY.value]
                         )
                     except (ValueError, KeyError):
                         raise DataContentError(

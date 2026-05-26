@@ -16,7 +16,7 @@ from scanbackup.infrastructure.persistence.mongodb.constants.collection import (
     MongoCollectionName,
 )
 from scanbackup.infrastructure.persistence.mongodb.schemas.bbip.traffic.summaries.daily import (
-    BBIPDailySummaryField,
+    BBIPDTrafficDailySummaryField,
     DAILY_SUMMARY_SCHEMA,
 )
 
@@ -34,14 +34,14 @@ class BBIPDailySummaryCollection:
             collection = database[BBIPDailySummaryCollection._NAME]
             collection.create_index(
                 [
-                    (BBIPDailySummaryField.DEVICE.value, ASCENDING),
-                    (BBIPDailySummaryField.DATE.value, ASCENDING),
+                    (BBIPDTrafficDailySummaryField.DEVICE.value, ASCENDING),
+                    (BBIPDTrafficDailySummaryField.DATE.value, ASCENDING),
                 ],
                 unique=True,
                 name=f"unique_{BBIPDailySummaryCollection._NAME.lower()}",
             )
             collection.create_index(
-                [(BBIPDailySummaryField.DATE.value, ASCENDING)],
+                [(BBIPDTrafficDailySummaryField.DATE.value, ASCENDING)],
                 name=f"date_{BBIPDailySummaryCollection._NAME.lower()}",
             )
         except CollectionInvalid as error:
@@ -79,13 +79,13 @@ class BBIPDailySummaryCollection:
             output_path.parent.mkdir(parents=True, exist_ok=True)
             with output_path.open("w", newline="", encoding="utf-8") as f:
                 fields = (["_id"] if include_id else []) + [
-                    field.value for field in BBIPDailySummaryField
+                    field.value for field in BBIPDTrafficDailySummaryField
                 ]
                 writer = csv.DictWriter(f, fieldnames=fields, delimiter=delimiter)
                 writer.writeheader()
                 for doc in documents:
-                    doc[BBIPDailySummaryField.DEVICE.value] = str(
-                        doc[BBIPDailySummaryField.DEVICE.value]
+                    doc[BBIPDTrafficDailySummaryField.DEVICE.value] = str(
+                        doc[BBIPDTrafficDailySummaryField.DEVICE.value]
                     )
                     if include_id:
                         doc["_id"] = str(doc["_id"])
@@ -110,8 +110,8 @@ class BBIPDailySummaryCollection:
                     row.pop("_id", None)
 
                     try:
-                        row[BBIPDailySummaryField.DEVICE.value] = ObjectId(
-                            row[BBIPDailySummaryField.DEVICE.value]
+                        row[BBIPDTrafficDailySummaryField.DEVICE.value] = ObjectId(
+                            row[BBIPDTrafficDailySummaryField.DEVICE.value]
                         )
                     except (ValueError, KeyError):
                         raise DataContentError(
@@ -119,11 +119,11 @@ class BBIPDailySummaryCollection:
                         )
 
                     float_fields = [
-                        (BBIPDailySummaryField.IN_MAX, "in max"),
-                        (BBIPDailySummaryField.IN_PROM, "in prom"),
-                        (BBIPDailySummaryField.OUT_MAX, "out max"),
-                        (BBIPDailySummaryField.OUT_PROM, "out prom"),
-                        (BBIPDailySummaryField.USE, "uso"),
+                        (BBIPDTrafficDailySummaryField.IN_MAX, "in max"),
+                        (BBIPDTrafficDailySummaryField.IN_PROM, "in prom"),
+                        (BBIPDTrafficDailySummaryField.OUT_MAX, "out max"),
+                        (BBIPDTrafficDailySummaryField.OUT_PROM, "out prom"),
+                        (BBIPDTrafficDailySummaryField.USE, "uso"),
                     ]
                     for field, label in float_fields:
                         try:

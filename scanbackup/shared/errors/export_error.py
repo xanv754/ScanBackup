@@ -15,5 +15,11 @@ class ExportError(ScanBackupError):
 
 class ExcelExportError(ExportError):
     def __init__(self, filename: str | None = None, error: any = None) -> None:
-        message = "Exportación de reporte a excel fallida"
+        message = "Exportación de archivo a excel fallida"
+        super().__init__(message=message, error=error, filename=filename)
+
+
+class CSVExportError(ExportError):
+    def __init__(self, filename: str | None = None, error: any = None) -> None:
+        message = "Exportación de archivo .csv fallida"
         super().__init__(message=message, error=error, filename=filename)

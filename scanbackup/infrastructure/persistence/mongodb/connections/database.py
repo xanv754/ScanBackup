@@ -27,7 +27,7 @@ from scanbackup.infrastructure.persistence.mongodb.collections.bbip.ip.history i
     IPCollection,
 )
 from scanbackup.infrastructure.persistence.mongodb.collections.bbip.traffic.source import (
-    BBIPSourceCollection,
+    BBIPTrafficSourceCollection,
 )
 from scanbackup.infrastructure.persistence.mongodb.collections.bbip.ip.source import (
     IPSourceCollection,
@@ -112,7 +112,7 @@ class MongoDatabase:
             db = self._client[self._config.name]
 
             if not self._check_collection(MongoCollectionName.BBIP_SOURCES):
-                BBIPSourceCollection.create(database=db)
+                BBIPTrafficSourceCollection.create(database=db)
 
             layers_bbip = config.bbip.names
             for layer in layers_bbip:
@@ -182,7 +182,7 @@ class MongoDatabase:
                     delimiter=delimiter,
                 )
             elif name_collection == MongoCollectionName.BBIP_SOURCES.value:
-                BBIPSourceCollection.import_data(
+                BBIPTrafficSourceCollection.import_data(
                     database=self._client[self._config.name],
                     input_path=filepath,
                     delimiter=delimiter,
@@ -267,7 +267,7 @@ class MongoDatabase:
                 filepath = Path(
                     dirpath / f"{MongoCollectionName.BBIP_SOURCES.value}.csv"
                 )
-                BBIPSourceCollection.export_data(
+                BBIPTrafficSourceCollection.export_data(
                     database=self._client[self._config.name],
                     output_path=filepath,
                     delimiter=delimiter,
