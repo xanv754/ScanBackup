@@ -1,6 +1,6 @@
 from scanbackup.domain.repositories.bbip.sources.traffic import (
-    BBIPTrafficSourceRepository,
+    TrafficSourceBBIPRepository,
 )
 from scanbackup.domain.entities.bbip.traffic.source import BBIPTrafficSourceEntity
 
-__all__ = ["BBIPTrafficSourceRepository", "BBIPTrafficSourceEntity"]
+__all__ = ["TrafficSourceBBIPRepository", "BBIPTrafficSourceEntity"]
