@@ -15,17 +15,17 @@ from scanbackup.infrastructure.persistence.mongodb.constants.collection import (
     MongoCollectionName,
 )
 from scanbackup.infrastructure.persistence.mongodb.schemas.bbip.traffic.source import (
-    BBIPTrafficSourceField,
+    TrafficSourceBBIPField,
     SOURCE_TRAFFIC_BBIP_SCHEMA,
 )
 
 
-class BBIPTrafficSourceCollection:
-    _NAME = MongoCollectionName.BBIP_SOURCES.value
+class TrafficSourceBBIPCollection:
+    _NAME = MongoCollectionName.TRAFFIC_SOURCES.value
 
     @staticmethod
     def create(database: Database) -> None:
-        name_collection = BBIPTrafficSourceCollection._NAME
+        name_collection = TrafficSourceBBIPCollection._NAME
         try:
             database.create_collection(
                 name=name_collection, validator=SOURCE_TRAFFIC_BBIP_SCHEMA
@@ -33,16 +33,16 @@ class BBIPTrafficSourceCollection:
             collection = database[name_collection]
             collection.create_index(
                 [
-                    (BBIPTrafficSourceField.LAYER.value, ASCENDING),
-                    (BBIPTrafficSourceField.TYPE.value, ASCENDING),
-                    (BBIPTrafficSourceField.INTERFACE.value, ASCENDING),
+                    (TrafficSourceBBIPField.LAYER.value, ASCENDING),
+                    (TrafficSourceBBIPField.TYPE.value, ASCENDING),
+                    (TrafficSourceBBIPField.INTERFACE.value, ASCENDING),
                 ],
                 unique=True,
                 name=f"unique_{name_collection.lower()}",
             )
             collection.create_index(
                 [
-                    (BBIPTrafficSourceField.LAYER.value, ASCENDING),
+                    (TrafficSourceBBIPField.LAYER.value, ASCENDING),
                 ],
                 name=f"layer_{name_collection.lower()}",
             )
@@ -56,7 +56,7 @@ class BBIPTrafficSourceCollection:
 
     @staticmethod
     def delete(database: Database) -> None:
-        name_collection = BBIPTrafficSourceCollection._NAME
+        name_collection = TrafficSourceBBIPCollection._NAME
         try:
             collection = database[name_collection]
             collection.delete_many({})
@@ -71,7 +71,7 @@ class BBIPTrafficSourceCollection:
         delimiter: str,
         include_id: bool = False,
     ) -> None:
-        name_collection = BBIPTrafficSourceCollection._NAME
+        name_collection = TrafficSourceBBIPCollection._NAME
         try:
             collection = database[name_collection]
             projection = {} if include_id else {"_id": 0}
@@ -79,7 +79,7 @@ class BBIPTrafficSourceCollection:
             output_path.parent.mkdir(parents=True, exist_ok=True)
             with output_path.open("w", newline="", encoding="utf-8") as f:
                 fields = (["_id"] if include_id else []) + [
-                    field.value for field in BBIPTrafficSourceField
+                    field.value for field in TrafficSourceBBIPField
                 ]
                 writer = csv.DictWriter(f, fieldnames=fields, delimiter=delimiter)
                 writer.writeheader()
@@ -96,8 +96,8 @@ class BBIPTrafficSourceCollection:
         input_path: Path,
         delimiter: str,
     ) -> None:
-        name_collection = BBIPTrafficSourceCollection._NAME
-        total_neccesary_col = len(BBIPTrafficSourceField)
+        name_collection = TrafficSourceBBIPCollection._NAME
+        total_neccesary_col = len(TrafficSourceBBIPField)
         try:
             collection = database[name_collection]
             documents = []
@@ -110,8 +110,8 @@ class BBIPTrafficSourceCollection:
                             extra_msg=f"Columnas faltantes en la línea {i}"
                         )
                     try:
-                        document[BBIPTrafficSourceField.CAPACITY.value] = float(
-                            document[BBIPTrafficSourceField.CAPACITY.value]
+                        document[TrafficSourceBBIPField.CAPACITY.value] = float(
+                            document[TrafficSourceBBIPField.CAPACITY.value]
                         )
                     except (ValueError, KeyError):
                         raise DataContentError(

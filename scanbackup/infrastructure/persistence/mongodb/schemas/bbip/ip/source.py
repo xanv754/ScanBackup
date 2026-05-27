@@ -2,7 +2,7 @@ from enum import Enum
 from typing import Any, Dict
 
 
-class IPSourceField(str, Enum):
+class IPSourceBBIPField(str, Enum):
     LINK = "link"
     DEVICE = "device"
     STATUS = "status"
@@ -13,24 +13,24 @@ SOURCE_IP_BBIP_SCHEMA: Dict[str, Dict[str, Any]] = {
     "$jsonSchema": {
         "bsonType": "object",
         "required": [
-            IPSourceField.LINK.value,
-            IPSourceField.DEVICE.value,
-            IPSourceField.STATUS.value,
+            IPSourceBBIPField.LINK.value,
+            IPSourceBBIPField.DEVICE.value,
+            IPSourceBBIPField.STATUS.value,
         ],
         "properties": {
-            IPSourceField.LINK.value: {
+            IPSourceBBIPField.LINK.value: {
                 "bsonType": "string",
                 "description": "URL link to the device logs",
             },
-            IPSourceField.DEVICE.value: {
+            IPSourceBBIPField.DEVICE.value: {
                 "bsonType": "string",
                 "description": "Interface name of the device",
             },
-            IPSourceField.STATUS.value: {
+            IPSourceBBIPField.STATUS.value: {
                 "bsonType": "string",
                 "description": "Current status of the device",
             },
-            IPSourceField.LAYER.value: {
+            IPSourceBBIPField.LAYER.value: {
                 "bsonType": "string",
                 "description": "Layer name of the device",
             },

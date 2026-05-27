@@ -16,53 +16,53 @@ from scanbackup.infrastructure.persistence.mongodb.constants.collection import (
     MongoCollectionName,
 )
 from scanbackup.infrastructure.persistence.mongodb.schemas.bbip.ip.summaries.daily import (
-    IPDailySummaryField,
+    IPDailySummaryBBIPField,
     DAILY_SUMMARY_SCHEMA,
 )
 
 
-class IPDailySummaryCollection:
+class IPDailySummaryBBIPCollection:
     _NAME = MongoCollectionName.IP_DAILY_SUMMARY.value
 
     @staticmethod
     def create(database: Database) -> None:
         try:
             database.create_collection(
-                name=IPDailySummaryCollection._NAME,
+                name=IPDailySummaryBBIPCollection._NAME,
                 validator=DAILY_SUMMARY_SCHEMA,
             )
-            collection = database[IPDailySummaryCollection._NAME]
+            collection = database[IPDailySummaryBBIPCollection._NAME]
             collection.create_index(
                 [
-                    (IPDailySummaryField.DEVICE.value, ASCENDING),
-                    (IPDailySummaryField.DATE.value, ASCENDING),
+                    (IPDailySummaryBBIPField.DEVICE.value, ASCENDING),
+                    (IPDailySummaryBBIPField.DATE.value, ASCENDING),
                 ],
                 unique=True,
-                name=f"unique_{IPDailySummaryCollection._NAME.lower()}",
+                name=f"unique_{IPDailySummaryBBIPCollection._NAME.lower()}",
             )
             collection.create_index(
-                [(IPDailySummaryField.DATE.value, ASCENDING)],
-                name=f"date_{IPDailySummaryCollection._NAME.lower()}",
+                [(IPDailySummaryBBIPField.DATE.value, ASCENDING)],
+                name=f"date_{IPDailySummaryBBIPCollection._NAME.lower()}",
             )
         except CollectionInvalid as error:
             raise MongoCreateCollectionError(
-                IPDailySummaryCollection._NAME,
+                IPDailySummaryBBIPCollection._NAME,
                 error=f"La colección no es válida para creación\n{error}",
             )
         except Exception as error:
             raise MongoCreateCollectionError(
-                IPDailySummaryCollection._NAME, error=error
+                IPDailySummaryBBIPCollection._NAME, error=error
             )
 
     @staticmethod
     def delete(database: Database) -> None:
         try:
-            collection = database[IPDailySummaryCollection._NAME]
+            collection = database[IPDailySummaryBBIPCollection._NAME]
             collection.delete_many({})
             collection.drop()
         except Exception as error:
             raise MongoDeleteCollectionError(
-                IPDailySummaryCollection._NAME, error=error
+                IPDailySummaryBBIPCollection._NAME, error=error
             )
 
     @staticmethod
@@ -73,26 +73,26 @@ class IPDailySummaryCollection:
         include_id: bool = False,
     ) -> None:
         try:
-            collection = database[IPDailySummaryCollection._NAME]
+            collection = database[IPDailySummaryBBIPCollection._NAME]
             projection = {} if include_id else {"_id": 0}
             documents = collection.find({}, projection)
             output_path.parent.mkdir(parents=True, exist_ok=True)
             with output_path.open("w", newline="", encoding="utf-8") as f:
                 fields = (["_id"] if include_id else []) + [
-                    field.value for field in IPDailySummaryField
+                    field.value for field in IPDailySummaryBBIPField
                 ]
                 writer = csv.DictWriter(f, fieldnames=fields, delimiter=delimiter)
                 writer.writeheader()
                 for doc in documents:
-                    doc[IPDailySummaryField.DEVICE.value] = str(
-                        doc[IPDailySummaryField.DEVICE.value]
+                    doc[IPDailySummaryBBIPField.DEVICE.value] = str(
+                        doc[IPDailySummaryBBIPField.DEVICE.value]
                     )
                     if include_id:
                         doc["_id"] = str(doc["_id"])
                     writer.writerow(doc)
         except Exception as error:
             raise MongoExportCollectionError(
-                IPDailySummaryCollection._NAME, error=error
+                IPDailySummaryBBIPCollection._NAME, error=error
             )
 
     @staticmethod
@@ -102,7 +102,7 @@ class IPDailySummaryCollection:
         delimiter: str,
     ) -> None:
         try:
-            collection = database[IPDailySummaryCollection._NAME]
+            collection = database[IPDailySummaryBBIPCollection._NAME]
             with input_path.open("r", newline="", encoding="utf-8") as f:
                 reader = csv.DictReader(f, delimiter=delimiter)
                 documents = []
@@ -110,8 +110,8 @@ class IPDailySummaryCollection:
                     row.pop("_id", None)
 
                     try:
-                        row[IPDailySummaryField.DEVICE.value] = ObjectId(
-                            row[IPDailySummaryField.DEVICE.value]
+                        row[IPDailySummaryBBIPField.DEVICE.value] = ObjectId(
+                            row[IPDailySummaryBBIPField.DEVICE.value]
                         )
                     except (ValueError, KeyError):
                         raise DataContentError(
@@ -119,8 +119,8 @@ class IPDailySummaryCollection:
                         )
 
                     float_fields = [
-                        (IPDailySummaryField.IN_MAX, "in max"),
-                        (IPDailySummaryField.IN_PROM, "in prom"),
+                        (IPDailySummaryBBIPField.IN_MAX, "in max"),
+                        (IPDailySummaryBBIPField.IN_PROM, "in prom"),
                     ]
                     for field, label in float_fields:
                         try:
@@ -145,7 +145,7 @@ class IPDailySummaryCollection:
                 ]
                 if non_duplicate_errors:
                     raise MongoImportCollectionError(
-                        IPDailySummaryCollection._NAME, error=bwe
+                        IPDailySummaryBBIPCollection._NAME, error=bwe
                     )
         except DataContentError:
             raise
@@ -153,5 +153,5 @@ class IPDailySummaryCollection:
             raise
         except Exception as error:
             raise MongoImportCollectionError(
-                IPDailySummaryCollection._NAME, error=error
+                IPDailySummaryBBIPCollection._NAME, error=error
             )

@@ -14,17 +14,17 @@ from scanbackup.infrastructure.persistence.mongodb.constants.collection import (
     MongoCollectionName,
 )
 from scanbackup.infrastructure.persistence.mongodb.schemas.bbip.ip.source import (
-    IPSourceField,
+    IPSourceBBIPField,
     SOURCE_IP_BBIP_SCHEMA,
 )
 
 
-class IPSourceCollection:
+class IPSourceBBIPCollection:
     _NAME = MongoCollectionName.IP_SOURCES.value
 
     @staticmethod
     def create(database: Database) -> None:
-        name_collection = IPSourceCollection._NAME
+        name_collection = IPSourceBBIPCollection._NAME
         try:
             database.create_collection(
                 name=name_collection, validator=SOURCE_IP_BBIP_SCHEMA
@@ -32,17 +32,17 @@ class IPSourceCollection:
             collection = database[name_collection]
             collection.create_index(
                 [
-                    (IPSourceField.LAYER.value, ASCENDING),
-                    (IPSourceField.TYPE.value, ASCENDING),
-                    (IPSourceField.CAPACITY.value, ASCENDING),
-                    (IPSourceField.INTERFACE.value, ASCENDING),
+                    (IPSourceBBIPField.LAYER.value, ASCENDING),
+                    (IPSourceBBIPField.TYPE.value, ASCENDING),
+                    (IPSourceBBIPField.CAPACITY.value, ASCENDING),
+                    (IPSourceBBIPField.INTERFACE.value, ASCENDING),
                 ],
                 unique=True,
                 name=f"unique_{name_collection.lower()}",
             )
             collection.create_index(
                 [
-                    (IPSourceField.LAYER.value, ASCENDING),
+                    (IPSourceBBIPField.LAYER.value, ASCENDING),
                 ],
                 name=f"layer_{name_collection.lower()}",
             )
@@ -56,7 +56,7 @@ class IPSourceCollection:
 
     @staticmethod
     def delete(database: Database) -> None:
-        name_collection = IPSourceCollection._NAME
+        name_collection = IPSourceBBIPCollection._NAME
         try:
             collection = database[name_collection]
             collection.delete_many({})
@@ -71,7 +71,7 @@ class IPSourceCollection:
         delimiter: str,
         include_id: bool = False,
     ) -> None:
-        name_collection = IPSourceCollection._NAME
+        name_collection = IPSourceBBIPCollection._NAME
         try:
             collection = database[name_collection]
             projection = {} if include_id else {"_id": 0}
@@ -79,7 +79,7 @@ class IPSourceCollection:
             output_path.parent.mkdir(parents=True, exist_ok=True)
             with output_path.open("w", newline="", encoding="utf-8") as f:
                 fields = (["_id"] if include_id else []) + [
-                    field.value for field in IPSourceField
+                    field.value for field in IPSourceBBIPField
                 ]
                 writer = csv.DictWriter(f, fieldnames=fields, delimiter=delimiter)
                 writer.writeheader()
@@ -96,7 +96,7 @@ class IPSourceCollection:
         input_path: Path,
         delimiter: str,
     ) -> None:
-        name_collection = IPSourceCollection._NAME
+        name_collection = IPSourceBBIPCollection._NAME
         try:
             collection = database[name_collection]
             with input_path.open("r", newline="", encoding="utf-8") as f:

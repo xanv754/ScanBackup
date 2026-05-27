@@ -2,7 +2,7 @@ from enum import Enum
 from typing import Any, Dict
 
 
-class BBIPDTrafficDailySummaryField(str, Enum):
+class TrafficDailySummaryBBIPField(str, Enum):
     DATE = "date"
     IN_PROM = "inProm"
     OUT_PROM = "outProm"
@@ -16,40 +16,40 @@ DAILY_SUMMARY_SCHEMA: Dict[str, Dict[str, Any]] = {
     "$jsonSchema": {
         "bsonType": "object",
         "required": [
-            BBIPDTrafficDailySummaryField.DATE.value,
-            BBIPDTrafficDailySummaryField.IN_PROM.value,
-            BBIPDTrafficDailySummaryField.IN_MAX.value,
-            BBIPDTrafficDailySummaryField.OUT_PROM.value,
-            BBIPDTrafficDailySummaryField.OUT_MAX.value,
-            BBIPDTrafficDailySummaryField.USE.value,
-            BBIPDTrafficDailySummaryField.DEVICE.value,
+            TrafficDailySummaryBBIPField.DATE.value,
+            TrafficDailySummaryBBIPField.IN_PROM.value,
+            TrafficDailySummaryBBIPField.IN_MAX.value,
+            TrafficDailySummaryBBIPField.OUT_PROM.value,
+            TrafficDailySummaryBBIPField.OUT_MAX.value,
+            TrafficDailySummaryBBIPField.USE.value,
+            TrafficDailySummaryBBIPField.DEVICE.value,
         ],
         "properties": {
-            BBIPDTrafficDailySummaryField.DATE.value: {
+            TrafficDailySummaryBBIPField.DATE.value: {
                 "bsonType": "string",
                 "description": "Date of the traffic",
             },
-            BBIPDTrafficDailySummaryField.IN_PROM.value: {
+            TrafficDailySummaryBBIPField.IN_PROM.value: {
                 "bsonType": ["int", "long", "double"],
                 "description": "In prom of the traffic",
             },
-            BBIPDTrafficDailySummaryField.OUT_PROM.value: {
+            TrafficDailySummaryBBIPField.OUT_PROM.value: {
                 "bsonType": ["int", "long", "double"],
                 "description": "Out prom of the traffic",
             },
-            BBIPDTrafficDailySummaryField.IN_MAX.value: {
+            TrafficDailySummaryBBIPField.IN_MAX.value: {
                 "bsonType": ["int", "long", "double"],
                 "description": "In max of the traffic",
             },
-            BBIPDTrafficDailySummaryField.OUT_MAX.value: {
+            TrafficDailySummaryBBIPField.OUT_MAX.value: {
                 "bsonType": ["int", "long", "double"],
                 "description": "Out max of the traffic",
             },
-            BBIPDTrafficDailySummaryField.USE.value: {
+            TrafficDailySummaryBBIPField.USE.value: {
                 "bsonType": ["int", "long", "double"],
                 "description": "Use of the interface",
             },
-            BBIPDTrafficDailySummaryField.DEVICE.value: {
+            TrafficDailySummaryBBIPField.DEVICE.value: {
                 "bsonType": ["objectId"],
                 "description": "MongoDB ObjectId referencing the source device in the BBIP source collection",
             },

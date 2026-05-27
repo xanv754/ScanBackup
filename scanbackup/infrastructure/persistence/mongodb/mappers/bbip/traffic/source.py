@@ -1,10 +1,10 @@
 from scanbackup.infrastructure.persistence.mongodb.dto.bbip.traffic.source import (
-    BBIPTrafficSourceMongoDTO,
+    MongoTrafficSourceBBIPDTO,
 )
 from scanbackup.domain.entities.bbip.traffic.source import BBIPTrafficSourceEntity
 
 
-class BBIPTrafficSourceMapper:
+class TrafficSourceBBIPMapper:
     @staticmethod
-    def to_entity(dto: BBIPTrafficSourceMongoDTO) -> BBIPTrafficSourceEntity:
+    def to_entity(dto: MongoTrafficSourceBBIPDTO) -> BBIPTrafficSourceEntity:
         return BBIPTrafficSourceEntity(**dto.model_dump())

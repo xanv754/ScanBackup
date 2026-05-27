@@ -2,7 +2,7 @@ from typing import Any, Dict
 from enum import Enum
 
 
-class IPActiveField(str, Enum):
+class IPActiveBBIPField(str, Enum):
     DATE = "date"
     TIME = "time"
     IN_PROM = "inProm"
@@ -14,30 +14,30 @@ IP_HISTORY_SCHEMA: Dict[str, Dict[str, Any]] = {
     "$jsonSchema": {
         "bsonType": "object",
         "required": [
-            IPActiveField.DATE.value,
-            IPActiveField.TIME.value,
-            IPActiveField.IN_PROM.value,
-            IPActiveField.IN_MAX.value,
-            IPActiveField.DEVICE.value,
+            IPActiveBBIPField.DATE.value,
+            IPActiveBBIPField.TIME.value,
+            IPActiveBBIPField.IN_PROM.value,
+            IPActiveBBIPField.IN_MAX.value,
+            IPActiveBBIPField.DEVICE.value,
         ],
         "properties": {
-            IPActiveField.DATE.value: {
+            IPActiveBBIPField.DATE.value: {
                 "bsonType": "string",
                 "description": "Data date",
             },
-            IPActiveField.TIME.value: {
+            IPActiveBBIPField.TIME.value: {
                 "bsonType": "string",
                 "description": "Data Hour",
             },
-            IPActiveField.IN_PROM.value: {
+            IPActiveBBIPField.IN_PROM.value: {
                 "bsonType": ["int", "long", "double"],
                 "description": "In prom of IP actives",
             },
-            IPActiveField.IN_MAX.value: {
+            IPActiveBBIPField.IN_MAX.value: {
                 "bsonType": ["int", "long", "double"],
                 "description": "In max of IP actives",
             },
-            IPActiveField.DEVICE.value: {
+            IPActiveBBIPField.DEVICE.value: {
                 "bsonType": ["objectId"],
                 "description": "MongoDB ObjectId referencing the source device in the IP source collection",
             },

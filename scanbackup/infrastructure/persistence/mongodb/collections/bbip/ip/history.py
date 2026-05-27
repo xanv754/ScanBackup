@@ -16,12 +16,12 @@ from scanbackup.infrastructure.persistence.mongodb.constants.collection import (
     MongoCollectionName,
 )
 from scanbackup.infrastructure.persistence.mongodb.schemas.bbip.ip.active import (
-    IPActiveField,
+    IPActiveBBIPField,
     IP_HISTORY_SCHEMA,
 )
 
 
-class IPCollection:
+class IPHistoryBBIPCollection:
     @staticmethod
     def create(name_collection: MongoCollectionName, database: Database) -> None:
         try:
@@ -31,16 +31,16 @@ class IPCollection:
             collection = database[name_collection]
             collection.create_index(
                 [
-                    (IPActiveField.DEVICE.value, ASCENDING),
-                    (IPActiveField.DATE.value, ASCENDING),
-                    (IPActiveField.TIME.value, ASCENDING),
+                    (IPActiveBBIPField.DEVICE.value, ASCENDING),
+                    (IPActiveBBIPField.DATE.value, ASCENDING),
+                    (IPActiveBBIPField.TIME.value, ASCENDING),
                 ],
                 unique=True,
                 name=f"unique_ip_{name_collection.lower()}",
             )
             collection.create_index(
                 [
-                    (IPActiveField.DATE.value, ASCENDING),
+                    (IPActiveBBIPField.DATE.value, ASCENDING),
                 ],
                 name=f"date_ip_{name_collection.lower()}",
             )
@@ -76,13 +76,13 @@ class IPCollection:
             output_path.parent.mkdir(parents=True, exist_ok=True)
             with output_path.open("w", newline="", encoding="utf-8") as f:
                 fields = (["_id"] if include_id else []) + [
-                    field.value for field in IPActiveField
+                    field.value for field in IPActiveBBIPField
                 ]
                 writer = csv.DictWriter(f, fieldnames=fields, delimiter=delimiter)
                 writer.writeheader()
                 for doc in documents:
-                    doc[IPActiveField.DEVICE.value] = str(
-                        doc[IPActiveField.DEVICE.value]
+                    doc[IPActiveBBIPField.DEVICE.value] = str(
+                        doc[IPActiveBBIPField.DEVICE.value]
                     )
                     if include_id:
                         doc["_id"] = str(doc["_id"])
@@ -98,7 +98,7 @@ class IPCollection:
         delimiter: str,
     ) -> None:
         try:
-            total_neccesary_col = len(IPActiveField)
+            total_neccesary_col = len(IPActiveBBIPField)
             collection = database[name_collection]
 
             if input_path.stat().st_size == 0:
@@ -118,8 +118,8 @@ class IPCollection:
                         )
 
                     try:
-                        row[IPActiveField.DEVICE.value] = ObjectId(
-                            row[IPActiveField.DEVICE.value]
+                        row[IPActiveBBIPField.DEVICE.value] = ObjectId(
+                            row[IPActiveBBIPField.DEVICE.value]
                         )
                     except (ValueError, KeyError):
                         raise DataContentError(
@@ -127,8 +127,8 @@ class IPCollection:
                         )
 
                     try:
-                        row[IPActiveField.IN_MAX] = float(
-                            row[IPActiveField.IN_MAX.value]
+                        row[IPActiveBBIPField.IN_MAX] = float(
+                            row[IPActiveBBIPField.IN_MAX.value]
                         )
                     except (ValueError, KeyError):
                         raise DataContentError(
@@ -136,8 +136,8 @@ class IPCollection:
                         )
 
                     try:
-                        row[IPActiveField.IN_PROM] = float(
-                            row[IPActiveField.IN_PROM.value]
+                        row[IPActiveBBIPField.IN_PROM] = float(
+                            row[IPActiveBBIPField.IN_PROM.value]
                         )
                     except (ValueError, KeyError):
                         raise DataContentError(
@@ -151,14 +151,14 @@ class IPCollection:
                         operations.append(
                             ReplaceOne(
                                 {
-                                    IPActiveField.DEVICE.value: row[
-                                        IPActiveField.DEVICE.value
+                                    IPActiveBBIPField.DEVICE.value: row[
+                                        IPActiveBBIPField.DEVICE.value
                                     ],
-                                    IPActiveField.DATE.value: row[
-                                        IPActiveField.DATE.value
+                                    IPActiveBBIPField.DATE.value: row[
+                                        IPActiveBBIPField.DATE.value
                                     ],
-                                    IPActiveField.TIME.value: row[
-                                        IPActiveField.TIME.value
+                                    IPActiveBBIPField.TIME.value: row[
+                                        IPActiveBBIPField.TIME.value
                                     ],
                                 },
                                 row,

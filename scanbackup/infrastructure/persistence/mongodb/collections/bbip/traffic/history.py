@@ -16,12 +16,12 @@ from scanbackup.infrastructure.persistence.mongodb.constants.collection import (
     MongoCollectionName,
 )
 from scanbackup.infrastructure.persistence.mongodb.schemas.bbip.traffic.data import (
-    BBIPField,
+    TrafficBBIPField,
     BBIP_TRAFFIC_SCHEMA,
 )
 
 
-class BBIPCollection:
+class TrafficHistoryBBIPCollection:
     @staticmethod
     def create(name_collection: MongoCollectionName, database: Database) -> None:
         try:
@@ -31,16 +31,16 @@ class BBIPCollection:
             collection = database[name_collection]
             collection.create_index(
                 [
-                    (BBIPField.DEVICE.value, ASCENDING),
-                    (BBIPField.DATE.value, ASCENDING),
-                    (BBIPField.TIME.value, ASCENDING),
+                    (TrafficBBIPField.DEVICE.value, ASCENDING),
+                    (TrafficBBIPField.DATE.value, ASCENDING),
+                    (TrafficBBIPField.TIME.value, ASCENDING),
                 ],
                 unique=True,
                 name=f"unique_traffic_{name_collection.lower()}",
             )
             collection.create_index(
                 [
-                    (BBIPField.DATE.value, ASCENDING),
+                    (TrafficBBIPField.DATE.value, ASCENDING),
                 ],
                 name=f"date_traffic_{name_collection.lower()}",
             )
@@ -76,13 +76,15 @@ class BBIPCollection:
             output_path.parent.mkdir(parents=True, exist_ok=True)
             with output_path.open("w", newline="", encoding="utf-8") as f:
                 fields = (["_id"] if include_id else []) + [
-                    field.value for field in BBIPField
+                    field.value for field in TrafficBBIPField
                 ]
                 writer = csv.DictWriter(f, fieldnames=fields, delimiter=delimiter)
                 writer.writeheader()
 
                 for doc in documents:
-                    doc[BBIPField.DEVICE.value] = str(doc[BBIPField.DEVICE.value])
+                    doc[TrafficBBIPField.DEVICE.value] = str(
+                        doc[TrafficBBIPField.DEVICE.value]
+                    )
                     if include_id:
                         doc["_id"] = str(doc["_id"])
                     writer.writerow(doc)
@@ -97,7 +99,7 @@ class BBIPCollection:
         delimiter: str,
     ) -> None:
         try:
-            total_necessary_col = len(BBIPField)
+            total_necessary_col = len(TrafficBBIPField)
             collection = database[name_collection]
 
             if input_path.stat().st_size == 0:
@@ -117,8 +119,8 @@ class BBIPCollection:
                         )
 
                     try:
-                        row[BBIPField.DEVICE.value] = ObjectId(
-                            row[BBIPField.DEVICE.value]
+                        row[TrafficBBIPField.DEVICE.value] = ObjectId(
+                            row[TrafficBBIPField.DEVICE.value]
                         )
                     except (ValueError, KeyError):
                         raise DataContentError(
@@ -126,10 +128,10 @@ class BBIPCollection:
                         )
 
                     float_fields = [
-                        (BBIPField.IN_MAX, "in max"),
-                        (BBIPField.IN_PROM, "in prom"),
-                        (BBIPField.OUT_MAX, "out max"),
-                        (BBIPField.OUT_PROM, "out prom"),
+                        (TrafficBBIPField.IN_MAX, "in max"),
+                        (TrafficBBIPField.IN_PROM, "in prom"),
+                        (TrafficBBIPField.OUT_MAX, "out max"),
+                        (TrafficBBIPField.OUT_PROM, "out prom"),
                     ]
                     for field, label in float_fields:
                         try:
@@ -146,9 +148,15 @@ class BBIPCollection:
                         operations.append(
                             ReplaceOne(
                                 {
-                                    BBIPField.DEVICE.value: row[BBIPField.DEVICE.value],
-                                    BBIPField.DATE.value: row[BBIPField.DATE.value],
-                                    BBIPField.TIME.value: row[BBIPField.TIME.value],
+                                    TrafficBBIPField.DEVICE.value: row[
+                                        TrafficBBIPField.DEVICE.value
+                                    ],
+                                    TrafficBBIPField.DATE.value: row[
+                                        TrafficBBIPField.DATE.value
+                                    ],
+                                    TrafficBBIPField.TIME.value: row[
+                                        TrafficBBIPField.TIME.value
+                                    ],
                                 },
                                 row,
                                 upsert=True,

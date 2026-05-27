@@ -1,6 +1,6 @@
 import click
 from pathlib import Path
-from scanbackup.infrastructure import MongoBBIPTrafficRepository
+from scanbackup.infrastructure import MongoTrafficSourceBBIPRepository
 from scanbackup.application.use_case.bbip.updaters.source_traffic import (
     UpdateBBIPSources,
 )
@@ -42,7 +42,7 @@ def traffic_upload(filepath: str) -> None:
     with terminal.status("Configurando sistema...") as status:
         try:
             filepath = Path(filepath)
-            repository = MongoBBIPTrafficRepository()
+            repository = MongoTrafficSourceBBIPRepository()
 
             terminal.loading(status, "Procesando información...")
 
@@ -79,7 +79,7 @@ def traffic_export(dirpath: str | None = None, layer: str | None = None) -> None
             system = Configuration()
             cfg_layers = system.get_cfg_layers()
             dirpath = Path(dirpath)
-            repository = MongoBBIPTrafficRepository()
+            repository = MongoTrafficSourceBBIPRepository()
 
             terminal.loading(status, "Exportando información...")
 

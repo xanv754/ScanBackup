@@ -9,7 +9,7 @@ from scanbackup.infrastructure.persistence.mongodb.constants.collection import (
     MongoCollectionName,
 )
 from scanbackup.infrastructure.persistence.mongodb.schemas.bbip.traffic.source import (
-    BBIPTrafficSourceField,
+    TrafficSourceBBIPField,
 )
 from scanbackup.shared import (
     Configuration,
@@ -20,13 +20,13 @@ from scanbackup.shared import (
 )
 
 
-class MongoBBIPTrafficRepository(BBIPTrafficSourceRepository):
+class MongoTrafficSourceBBIPRepository(BBIPTrafficSourceRepository):
     def _get_collection(self, client: MongoDatabase):
         config = Configuration().get_cfg_database()
         client.set_uri(config)
         client.open_connection()
         database = client.get_connection()
-        return database[MongoCollectionName.BBIP_SOURCES.value]
+        return database[MongoCollectionName.TRAFFIC_SOURCES.value]
 
     def get_existing_keys(self) -> list[dict]:
         client = MongoDatabase()
@@ -37,9 +37,9 @@ class MongoBBIPTrafficRepository(BBIPTrafficSourceRepository):
                     {},
                     {
                         "_id": 0,
-                        BBIPTrafficSourceField.INTERFACE.value: 1,
-                        BBIPTrafficSourceField.LAYER.value: 1,
-                        BBIPTrafficSourceField.TYPE.value: 1,
+                        TrafficSourceBBIPField.INTERFACE.value: 1,
+                        TrafficSourceBBIPField.LAYER.value: 1,
+                        TrafficSourceBBIPField.TYPE.value: 1,
                     },
                 )
             )
@@ -59,9 +59,9 @@ class MongoBBIPTrafficRepository(BBIPTrafficSourceRepository):
             operations = [
                 UpdateOne(
                     filter={
-                        BBIPTrafficSourceField.INTERFACE.value: entity.interface,
-                        BBIPTrafficSourceField.LAYER.value: entity.layer,
-                        BBIPTrafficSourceField.TYPE.value: entity.type,
+                        TrafficSourceBBIPField.INTERFACE.value: entity.interface,
+                        TrafficSourceBBIPField.LAYER.value: entity.layer,
+                        TrafficSourceBBIPField.TYPE.value: entity.type,
                     },
                     update={"$set": entity.model_dump(exclude_none=True)},
                     upsert=True,
@@ -74,7 +74,7 @@ class MongoBBIPTrafficRepository(BBIPTrafficSourceRepository):
         except BulkWriteError as error:
             raise MongoInsertFailedError(
                 error=error,
-                extra_msg=f"Upsert parcial fallido en {MongoCollectionName.BBIP_SOURCES.value}",
+                extra_msg=f"Upsert parcial fallido en {MongoCollectionName.TRAFFIC_SOURCES.value}",
             )
         except Exception as error:
             raise MongoInsertFailedError(
@@ -91,14 +91,14 @@ class MongoBBIPTrafficRepository(BBIPTrafficSourceRepository):
                 filter={
                     "$nor": [
                         {
-                            BBIPTrafficSourceField.INTERFACE.value: k[
-                                BBIPTrafficSourceField.INTERFACE.value
+                            TrafficSourceBBIPField.INTERFACE.value: k[
+                                TrafficSourceBBIPField.INTERFACE.value
                             ],
-                            BBIPTrafficSourceField.LAYER.value: k[
-                                BBIPTrafficSourceField.LAYER.value
+                            TrafficSourceBBIPField.LAYER.value: k[
+                                TrafficSourceBBIPField.LAYER.value
                             ],
-                            BBIPTrafficSourceField.TYPE.value: k[
-                                BBIPTrafficSourceField.TYPE.value
+                            TrafficSourceBBIPField.TYPE.value: k[
+                                TrafficSourceBBIPField.TYPE.value
                             ],
                         }
                         for k in present_keys
@@ -116,14 +116,14 @@ class MongoBBIPTrafficRepository(BBIPTrafficSourceRepository):
             client.close_connection()
 
     def get_sources_by_layer(self, layer: str) -> list[BBIPTrafficSourceEntity]:
-        name_collection = MongoCollectionName.BBIP_SOURCES.value
+        name_collection = MongoCollectionName.TRAFFIC_SOURCES.value
         client = MongoDatabase()
         try:
             collection = self._get_collection(client)
             documents = collection.find(
                 {
-                    BBIPTrafficSourceField.LAYER.value: layer,
-                    BBIPTrafficSourceField.STATUS.value: SourceStatus.ACTIVE.value,
+                    TrafficSourceBBIPField.LAYER.value: layer,
+                    TrafficSourceBBIPField.STATUS.value: SourceStatus.ACTIVE.value,
                 },
                 {"_id": 0},
             )

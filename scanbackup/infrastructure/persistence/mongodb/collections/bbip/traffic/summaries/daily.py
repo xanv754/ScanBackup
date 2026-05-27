@@ -16,53 +16,53 @@ from scanbackup.infrastructure.persistence.mongodb.constants.collection import (
     MongoCollectionName,
 )
 from scanbackup.infrastructure.persistence.mongodb.schemas.bbip.traffic.summaries.daily import (
-    BBIPDTrafficDailySummaryField,
+    TrafficDailySummaryBBIPField,
     DAILY_SUMMARY_SCHEMA,
 )
 
 
-class BBIPDailySummaryCollection:
-    _NAME = MongoCollectionName.BBIP_DAILY_SUMMARY.value
+class TrafficDailySummaryBBIPCollection:
+    _NAME = MongoCollectionName.TRAFFIC_DAILY_SUMMARY.value
 
     @staticmethod
     def create(database: Database) -> None:
         try:
             database.create_collection(
-                name=BBIPDailySummaryCollection._NAME,
+                name=TrafficDailySummaryBBIPCollection._NAME,
                 validator=DAILY_SUMMARY_SCHEMA,
             )
-            collection = database[BBIPDailySummaryCollection._NAME]
+            collection = database[TrafficDailySummaryBBIPCollection._NAME]
             collection.create_index(
                 [
-                    (BBIPDTrafficDailySummaryField.DEVICE.value, ASCENDING),
-                    (BBIPDTrafficDailySummaryField.DATE.value, ASCENDING),
+                    (TrafficDailySummaryBBIPField.DEVICE.value, ASCENDING),
+                    (TrafficDailySummaryBBIPField.DATE.value, ASCENDING),
                 ],
                 unique=True,
-                name=f"unique_{BBIPDailySummaryCollection._NAME.lower()}",
+                name=f"unique_{TrafficDailySummaryBBIPCollection._NAME.lower()}",
             )
             collection.create_index(
-                [(BBIPDTrafficDailySummaryField.DATE.value, ASCENDING)],
-                name=f"date_{BBIPDailySummaryCollection._NAME.lower()}",
+                [(TrafficDailySummaryBBIPField.DATE.value, ASCENDING)],
+                name=f"date_{TrafficDailySummaryBBIPCollection._NAME.lower()}",
             )
         except CollectionInvalid as error:
             raise MongoCreateCollectionError(
-                BBIPDailySummaryCollection._NAME,
+                TrafficDailySummaryBBIPCollection._NAME,
                 error=f"La colección no es válida para creación\n{error}",
             )
         except Exception as error:
             raise MongoCreateCollectionError(
-                BBIPDailySummaryCollection._NAME, error=error
+                TrafficDailySummaryBBIPCollection._NAME, error=error
             )
 
     @staticmethod
     def delete(database: Database) -> None:
         try:
-            collection = database[BBIPDailySummaryCollection._NAME]
+            collection = database[TrafficDailySummaryBBIPCollection._NAME]
             collection.delete_many({})
             collection.drop()
         except Exception as error:
             raise MongoDeleteCollectionError(
-                BBIPDailySummaryCollection._NAME, error=error
+                TrafficDailySummaryBBIPCollection._NAME, error=error
             )
 
     @staticmethod
@@ -73,26 +73,26 @@ class BBIPDailySummaryCollection:
         include_id: bool = False,
     ) -> None:
         try:
-            collection = database[BBIPDailySummaryCollection._NAME]
+            collection = database[TrafficDailySummaryBBIPCollection._NAME]
             projection = {} if include_id else {"_id": 0}
             documents = collection.find({}, projection)
             output_path.parent.mkdir(parents=True, exist_ok=True)
             with output_path.open("w", newline="", encoding="utf-8") as f:
                 fields = (["_id"] if include_id else []) + [
-                    field.value for field in BBIPDTrafficDailySummaryField
+                    field.value for field in TrafficDailySummaryBBIPField
                 ]
                 writer = csv.DictWriter(f, fieldnames=fields, delimiter=delimiter)
                 writer.writeheader()
                 for doc in documents:
-                    doc[BBIPDTrafficDailySummaryField.DEVICE.value] = str(
-                        doc[BBIPDTrafficDailySummaryField.DEVICE.value]
+                    doc[TrafficDailySummaryBBIPField.DEVICE.value] = str(
+                        doc[TrafficDailySummaryBBIPField.DEVICE.value]
                     )
                     if include_id:
                         doc["_id"] = str(doc["_id"])
                     writer.writerow(doc)
         except Exception as error:
             raise MongoExportCollectionError(
-                BBIPDailySummaryCollection._NAME, error=error
+                TrafficDailySummaryBBIPCollection._NAME, error=error
             )
 
     @staticmethod
@@ -102,7 +102,7 @@ class BBIPDailySummaryCollection:
         delimiter: str,
     ) -> None:
         try:
-            collection = database[BBIPDailySummaryCollection._NAME]
+            collection = database[TrafficDailySummaryBBIPCollection._NAME]
             with input_path.open("r", newline="", encoding="utf-8") as f:
                 reader = csv.DictReader(f, delimiter=delimiter)
                 documents = []
@@ -110,8 +110,8 @@ class BBIPDailySummaryCollection:
                     row.pop("_id", None)
 
                     try:
-                        row[BBIPDTrafficDailySummaryField.DEVICE.value] = ObjectId(
-                            row[BBIPDTrafficDailySummaryField.DEVICE.value]
+                        row[TrafficDailySummaryBBIPField.DEVICE.value] = ObjectId(
+                            row[TrafficDailySummaryBBIPField.DEVICE.value]
                         )
                     except (ValueError, KeyError):
                         raise DataContentError(
@@ -119,11 +119,11 @@ class BBIPDailySummaryCollection:
                         )
 
                     float_fields = [
-                        (BBIPDTrafficDailySummaryField.IN_MAX, "in max"),
-                        (BBIPDTrafficDailySummaryField.IN_PROM, "in prom"),
-                        (BBIPDTrafficDailySummaryField.OUT_MAX, "out max"),
-                        (BBIPDTrafficDailySummaryField.OUT_PROM, "out prom"),
-                        (BBIPDTrafficDailySummaryField.USE, "uso"),
+                        (TrafficDailySummaryBBIPField.IN_MAX, "in max"),
+                        (TrafficDailySummaryBBIPField.IN_PROM, "in prom"),
+                        (TrafficDailySummaryBBIPField.OUT_MAX, "out max"),
+                        (TrafficDailySummaryBBIPField.OUT_PROM, "out prom"),
+                        (TrafficDailySummaryBBIPField.USE, "uso"),
                     ]
                     for field, label in float_fields:
                         try:
@@ -146,11 +146,11 @@ class BBIPDailySummaryCollection:
                 ]
                 if non_duplicate_errors:
                     raise MongoImportCollectionError(
-                        BBIPDailySummaryCollection._NAME, error=bwe
+                        TrafficDailySummaryBBIPCollection._NAME, error=bwe
                     )
         except MongoImportCollectionError:
             raise
         except Exception as error:
             raise MongoImportCollectionError(
-                BBIPDailySummaryCollection._NAME, error=error
+                TrafficDailySummaryBBIPCollection._NAME, error=error
             )
