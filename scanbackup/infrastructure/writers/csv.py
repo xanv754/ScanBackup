@@ -1,6 +1,6 @@
 import csv
 from pathlib import Path
-from scanbackup.infrastructure.exporters.base import Exporter
+from scanbackup.infrastructure.writers.base import Exporter
 from scanbackup.shared import CSVExportError, Configuration
 from pydantic import BaseModel
 
