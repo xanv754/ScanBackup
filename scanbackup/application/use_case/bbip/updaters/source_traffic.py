@@ -1,14 +1,14 @@
 from pathlib import Path
-from scanbackup.domain import BBIPTrafficSourceRepository
+from scanbackup.domain import TrafficSourceBBIPRepository
 from scanbackup.application.mappers.bbip.source_traffic import BBIPTrafficSourceMapper
 from scanbackup.infrastructure import CSVExporter
 
 
 class UpdateBBIPSources:
-    _repo: BBIPTrafficSourceRepository
+    _repo: TrafficSourceBBIPRepository
     _path: Path
 
-    def __init__(self, repository: BBIPTrafficSourceRepository, path: Path) -> None:
+    def __init__(self, repository: TrafficSourceBBIPRepository, path: Path) -> None:
         self._repo = repository
         self._path = path
 

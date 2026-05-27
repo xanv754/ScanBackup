@@ -17,9 +17,12 @@ from scanbackup.infrastructure.persistence.mongodb.schemas.bbip.ip.source import
     IPSourceBBIPField,
     SOURCE_IP_BBIP_SCHEMA,
 )
+from scanbackup.infrastructure.persistence.mongodb.collections.operation import (
+    CollectionOperation,
+)
 
 
-class IPSourceBBIPCollection:
+class IPSourceBBIPCollection(CollectionOperation):
     _NAME = MongoCollectionName.IP_SOURCES.value
 
     @staticmethod

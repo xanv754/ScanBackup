@@ -19,9 +19,12 @@ from scanbackup.infrastructure.persistence.mongodb.schemas.bbip.ip.active import
     IPActiveBBIPField,
     IP_HISTORY_SCHEMA,
 )
+from scanbackup.infrastructure.persistence.mongodb.collections.operation import (
+    CollectionOperation,
+)
 
 
-class IPHistoryBBIPCollection:
+class IPHistoryBBIPCollection(CollectionOperation):
     @staticmethod
     def create(name_collection: MongoCollectionName, database: Database) -> None:
         try:

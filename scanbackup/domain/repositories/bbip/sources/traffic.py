@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from scanbackup.domain.entities.bbip.traffic.source import BBIPTrafficSourceEntity
+from scanbackup.domain.entities.bbip.traffic.source import TrafficSourceBBIPEntity
 
 
 class TrafficSourceBBIPRepository(ABC):
@@ -9,7 +9,7 @@ class TrafficSourceBBIPRepository(ABC):
         pass
 
     @abstractmethod
-    def upsert_sources(self, data: list[BBIPTrafficSourceEntity]) -> None:
+    def upsert_sources(self, data: list[TrafficSourceBBIPEntity]) -> None:
         """Upsert the batch. New ones are inserted, existing ones are updated."""
         pass
 
@@ -19,6 +19,6 @@ class TrafficSourceBBIPRepository(ABC):
         pass
 
     @abstractmethod
-    def get_sources_by_layer(self, layer: str) -> list[BBIPTrafficSourceEntity]:
+    def get_sources_by_layer(self, layer: str) -> list[TrafficSourceBBIPEntity]:
         """Returns all source data of a layer."""
         pass

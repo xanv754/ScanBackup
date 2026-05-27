@@ -18,9 +18,15 @@ from scanbackup.infrastructure.persistence.mongodb.schemas.bbip.traffic.source i
     TrafficSourceBBIPField,
     SOURCE_TRAFFIC_BBIP_SCHEMA,
 )
+from scanbackup.infrastructure.persistence.mongodb.collections.operation import (
+    CollectionOperation,
+)
+from scanbackup.infrastructure.readers.csv.sources.database import (
+    TrafficSourceBBIPImport,
+)
 
 
-class TrafficSourceBBIPCollection:
+class TrafficSourceBBIPCollection(CollectionOperation):
     _NAME = MongoCollectionName.TRAFFIC_SOURCES.value
 
     @staticmethod
@@ -94,34 +100,14 @@ class TrafficSourceBBIPCollection:
     def import_data(
         database: Database,
         input_path: Path,
-        delimiter: str,
+        reader: TrafficSourceBBIPImport,
     ) -> None:
         name_collection = TrafficSourceBBIPCollection._NAME
-        total_neccesary_col = len(TrafficSourceBBIPField)
         try:
             collection = database[name_collection]
-            documents = []
-            with input_path.open("r", newline="", encoding="utf-8") as f:
-                reader = csv.DictReader(f, delimiter=delimiter)
-                for i, row in enumerate(reader, start=1):
-                    document = {k: v for k, v in row.items() if k != "_id"}
-                    if len(document) != total_neccesary_col:
-                        raise DataContentError(
-                            extra_msg=f"Columnas faltantes en la línea {i}"
-                        )
-                    try:
-                        document[TrafficSourceBBIPField.CAPACITY.value] = float(
-                            document[TrafficSourceBBIPField.CAPACITY.value]
-                        )
-                    except (ValueError, KeyError):
-                        raise DataContentError(
-                            extra_msg=f"Valor inválido de capacidad, línea {i}"
-                        )
-                    documents.append(document)
-
+            documents = reader.import_data(input_path)
             if not documents:
                 raise FileEmptyError(filepath=input_path)
-
             try:
                 collection.insert_many(documents, ordered=False)
             except BulkWriteError as bwe:
@@ -132,6 +118,8 @@ class TrafficSourceBBIPCollection:
                 ]
                 if non_duplicate_errors:
                     raise MongoImportCollectionError(name_collection, error=bwe)
+        except DataContentError:
+            return
         except FileEmptyError:
             return
         except MongoImportCollectionError:

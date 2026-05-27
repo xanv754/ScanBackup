@@ -19,9 +19,15 @@ from scanbackup.infrastructure.persistence.mongodb.schemas.bbip.traffic.data imp
     TrafficBBIPField,
     BBIP_TRAFFIC_SCHEMA,
 )
+from scanbackup.infrastructure.persistence.mongodb.collections.operation import (
+    CollectionOperation,
+)
+from scanbackup.infrastructure.readers.csv.histories.database import (
+    TrafficHistoryBBIPImport,
+)
 
 
-class TrafficHistoryBBIPCollection:
+class TrafficHistoryBBIPCollection(CollectionOperation):
     @staticmethod
     def create(name_collection: MongoCollectionName, database: Database) -> None:
         try:
@@ -96,77 +102,40 @@ class TrafficHistoryBBIPCollection:
         name_collection: MongoCollectionName,
         database: Database,
         input_path: Path,
-        delimiter: str,
+        reader: TrafficHistoryBBIPImport,
     ) -> None:
         try:
-            total_necessary_col = len(TrafficBBIPField)
-            collection = database[name_collection]
+            rows = reader.import_data(input_path)
 
-            if input_path.stat().st_size == 0:
-                raise FileEmptyError(filepath=input_path)
-
-            with input_path.open("r", newline="", encoding="utf-8") as f:
-                reader = csv.DictReader(f, delimiter=delimiter)
-                operations = []
-                for i, row in enumerate(reader, start=1):
-                    total_columns = len(row)
-                    if (
-                        total_columns < total_necessary_col
-                        or total_columns > total_necessary_col + 1
-                    ):
-                        raise DataContentError(
-                            extra_msg=f"Columnas faltantes en la línea {i}"
+            operations = []
+            for row in rows:
+                if "_id" in row:
+                    doc_id = ObjectId(row.pop("_id"))
+                    operations.append(ReplaceOne({"_id": doc_id}, row, upsert=True))
+                else:
+                    operations.append(
+                        ReplaceOne(
+                            {
+                                TrafficBBIPField.DEVICE.value: row[
+                                    TrafficBBIPField.DEVICE.value
+                                ],
+                                TrafficBBIPField.DATE.value: row[
+                                    TrafficBBIPField.DATE.value
+                                ],
+                                TrafficBBIPField.TIME.value: row[
+                                    TrafficBBIPField.TIME.value
+                                ],
+                            },
+                            row,
+                            upsert=True,
                         )
+                    )
 
-                    try:
-                        row[TrafficBBIPField.DEVICE.value] = ObjectId(
-                            row[TrafficBBIPField.DEVICE.value]
-                        )
-                    except (ValueError, KeyError):
-                        raise DataContentError(
-                            extra_msg=f"Valor inválido de id, línea {i}"
-                        )
-
-                    float_fields = [
-                        (TrafficBBIPField.IN_MAX, "in max"),
-                        (TrafficBBIPField.IN_PROM, "in prom"),
-                        (TrafficBBIPField.OUT_MAX, "out max"),
-                        (TrafficBBIPField.OUT_PROM, "out prom"),
-                    ]
-                    for field, label in float_fields:
-                        try:
-                            row[field.value] = float(row[field.value])
-                        except (ValueError, KeyError):
-                            raise DataContentError(
-                                extra_msg=f"Valor inválido de {label}, línea {i}"
-                            )
-
-                    if "_id" in row:
-                        doc_id = ObjectId(row.pop("_id"))
-                        operations.append(ReplaceOne({"_id": doc_id}, row, upsert=True))
-                    else:
-                        operations.append(
-                            ReplaceOne(
-                                {
-                                    TrafficBBIPField.DEVICE.value: row[
-                                        TrafficBBIPField.DEVICE.value
-                                    ],
-                                    TrafficBBIPField.DATE.value: row[
-                                        TrafficBBIPField.DATE.value
-                                    ],
-                                    TrafficBBIPField.TIME.value: row[
-                                        TrafficBBIPField.TIME.value
-                                    ],
-                                },
-                                row,
-                                upsert=True,
-                            )
-                        )
             if operations:
+                collection = database[name_collection]
                 collection.bulk_write(operations)
-        except FileEmptyError:
-            return
-        except DataContentError:
+
+        except (FileEmptyError, DataContentError):
             raise
         except Exception as error:
             raise MongoImportCollectionError(name_collection.value, error=error)

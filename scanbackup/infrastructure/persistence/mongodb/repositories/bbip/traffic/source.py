@@ -1,7 +1,7 @@
 from pymongo import UpdateOne
 from pymongo.errors import BulkWriteError
 
-from scanbackup.domain import BBIPTrafficSourceRepository, BBIPTrafficSourceEntity
+from scanbackup.domain import TrafficSourceBBIPRepository, TrafficSourceBBIPEntity
 from scanbackup.infrastructure.persistence.mongodb.connections.database import (
     MongoDatabase,
 )
@@ -20,7 +20,7 @@ from scanbackup.shared import (
 )
 
 
-class MongoTrafficSourceBBIPRepository(BBIPTrafficSourceRepository):
+class MongoTrafficSourceBBIPRepository(TrafficSourceBBIPRepository):
     def _get_collection(self, client: MongoDatabase):
         config = Configuration().get_cfg_database()
         client.set_uri(config)
@@ -52,7 +52,7 @@ class MongoTrafficSourceBBIPRepository(BBIPTrafficSourceRepository):
         finally:
             client.close_connection()
 
-    def upsert_sources(self, data: list[BBIPTrafficSourceEntity]) -> None:
+    def upsert_sources(self, data: list[TrafficSourceBBIPEntity]) -> None:
         client = MongoDatabase()
         try:
             collection = self._get_collection(client)
@@ -115,7 +115,7 @@ class MongoTrafficSourceBBIPRepository(BBIPTrafficSourceRepository):
         finally:
             client.close_connection()
 
-    def get_sources_by_layer(self, layer: str) -> list[BBIPTrafficSourceEntity]:
+    def get_sources_by_layer(self, layer: str) -> list[TrafficSourceBBIPEntity]:
         name_collection = MongoCollectionName.TRAFFIC_SOURCES.value
         client = MongoDatabase()
         try:
@@ -127,7 +127,7 @@ class MongoTrafficSourceBBIPRepository(BBIPTrafficSourceRepository):
                 },
                 {"_id": 0},
             )
-            return [BBIPTrafficSourceEntity(**doc) for doc in documents]
+            return [TrafficSourceBBIPEntity(**doc) for doc in documents]
         except MongoConnectionError:
             raise
         except Exception as error:

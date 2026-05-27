@@ -19,9 +19,12 @@ from scanbackup.infrastructure.persistence.mongodb.schemas.bbip.traffic.summarie
     TrafficDailySummaryBBIPField,
     DAILY_SUMMARY_SCHEMA,
 )
+from scanbackup.infrastructure.persistence.mongodb.collections.operation import (
+    CollectionOperation,
+)
 
 
-class TrafficDailySummaryBBIPCollection:
+class TrafficDailySummaryBBIPCollection(CollectionOperation):
     _NAME = MongoCollectionName.TRAFFIC_DAILY_SUMMARY.value
 
     @staticmethod

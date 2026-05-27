@@ -3,15 +3,15 @@ from scanbackup.domain.services.validator import ValidatorConfig
 from scanbackup.shared import SourceStatus
 
 
-class BBIPTrafficSourceEntity(BaseModel):
-    id: str
+class TrafficSourceBBIPEntity(BaseModel):
+    id: str | None = None
     link: str
     interface: str
     capacity: float
     type: str
-    status: str = SourceStatus.ACTIVE.value
     layer: str
-    comments: str
+    status: str = SourceStatus.ACTIVE.value
+    comments: str | None = None
 
     @field_validator("layer")
     @classmethod

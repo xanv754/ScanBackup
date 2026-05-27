@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-class BBIPTrafficSourceHeader(str, Enum):
+class TrafficSourceBBIPHeader(str, Enum):
     LINK = "link"
     INTERFACE = "enlace"
     TYPE = "tipo"

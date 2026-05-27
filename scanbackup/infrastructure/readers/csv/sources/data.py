@@ -1,19 +1,26 @@
 import csv
 from pathlib import Path
-from scanbackup.domain.entities.bbip.traffic.source import TrafficSourceBBIPEntity
-from scanbackup.shared import TrafficSourceBBIPHeader, ContentFileError, Configuration
+from scanbackup.domain import TrafficSourceBBIPEntity, ValidatorConfig
+from scanbackup.shared import (
+    TrafficSourceBBIPHeader,
+    ContentFileError,
+    LayerNotDefined,
+    Configuration,
+)
+from scanbackup.infrastructure.readers.reader import BaseReader
 
 
-class BBIPTrafficSourceMapper:
-    @staticmethod
-    def from_csv(filepath: Path) -> list[TrafficSourceBBIPEntity]:
+class TrafficSourceBBIPReader(BaseReader):
+    def import_data(self, filepath: Path) -> list[TrafficSourceBBIPEntity]:
         system = Configuration()
         config = system.get_cfg_metadata().scanner
 
         layer = filepath.stem.upper()
-        sources = []
+        if not ValidatorConfig.is_valid_layer(layer):
+            raise LayerNotDefined(layer)
 
-        with filepath.open(newline="", encoding="utf-8") as f:
+        sources = []
+        with filepath.open("r", newline="", encoding="utf-8") as f:
             try:
                 reader = csv.DictReader(f, delimiter=config.file_delimiter)
                 for row in reader:
@@ -28,5 +35,4 @@ class BBIPTrafficSourceMapper:
                     )
             except Exception as error:
                 raise ContentFileError(filepath=filepath.resolve(), error=error)
-
         return sources
