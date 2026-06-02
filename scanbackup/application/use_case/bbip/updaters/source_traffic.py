@@ -1,6 +1,6 @@
 from pathlib import Path
 from scanbackup.domain import TrafficSourceBBIPRepository
-from scanbackup.application.mappers.bbip.source_traffic import BBIPTrafficSourceMapper
+from scanbackup.infrastructure import TrafficSourceBBIPReader
 from scanbackup.infrastructure import CSVExporter
 
 
@@ -13,7 +13,7 @@ class UpdateBBIPSources:
         self._path = path
 
     def upload(self) -> None:
-        sources = BBIPTrafficSourceMapper.from_csv(self._path)
+        sources = TrafficSourceBBIPReader.import_data(self._path)
         present_keys = [
             {"interface": s.interface, "layer": s.layer, "type": s.type}
             for s in sources

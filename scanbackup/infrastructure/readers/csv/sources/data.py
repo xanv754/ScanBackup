@@ -11,7 +11,7 @@ from scanbackup.infrastructure.readers.reader import BaseReader
 
 
 class TrafficSourceBBIPReader(BaseReader):
-    def import_data(self, filepath: Path) -> list[TrafficSourceBBIPEntity]:
+    def import_data(filepath: Path) -> list[TrafficSourceBBIPEntity]:
         system = Configuration()
         config = system.get_cfg_metadata().scanner
 
