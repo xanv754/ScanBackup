@@ -3,14 +3,13 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "scanbackup"
+name = "scrapper_scanbackup"
 version = "0.1.0"
-description = "Sistema para el respaldo de la data de SCAN"
+description = "Sistema para obtención de enlaces de la plataforma SCAN"
 readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"
 authors = [
-    { name = "Jesus Marañon", email = "jmaranonr@gmail.com"},
     { name = "Angyee Marin", email = "angyeemarin.dev@gmail.com" }
 ]
 keywords = ["grd", "network", "data-processing"]
@@ -18,28 +17,22 @@ dependencies = [
     "art>=6.4",
     "beautifulsoup4>=4.13",
     "click>=8.1.8",
-    "fastapi>=0.115.12",
-    "fastapi-cli>=0.0.7",
     "html5lib>=1.1",
-    "lxml>=6.0",
     "openpyxl>=3.1.5",
     "pandas>=1.3.0",
     "pydantic>=2.10.6",
-    "pymongo>=4.11.3",
     "python-dotenv>=1.1.0",
     "pyyaml>=6.0.3",
     "requests>=2.32",
     "rich>=13.9.4",
-    "unidecode>=1.4.0",
-    "uvicorn>=0.34.3"
 ]
 urls = { Homepage = "https://github.com/xanv754/SystemCGPRD" }
 
 [project.scripts]
-scanbackup = "scanbackup.__main__:cli"
+scanbackup = "scrapper_scanbackup.__main__:cli"
 
 [project.optional-dependencies]
 dev = ["black"]
 
 [tool.setuptools]
-packages = ["scanbackup"]
+packages = ["scrapper_scanbackup"]
