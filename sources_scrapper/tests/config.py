@@ -3,8 +3,12 @@ from unittest.mock import patch
 from scrapper_scanbackup.utils.config.load import ScrapperSetting
 
 VALID_YAML = """
+exporter:
+  dir: exports/
+  delimiter: ","
+
 scan_credentials:
-  user: admin
+  username: admin
   password: secret123
 
 layers:
@@ -13,7 +17,7 @@ layers:
     type: REST
     locked: false
     credentials:
-      user: user_a
+      username: user_a
       password: pass_a
   - layer: layer_b
     url: http://host-b/api
@@ -27,10 +31,10 @@ layers:
 
 
 def _make_setting(yaml_content: str = VALID_YAML) -> ScrapperSetting:
-    """Instancia ScrapperSetting mockeando el archivo de configuración."""
     with (
         patch("pathlib.Path.exists", return_value=True),
         patch("pathlib.Path.read_text", return_value=yaml_content),
+        patch("pathlib.Path.mkdir"),
     ):
         return ScrapperSetting()
 
@@ -46,22 +50,37 @@ class TestScrapperSettingInit(unittest.TestCase):
                 ScrapperSetting()
 
     def test_raises_on_invalid_yaml_structure(self):
-        invalid_yaml = "not_a_valid_key: value"
         with self.assertRaises(Exception):
-            _make_setting(invalid_yaml)
+            _make_setting("not_a_valid_key: value")
+
+
+class TestGetExporter(unittest.TestCase):
+    def setUp(self):
+        self.setting = _make_setting()
+
+    def test_returns_exporter_model(self):
+        from scrapper_scanbackup.utils.config.model import ExporterModel
+
+        self.assertIsInstance(self.setting.get_exporter(), ExporterModel)
+
+    def test_returns_correct_delimiter(self):
+        self.assertEqual(self.setting.get_exporter().delimiter, ",")
+
+    def test_dir_is_resolved_path(self):
+        from pathlib import Path
+
+        self.assertIsInstance(self.setting.get_exporter().dir, Path)
 
 
 class TestGetScanCredentials(unittest.TestCase):
     def setUp(self):
         self.setting = _make_setting()
 
-    def test_returns_correct_user(self):
-        cred = self.setting.get_scan_credentials()
-        self.assertEqual(cred.username, "admin")
+    def test_returns_correct_username(self):
+        self.assertEqual(self.setting.get_scan_credentials().username, "admin")
 
     def test_returns_correct_password(self):
-        cred = self.setting.get_scan_credentials()
-        self.assertEqual(cred.password, "secret123")
+        self.assertEqual(self.setting.get_scan_credentials().password, "secret123")
 
 
 class TestGetDataLayer(unittest.TestCase):
@@ -69,34 +88,30 @@ class TestGetDataLayer(unittest.TestCase):
         self.setting = _make_setting()
 
     def test_returns_matching_layers(self):
-        result = self.setting.get_data_layer("layer_a")
-        self.assertEqual(len(result), 2)
+        self.assertEqual(len(self.setting.get_data_layer("layer_a")), 2)
 
     def test_returns_correct_urls_for_layer(self):
-        result = self.setting.get_data_layer("layer_a")
-        urls = {layer.url for layer in result}
+        urls = {l.url for l in self.setting.get_data_layer("layer_a")}
         self.assertEqual(urls, {"http://host-a/api", "http://host-a2/api"})
 
     def test_returns_empty_list_when_no_match(self):
-        result = self.setting.get_data_layer("nonexistent_layer")
-        self.assertEqual(result, [])
+        self.assertEqual(self.setting.get_data_layer("nonexistent_layer"), [])
 
     def test_layer_with_credentials(self):
-        result = self.setting.get_data_layer("layer_a")
-        layer = next(l for l in result if l.url == "http://host-a/api")
+        layer = next(
+            l
+            for l in self.setting.get_data_layer("layer_a")
+            if l.url == "http://host-a/api"
+        )
         self.assertIsNotNone(layer.credentials)
         self.assertEqual(layer.credentials.username, "user_a")
 
     def test_layer_without_credentials_is_none(self):
-        result = self.setting.get_data_layer("layer_b")
-        self.assertIsNone(result[0].credentials)
+        self.assertIsNone(self.setting.get_data_layer("layer_b")[0].credentials)
 
     def test_locked_flag_is_parsed_correctly(self):
-        locked_layer = self.setting.get_data_layer("layer_b")[0]
-        self.assertTrue(locked_layer.locked)
-
-        unlocked_layer = self.setting.get_data_layer("layer_a")[0]
-        self.assertFalse(unlocked_layer.locked)
+        self.assertTrue(self.setting.get_data_layer("layer_b")[0].locked)
+        self.assertFalse(self.setting.get_data_layer("layer_a")[0].locked)
 
 
 if __name__ == "__main__":

@@ -1,3 +1,4 @@
+import re
 from scrapper_scanbackup.utils import Scrapper, LayerModel
 from scrapper_scanbackup.model import SourceModel
 from urllib.parse import urlparse
@@ -5,6 +6,20 @@ from urllib.parse import urlparse
 
 class BordeHuawei:
     _layer: str = "HUAWEI"
+
+    def _extract_capacity(self, name: str) -> int:
+        try:
+            # Format: Before of "GE": CGEX/Y/Z
+            if "GE" in name:
+                pattern = r"(\d+)GE"
+                match = re.search(pattern, name)
+                number = match.group(1) if match else None
+                if number:
+                    return int(number)
+            raise ValueError(f"{name}: Capacidad no encontrada")
+        except Exception as error:
+            print(error)
+            return 0
 
     def scrapper(self, info: LayerModel) -> list:
         sources = []
@@ -48,5 +63,11 @@ class BordeHuawei:
                 "href"
             ).replace(".html", ".log")
 
-            sources.append(SourceModel(link=link, name=title, type=self._layer))
+            # Capacity
+            capacity = self._extract_capacity(title)
+
+            sources.append(
+                SourceModel(link=link, name=title, capacity=capacity, type=self._layer)
+            )
+
         return sources

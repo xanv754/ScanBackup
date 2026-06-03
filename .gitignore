@@ -8,6 +8,7 @@ sources/*
 */test/data/*
 */test/calculos/*
 */tmp/*
+*.csv
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

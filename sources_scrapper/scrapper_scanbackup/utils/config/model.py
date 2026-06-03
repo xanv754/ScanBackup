@@ -1,4 +1,17 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
+from pathlib import Path
+
+
+class ExporterModel(BaseModel):
+    dir: Path
+    delimiter: str
+
+    @field_validator("dir")
+    @classmethod
+    def create_dir(cls, value: Path) -> Path:
+        path = Path(__file__).parent.parent.parent / value
+        path.mkdir(parents=True, exist_ok=True)
+        return path
 
 
 class CredentialModel(BaseModel):
@@ -15,5 +28,6 @@ class LayerModel(BaseModel):
 
 
 class ConfigModel(BaseModel):
+    exporter: ExporterModel
     scan_credentials: CredentialModel
     layers: list[LayerModel]

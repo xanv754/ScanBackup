@@ -4,6 +4,7 @@ from scrapper_scanbackup.utils.config.model import (
     ConfigModel,
     CredentialModel,
     LayerModel,
+    ExporterModel,
 )
 
 
@@ -19,6 +20,9 @@ class ScrapperSetting:
             raise FileNotFoundError("No se encuentra el archivo de configuración")
         raw = yaml.safe_load(filepath.read_text())
         self._config = ConfigModel.model_validate(raw)
+
+    def get_exporter(self) -> ExporterModel:
+        return self._config.exporter
 
     def get_scan_credentials(self) -> CredentialModel:
         return self._config.scan_credentials

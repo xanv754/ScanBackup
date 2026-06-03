@@ -11,11 +11,7 @@ def cli() -> None:
 @cli.command(help="Exporta las fuentes de enlaces obtenidas de SCAN")
 def run() -> None:
     updater = UpdaterSources()
-    updater.main_borde()
-
-
-
-
+    updater.execute()
 
 
 if __name__ == "__main__":
