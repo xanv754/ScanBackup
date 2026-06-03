@@ -2,7 +2,7 @@ from scrapper_scanbackup.utils import ScrapperSetting, CSVExporter
 from scrapper_scanbackup.borde import BordeSourceUpdater
 from scrapper_scanbackup.dint import DintSourceUpdater
 from scrapper_scanbackup.distr import DistSourceUpdater
-from scrapper_scanbackup.bras import BrasSourceUpdater
+from scrapper_scanbackup.bras import BrasSourceUpdater, IpBrasSourceUpdater
 from scrapper_scanbackup.rai import RaiSourceUpdater
 from scrapper_scanbackup.ixp import IxpSourceUpdater
 
@@ -49,6 +49,12 @@ class UpdaterSources:
         ixp_export = CSVExporter("IXP", self.setting)
         ixp_export.export(ixp_sources)
 
+    def _ip_exec(self) -> None:
+        ip = IpBrasSourceUpdater()
+        ip_sources = ip.execute(self.setting)
+        ip_export = CSVExporter("IP_BRAS", self.setting)
+        ip_export.export(ip_sources)
+
     def execute(self, layer: str = "all") -> None:
         # BORDE
         if layer == "all" or layer == "borde":
@@ -74,11 +80,18 @@ class UpdaterSources:
             if not layer == "all":
                 return
 
+        # IP BRAS
+        if layer == "all" or layer == "ip" or layer == "ip_bras" or "ipbras":
+            self._ip_exec()
+            if not layer == "all":
+                return
+
         # RAI
         if layer == "all" or layer == "rai":
             self._rai_exec()
             if not layer == "all":
                 return
+
         # IXP
         if layer == "all" or layer == "ixp":
             self._ixp_exec()

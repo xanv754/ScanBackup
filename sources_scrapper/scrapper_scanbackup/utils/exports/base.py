@@ -1,4 +1,4 @@
-from scrapper_scanbackup.model import SourceModel
+from pydantic import BaseModel
 from scrapper_scanbackup.utils import ScrapperSetting
 from abc import abstractmethod
 from pathlib import Path
@@ -16,5 +16,5 @@ class Exporter:
         self.delimiter = export_setting.delimiter
 
     @abstractmethod
-    def export(self, data: list[SourceModel]) -> None:
+    def export(self, data: list[BaseModel]) -> None:
         pass
