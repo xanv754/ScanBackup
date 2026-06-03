@@ -9,9 +9,16 @@ def cli() -> None:
 
 
 @cli.command(help="Exporta las fuentes de enlaces obtenidas de SCAN")
-def run() -> None:
+@click.option(
+    "--layer",
+    type=str,
+    default="all",
+    required=False,
+    help="Capa de la cual se extraerán los enlaces",
+)
+def run(layer: str) -> None:
     updater = UpdaterSources()
-    updater.execute()
+    updater.execute(layer.lower().strip())
 
 
 if __name__ == "__main__":
