@@ -37,7 +37,6 @@ class BordeHuawei:
 
         # Main page
         main = html.find(id="main")
-        # print(main.prettify())
 
         # Interfaces list
         container_interfaces = main.find("div", class_="row")
