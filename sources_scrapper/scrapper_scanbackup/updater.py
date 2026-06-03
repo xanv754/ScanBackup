@@ -3,6 +3,7 @@ from scrapper_scanbackup.borde import BordeSourceUpdater
 from scrapper_scanbackup.dint import DintSourceUpdater
 from scrapper_scanbackup.distr import DistSourceUpdater
 from scrapper_scanbackup.bras import BrasSourceUpdater
+from scrapper_scanbackup.rai import RaiSourceUpdater
 
 
 class UpdaterSources:
@@ -35,6 +36,12 @@ class UpdaterSources:
         bras_export = CSVExporter("BRAS", self.setting)
         bras_export.export(bras_sources)
 
+    def _rai_exec(self) -> None:
+        rai = RaiSourceUpdater()
+        rai_sources = rai.execute(self.setting)
+        rai_export = CSVExporter("RAI", self.setting)
+        rai_export.export(rai_sources)
+
     def execute(self, layer: str = "all") -> None:
         # BORDE
         if layer == "all" or layer == "borde":
@@ -57,6 +64,12 @@ class UpdaterSources:
         # BRAS
         if layer == "all" or layer == "bras":
             self._bras_exec()
+            if not layer == "all":
+                return
+
+        # RAI
+        if layer == "all" or layer == "rai":
+            self._rai_exec()
             if not layer == "all":
                 return
 
