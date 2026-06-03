@@ -9,7 +9,7 @@ class ExporterModel(BaseModel):
     @field_validator("dir")
     @classmethod
     def create_dir(cls, value: Path) -> Path:
-        path = Path(__file__).parent.parent.parent / value
+        path = Path(__file__).parent.parent.parent.parent / value
         path.mkdir(parents=True, exist_ok=True)
         return path
 
