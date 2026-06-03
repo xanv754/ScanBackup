@@ -18,7 +18,7 @@ def cli() -> None:
 )
 def run(layer: str) -> None:
     updater = UpdaterSources()
-    updater.execute(layer.lower().strip())
+    updater.execute(layer)
 
 
 if __name__ == "__main__":

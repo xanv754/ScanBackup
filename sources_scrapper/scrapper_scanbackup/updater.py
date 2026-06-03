@@ -5,6 +5,7 @@ from scrapper_scanbackup.distr import DistSourceUpdater
 from scrapper_scanbackup.bras import BrasSourceUpdater, IpBrasSourceUpdater
 from scrapper_scanbackup.rai import RaiSourceUpdater
 from scrapper_scanbackup.ixp import IxpSourceUpdater
+from scrapper_scanbackup.caching import CachingSourceUpdater
 
 
 class UpdaterSources:
@@ -55,7 +56,15 @@ class UpdaterSources:
         ip_export = CSVExporter("IP_BRAS", self.setting)
         ip_export.export(ip_sources)
 
+    def _caching_exec(self) -> None:
+        caching = CachingSourceUpdater()
+        caching_sources = caching.execute(self.setting)
+        caching_export = CSVExporter("CACHING", self.setting)
+        caching_export.export(caching_sources)
+
     def execute(self, layer: str = "all") -> None:
+        layer = layer.lower().strip()
+
         # BORDE
         if layer == "all" or layer == "borde":
             self._borde_exec()
@@ -81,7 +90,7 @@ class UpdaterSources:
                 return
 
         # IP BRAS
-        if layer == "all" or layer == "ip" or layer == "ip_bras" or "ipbras":
+        if layer == "all" or layer == "ip" or layer == "ip_bras" or layer == "ipbras":
             self._ip_exec()
             if not layer == "all":
                 return
@@ -95,6 +104,12 @@ class UpdaterSources:
         # IXP
         if layer == "all" or layer == "ixp":
             self._ixp_exec()
+            if not layer == "all":
+                return
+
+        # CACHING
+        if layer == "all" or layer == "caching":
+            self._caching_exec()
             if not layer == "all":
                 return
 
