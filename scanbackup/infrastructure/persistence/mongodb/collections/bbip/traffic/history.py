@@ -1,4 +1,3 @@
-import csv
 from pathlib import Path
 from bson import ObjectId
 from pymongo import ASCENDING, ReplaceOne
@@ -22,9 +21,13 @@ from scanbackup.infrastructure.persistence.mongodb.schemas.bbip.traffic.data imp
 from scanbackup.infrastructure.persistence.mongodb.collections.operation import (
     CollectionOperation,
 )
-from scanbackup.infrastructure.readers.csv.histories.database import (
+from scanbackup.infrastructure.readers import (
     TrafficHistoryBBIPImport,
 )
+from scanbackup.infrastructure.persistence.mongodb.dto.bbip.traffic.history import (
+    MongoTrafficHistoryBBIPDTO,
+)
+from scanbackup.infrastructure.writers import CSVWriter
 
 
 class TrafficHistoryBBIPCollection(CollectionOperation):
@@ -71,29 +74,21 @@ class TrafficHistoryBBIPCollection(CollectionOperation):
     def export_data(
         name_collection: MongoCollectionName,
         database: Database,
-        output_path: Path,
-        delimiter: str,
         include_id: bool = False,
     ) -> None:
         try:
             collection = database[name_collection]
             projection = {} if include_id else {"_id": 0}
             documents = collection.find({}, projection)
-            output_path.parent.mkdir(parents=True, exist_ok=True)
-            with output_path.open("w", newline="", encoding="utf-8") as f:
-                fields = (["_id"] if include_id else []) + [
-                    field.value for field in TrafficBBIPField
-                ]
-                writer = csv.DictWriter(f, fieldnames=fields, delimiter=delimiter)
-                writer.writeheader()
 
-                for doc in documents:
-                    doc[TrafficBBIPField.DEVICE.value] = str(
-                        doc[TrafficBBIPField.DEVICE.value]
-                    )
-                    if include_id:
-                        doc["_id"] = str(doc["_id"])
-                    writer.writerow(doc)
+            data = (
+                [MongoTrafficHistoryBBIPDTO.from_mongo(doc) for doc in documents]
+                if include_id
+                else [MongoTrafficHistoryBBIPDTO(**doc) for doc in documents]
+            )
+
+            writer = CSVWriter()
+            writer.export(filename=name_collection, data=data)
         except Exception as error:
             raise MongoExportCollectionError(name_collection.value, error=error)
 
@@ -102,9 +97,10 @@ class TrafficHistoryBBIPCollection(CollectionOperation):
         name_collection: MongoCollectionName,
         database: Database,
         input_path: Path,
-        reader: TrafficHistoryBBIPImport,
+        delimiter: str | None = None,
     ) -> None:
         try:
+            reader = TrafficHistoryBBIPImport(delimiter)
             rows = reader.import_data(input_path)
 
             operations = []
@@ -134,7 +130,6 @@ class TrafficHistoryBBIPCollection(CollectionOperation):
             if operations:
                 collection = database[name_collection]
                 collection.bulk_write(operations)
-
         except (FileEmptyError, DataContentError):
             raise
         except Exception as error:

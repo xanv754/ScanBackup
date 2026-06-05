@@ -1,4 +1,3 @@
-import csv
 from pathlib import Path
 from pymongo import ASCENDING
 from pymongo.database import Database
@@ -21,9 +20,14 @@ from scanbackup.infrastructure.persistence.mongodb.schemas.bbip.traffic.source i
 from scanbackup.infrastructure.persistence.mongodb.collections.operation import (
     CollectionOperation,
 )
-from scanbackup.infrastructure.readers.csv.sources.database import (
+from scanbackup.infrastructure.persistence.mongodb.dto.bbip.traffic.source import (
+    MongoTrafficSourceBBIPDTO,
+)
+
+from scanbackup.infrastructure.readers import (
     TrafficSourceBBIPImport,
 )
+from scanbackup.infrastructure.writers import CSVWriter
 
 
 class TrafficSourceBBIPCollection(CollectionOperation):
@@ -73,8 +77,6 @@ class TrafficSourceBBIPCollection(CollectionOperation):
     @staticmethod
     def export_data(
         database: Database,
-        output_path: Path,
-        delimiter: str,
         include_id: bool = False,
     ) -> None:
         name_collection = TrafficSourceBBIPCollection._NAME
@@ -82,32 +84,31 @@ class TrafficSourceBBIPCollection(CollectionOperation):
             collection = database[name_collection]
             projection = {} if include_id else {"_id": 0}
             documents = collection.find({}, projection)
-            output_path.parent.mkdir(parents=True, exist_ok=True)
-            with output_path.open("w", newline="", encoding="utf-8") as f:
-                fields = (["_id"] if include_id else []) + [
-                    field.value for field in TrafficSourceBBIPField
-                ]
-                writer = csv.DictWriter(f, fieldnames=fields, delimiter=delimiter)
-                writer.writeheader()
-                for doc in documents:
-                    if include_id:
-                        doc["_id"] = str(doc["_id"])
-                    writer.writerow(doc)
+
+            data = (
+                [MongoTrafficSourceBBIPDTO.from_mongo(doc) for doc in documents]
+                if include_id
+                else [MongoTrafficSourceBBIPDTO(**doc) for doc in documents]
+            )
+
+            writer = CSVWriter()
+            writer.export(filename=TrafficSourceBBIPCollection._NAME, data=data)
         except Exception as error:
             raise MongoExportCollectionError(name_collection, error=error)
 
     @staticmethod
     def import_data(
-        database: Database,
-        input_path: Path,
-        reader: TrafficSourceBBIPImport,
+        database: Database, input_path: Path, delimiter: str | None = None
     ) -> None:
         name_collection = TrafficSourceBBIPCollection._NAME
         try:
-            collection = database[name_collection]
+            reader = TrafficSourceBBIPImport(delimiter)
             documents = reader.import_data(input_path)
+
             if not documents:
                 raise FileEmptyError(filepath=input_path)
+
+            collection = database[name_collection]
             try:
                 collection.insert_many(documents, ordered=False)
             except BulkWriteError as bwe:

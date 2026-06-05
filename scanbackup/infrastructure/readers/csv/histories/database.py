@@ -1,7 +1,7 @@
 import csv
 from pathlib import Path
 from bson import ObjectId
-from scanbackup.shared import DataContentError, FileEmptyError
+from scanbackup.shared import DataContentError, FileEmptyError, Configuration
 from scanbackup.infrastructure.persistence.mongodb.schemas.bbip.traffic.data import (
     TrafficBBIPField,
 )
@@ -11,7 +11,11 @@ from scanbackup.infrastructure.readers.reader import BaseReader
 class TrafficHistoryBBIPImport(BaseReader):
     _delimiter: str
 
-    def __init__(self, delimiter: str = ",") -> None:
+    def __init__(self, delimiter: str | None = None) -> None:
+        if not delimiter:
+            system = Configuration()
+            config = system.get_cfg_metadata()
+            delimiter = config.scanner.file_delimiter
         self._delimiter = delimiter
 
     def import_data(self, filepath: Path) -> list[dict]:
@@ -46,4 +50,3 @@ class TrafficHistoryBBIPImport(BaseReader):
                 rows.append(row)
 
         return rows
-

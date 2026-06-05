@@ -1,7 +1,7 @@
 from pathlib import Path
 from scanbackup.domain import TrafficSourceBBIPRepository
 from scanbackup.infrastructure import TrafficSourceBBIPReader
-from scanbackup.infrastructure import CSVExporter
+from scanbackup.infrastructure import CSVWriter
 
 
 class UpdateBBIPSources:
@@ -26,7 +26,7 @@ class UpdateBBIPSources:
             try:
                 layer = layer.upper()
                 data = self._repo.get_sources_by_layer(layer)
-                csv = CSVExporter()
+                csv = CSVWriter()
                 csv.export(filename=layer, data=data)
             except Exception:
                 continue

@@ -158,21 +158,20 @@ class MongoDatabase:
         name_collection: str,
         config: LayerConfigModel,
         filepath: str,
-        delimiter: str = ",",
+        delimiter: str | None = None,
     ) -> None:
-        filepath = Path(filepath)
         try:
-            self.open_connection()
-
+            filepath = Path(filepath)
             if not filepath.exists():
                 raise FileImportNotFoundError()
-
-            if not self._check_collection(name_collection):
-                raise MongoCollectionNotFoundError(name_collection)
-
             if filepath.suffix != ".csv" and filepath.suffix != ".txt":
                 raise FileExtensionError(filepath=filepath)
 
+            self.open_connection()
+            if not self._check_collection(name_collection):
+                raise MongoCollectionNotFoundError(name_collection)
+
+            # HISTORIES
             if name_collection in config.bbip.names:
                 TrafficHistoryBBIPCollection.import_data(
                     name_collection=name_collection,
@@ -180,6 +179,7 @@ class MongoDatabase:
                     input_path=filepath,
                     delimiter=delimiter,
                 )
+
             elif name_collection in config.ip.names:
                 IPHistoryBBIPCollection.import_data(
                     name_collection=name_collection,
@@ -187,30 +187,37 @@ class MongoDatabase:
                     input_path=filepath,
                     delimiter=delimiter,
                 )
+
+            # SOURCES
             elif name_collection == MongoCollectionName.TRAFFIC_SOURCES.value:
                 TrafficSourceBBIPCollection.import_data(
                     database=self._client[self._config.name],
                     input_path=filepath,
                     delimiter=delimiter,
                 )
+
             elif name_collection == MongoCollectionName.IP_SOURCES.value:
                 IPSourceBBIPCollection.import_data(
                     database=self._client[self._config.name],
                     input_path=filepath,
                     delimiter=delimiter,
                 )
+
+            # SUMMARIES
             elif name_collection == MongoCollectionName.TRAFFIC_DAILY_SUMMARY.value:
                 TrafficDailySummaryBBIPCollection.import_data(
                     database=self._client[self._config.name],
                     input_path=filepath,
                     delimiter=delimiter,
                 )
+
             elif name_collection == MongoCollectionName.IP_DAILY_SUMMARY.value:
                 IPDailySummaryBBIPCollection.import_data(
                     database=self._client[self._config.name],
                     input_path=filepath,
                     delimiter=delimiter,
                 )
+
             else:
                 raise LayerNotDefined(layer_name=name_collection)
         except LayerNotDefined:
@@ -236,77 +243,55 @@ class MongoDatabase:
         self,
         config: LayerConfigModel,
         name_collection: str,
-        dirpath: str | None = None,
-        delimiter: str = ",",
         include_id: bool = True,
     ) -> str:
-        if not dirpath:
-            dirpath = Path.home()
-        else:
-            dirpath = Path(dirpath)
         try:
             self.open_connection()
 
             if not self._check_collection(name_collection):
                 raise MongoCollectionNotFoundError(name_collection)
 
+            # HISTORIES
             if name_collection in config.bbip.names:
-                filepath = Path(dirpath / f"{name_collection}.csv")
                 TrafficHistoryBBIPCollection.export_data(
                     name_collection=name_collection,
                     database=self._client[self._config.name],
-                    output_path=filepath,
-                    delimiter=delimiter,
                     include_id=include_id,
                 )
 
             elif name_collection in config.ip.names:
-                filepath = Path(dirpath / f"{name_collection}.csv")
                 IPHistoryBBIPCollection.export_data(
                     name_collection=name_collection,
                     database=self._client[self._config.name],
-                    output_path=filepath,
-                    delimiter=delimiter,
                     include_id=include_id,
                 )
+
+            # SOURCES
             elif name_collection == MongoCollectionName.TRAFFIC_SOURCES.value:
-                filepath = Path(
-                    dirpath / f"{MongoCollectionName.TRAFFIC_SOURCES.value}.csv"
-                )
                 TrafficSourceBBIPCollection.export_data(
                     database=self._client[self._config.name],
-                    output_path=filepath,
-                    delimiter=delimiter,
                     include_id=include_id,
                 )
+
             elif name_collection == MongoCollectionName.IP_SOURCES.value:
-                filepath = Path(dirpath / f"{MongoCollectionName.IP_SOURCES.value}.csv")
                 IPSourceBBIPCollection.export_data(
                     database=self._client[self._config.name],
-                    output_path=filepath,
-                    delimiter=delimiter,
                     include_id=include_id,
                 )
+
+            # SUMMARIES
             elif name_collection == MongoCollectionName.TRAFFIC_DAILY_SUMMARY.value:
-                filepath = Path(
-                    dirpath / f"{MongoCollectionName.TRAFFIC_DAILY_SUMMARY.value}.csv"
-                )
                 TrafficDailySummaryBBIPCollection.export_data(
                     database=self._client[self._config.name],
-                    output_path=filepath,
-                    delimiter=delimiter,
                     include_id=include_id,
                 )
+
             elif name_collection == MongoCollectionName.IP_DAILY_SUMMARY.value:
-                filepath = Path(
-                    dirpath / f"{MongoCollectionName.IP_DAILY_SUMMARY.value}.csv"
-                )
                 IPDailySummaryBBIPCollection.export_data(
                     database=self._client[self._config.name],
-                    output_path=filepath,
-                    delimiter=delimiter,
                     include_id=include_id,
                 )
+
             else:
                 raise LayerNotDefined(layer_name=name_collection)
         except LayerNotDefined:
@@ -321,7 +306,5 @@ class MongoDatabase:
             raise MongoDatabaseError(
                 error=error, message="Error inesperado al exportar la data"
             )
-        else:
-            return filepath
         finally:
             self.close_connection()

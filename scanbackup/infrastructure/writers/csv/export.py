@@ -1,14 +1,15 @@
 import csv
 from pathlib import Path
-from scanbackup.infrastructure.writers.base import Exporter
+from scanbackup.infrastructure.writers.writer import BaseWriter
 from scanbackup.shared import CSVExportError, Configuration
 from pydantic import BaseModel
 
 
-class CSVExporter(Exporter):
+class CSVWriter(BaseWriter):
     def export(self, filename: str, data: list[BaseModel]) -> None:
         dirpath = Path(self._get_home())
         filepath = dirpath / filename
+        filepath = filepath.with_suffix(".csv")
 
         try:
             system = Configuration()

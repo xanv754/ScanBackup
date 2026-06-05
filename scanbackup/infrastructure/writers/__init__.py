@@ -1,3 +1,3 @@
-from scanbackup.infrastructure.writers.csv import CSVExporter
+from scanbackup.infrastructure.writers.csv.export import CSVWriter
 
-__all__ = ["CSVExporter"]
+__all__ = ["CSVWriter"]

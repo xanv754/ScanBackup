@@ -20,7 +20,9 @@ from scanbackup.infrastructure.persistence.mongodb.schemas.bbip.ip.source import
 from scanbackup.infrastructure.persistence.mongodb.collections.operation import (
     CollectionOperation,
 )
-
+from scanbackup.infrastructure.readers import IPSourceBBIPImport
+from scanbackup.infrastructure.writers import CSVWriter
+from scanbackup.infrastructure.persistence.mongodb.dto.bbip.ip.source import MongoIPSourceBBIPDTO
 
 class IPSourceBBIPCollection(CollectionOperation):
     _NAME = MongoCollectionName.IP_SOURCES.value
@@ -70,8 +72,6 @@ class IPSourceBBIPCollection(CollectionOperation):
     @staticmethod
     def export_data(
         database: Database,
-        output_path: Path,
-        delimiter: str,
         include_id: bool = False,
     ) -> None:
         name_collection = IPSourceBBIPCollection._NAME
@@ -79,17 +79,15 @@ class IPSourceBBIPCollection(CollectionOperation):
             collection = database[name_collection]
             projection = {} if include_id else {"_id": 0}
             documents = collection.find({}, projection)
-            output_path.parent.mkdir(parents=True, exist_ok=True)
-            with output_path.open("w", newline="", encoding="utf-8") as f:
-                fields = (["_id"] if include_id else []) + [
-                    field.value for field in IPSourceBBIPField
-                ]
-                writer = csv.DictWriter(f, fieldnames=fields, delimiter=delimiter)
-                writer.writeheader()
-                for doc in documents:
-                    if include_id:
-                        doc["_id"] = str(doc["_id"])
-                    writer.writerow(doc)
+
+            data = (
+                [MongoIPSourceBBIPDTO.from_mongo(doc) for doc in documents]
+                if include_id
+                else [MongoIPSourceBBIPDTO(**doc) for doc in documents]
+            )
+
+            writer = CSVWriter()
+            writer.export(filename=IPSourceBBIPCollection._NAME, data=data)
         except Exception as error:
             raise MongoExportCollectionError(name_collection.value, error=error)
 
@@ -101,16 +99,13 @@ class IPSourceBBIPCollection(CollectionOperation):
     ) -> None:
         name_collection = IPSourceBBIPCollection._NAME
         try:
-            collection = database[name_collection]
-            with input_path.open("r", newline="", encoding="utf-8") as f:
-                reader = csv.DictReader(f, delimiter=delimiter)
-                documents = [
-                    {k: v for k, v in row.items() if k != "_id"} for row in reader
-                ]
+            reader = IPSourceBBIPImport(delimiter)
+            documents = reader.import_data(input_path)
 
             if not documents:
                 raise FileEmptyError(filepath=input_path)
 
+            collection = database[name_collection]
             try:
                 collection.insert_many(documents, ordered=False)
             except BulkWriteError as bwe:

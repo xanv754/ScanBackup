@@ -3,7 +3,7 @@ from pathlib import Path
 from pydantic import BaseModel
 
 
-class Exporter(ABC):
+class BaseWriter(ABC):
     def _get_home(self) -> str:
         home = Path.home()
         donwload_dir = home / "Downloads"
