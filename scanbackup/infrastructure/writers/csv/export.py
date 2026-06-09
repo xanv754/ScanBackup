@@ -5,7 +5,9 @@ from pydantic import BaseModel
 
 
 class CSVWriter(BaseWriter):
-    def export(self, filename: str, data: list[BaseModel]) -> None:
+    def export(
+        self, filename: str, data: list[BaseModel], exclude: set | None = None
+    ) -> None:
         filepath = self.dir / filename
         filepath = filepath.with_suffix(".csv")
 
@@ -14,7 +16,10 @@ class CSVWriter(BaseWriter):
             cfg_metadata = system.get_cfg_metadata()
             delimiter = cfg_metadata.scanner.file_delimiter
 
-            rows = [item.model_dump() for item in data]
+            if not exclude:
+                rows = [item.model_dump() for item in data]
+            else:
+                rows = [item.model_dump(exclude=exclude) for item in data]
             headers = list(rows[0].keys())
 
             with filepath.open("w", newline="", encoding="utf-8") as f:

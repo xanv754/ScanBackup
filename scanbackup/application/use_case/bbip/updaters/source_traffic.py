@@ -3,6 +3,7 @@ from scanbackup.domain import TrafficSourceBBIPRepository
 from scanbackup.infrastructure import TrafficSourceBBIPReader
 from scanbackup.infrastructure import CSVWriter
 from scanbackup.shared import CSVExportError, Log
+from scanbackup.domain import TrafficSourceBBIPField
 
 
 class UpdateBBIPSources:
@@ -16,7 +17,11 @@ class UpdateBBIPSources:
     def upload(self) -> None:
         sources = TrafficSourceBBIPReader.import_data(self._path)
         present_keys = [
-            {"interface": s.interface, "layer": s.layer, "type": s.type}
+            {
+                TrafficSourceBBIPField.INTERFACE.value: s.interface,
+                TrafficSourceBBIPField.LAYER.value: s.layer,
+                TrafficSourceBBIPField.TYPE.value: s.type,
+            }
             for s in sources
         ]
         self._repo.upsert_sources(sources)
@@ -29,7 +34,16 @@ class UpdateBBIPSources:
                 data = self._repo.get_sources_by_layer(layer)
 
                 csv = CSVWriter(dir=self._path)
-                csv.export(filename=layer, data=data)
+                csv.export(
+                    filename=layer,
+                    data=data,
+                    exclude={
+                        "id",
+                        TrafficSourceBBIPField.STATUS.value,
+                        TrafficSourceBBIPField.COMMENTS.value,
+                        TrafficSourceBBIPField.LAYER.value,
+                    },
+                )
             except CSVExportError:
                 continue
             except Exception as error:
