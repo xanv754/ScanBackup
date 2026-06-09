@@ -1,6 +1,17 @@
+from enum import Enum
 from pydantic import BaseModel, field_validator
 from scanbackup.domain.services.validator import ValidatorConfig
 from scanbackup.shared import SourceStatus
+
+
+class TrafficSourceBBIPField(str, Enum):
+    LINK = "link"
+    INTERFACE = "interface"
+    CAPACITY = "capacity"
+    TYPE = "type"
+    STATUS = "status"
+    LAYER = "layer"
+    COMMENTS = "comments"
 
 
 class TrafficSourceBBIPEntity(BaseModel):

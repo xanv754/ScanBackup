@@ -10,11 +10,11 @@ from scanbackup.shared import (
     MongoImportCollectionError,
     MongoDeleteCollectionError,
 )
+from scanbackup.domain import IPSourceBBIPField
 from scanbackup.infrastructure.persistence.mongodb.constants.collection import (
     MongoCollectionName,
 )
 from scanbackup.infrastructure.persistence.mongodb.schemas.bbip.ip.source import (
-    IPSourceBBIPField,
     SOURCE_IP_BBIP_SCHEMA,
 )
 from scanbackup.infrastructure.persistence.mongodb.collections.operation import (

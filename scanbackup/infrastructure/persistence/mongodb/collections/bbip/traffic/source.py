@@ -10,11 +10,11 @@ from scanbackup.shared import (
     MongoDeleteCollectionError,
     DataContentError,
 )
+from scanbackup.domain import TrafficSourceBBIPField
 from scanbackup.infrastructure.persistence.mongodb.constants.collection import (
     MongoCollectionName,
 )
 from scanbackup.infrastructure.persistence.mongodb.schemas.bbip.traffic.source import (
-    TrafficSourceBBIPField,
     SOURCE_TRAFFIC_BBIP_SCHEMA,
 )
 from scanbackup.infrastructure.persistence.mongodb.collections.operation import (

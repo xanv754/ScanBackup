@@ -1,15 +1,5 @@
 from typing import Any, Dict
-from enum import Enum
-
-
-class TrafficBBIPField(str, Enum):
-    DATE = "date"
-    TIME = "time"
-    IN_PROM = "inProm"
-    IN_MAX = "inMax"
-    OUT_PROM = "outProm"
-    OUT_MAX = "outMax"
-    DEVICE = "id_source"
+from scanbackup.domain import TrafficBBIPField
 
 
 BBIP_TRAFFIC_SCHEMA: Dict[str, Dict[str, Any]] = {

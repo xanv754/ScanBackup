@@ -1,12 +1,5 @@
-from enum import Enum
 from typing import Any, Dict
-
-
-class IPSourceBBIPField(str, Enum):
-    LINK = "link"
-    DEVICE = "device"
-    STATUS = "status"
-    LAYER = "layer"
+from scanbackup.domain import IPSourceBBIPField
 
 
 SOURCE_IP_BBIP_SCHEMA: Dict[str, Dict[str, Any]] = {

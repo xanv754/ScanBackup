@@ -1,15 +1,5 @@
 from typing import Any, Dict
-from enum import Enum
-
-
-class TrafficSourceBBIPField(str, Enum):
-    LINK = "link"
-    INTERFACE = "interface"
-    CAPACITY = "capacity"
-    TYPE = "type"
-    STATUS = "status"
-    LAYER = "layer"
-    COMMENTS = "comments"
+from scanbackup.domain import TrafficSourceBBIPField
 
 
 SOURCE_TRAFFIC_BBIP_SCHEMA: Dict[str, Dict[str, Any]] = {

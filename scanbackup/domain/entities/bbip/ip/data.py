@@ -1,11 +1,9 @@
 from enum import Enum
 
 
-class TrafficBBIPField(str, Enum):
+class IPActiveBBIPField(str, Enum):
     DATE = "date"
     TIME = "time"
     IN_PROM = "inProm"
     IN_MAX = "inMax"
-    OUT_PROM = "outProm"
-    OUT_MAX = "outMax"
     DEVICE = "id_source"

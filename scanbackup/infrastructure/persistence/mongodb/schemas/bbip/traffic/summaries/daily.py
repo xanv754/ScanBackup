@@ -1,15 +1,5 @@
-from enum import Enum
 from typing import Any, Dict
-
-
-class TrafficDailySummaryBBIPField(str, Enum):
-    DATE = "date"
-    IN_PROM = "inProm"
-    OUT_PROM = "outProm"
-    IN_MAX = "inMax"
-    OUT_MAX = "outMax"
-    USE = "use"
-    DEVICE = "id_source"
+from scanbackup.domain import TrafficDailySummaryBBIPField
 
 
 DAILY_SUMMARY_SCHEMA: Dict[str, Dict[str, Any]] = {

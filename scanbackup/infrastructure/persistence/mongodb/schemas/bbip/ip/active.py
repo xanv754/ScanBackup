@@ -1,13 +1,5 @@
 from typing import Any, Dict
-from enum import Enum
-
-
-class IPActiveBBIPField(str, Enum):
-    DATE = "date"
-    TIME = "time"
-    IN_PROM = "inProm"
-    IN_MAX = "inMax"
-    DEVICE = "id_source"
+from scanbackup.domain import IPActiveBBIPField
 
 
 IP_HISTORY_SCHEMA: Dict[str, Dict[str, Any]] = {

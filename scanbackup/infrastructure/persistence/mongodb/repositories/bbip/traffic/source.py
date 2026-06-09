@@ -1,14 +1,9 @@
 from pymongo import UpdateOne
 from pymongo.errors import BulkWriteError
 
-from scanbackup.domain import TrafficSourceBBIPRepository, TrafficSourceBBIPEntity
-from scanbackup.infrastructure.persistence.mongodb.connections.database import (
-    MongoDatabase,
-)
-from scanbackup.infrastructure.persistence.mongodb.constants.collection import (
-    MongoCollectionName,
-)
-from scanbackup.infrastructure.persistence.mongodb.schemas.bbip.traffic.source import (
+from scanbackup.domain import (
+    TrafficSourceBBIPRepository,
+    TrafficSourceBBIPEntity,
     TrafficSourceBBIPField,
 )
 from scanbackup.shared import (
@@ -17,6 +12,12 @@ from scanbackup.shared import (
     MongoInsertFailedError,
     MongoConnectionError,
     MongoGetFailedError,
+)
+from scanbackup.infrastructure.persistence.mongodb.connections.database import (
+    MongoDatabase,
+)
+from scanbackup.infrastructure.persistence.mongodb.constants.collection import (
+    MongoCollectionName,
 )
 
 
