@@ -1,3 +1,3 @@
-from scanbackup.application.cli.updater import cli as updater_cli
+from scanbackup.application.cli.main import cli as system_cli
 
-__all__ = ["updater_cli"]
+__all__ = ["system_cli"]

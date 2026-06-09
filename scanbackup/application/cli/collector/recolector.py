@@ -1,27 +1,8 @@
-import click
-import time
-from scanbackup.infrastructure.collectors.executer_scan import SCANScanner
+from scanbackup.infrastructure.collectors import SCANScanner
 from scanbackup.shared import Terminal, Log
 
 
-@click.group()
-def cli_collector() -> None:
-    """Recolector de data de tráfico existente en SCAN"""
-    pass
-
-
-@cli_collector.command(help="Ejecuta la captura de tráfico de un día en SCAN")
-@click.option(
-    "--date",
-    required=False,
-    help="Captura el tráfico de un día en específico. Formato: YYYY-MM-DD.",
-)
-@click.option(
-    "--layer",
-    required=False,
-    help="Captura el tráfico de una capa de SCAN en específico. Debe escribirse todo en mayúscula.",
-)
-def run(date: str | None = None, layer: str | None = None, dev: bool = False) -> None:
+def recolector(date: str | None = None, layer: str | None = None) -> None:
     terminal = Terminal()
 
     start_info = "Captura de tráfico existente en SCAN"
