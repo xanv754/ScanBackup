@@ -11,7 +11,7 @@ class DatabaseError(ScanBackupError):
 
 class DataImportError(DatabaseError):
     def __init__(self, extra_msg: str | None = None, error: any = None) -> None:
-        message = "Error al importar data a la base de datos"
+        message = "Error al intentar importar la data al sistema"
         if extra_msg:
             message = message + f". {extra_msg}"
         super().__init__(message=message, error=error)

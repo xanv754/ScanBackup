@@ -19,7 +19,10 @@ def traffic_export_from_database(
         try:
             system = Configuration()
             cfg_layers = system.get_cfg_layers()
-            dirpath = Path(dirpath)
+            if not dirpath:
+                dirpath = Path.home()
+            else:
+                dirpath = Path(dirpath)
             repository = MongoTrafficSourceBBIPRepository()
 
             terminal.loading(status, "Exportando información...")
@@ -28,10 +31,14 @@ def traffic_export_from_database(
             if not layer:
                 layers = cfg_layers.bbip.names
             else:
-                layers = layers[layer]
+                layers = [layer]
 
             process.export(layers)
         except Exception:
-            terminal.error("Falla de exportación de las fuentes")
+            message = "Falla de exportación de las fuentes"
+            terminal.error(message)
+            Log.error(message)
         else:
-            terminal.info("Proceso finalizado con éxito")
+            message = "Proceso finalizado con éxito"
+            terminal.info(message)
+            Log.info(message)

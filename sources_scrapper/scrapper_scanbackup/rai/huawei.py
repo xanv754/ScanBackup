@@ -61,7 +61,9 @@ class RaiHuawei:
             capacity = self._extract_capacity(title)
 
             sources.append(
-                SourceModel(link=link, name=title, capacity=capacity, type=self._layer)
+                SourceModel(
+                    link=link, enlace=title, capacidad=capacity, tipo=self._layer
+                )
             )
 
         return sources

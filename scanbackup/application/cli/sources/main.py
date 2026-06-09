@@ -1,8 +1,10 @@
 import click
+from pathlib import Path
 from scanbackup.application.cli.sources.extract_db import (
     traffic_export_from_database,
 )
 from scanbackup.application.cli.sources.upload_db import traffic_upload_to_database
+from scanbackup.application.cli.sources.updater import scrapper_sources
 
 
 @click.group()
@@ -11,7 +13,7 @@ def cli() -> None:
     pass
 
 
-@cli.command(help="Actualizar fuentes de tráfico")
+@cli.command(help="Actualiza fuentes de tráfico en el sistema")
 @click.option(
     "--filepath",
     type=click.Path(exists=True, file_okay=True),
@@ -22,7 +24,7 @@ def traffic_upload(filepath: str) -> None:
     traffic_upload_to_database(filepath=filepath)
 
 
-@cli.command(help="Exporta las fuentes")
+@cli.command(help="Exporta las fuentes de tráfico del sistema")
 @click.option(
     "--dirpath",
     type=click.Path(exists=True, file_okay=False, dir_okay=True),
@@ -37,3 +39,20 @@ def traffic_upload(filepath: str) -> None:
 )
 def traffic_export(dirpath: str | None = None, layer: str | None = None) -> None:
     traffic_export_from_database(dirpath=dirpath, layer=layer)
+
+
+@cli.command(help="Obtiene un archivo con enlaces a consultar de SCAN")
+@click.option(
+    "--layer", default="all", help="Capa de la cual se quiere exportar la información"
+)
+@click.option(
+    "--outdir",
+    type=click.Path(exists=True, file_okay=False, dir_okay=True),
+    required=False,
+    help="Ruta de la carpeta a exportar la data",
+)
+def updater(
+    layer: str = "all",
+    outdir: str | None = None,
+) -> None:
+    scrapper_sources(layer=layer, outdir=Path(outdir))

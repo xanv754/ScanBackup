@@ -9,10 +9,15 @@ class Exporter:
     filepath: Path
     delimiter: str
 
-    def __init__(self, layer: str, setting: ScrapperSetting) -> None:
+    def __init__(
+        self, layer: str, setting: ScrapperSetting, outdir: Path | None = None
+    ) -> None:
         self.layer = layer
         export_setting = setting.get_exporter()
-        self.filepath = export_setting.dir / f"{layer.upper().strip()}"
+        if not outdir:
+            self.filepath = export_setting.dir / f"{layer.upper().strip()}"
+        else:
+            self.filepath = outdir / f"{layer.upper().strip()}"
         self.delimiter = export_setting.delimiter
 
     @abstractmethod

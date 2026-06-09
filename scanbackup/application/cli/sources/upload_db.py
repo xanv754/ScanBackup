@@ -23,6 +23,10 @@ def traffic_upload_to_database(filepath: str) -> None:
             process = UpdateBBIPSources(repository=repository, path=filepath)
             process.upload()
         except Exception:
-            terminal.error("Falla de actualización de los archivos fuentes")
+            message = "Falla de actualización de los archivos fuentes"
+            terminal.error(message)
+            Log.error(message)
         else:
-            terminal.info("Proceso finalizado con éxito")
+            message = "Proceso finalizado con éxito"
+            terminal.info(message)
+            Log.info(message)

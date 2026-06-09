@@ -66,9 +66,8 @@ class CachingHuawei:
 
                 sources.append(
                     SourceModel(
-                        link=link, name=title, capacity=capacity, type=service.name
+                        link=link, enlace=title, capacidad=capacity, tipo=service.name
                     )
                 )
 
         return sources
-

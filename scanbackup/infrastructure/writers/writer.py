@@ -4,6 +4,14 @@ from pydantic import BaseModel
 
 
 class BaseWriter(ABC):
+    dir: Path
+
+    def __init__(self, dir: Path | None = None) -> None:
+        if not dir:
+            self.dir = Path(self._get_home())
+        else:
+            self.dir = dir
+
     def _get_home(self) -> str:
         home = Path.home()
         donwload_dir = home / "Downloads"

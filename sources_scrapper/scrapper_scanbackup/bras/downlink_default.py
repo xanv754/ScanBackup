@@ -67,7 +67,10 @@ class BrasDefaultDownlink:
 
                 sources.append(
                     SourceModel(
-                        link=link, name=title, capacity=capacity, type=self._type_link
+                        link=link,
+                        enlace=title,
+                        capacidad=capacity,
+                        tipo=self._type_link,
                     )
                 )
         return sources

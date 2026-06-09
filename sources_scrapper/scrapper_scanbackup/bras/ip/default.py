@@ -44,6 +44,6 @@ class IpBrasDefault:
                 "href"
             ).replace(".html", ".log")
 
-            sources.append(IpSourceModel(link=link, name=title))
+            sources.append(IpSourceModel(link=link, enlace=title))
 
         return sources
