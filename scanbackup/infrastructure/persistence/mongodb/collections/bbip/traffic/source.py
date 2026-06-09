@@ -105,9 +105,6 @@ class TrafficSourceBBIPCollection(CollectionOperation):
             reader = TrafficSourceBBIPImport(delimiter)
             documents = reader.import_data(input_path)
 
-            if not documents:
-                raise FileEmptyError(filepath=input_path)
-
             collection = database[name_collection]
             try:
                 collection.insert_many(documents, ordered=False)
@@ -120,7 +117,7 @@ class TrafficSourceBBIPCollection(CollectionOperation):
                 if non_duplicate_errors:
                     raise MongoImportCollectionError(name_collection, error=bwe)
         except DataContentError:
-            return
+            raise
         except FileEmptyError:
             return
         except MongoImportCollectionError:

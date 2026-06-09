@@ -130,7 +130,9 @@ class TrafficHistoryBBIPCollection(CollectionOperation):
             if operations:
                 collection = database[name_collection]
                 collection.bulk_write(operations)
-        except (FileEmptyError, DataContentError):
+        except FileEmptyError:
+            return
+        except DataContentError:
             raise
         except Exception as error:
             raise MongoImportCollectionError(name_collection.value, error=error)

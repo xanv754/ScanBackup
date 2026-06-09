@@ -1,9 +1,9 @@
-import csv
 from pathlib import Path
 from pymongo import ASCENDING
 from pymongo.database import Database
 from pymongo.errors import CollectionInvalid, BulkWriteError
 from scanbackup.shared import (
+    DataContentError,
     FileEmptyError,
     MongoCreateCollectionError,
     MongoExportCollectionError,
@@ -22,7 +22,10 @@ from scanbackup.infrastructure.persistence.mongodb.collections.operation import 
 )
 from scanbackup.infrastructure.readers import IPSourceBBIPImport
 from scanbackup.infrastructure.writers import CSVWriter
-from scanbackup.infrastructure.persistence.mongodb.dto.bbip.ip.source import MongoIPSourceBBIPDTO
+from scanbackup.infrastructure.persistence.mongodb.dto.bbip.ip.source import (
+    MongoIPSourceBBIPDTO,
+)
+
 
 class IPSourceBBIPCollection(CollectionOperation):
     _NAME = MongoCollectionName.IP_SOURCES.value
@@ -102,9 +105,6 @@ class IPSourceBBIPCollection(CollectionOperation):
             reader = IPSourceBBIPImport(delimiter)
             documents = reader.import_data(input_path)
 
-            if not documents:
-                raise FileEmptyError(filepath=input_path)
-
             collection = database[name_collection]
             try:
                 collection.insert_many(documents, ordered=False)
@@ -118,6 +118,8 @@ class IPSourceBBIPCollection(CollectionOperation):
                     raise MongoImportCollectionError(name_collection, error=bwe)
         except FileEmptyError:
             return
+        except DataContentError:
+            raise
         except BulkWriteError:
             raise
         except Exception as error:
