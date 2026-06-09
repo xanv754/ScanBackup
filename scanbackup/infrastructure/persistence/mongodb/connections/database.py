@@ -111,9 +111,11 @@ class MongoDatabase:
             self.open_connection()
             db = self._client[self._config.name]
 
+            # TRAFFIC SOURCES
             if not self._check_collection(MongoCollectionName.TRAFFIC_SOURCES):
                 TrafficSourceBBIPCollection.create(database=db)
 
+            # TRAFFIC HISTORIES
             layers_bbip = config.bbip.names
             for layer in layers_bbip:
                 layer = layer.upper()
@@ -123,14 +125,17 @@ class MongoDatabase:
                         name_collection=name_collection, database=db
                     )
 
+            # TRAFFIC SUMMARIES
             if not self._check_collection(MongoCollectionName.TRAFFIC_DAILY_SUMMARY):
                 TrafficDailySummaryBBIPCollection.create(database=db)
 
+            # IP SOURCES
             if not self._check_collection(name_collection):
                 IPSourceBBIPCollection.create(
                     name_collection=name_collection, database=db
                 )
 
+            # IP HISTORIES
             layers_ip = config.ip.names
             for layer in layers_ip:
                 layer = layer.upper()
@@ -140,6 +145,7 @@ class MongoDatabase:
                         name_collection=name_collection, database=db
                     )
 
+            # IP SUMMARIES
             if not self._check_collection(MongoCollectionName.IP_DAILY_SUMMARY):
                 IPDailySummaryBBIPCollection.create(database=db)
         except MongoCreateCollectionError:
