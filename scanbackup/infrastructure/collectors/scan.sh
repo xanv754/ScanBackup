@@ -27,6 +27,11 @@ full_format_date=$(awk \
   -v s="$SEPARATOR_DATA" \
   'BEGIN { print d s "%H:%M:%S" }')
 
+layer="${FILE_LAYER_SRC%%.*}"
+header=$(head -1 "${DIR_SOURCES_PATH}/${FILE_LAYER_SRC}")
+sed -i '1d' "${DIR_SOURCES_PATH}/${FILE_LAYER_SRC}"
+sed -i 's/\r//' "${DIR_SOURCES_PATH}/${FILE_LAYER_SRC}"
+
 while read -r line; do
   url=$(echo "${line}" | awk -F "${SEPARATOR_DATA}" '{print $1}' | xargs)
   interface_name=$(echo "${line}" | awk -F "${SEPARATOR_DATA}" '{print $2}')
@@ -36,16 +41,14 @@ while read -r line; do
   parser_interface_name=$(echo "${interface_name}" | xargs |
     tr '/' "${REPLACE_SYMBOL_PORTS}" |
     tr ' ' "${REPLACE_SYMBOL_SPACE}")
-
   file_data_tmp_path="${DIR_TMP_PATH}/${parser_interface_name}"
-  file_data_final_path="${DIR_STORAGE_PATH}/${parser_interface_name}%${capacity}%${model}"
+  file_data_final_path="${DIR_STORAGE_PATH}/${parser_interface_name}"
 
   wget -v --timeout=180 --tries=2 \
     --user="${USERNAME_SCAN}" \
     --password="${PASSWORD_SCAN}" \
     --no-check-certificate "${url}" \
     -O "${file_data_tmp_path}" </dev/null
-
   wget_status=$?
   if [ $wget_status -ne 0 ]; then
     if [ $wget_status -eq 6 ]; then
@@ -53,8 +56,6 @@ while read -r line; do
       exit 6
     fi
   fi
-
-  sed -i '1d' "${file_data_tmp_path}"
 
   if [ ! -s "${file_data_final_path}" ]; then
     echo "${HEADER_DATA}" >"${file_data_final_path}"
@@ -71,14 +72,22 @@ while read -r line; do
     file_date=$(date -d @"$unix_time" "+${FORMAT_DATE}")
 
     if [[ "$file_date" == *"$TARGET_DATE"* ]]; then
-      awk -v dt="${date_time}" \
+      awk -v lk="${interface_name}" \
+        -v cp="${capacity}" \
+        -v md="${model}" \
+        -v dt="${date_time}" \
         -v ip="${in_prom}" \
         -v op="${out_prom}" \
         -v im="${in_max}" \
         -v om="${out_max}" \
+        -v ly="${layer}" \
         -v sep="${SEPARATOR_DATA}" \
-        'BEGIN { OFS=sep; print dt, ip, op, im, om }' >>"${file_data_final_path}"
+        'BEGIN { OFS=sep; print lk, cp, md, dt, ip, op, im, om, ly }' >>"${file_data_final_path}"
     fi
   done
 
+  rm "${file_data_tmp_path}"
+
 done <"${DIR_SOURCES_PATH}/${FILE_LAYER_SRC}"
+
+sed -i "1s/^/${header}\n/" "${DIR_SOURCES_PATH}/${FILE_LAYER_SRC}"
