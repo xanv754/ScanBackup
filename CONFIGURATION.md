@@ -57,7 +57,7 @@ metadata:
 
 Define los nombres de las capas existentes en SCAN que se desea respaldar.
 
-## layers.<grupo>
+## layers.[grupo]
 
 Define la configuración de una capa de SCAN para el sistema.
 
