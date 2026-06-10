@@ -13,9 +13,13 @@ class CSVExporter(Exporter):
         filepath = self.filepath.with_suffix(".csv")
 
         with filepath.open("w", newline="", encoding="utf-8") as file:
+            file.write(f"{self.header_text}\n")
+
             writer = csv.DictWriter(
-                file, fieldnames=fieldnames, delimiter=self.delimiter
+                file,
+                fieldnames=fieldnames,
+                delimiter=self.delimiter,
+                lineterminator="\n",
             )
-            writer.writeheader()
             for item in data:
                 writer.writerow(item.model_dump())
