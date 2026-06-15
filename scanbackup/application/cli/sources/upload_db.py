@@ -1,12 +1,12 @@
 from pathlib import Path
 from scanbackup.infrastructure import MongoTrafficSourceBBIPRepository
 from scanbackup.application.use_case.bbip.updaters.source_traffic import (
-    UpdateBBIPSources,
+    TrafficSourceUpdaterUseCase,
 )
 from scanbackup.shared import Terminal, Log
 
 
-def traffic_upload_to_database(filepath: str) -> None:
+def traffic_upload_to_database(file: str) -> None:
     terminal = Terminal()
 
     message = "Actualizando de información de archivos fuentes de tráfico para el BBIP"
@@ -15,13 +15,13 @@ def traffic_upload_to_database(filepath: str) -> None:
 
     with terminal.status("Configurando sistema...") as status:
         try:
-            filepath = Path(filepath)
+            filepath = Path(file)
             repository = MongoTrafficSourceBBIPRepository()
 
             terminal.loading(status, "Procesando información...")
 
-            process = UpdateBBIPSources(repository=repository, path=filepath)
-            process.upload()
+            process = TrafficSourceUpdaterUseCase(repository=repository, path=filepath)
+            process.execute()
         except Exception:
             message = "Falla de actualización de los archivos fuentes"
             terminal.error(message)

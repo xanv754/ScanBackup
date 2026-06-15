@@ -112,28 +112,30 @@ class MongoDatabase:
             db = self._client[self._config.name]
 
             # TRAFFIC SOURCES
-            if not self._check_collection(MongoCollectionName.TRAFFIC_SOURCES):
+            if not self._check_collection(MongoCollectionName.TRAFFIC_SOURCES.value):
                 TrafficSourceBBIPCollection.create(database=db)
 
             # TRAFFIC HISTORIES
             layers_bbip = config.bbip.names
             for layer in layers_bbip:
                 layer = layer.upper()
-                name_collection = layer + "_" + SuffixCollectionName.TRAFFIC_HISTORIES
+                name_collection = (
+                    layer + "_" + SuffixCollectionName.TRAFFIC_HISTORIES.value
+                )
                 if not self._check_collection(name_collection):
                     TrafficHistoryBBIPCollection.create(
                         name_collection=name_collection, database=db
                     )
 
             # TRAFFIC SUMMARIES
-            if not self._check_collection(MongoCollectionName.TRAFFIC_DAILY_SUMMARY):
+            if not self._check_collection(
+                MongoCollectionName.TRAFFIC_DAILY_SUMMARY.value
+            ):
                 TrafficDailySummaryBBIPCollection.create(database=db)
 
             # IP SOURCES
-            if not self._check_collection(name_collection):
-                IPSourceBBIPCollection.create(
-                    name_collection=name_collection, database=db
-                )
+            if not self._check_collection(MongoCollectionName.IP_SOURCES.value):
+                IPSourceBBIPCollection.create(database=db)
 
             # IP HISTORIES
             layers_ip = config.ip.names
@@ -163,15 +165,15 @@ class MongoDatabase:
         self,
         name_collection: str,
         config: LayerConfigModel,
-        filepath: str,
-        delimiter: str | None = None,
+        input_filepath: str,
+        delimiter: str,
     ) -> None:
         try:
-            filepath = Path(filepath)
+            filepath = Path(input_filepath)
             if not filepath.exists():
-                raise FileImportNotFoundError()
+                raise FileImportNotFoundError(input_filepath)
             if filepath.suffix != ".csv" and filepath.suffix != ".txt":
-                raise FileExtensionError(filepath=filepath)
+                raise FileExtensionError(filepath=str(filepath.resolve()))
 
             self.open_connection()
             if not self._check_collection(name_collection):
@@ -250,7 +252,7 @@ class MongoDatabase:
         config: LayerConfigModel,
         name_collection: str,
         include_id: bool = True,
-    ) -> str:
+    ) -> None:
         try:
             self.open_connection()
 

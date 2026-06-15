@@ -23,7 +23,7 @@ class TrafficHistoryBBIPImport(BaseReader):
 
     def import_data(self, filepath: Path) -> list[dict]:
         if filepath.stat().st_size == 0:
-            raise FileEmptyError(filepath=filepath)
+            raise FileEmptyError(filepath=str(filepath.resolve()))
 
         with filepath.open("r", newline="", encoding="utf-8") as f:
             reader = csv.DictReader(f, delimiter=self._delimiter)
@@ -67,7 +67,7 @@ class IPHistoryBBIPImport(BaseReader):
 
     def import_data(self, filepath: Path) -> list[dict]:
         if filepath.stat().st_size == 0:
-            raise FileEmptyError(filepath=filepath)
+            raise FileEmptyError(filepath=str(filepath.resolve()))
 
         with filepath.open("r", newline="", encoding="utf-8") as f:
             reader = csv.DictReader(f, delimiter=self._delimiter)

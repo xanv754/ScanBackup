@@ -31,8 +31,10 @@ from scanbackup.shared.errors.input_error import (
     FileEmptyError,
     FileExtensionError,
     ContentFileError,
+    DataNotFoundError,
 )
 from scanbackup.shared.errors.scanner_error import ScannerError, ScannerConfigError
+from scanbackup.shared.errors.updater_error import UpdaterError
 
 __all__ = [
     "ScanBackupError",
@@ -60,6 +62,8 @@ __all__ = [
     "FileEmptyError",
     "FileExtensionError",
     "ContentFileError",
+    "DataNotFoundError",
     "ScannerError",
     "ScannerConfigError",
+    "UpdaterError",
 ]

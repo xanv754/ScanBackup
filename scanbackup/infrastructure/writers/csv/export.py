@@ -1,4 +1,5 @@
 import csv
+from collections.abc import Sequence
 from scanbackup.infrastructure.writers.writer import BaseWriter
 from scanbackup.shared import CSVExportError, Configuration
 from pydantic import BaseModel
@@ -6,7 +7,7 @@ from pydantic import BaseModel
 
 class CSVWriter(BaseWriter):
     def export(
-        self, filename: str, data: list[BaseModel], exclude: set | None = None
+        self, filename: str, data: Sequence[BaseModel], exclude: set | None = None
     ) -> None:
         filepath = self.dir / filename
         filepath = filepath.with_suffix(".csv")

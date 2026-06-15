@@ -12,14 +12,8 @@ from scanbackup.shared import (
     DataContentError,
 )
 from scanbackup.domain import TrafficBBIPField
-from scanbackup.infrastructure.persistence.mongodb.constants.collection import (
-    MongoCollectionName,
-)
 from scanbackup.infrastructure.persistence.mongodb.schemas.bbip.traffic.data import (
     BBIP_TRAFFIC_SCHEMA,
-)
-from scanbackup.infrastructure.persistence.mongodb.collections.operation import (
-    CollectionOperation,
 )
 from scanbackup.infrastructure.readers import (
     TrafficHistoryBBIPImport,
@@ -30,9 +24,9 @@ from scanbackup.infrastructure.persistence.mongodb.dto.bbip.traffic.history impo
 from scanbackup.infrastructure.writers import CSVWriter
 
 
-class TrafficHistoryBBIPCollection(CollectionOperation):
+class TrafficHistoryBBIPCollection:
     @staticmethod
-    def create(name_collection: MongoCollectionName, database: Database) -> None:
+    def create(name_collection: str, database: Database) -> None:
         try:
             database.create_collection(
                 name=name_collection, validator=BBIP_TRAFFIC_SCHEMA
@@ -55,14 +49,14 @@ class TrafficHistoryBBIPCollection(CollectionOperation):
             )
         except CollectionInvalid as error:
             raise MongoCreateCollectionError(
-                name_collection.value,
+                name_collection,
                 error=f"La colección no es válida para creación\n{error}",
             )
         except Exception as error:
-            raise MongoCreateCollectionError(name_collection.value, error=error)
+            raise MongoCreateCollectionError(name_collection, error=error)
 
     @staticmethod
-    def delete(name_collection: MongoCollectionName, database: Database) -> None:
+    def delete(name_collection: str, database: Database) -> None:
         try:
             collection = database[name_collection]
             collection.delete_many({})
@@ -72,7 +66,7 @@ class TrafficHistoryBBIPCollection(CollectionOperation):
 
     @staticmethod
     def export_data(
-        name_collection: MongoCollectionName,
+        name_collection: str,
         database: Database,
         include_id: bool = False,
     ) -> None:
@@ -90,11 +84,11 @@ class TrafficHistoryBBIPCollection(CollectionOperation):
             writer = CSVWriter()
             writer.export(filename=name_collection, data=data)
         except Exception as error:
-            raise MongoExportCollectionError(name_collection.value, error=error)
+            raise MongoExportCollectionError(name_collection, error=error)
 
     @staticmethod
     def import_data(
-        name_collection: MongoCollectionName,
+        name_collection: str,
         database: Database,
         input_path: Path,
         delimiter: str | None = None,
@@ -135,4 +129,4 @@ class TrafficHistoryBBIPCollection(CollectionOperation):
         except DataContentError:
             raise
         except Exception as error:
-            raise MongoImportCollectionError(name_collection.value, error=error)
+            raise MongoImportCollectionError(name_collection, error=error)

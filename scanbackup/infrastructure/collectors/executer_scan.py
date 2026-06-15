@@ -48,8 +48,8 @@ class SCANScanner:
 
     def _set_date(self, date: str | None = None) -> None:
         if not date:
-            date = datetime.now() - timedelta(days=1)
-            date = date.strftime(self._cfg_scanner.date_format)
+            current_date = datetime.now() - timedelta(days=1)
+            date = current_date.strftime(self._cfg_scanner.date_format)
         self._date = date
 
     def _set_config(self) -> None:
@@ -58,7 +58,7 @@ class SCANScanner:
         self._cfg_scanner = self._cfg_metadata.scanner
         self._cfg_layers = config.get_cfg_layers()
 
-    def _get_header(self) -> list[str]:
+    def _get_header(self) -> str:
         header_str = ""
         for header in SCANHeader:
             header_str = header_str + header.value + self._cfg_scanner.file_delimiter
@@ -114,5 +114,5 @@ class SCANScanner:
         self._execute()
 
     def execute_all(self) -> None:
-        self._layers = [layer.value for layer in self._cfg_layers.bbip.names]
+        self._layers = [layer for layer in self._cfg_layers.bbip.names]
         self._execute()

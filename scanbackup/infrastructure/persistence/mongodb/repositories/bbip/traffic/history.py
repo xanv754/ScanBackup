@@ -1,7 +1,11 @@
 from pymongo import ReplaceOne
 from pymongo.errors import BulkWriteError
 
-from scanbackup.domain import TrafficBBIPEntity, TrafficBBIPField
+from scanbackup.domain import (
+    TrafficBBIPEntity,
+    TrafficBBIPField,
+    TrafficHistoryBBIPRepository,
+)
 from scanbackup.shared import (
     Configuration,
     MongoInsertFailedError,
@@ -16,12 +20,12 @@ from scanbackup.infrastructure.persistence.mongodb.constants.collection import (
 )
 
 
-class MongoTrafficHistoryBBIPRepository:
+class MongoTrafficHistoryBBIPRepository(TrafficHistoryBBIPRepository):
     name_collection: str
 
     def __init__(self, name_collection: str) -> None:
         self.name_collection = (
-            name_collection + "_" + SuffixCollectionName.TRAFFIC_HISTORIES.value
+            name_collection.upper() + "_" + SuffixCollectionName.TRAFFIC_HISTORIES.value
         )
 
     def _get_collection(self, client: MongoDatabase, name_collection: str):

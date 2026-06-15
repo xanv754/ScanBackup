@@ -41,9 +41,7 @@ class IPSourceBBIPCollection(CollectionOperation):
             collection.create_index(
                 [
                     (IPSourceBBIPField.LAYER.value, ASCENDING),
-                    (IPSourceBBIPField.TYPE.value, ASCENDING),
-                    (IPSourceBBIPField.CAPACITY.value, ASCENDING),
-                    (IPSourceBBIPField.INTERFACE.value, ASCENDING),
+                    (IPSourceBBIPField.LINK.value, ASCENDING),
                 ],
                 unique=True,
                 name=f"unique_{name_collection.lower()}",
@@ -56,11 +54,11 @@ class IPSourceBBIPCollection(CollectionOperation):
             )
         except CollectionInvalid as error:
             raise MongoCreateCollectionError(
-                name_collection.value,
+                name_collection,
                 error=f"La colección no es válida para creación\n{error}",
             )
         except Exception as error:
-            raise MongoCreateCollectionError(name_collection.value, error=error)
+            raise MongoCreateCollectionError(name_collection, error=error)
 
     @staticmethod
     def delete(database: Database) -> None:
@@ -92,7 +90,7 @@ class IPSourceBBIPCollection(CollectionOperation):
             writer = CSVWriter()
             writer.export(filename=IPSourceBBIPCollection._NAME, data=data)
         except Exception as error:
-            raise MongoExportCollectionError(name_collection.value, error=error)
+            raise MongoExportCollectionError(name_collection, error=error)
 
     @staticmethod
     def import_data(

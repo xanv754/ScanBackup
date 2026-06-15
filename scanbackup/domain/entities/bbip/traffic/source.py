@@ -15,7 +15,7 @@ class TrafficSourceBBIPField(str, Enum):
 
 
 class TrafficSourceBBIPEntity(BaseModel):
-    id: str | None = None
+    device: str | None = None
     link: str
     interface: str
     capacity: float

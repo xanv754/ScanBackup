@@ -1,12 +1,10 @@
 from pathlib import Path
-from scanbackup.domain import TrafficSourceBBIPRepository
-from scanbackup.infrastructure import TrafficSourceBBIPReader
-from scanbackup.infrastructure import CSVWriter
+from scanbackup.domain import TrafficSourceBBIPField, TrafficSourceBBIPRepository
+from scanbackup.infrastructure import TrafficSourceBBIPReader, CSVWriter
 from scanbackup.shared import CSVExportError, Log
-from scanbackup.domain import TrafficSourceBBIPField
 
 
-class UpdateBBIPSources:
+class TrafficSourceUpdaterUseCase:
     _repo: TrafficSourceBBIPRepository
     _path: Path
 
@@ -14,8 +12,9 @@ class UpdateBBIPSources:
         self._repo = repository
         self._path = path
 
-    def upload(self) -> None:
-        sources = TrafficSourceBBIPReader.import_data(self._path)
+    def execute(self) -> None:
+        reader = TrafficSourceBBIPReader()
+        sources = reader.import_data(self._path)
         present_keys = [
             {
                 TrafficSourceBBIPField.INTERFACE.value: s.interface,
@@ -38,7 +37,7 @@ class UpdateBBIPSources:
                     filename=layer,
                     data=data,
                     exclude={
-                        "id",
+                        "device",
                         TrafficSourceBBIPField.STATUS.value,
                         TrafficSourceBBIPField.COMMENTS.value,
                         TrafficSourceBBIPField.LAYER.value,

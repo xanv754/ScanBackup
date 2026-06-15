@@ -1,13 +1,13 @@
 from pathlib import Path
 from scanbackup.infrastructure import MongoTrafficSourceBBIPRepository
 from scanbackup.application.use_case.bbip.updaters.source_traffic import (
-    UpdateBBIPSources,
+    TrafficSourceUpdaterUseCase,
 )
 from scanbackup.shared import Configuration, Terminal, Log
 
 
 def traffic_export_from_database(
-    dirpath: str | None = None, layer: str | None = None
+    path: str | None = None, layer: str | None = None
 ) -> None:
     terminal = Terminal()
 
@@ -19,15 +19,15 @@ def traffic_export_from_database(
         try:
             system = Configuration()
             cfg_layers = system.get_cfg_layers()
-            if not dirpath:
+            if not path:
                 dirpath = Path.home()
             else:
-                dirpath = Path(dirpath)
+                dirpath = Path(path)
             repository = MongoTrafficSourceBBIPRepository()
 
             terminal.loading(status, "Exportando información...")
 
-            process = UpdateBBIPSources(repository=repository, path=dirpath)
+            process = TrafficSourceUpdaterUseCase(repository=repository, path=dirpath)
             if not layer:
                 layers = cfg_layers.bbip.names
             else:

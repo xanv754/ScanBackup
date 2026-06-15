@@ -1,4 +1,5 @@
 from enum import Enum
+from typing import Any
 from scanbackup.shared.outputs.logs import Log
 from scanbackup.shared.outputs.terminal import Terminal
 
@@ -10,11 +11,12 @@ class ModuleSystem(str, Enum):
     MONGO = "Mongo Database"
     REPORT = "Reporte"
     INPUT = "IO"
+    UPDATER = "Data Actualizador"
 
 
 class ScanBackupError(Exception):
     def __init__(
-        self, message: str, error: any = None, module: ModuleSystem | None = None
+        self, message: str, error: Any = None, module: ModuleSystem | None = None
     ) -> None:
         if error:
             message = message + ".\n" + str(error)
@@ -22,7 +24,7 @@ class ScanBackupError(Exception):
         if not module:
             self.module = "System"
         else:
-            self.module = module
+            self.module = module.value
         self.message = message
         Log.error(message)
         Terminal.error(preffix=self.module, message=self.message)

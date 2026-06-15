@@ -4,9 +4,7 @@ from scanbackup.infrastructure.persistence.mongodb.connections.database import (
 from scanbackup.shared import Configuration, Terminal, Log
 
 
-def import_data_to_database(
-    collection: str, filepath: str, delimiter: str | None = None
-) -> None:
+def import_data_to_database(collection: str, filepath: str, delimiter: str) -> None:
     terminal = Terminal()
 
     start_info = "Importando datos a la base de datos"
@@ -26,7 +24,7 @@ def import_data_to_database(
             database.import_data(
                 name_collection=collection,
                 config=cfg_layers,
-                filepath=filepath,
+                input_filepath=filepath,
                 delimiter=delimiter,
             )
         except Exception:

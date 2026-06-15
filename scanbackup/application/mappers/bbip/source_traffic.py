@@ -27,6 +27,6 @@ class BBIPTrafficSourceMapper:
                         )
                     )
             except Exception as error:
-                raise ContentFileError(filepath=filepath.resolve(), error=error)
+                raise ContentFileError(filepath=str(filepath.resolve()), error=error)
 
         return sources

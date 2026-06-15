@@ -1,16 +1,17 @@
+from typing import Any
 from scanbackup.shared.errors.system import ScanBackupError, ModuleSystem
 
 
 class DatabaseError(ScanBackupError):
-    def __init__(self, message: str | None = None, error: any = None) -> None:
-        module = ModuleSystem.DATABASE.value
+    def __init__(self, message: str | None = None, error: Any = None) -> None:
+        module = ModuleSystem.DATABASE
         if not message:
             message = "Error desconocido en procesamiento de base de datos"
         super().__init__(module=module, message=message, error=error)
 
 
 class DataImportError(DatabaseError):
-    def __init__(self, extra_msg: str | None = None, error: any = None) -> None:
+    def __init__(self, extra_msg: str | None = None, error: Any = None) -> None:
         message = "Error al intentar importar la data al sistema"
         if extra_msg:
             message = message + f". {extra_msg}"
@@ -18,7 +19,7 @@ class DataImportError(DatabaseError):
 
 
 class FileImportNotFoundError(DataImportError):
-    def __init__(self, filepath: str, error: any = None) -> None:
+    def __init__(self, filepath: str, error: Any = None) -> None:
         message = "Archivo"
         if filepath:
             message = message + filepath
@@ -27,7 +28,7 @@ class FileImportNotFoundError(DataImportError):
 
 
 class DataContentError(DataImportError):
-    def __init__(self, error: any = None, extra_msg: str | None = None) -> None:
+    def __init__(self, error: Any = None, extra_msg: str | None = None) -> None:
         message = "Contenido del archivo inválido"
         if extra_msg:
             message = message + f". {extra_msg}"

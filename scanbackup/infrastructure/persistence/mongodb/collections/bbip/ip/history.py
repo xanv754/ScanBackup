@@ -18,9 +18,6 @@ from scanbackup.infrastructure.persistence.mongodb.constants.collection import (
 from scanbackup.infrastructure.persistence.mongodb.schemas.bbip.ip.active import (
     IP_HISTORY_SCHEMA,
 )
-from scanbackup.infrastructure.persistence.mongodb.collections.operation import (
-    CollectionOperation,
-)
 from scanbackup.infrastructure.readers import IPHistoryBBIPImport
 from scanbackup.infrastructure.writers import CSVWriter
 from scanbackup.infrastructure.persistence.mongodb.dto.bbip.ip.history import (
@@ -28,9 +25,9 @@ from scanbackup.infrastructure.persistence.mongodb.dto.bbip.ip.history import (
 )
 
 
-class IPHistoryBBIPCollection(CollectionOperation):
+class IPHistoryBBIPCollection:
     @staticmethod
-    def create(name_collection: MongoCollectionName, database: Database) -> None:
+    def create(name_collection: str, database: Database) -> None:
         try:
             database.create_collection(
                 name=name_collection, validator=IP_HISTORY_SCHEMA
@@ -53,14 +50,14 @@ class IPHistoryBBIPCollection(CollectionOperation):
             )
         except CollectionInvalid as error:
             raise MongoCreateCollectionError(
-                name_collection.value,
+                name_collection,
                 error=f"La colección no es válida para creación\n{error}",
             )
         except Exception as error:
-            raise MongoCreateCollectionError(name_collection.value, error=error)
+            raise MongoCreateCollectionError(name_collection, error=error)
 
     @staticmethod
-    def delete(name_collection: MongoCollectionName, database: Database) -> None:
+    def delete(name_collection: str, database: Database) -> None:
         try:
             collection = database[name_collection]
             collection.delete_many({})
@@ -70,7 +67,7 @@ class IPHistoryBBIPCollection(CollectionOperation):
 
     @staticmethod
     def export_data(
-        name_collection: MongoCollectionName,
+        name_collection: str,
         database: Database,
         include_id: bool = False,
     ) -> None:
@@ -88,11 +85,11 @@ class IPHistoryBBIPCollection(CollectionOperation):
             writer = CSVWriter()
             writer.export(filename=name_collection, data=data)
         except Exception as error:
-            raise MongoExportCollectionError(name_collection.value, error=error)
+            raise MongoExportCollectionError(name_collection, error=error)
 
     @staticmethod
     def import_data(
-        name_collection: MongoCollectionName,
+        name_collection: str,
         database: Database,
         input_path: Path,
         delimiter: str,
@@ -131,7 +128,5 @@ class IPHistoryBBIPCollection(CollectionOperation):
             raise
         except FileEmptyError:
             return
-        except DataContentError:
-            raise
         except Exception as error:
-            raise MongoImportCollectionError(name_collection.value, error=error)
+            raise MongoImportCollectionError(name_collection, error=error)

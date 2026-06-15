@@ -29,8 +29,6 @@ def export_data_from_database(
             filepath_export = database.export_data(
                 config=cfg_layers,
                 name_collection=collection,
-                dirpath=dirpath,
-                delimiter=delimiter,
                 include_id=id,
             )
         except Exception:

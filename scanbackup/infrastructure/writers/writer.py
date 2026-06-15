@@ -16,11 +16,11 @@ class BaseWriter(ABC):
         home = Path.home()
         donwload_dir = home / "Downloads"
         if donwload_dir.exists():
-            return donwload_dir.resolve()
+            return str(donwload_dir.resolve())
         donwload_dir = home / "Descargas"
         if donwload_dir.exists():
-            return donwload_dir.resolve()
-        return home.resolve()
+            return str(donwload_dir.resolve())
+        return str(home.resolve())
 
     @abstractmethod
     def export(self, filename: str, data: list[BaseModel]) -> None:

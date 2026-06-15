@@ -39,8 +39,12 @@ def inspect() -> None:
     required=True,
     help="Ruta del archivo .csv a importar.",
 )
-@click.option("--delimiter", required=False, help="Delimitador de campos del archivo.")
-def import_data(collection: str, filepath: str, delimiter: str | None = None) -> None:
+@click.option(
+    "--delimiter",
+    required=False,
+    help="Delimitador de campos del archivo.",
+)
+def import_data(collection: str, filepath: str, delimiter: str = ";") -> None:
     import_data_to_database(
         collection=collection, filepath=filepath, delimiter=delimiter
     )

@@ -2,6 +2,7 @@ import click
 from scanbackup.application.cli.sources.main import cli as source_cli
 from scanbackup.application.cli.database.main import cli as database_cli
 from scanbackup.application.cli.collector.main import cli as collector_cli
+from scanbackup.application.cli.history.main import cli as history_cli
 
 @click.group()
 def cli():
@@ -13,9 +14,10 @@ def cli():
     pass
 
 
-cli.add_command(source_cli, name="sources")
 cli.add_command(database_cli, name="database")
 cli.add_command(collector_cli, name="scanner")
+cli.add_command(source_cli, name="sources")
+cli.add_command(history_cli, name="history")
 
 if __name__ == "__main__":
     cli()

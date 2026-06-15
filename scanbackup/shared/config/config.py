@@ -25,12 +25,16 @@ class Configuration:
             self._read_config()
             self._initialize = True
 
-    def get_filepath(self) -> str:
-        return self._filepath.resolve()
-
     def _read_config(self) -> None:
         raw = yaml.safe_load(self._filepath.read_text())
         self._config = ConfigModel.model_validate(raw)
+
+    def get_filepath(self) -> str:
+        return str(self._filepath.resolve())
+    
+    def get_projectpath(self) -> str:
+        path = Path(__file__).parent.parent.parent.parent
+        return str(path.resolve())
 
     def get_cfg(self) -> ConfigModel:
         return self._config

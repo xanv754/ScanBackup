@@ -48,7 +48,7 @@ class LogHandler:
             print(f"Log Error - {e}")
             exit(1)
         else:
-            self.filepath = filepath.resolve()
+            self.filepath = str(filepath.resolve())
 
 
 LOG_HANDLER = LogHandler()

@@ -12,7 +12,7 @@ from scanbackup.infrastructure.readers.reader import BaseReader
 
 
 class TrafficSourceBBIPReader(BaseReader):
-    def import_data(filepath: Path) -> list[TrafficSourceBBIPEntity]:
+    def import_data(self, filepath: Path) -> list:
         try:
             system = Configuration()
             config = system.get_cfg_metadata().scanner
@@ -38,7 +38,9 @@ class TrafficSourceBBIPReader(BaseReader):
                             )
                         )
                 except Exception as error:
-                    raise ContentFileError(filepath=filepath.resolve(), error=error)
+                    raise ContentFileError(
+                        filepath=str(filepath.resolve()), error=error
+                    )
             return sources
         except Exception as error:
             raise DataImportError(

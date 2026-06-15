@@ -21,7 +21,7 @@ def cli() -> None:
     help="Archivo de fuente para enlaces de tráfico BBIP",
 )
 def traffic_upload(filepath: str) -> None:
-    traffic_upload_to_database(filepath=filepath)
+    traffic_upload_to_database(file=filepath)
 
 
 @cli.command(help="Exporta las fuentes de tráfico del sistema")
@@ -38,7 +38,7 @@ def traffic_upload(filepath: str) -> None:
     help="Capa de la cual se quiere exportar la información",
 )
 def traffic_export(dirpath: str | None = None, layer: str | None = None) -> None:
-    traffic_export_from_database(dirpath=dirpath, layer=layer)
+    traffic_export_from_database(path=dirpath, layer=layer)
 
 
 @cli.command(help="Obtiene un archivo con enlaces a consultar de SCAN")
@@ -55,4 +55,7 @@ def updater(
     layer: str = "all",
     outdir: str | None = None,
 ) -> None:
-    scrapper_sources(layer=layer, outdir=Path(outdir))
+    if outdir:
+        scrapper_sources(layer=layer, outdir=Path(outdir))
+    else:
+        scrapper_sources(layer=layer)
