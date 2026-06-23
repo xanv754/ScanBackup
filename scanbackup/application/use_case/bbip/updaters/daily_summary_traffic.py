@@ -16,10 +16,11 @@ class TrafficDailySummaryUpdaterUseCase:
     def __init__(self, repo: TrafficDailySummaryBBIPRepository) -> None:
         self._repo = repo
 
-    def execute(self, data: pd.DataFrame, sources: pd.DataFrame) -> None:
+    def _parse_columns(self, data: pd.DataFrame) -> pd.DataFrame:
         data.columns = data.columns.str.lower()
-        sources.columns = sources.columns.str.lower()
+        return data
 
+    def _get_summary(self, data: pd.DataFrame) -> pd.DataFrame:
         summary = (
             data.groupby(
                 [
@@ -38,6 +39,10 @@ class TrafficDailySummaryUpdaterUseCase:
             )
             .reset_index()
         )
+        return summary
+
+    def _calculate_values(self, data: pd.DataFrame) -> pd.DataFrame:
+        summary = self._get_summary(data)
 
         summary[SCANHeader.IN_PROM.value.lower()] *= FACTOR_BBIP
         summary[SCANHeader.OUT_PROM.value.lower()] *= FACTOR_BBIP
@@ -52,6 +57,9 @@ class TrafficDailySummaryUpdaterUseCase:
             * 100
         )
 
+        return summary
+
+    def _merge_info(self, summary: pd.DataFrame, sources: pd.DataFrame) -> pd.DataFrame:
         merge_data = pd.merge(
             summary,
             sources,
@@ -75,6 +83,16 @@ class TrafficDailySummaryUpdaterUseCase:
                 TrafficDailySummaryBBIPHeader.DEVICE.value.lower(),
             ]
         ]
+
+        return merge_data
+
+    def execute(self, data: pd.DataFrame, sources: pd.DataFrame) -> None:
+        data = self._parse_columns(data)
+        sources = self._parse_columns(sources)
+
+        summary = self._calculate_values(data)
+
+        merge_data = self._merge_info(summary, sources)
 
         data_json = merge_data.to_json(orient="records")
 
