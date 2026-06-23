@@ -67,7 +67,7 @@ class BordeHuawei:
 
             sources.append(
                 SourceModel(
-                    link=link, enlace=title, capacidad=capacity, tipo=self._layer
+                    link=link, enlace=title, capacidad=capacity, model=self._layer
                 )
             )
 

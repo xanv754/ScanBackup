@@ -91,7 +91,7 @@ class IxpDefault:
             type_ixp = self._extract_type(title)
 
             sources.append(
-                SourceModel(link=link, enlace=title, capacidad=capacity, tipo=type_ixp)
+                SourceModel(link=link, enlace=title, capacidad=capacity, model=type_ixp)
             )
 
         return sources

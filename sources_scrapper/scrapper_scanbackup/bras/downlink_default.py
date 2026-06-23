@@ -70,7 +70,7 @@ class BrasDefaultDownlink:
                         link=link,
                         enlace=title,
                         capacidad=capacity,
-                        tipo=self._type_link,
+                        model=self._type_link,
                     )
                 )
         return sources

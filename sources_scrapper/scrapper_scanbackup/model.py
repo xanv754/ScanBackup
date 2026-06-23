@@ -5,7 +5,7 @@ class SourceModel(BaseModel):
     link: str
     enlace: str
     capacidad: int | float = 0
-    tipo: str
+    model: str
 
 
 class IpSourceModel(BaseModel):

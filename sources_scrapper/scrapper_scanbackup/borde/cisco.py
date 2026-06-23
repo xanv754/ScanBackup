@@ -42,5 +42,5 @@ class BordeCisco:
                 "href"
             ).replace(".html", ".log")
 
-            sources.append(SourceModel(link=link, enlace=title, tipo=self._layer))
+            sources.append(SourceModel(link=link, enlace=title, model=self._layer))
         return sources
