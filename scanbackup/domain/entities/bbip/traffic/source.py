@@ -8,7 +8,7 @@ class TrafficSourceBBIPField(str, Enum):
     LINK = "link"
     INTERFACE = "interface"
     CAPACITY = "capacity"
-    TYPE = "type"
+    MODEL = "model"
     STATUS = "status"
     LAYER = "layer"
     COMMENTS = "comments"
@@ -19,7 +19,7 @@ class TrafficSourceBBIPEntity(BaseModel):
     link: str
     interface: str
     capacity: float
-    type: str
+    model: str
     layer: str
     status: str = SourceStatus.ACTIVE.value
     comments: str | None = None

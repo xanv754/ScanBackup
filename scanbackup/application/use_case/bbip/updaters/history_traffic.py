@@ -4,6 +4,7 @@ from datetime import date
 from scanbackup.domain import (
     TrafficHistoryBBIPRepository,
     TrafficSourceBBIPRepository,
+    TrafficDailySummaryBBIPRepository,
     TrafficBBIPEntity,
 )
 from scanbackup.shared import (
@@ -15,6 +16,9 @@ from scanbackup.shared import (
     UpdaterError,
     Log,
 )
+from scanbackup.application.use_case.bbip.updaters.daily_summary_traffic import (
+    TrafficDailySummaryUpdaterUseCase,
+)
 import pandas as pd
 
 
@@ -22,6 +26,7 @@ class TrafficHistoryUpdaterUseCase:
     _layer: str
     _repo_history: TrafficHistoryBBIPRepository
     _repo_sources: TrafficSourceBBIPRepository
+    _repo_daily: TrafficDailySummaryBBIPRepository
     _date: date
 
     def __init__(
@@ -29,11 +34,13 @@ class TrafficHistoryUpdaterUseCase:
         layer: str,
         history_repository: TrafficHistoryBBIPRepository,
         source_repository: TrafficSourceBBIPRepository,
+        daily_repository: TrafficDailySummaryBBIPRepository,
         data_date: str,
     ) -> None:
         self._layer = layer
         self._repo_history = history_repository
         self._repo_sources = source_repository
+        self._repo_daily = daily_repository
         date_format = date.fromisoformat(data_date)
         self._date = date_format
 
@@ -136,18 +143,24 @@ class TrafficHistoryUpdaterUseCase:
             ]
             data_upload = self._get_data_file(files, data_delimiter, filter_date)
 
-            data_sources = self._get_sources()
+            if not data_upload.empty:
+                data_sources = self._get_sources()
 
-            merge_data = self._merge_info(data_upload, data_sources)
+                daily_summary_use_case = TrafficDailySummaryUpdaterUseCase(
+                    self._repo_daily
+                )
+                daily_summary_use_case.execute(data_upload.copy(), data_sources.copy())
 
-            data_json = merge_data.to_json(orient="records")
-            records = json.loads(data_json)
+                merge_data = self._merge_info(data_upload, data_sources)
 
-            entities: list[TrafficBBIPEntity] = [
-                TrafficBBIPEntity(**record) for record in records
-            ]
+                data_json = merge_data.to_json(orient="records")
+                records = json.loads(data_json)
 
-            self._repo_history.insert(entities)
+                entities: list[TrafficBBIPEntity] = [
+                    TrafficBBIPEntity(**record) for record in records
+                ]
+
+                self._repo_history.insert(entities)
         except DataNotFoundError:
             raise
         except Exception as error:

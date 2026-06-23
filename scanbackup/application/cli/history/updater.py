@@ -1,8 +1,15 @@
 from datetime import date, timedelta
-from scanbackup.infrastructure import MongoTrafficHistoryBBIPRepository, MongoTrafficSourceBBIPRepository
-from scanbackup.application.use_case.bbip.updaters.history_traffic import TrafficHistoryUpdaterUseCase
+from scanbackup.infrastructure import (
+    MongoTrafficHistoryBBIPRepository,
+    MongoTrafficSourceBBIPRepository,
+    MongoTrafficDailySummaryBBIPRepository,
+)
+from scanbackup.application.use_case.bbip.updaters.history_traffic import (
+    TrafficHistoryUpdaterUseCase,
+)
 from scanbackup.domain import ValidatorConfig
 from scanbackup.shared import LayerNotDefined
+
 
 class TrafficHistoryUpdater:
     @staticmethod
@@ -11,10 +18,10 @@ class TrafficHistoryUpdater:
             yesterday = date.today() - timedelta(days=1)
             date_str = yesterday.strftime("%Y-%m-%d")
 
-        if (
-            not ValidatorConfig.valid_layer_bbip(layer) 
-            and ValidatorConfig.valid_layer_ip(layer)
-        ): raise LayerNotDefined(layer)
+        if not ValidatorConfig.valid_layer_bbip(
+            layer
+        ) and ValidatorConfig.valid_layer_ip(layer):
+            raise LayerNotDefined(layer)
 
         layer = layer.upper()
 
@@ -22,7 +29,8 @@ class TrafficHistoryUpdater:
             layer=layer,
             history_repository=MongoTrafficHistoryBBIPRepository(layer),
             source_repository=MongoTrafficSourceBBIPRepository(),
-            data_date=date_str
+            daily_repository=MongoTrafficDailySummaryBBIPRepository(),
+            data_date=date_str,
         )
 
         use_case.execute()

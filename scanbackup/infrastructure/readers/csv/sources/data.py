@@ -33,7 +33,7 @@ class TrafficSourceBBIPReader(BaseReader):
                                 capacity=float(
                                     row[TrafficSourceBBIPHeader.CAPACITY.value]
                                 ),
-                                type=row[TrafficSourceBBIPHeader.TYPE.value],
+                                model=row[TrafficSourceBBIPHeader.TYPE.value],
                                 layer=layer,
                             )
                         )

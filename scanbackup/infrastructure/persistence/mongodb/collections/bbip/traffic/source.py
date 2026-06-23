@@ -44,7 +44,7 @@ class TrafficSourceBBIPCollection(CollectionOperation):
             collection.create_index(
                 [
                     (TrafficSourceBBIPField.LAYER.value, ASCENDING),
-                    (TrafficSourceBBIPField.TYPE.value, ASCENDING),
+                    (TrafficSourceBBIPField.MODEL.value, ASCENDING),
                     (TrafficSourceBBIPField.INTERFACE.value, ASCENDING),
                 ],
                 unique=True,

@@ -40,7 +40,7 @@ class MongoTrafficSourceBBIPRepository(TrafficSourceBBIPRepository):
                         "_id": 0,
                         TrafficSourceBBIPField.INTERFACE.value: 1,
                         TrafficSourceBBIPField.LAYER.value: 1,
-                        TrafficSourceBBIPField.TYPE.value: 1,
+                        TrafficSourceBBIPField.MODEL.value: 1,
                     },
                 )
             )
@@ -64,7 +64,7 @@ class MongoTrafficSourceBBIPRepository(TrafficSourceBBIPRepository):
                     filter={
                         TrafficSourceBBIPField.INTERFACE.value: entity.interface,
                         TrafficSourceBBIPField.LAYER.value: entity.layer,
-                        TrafficSourceBBIPField.TYPE.value: entity.type,
+                        TrafficSourceBBIPField.MODEL.value: entity.model,
                     },
                     update={"$set": entity.model_dump(exclude_none=True)},
                     upsert=True,
@@ -100,8 +100,8 @@ class MongoTrafficSourceBBIPRepository(TrafficSourceBBIPRepository):
                             TrafficSourceBBIPField.LAYER.value: k[
                                 TrafficSourceBBIPField.LAYER.value
                             ],
-                            TrafficSourceBBIPField.TYPE.value: k[
-                                TrafficSourceBBIPField.TYPE.value
+                            TrafficSourceBBIPField.MODEL.value: k[
+                                TrafficSourceBBIPField.MODEL.value
                             ],
                         }
                         for k in present_keys
@@ -151,7 +151,9 @@ class MongoTrafficSourceBBIPRepository(TrafficSourceBBIPRepository):
                 }
             )
             return [
-                TrafficSourceBBIPEntity(**{**doc, "device": str(doc["_id"]), "_id": None})
+                TrafficSourceBBIPEntity(
+                    **{**doc, "device": str(doc["_id"]), "_id": None}
+                )
                 for doc in documents
             ]
         except MongoConnectionError:

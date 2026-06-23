@@ -1,7 +1,6 @@
 from typing import Any, Dict
 from scanbackup.domain import TrafficSourceBBIPField
 
-
 SOURCE_TRAFFIC_BBIP_SCHEMA: Dict[str, Dict[str, Any]] = {
     "$jsonSchema": {
         "bsonType": "object",
@@ -9,7 +8,7 @@ SOURCE_TRAFFIC_BBIP_SCHEMA: Dict[str, Dict[str, Any]] = {
             TrafficSourceBBIPField.LINK.value,
             TrafficSourceBBIPField.INTERFACE.value,
             TrafficSourceBBIPField.CAPACITY.value,
-            TrafficSourceBBIPField.TYPE.value,
+            TrafficSourceBBIPField.MODEL.value,
             TrafficSourceBBIPField.STATUS.value,
         ],
         "properties": {
@@ -25,9 +24,9 @@ SOURCE_TRAFFIC_BBIP_SCHEMA: Dict[str, Dict[str, Any]] = {
                 "bsonType": ["int", "long", "double"],
                 "description": "Capacity of the device",
             },
-            TrafficSourceBBIPField.TYPE.value: {
+            TrafficSourceBBIPField.MODEL.value: {
                 "bsonType": "string",
-                "description": "Type of the device",
+                "description": "Type of model of the device",
             },
             TrafficSourceBBIPField.STATUS.value: {
                 "bsonType": "string",

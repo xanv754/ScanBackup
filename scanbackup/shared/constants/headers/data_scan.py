@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-class SCANHeader(Enum):
+class SCANHeader(str, Enum):
     INTERFACE = "Interface"
     CAPACITY = "Capacity"
     MODEL = "Model"

@@ -1,5 +1,9 @@
 from pathlib import Path
-from scanbackup.domain import TrafficSourceBBIPField, TrafficSourceBBIPRepository
+from scanbackup.domain import (
+    TrafficSourceBBIPField,
+    TrafficSourceBBIPRepository,
+    TrafficSourceBBIPEntity,
+)
 from scanbackup.infrastructure import TrafficSourceBBIPReader, CSVWriter
 from scanbackup.shared import CSVExportError, Log
 
@@ -14,12 +18,12 @@ class TrafficSourceUpdaterUseCase:
 
     def execute(self) -> None:
         reader = TrafficSourceBBIPReader()
-        sources = reader.import_data(self._path)
+        sources: list[TrafficSourceBBIPEntity] = reader.import_data(self._path)
         present_keys = [
             {
                 TrafficSourceBBIPField.INTERFACE.value: s.interface,
                 TrafficSourceBBIPField.LAYER.value: s.layer,
-                TrafficSourceBBIPField.TYPE.value: s.type,
+                TrafficSourceBBIPField.MODEL.value: s.model,
             }
             for s in sources
         ]
