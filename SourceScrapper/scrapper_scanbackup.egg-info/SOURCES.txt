@@ -1,8 +1,0 @@
-pyproject.toml
-scrapper_scanbackup/__main__.py
-scrapper_scanbackup.egg-info/PKG-INFO
-scrapper_scanbackup.egg-info/SOURCES.txt
-scrapper_scanbackup.egg-info/dependency_links.txt
-scrapper_scanbackup.egg-info/entry_points.txt
-scrapper_scanbackup.egg-info/requires.txt
-scrapper_scanbackup.egg-info/top_level.txt

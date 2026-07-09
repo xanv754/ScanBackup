@@ -1,2 +1,0 @@
-[console_scripts]
-scanbackup = scrapper_scanbackup.__main__:cli
