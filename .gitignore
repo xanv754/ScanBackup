@@ -1,7 +1,8 @@
 # Files
+CLAUDE.md
 config.yml
-data/*
-sources/*
+*/data/*
+*/sources/*
 */routines/tmp/*
 */routines/capa
 */test/correcciondata
