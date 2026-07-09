@@ -1,10 +1,9 @@
 import csv
-from pydantic import BaseModel
-from scrapper_scanbackup.utils.exports.base import Exporter
+from scrapper_scanbackup.utils.exports.base import Exporter, Model
 
 
 class CSVExporter(Exporter):
-    def export(self, data: list[BaseModel]) -> None:
+    def export(self, data: list[Model]) -> None:
         if not data:
             return
 

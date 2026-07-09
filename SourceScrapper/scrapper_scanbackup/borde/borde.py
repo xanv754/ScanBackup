@@ -20,5 +20,7 @@ class BordeSourceUpdater:
                 huawei = BordeHuawei()
                 borde = huawei.scrapper(info)
                 borde_sources.extend(borde)
+            if info.type.lower() == "juniper":
+                pass  # TODO: Implement scrapper for Juniper borde
 
         return borde_sources

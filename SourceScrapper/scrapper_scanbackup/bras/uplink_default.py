@@ -34,7 +34,7 @@ class BrasDefaultUplink:
                 html = Scrapper.get_html(page.url)
 
             if not html:
-                return []
+                continue
 
             # Main page
             main = html.find("section", class_="content")

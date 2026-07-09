@@ -50,10 +50,10 @@ class CachingSourceUpdater:
         caching_info = self._get_caching(setting)
         caching_sources = []
         for info in caching_info:
-            if info.type == "huawei":
+            if info.type.lower() == "huawei":
                 huawei_pages = self._get_huawei_pages(info)
                 if not huawei_pages:
-                    return []
+                    continue
 
                 huawei = CachingHuawei()
                 huawei_sources = huawei.scrapper(info, huawei_pages)

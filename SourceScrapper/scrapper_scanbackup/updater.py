@@ -54,7 +54,7 @@ class UpdaterSources:
     def _ip_exec(self, outpath: Path | None = None) -> None:
         ip = IpBrasSourceUpdater()
         ip_sources = ip.execute(self.setting)
-        ip_export = CSVExporter("IP_BRAS", self.setting, outdir=outpath)
+        ip_export = CSVExporter("IP_BRAS", self.setting, outdir=outpath, ip=True)
         ip_export.export(ip_sources)
 
     def _caching_exec(self, outpath: Path | None = None) -> None:
@@ -91,7 +91,13 @@ class UpdaterSources:
                 return
 
         # IP BRAS
-        if layer == "all" or layer == "ip" or layer == "ip_bras" or layer == "ipbras":
+        if (
+            layer == "all"
+            or layer == "ip"
+            or layer == "ip_bras"
+            or layer == "ipbras"
+            or layer == "ip-bras"
+        ):
             self._ip_exec(outpath=outpath)
             if not layer == "all":
                 return

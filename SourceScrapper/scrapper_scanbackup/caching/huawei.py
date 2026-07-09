@@ -32,7 +32,7 @@ class CachingHuawei:
                 html = Scrapper.get_html(service.url)
 
             if not html:
-                return []
+                continue
 
             # Main page
             main = html.find("section", class_="content")

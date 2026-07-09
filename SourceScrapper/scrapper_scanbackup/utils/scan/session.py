@@ -1,10 +1,9 @@
 import requests
-from requests.auth import HTTPBasicAuth
 from scrapper_scanbackup.utils.config.load import ScrapperSetting
 
 
 class ScanSession:
-    _instance: "ScanSession" | None = None
+    _instance: "ScanSession | None" = None
     _current_session: requests.Session
 
     def __new__(cls):
@@ -20,4 +19,4 @@ class ScanSession:
 
     def _log_in(self) -> None:
         credentials = self._setting.get_scan_credentials()
-        self._session.post("", json={})
+        self._current_session.post("", json={})
