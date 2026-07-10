@@ -20,7 +20,16 @@ Esto instala el paquete `scrapper_scanbackup` junto con el script `scanbackup` (
 
 ## Archivo de configuración
 
-El módulo espera un archivo `config.yml` en la raíz del proyecto (mismo nivel que `pyproject.toml`).
+El módulo espera un archivo `config.yml` dentro de un *directorio base*, resuelto así:
+
+1. Si la variable de entorno `SCANBACKUP_HOME` está definida, se usa esa ruta como directorio base.
+2. En caso contrario, se usa el directorio de trabajo actual (`cwd`) desde el que se ejecuta `scanbackup`.
+
+Esto permite ejecutar `scanbackup` desde la raíz del proyecto sin configuración adicional (el directorio base termina siendo esa misma raíz), y también apuntar a una ubicación distinta —por ejemplo dentro de un contenedor— fijando `SCANBACKUP_HOME`:
+
+```bash
+SCANBACKUP_HOME=/ruta/a/mi/config scanbackup run
+```
 
 ### Estructura
 
@@ -63,7 +72,7 @@ layers:
 
 | Campo | Descripción |
 | --- | --- |
-| `exporter.dir` | Carpeta (relativa a la raíz del proyecto) donde se escriben los CSV exportados. Se crea automáticamente si no existe. |
+| `exporter.dir` | Carpeta donde se escriben los CSV exportados, resuelta contra el directorio base (ver [Archivo de configuración](#archivo-de-configuración)) si es relativa. Se crea automáticamente si no existe. |
 | `exporter.delimiter` | Delimitador de columnas usado al exportar los CSV. |
 | `header.*` | Encabezados de columna usados en los CSV exportados. |
 | `scan_credentials` | Credenciales por defecto para autenticarse en SCAN. |
@@ -102,6 +111,36 @@ python -m scrapper_scanbackup run --layer borde
 ```
 
 Cada capa procesada genera su propio archivo CSV (por ejemplo `data/BORDE.csv`, `data/BRAS.csv`) con las columnas definidas en `header` del `config.yml`.
+
+## Docker
+
+El `Dockerfile` fija `SCANBACKUP_HOME=/app` (ver [Archivo de configuración](#archivo-de-configuración)), por lo que `config.yml` y el directorio de `exporter.dir` deben montarse dentro de `/app`.
+
+### Construir la imagen
+
+```bash
+docker build -t scanbackup-sources .
+```
+
+### Ejecutar el contenedor
+
+El `ENTRYPOINT` es `scanbackup` y el `CMD` por defecto es `run`, así que basta con montar `config.yml` y la carpeta de datos:
+
+```bash
+docker run --rm \
+  -v "$(pwd)/config.yml:/app/config.yml:ro" \
+  -v "$(pwd)/data:/app/data" \
+  scanbackup-sources
+```
+
+Cualquier argumento adicional se pasa después del nombre de la imagen y sobrescribe el `CMD` (por ejemplo, para procesar solo una capa):
+
+```bash
+docker run --rm \
+  -v "$(pwd)/config.yml:/app/config.yml:ro" \
+  -v "$(pwd)/data:/app/data" \
+  scanbackup-sources run --layer borde
+```
 
 ## Pruebas unitarias
 

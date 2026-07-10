@@ -1,0 +1,9 @@
+.venv
+__pycache__
+*.pyc
+*.egg-info
+data
+config.yml
+tests
+.git
+.claude
