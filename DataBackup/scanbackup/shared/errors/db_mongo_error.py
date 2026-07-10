@@ -27,7 +27,7 @@ class MongoExportCollectionError(MongoDatabaseError):
         self, name: str, error: Any = None, extra_msg: str | None = None
     ) -> None:
         message = f"Error al exportar la data de la colección {name}"
-        if not extra_msg:
+        if extra_msg:
             message = message + f". {extra_msg}"
         super().__init__(message=message, error=error)
 
@@ -67,4 +67,4 @@ class MongoGetFailedError(MongoDatabaseError):
         message = f"No se pudo obtener información de la colección {name_collection}"
         if extra_msg:
             message = message + f". {extra_msg}"
-        super().__init__(extra_msg, error)
+        super().__init__(message=message, error=error)

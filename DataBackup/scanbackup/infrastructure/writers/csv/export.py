@@ -8,7 +8,7 @@ from pydantic import BaseModel
 class CSVWriter(BaseWriter):
     def export(
         self, filename: str, data: Sequence[BaseModel], exclude: set | None = None
-    ) -> None:
+    ) -> str:
         filepath = self.dir / filename
         filepath = filepath.with_suffix(".csv")
 
@@ -29,3 +29,5 @@ class CSVWriter(BaseWriter):
                 writer.writerows(rows)
         except Exception as error:
             raise CSVExportError(filename=filepath.name, error=error)
+        else:
+            return str(filepath.resolve())

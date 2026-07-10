@@ -2,7 +2,7 @@ from pydantic import BaseModel
 
 
 class MongoTrafficSourceBBIPDTO(BaseModel):
-    id: str
+    id: str | None = None
     link: str
     interface: str
     capacity: float

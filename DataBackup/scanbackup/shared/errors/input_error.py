@@ -52,7 +52,7 @@ class ContentFileError(Exception):
 class DataNotFoundError(Exception):
     def __init__(self, filepath: str | Path) -> None:
         self.module = ModuleSystem.INPUT.value
-        if type(filepath) is Path:
+        if isinstance(filepath, Path):
             filepath = str(filepath.resolve())
         message = f"No existe el directorio o archivo en {filepath}"
         self.message = message

@@ -18,9 +18,7 @@ class TrafficHistoryUpdater:
             yesterday = date.today() - timedelta(days=1)
             date_str = yesterday.strftime("%Y-%m-%d")
 
-        if not ValidatorConfig.valid_layer_bbip(
-            layer
-        ) and ValidatorConfig.valid_layer_ip(layer):
+        if not ValidatorConfig.valid_layer_bbip(layer):
             raise LayerNotDefined(layer)
 
         layer = layer.upper()

@@ -3,7 +3,7 @@ from datetime import date, time
 
 
 class MongoTrafficHistoryBBIPDTO(BaseModel):
-    id: str
+    id: str | None = None
     date: date
     time: time
     in_prom: float

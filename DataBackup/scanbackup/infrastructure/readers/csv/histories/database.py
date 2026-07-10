@@ -1,6 +1,7 @@
 import csv
 from pathlib import Path
 from bson import ObjectId
+from bson.errors import InvalidId
 from scanbackup.shared import DataContentError, FileEmptyError, Configuration
 from scanbackup.infrastructure.persistence.mongodb.schemas.bbip.traffic.data import (
     TrafficBBIPField,
@@ -33,7 +34,7 @@ class TrafficHistoryBBIPImport(BaseReader):
                     row[TrafficBBIPField.DEVICE.value] = ObjectId(
                         row[TrafficBBIPField.DEVICE.value]
                     )
-                except (ValueError, KeyError):
+                except (ValueError, KeyError, InvalidId):
                     raise DataContentError(extra_msg=f"Valor inválido de id, línea {i}")
 
                 float_fields = [
@@ -77,7 +78,7 @@ class IPHistoryBBIPImport(BaseReader):
                     row[IPActiveBBIPField.DEVICE.value] = ObjectId(
                         row[IPActiveBBIPField.DEVICE.value]
                     )
-                except (ValueError, KeyError):
+                except (ValueError, KeyError, InvalidId):
                     raise DataContentError(extra_msg=f"Valor inválido de id, línea {i}")
 
                 try:

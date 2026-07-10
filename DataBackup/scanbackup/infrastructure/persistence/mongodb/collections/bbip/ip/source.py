@@ -74,7 +74,7 @@ class IPSourceBBIPCollection(CollectionOperation):
     def export_data(
         database: Database,
         include_id: bool = False,
-    ) -> None:
+    ) -> str:
         name_collection = IPSourceBBIPCollection._NAME
         try:
             collection = database[name_collection]
@@ -88,7 +88,7 @@ class IPSourceBBIPCollection(CollectionOperation):
             )
 
             writer = CSVWriter()
-            writer.export(filename=IPSourceBBIPCollection._NAME, data=data)
+            return writer.export(filename=IPSourceBBIPCollection._NAME, data=data)
         except Exception as error:
             raise MongoExportCollectionError(name_collection, error=error)
 

@@ -69,7 +69,7 @@ class TrafficHistoryBBIPCollection:
         name_collection: str,
         database: Database,
         include_id: bool = False,
-    ) -> None:
+    ) -> str:
         try:
             collection = database[name_collection]
             projection = {} if include_id else {"_id": 0}
@@ -82,7 +82,7 @@ class TrafficHistoryBBIPCollection:
             )
 
             writer = CSVWriter()
-            writer.export(filename=name_collection, data=data)
+            return writer.export(filename=name_collection, data=data)
         except Exception as error:
             raise MongoExportCollectionError(name_collection, error=error)
 

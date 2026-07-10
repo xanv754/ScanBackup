@@ -23,5 +23,5 @@ class BaseWriter(ABC):
         return str(home.resolve())
 
     @abstractmethod
-    def export(self, filename: str, data: list[BaseModel]) -> None:
+    def export(self, filename: str, data: list[BaseModel]) -> str:
         pass

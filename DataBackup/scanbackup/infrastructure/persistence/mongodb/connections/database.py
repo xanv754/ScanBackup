@@ -252,7 +252,7 @@ class MongoDatabase:
         config: LayerConfigModel,
         name_collection: str,
         include_id: bool = True,
-    ) -> None:
+    ) -> str:
         try:
             self.open_connection()
 
@@ -261,14 +261,14 @@ class MongoDatabase:
 
             # HISTORIES
             if name_collection in config.bbip.names:
-                TrafficHistoryBBIPCollection.export_data(
+                filepath = TrafficHistoryBBIPCollection.export_data(
                     name_collection=name_collection,
                     database=self._client[self._config.name],
                     include_id=include_id,
                 )
 
             elif name_collection in config.ip.names:
-                IPHistoryBBIPCollection.export_data(
+                filepath = IPHistoryBBIPCollection.export_data(
                     name_collection=name_collection,
                     database=self._client[self._config.name],
                     include_id=include_id,
@@ -276,32 +276,34 @@ class MongoDatabase:
 
             # SOURCES
             elif name_collection == MongoCollectionName.TRAFFIC_SOURCES.value:
-                TrafficSourceBBIPCollection.export_data(
+                filepath = TrafficSourceBBIPCollection.export_data(
                     database=self._client[self._config.name],
                     include_id=include_id,
                 )
 
             elif name_collection == MongoCollectionName.IP_SOURCES.value:
-                IPSourceBBIPCollection.export_data(
+                filepath = IPSourceBBIPCollection.export_data(
                     database=self._client[self._config.name],
                     include_id=include_id,
                 )
 
             # SUMMARIES
             elif name_collection == MongoCollectionName.TRAFFIC_DAILY_SUMMARY.value:
-                TrafficDailySummaryBBIPCollection.export_data(
+                filepath = TrafficDailySummaryBBIPCollection.export_data(
                     database=self._client[self._config.name],
                     include_id=include_id,
                 )
 
             elif name_collection == MongoCollectionName.IP_DAILY_SUMMARY.value:
-                IPDailySummaryBBIPCollection.export_data(
+                filepath = IPDailySummaryBBIPCollection.export_data(
                     database=self._client[self._config.name],
                     include_id=include_id,
                 )
 
             else:
                 raise LayerNotDefined(layer_name=name_collection)
+
+            return filepath
         except LayerNotDefined:
             raise
         except MongoConnectionError:

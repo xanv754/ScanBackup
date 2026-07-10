@@ -2,7 +2,7 @@ from pydantic import BaseModel
 
 
 class MongoIPDailySummaryBBIPDTO(BaseModel):
-    id: str
+    id: str | None = None
     in_prom: float
     in_max: float
     device: str

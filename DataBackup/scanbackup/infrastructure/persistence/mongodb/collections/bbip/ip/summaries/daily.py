@@ -75,7 +75,7 @@ class IPDailySummaryBBIPCollection(CollectionOperation):
     def export_data(
         database: Database,
         include_id: bool = False,
-    ) -> None:
+    ) -> str:
         try:
             collection = database[IPDailySummaryBBIPCollection._NAME]
             projection = {} if include_id else {"_id": 0}
@@ -88,7 +88,9 @@ class IPDailySummaryBBIPCollection(CollectionOperation):
             )
 
             writer = CSVWriter()
-            writer.export(filename=IPDailySummaryBBIPCollection._NAME, data=data)
+            return writer.export(
+                filename=IPDailySummaryBBIPCollection._NAME, data=data
+            )
         except Exception as error:
             raise MongoExportCollectionError(
                 IPDailySummaryBBIPCollection._NAME, error=error

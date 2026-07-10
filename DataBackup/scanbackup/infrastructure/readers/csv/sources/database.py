@@ -34,6 +34,8 @@ class TrafficSourceBBIPImport(BaseReader):
                         )
 
                     documents.append(document)
+        except DataContentError:
+            raise
         except Exception as error:
             raise DataContentError(error=error)
         else:

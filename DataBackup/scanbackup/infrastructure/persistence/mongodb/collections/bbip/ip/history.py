@@ -12,9 +12,6 @@ from scanbackup.shared import (
     DataContentError,
 )
 from scanbackup.domain import IPActiveBBIPField
-from scanbackup.infrastructure.persistence.mongodb.constants.collection import (
-    MongoCollectionName,
-)
 from scanbackup.infrastructure.persistence.mongodb.schemas.bbip.ip.active import (
     IP_HISTORY_SCHEMA,
 )
@@ -70,7 +67,7 @@ class IPHistoryBBIPCollection:
         name_collection: str,
         database: Database,
         include_id: bool = False,
-    ) -> None:
+    ) -> str:
         try:
             collection = database[name_collection]
             projection = {} if include_id else {"_id": 0}
@@ -83,7 +80,7 @@ class IPHistoryBBIPCollection:
             )
 
             writer = CSVWriter()
-            writer.export(filename=name_collection, data=data)
+            return writer.export(filename=name_collection, data=data)
         except Exception as error:
             raise MongoExportCollectionError(name_collection, error=error)
 

@@ -1,10 +1,9 @@
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 from pymongo.database import Database
 from pathlib import Path
-from scanbackup.infrastructure.readers.reader import BaseReader
 
 
-class CollectionOperation:
+class CollectionOperation(ABC):
     @staticmethod
     @abstractmethod
     def create(database: Database) -> None:

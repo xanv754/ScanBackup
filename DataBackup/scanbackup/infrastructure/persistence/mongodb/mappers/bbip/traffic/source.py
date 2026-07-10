@@ -7,4 +7,6 @@ from scanbackup.domain.entities.bbip.traffic.source import TrafficSourceBBIPEnti
 class TrafficSourceBBIPMapper:
     @staticmethod
     def to_entity(dto: MongoTrafficSourceBBIPDTO) -> TrafficSourceBBIPEntity:
-        return TrafficSourceBBIPEntity(**dto.model_dump())
+        data = dto.model_dump()
+        data["model"] = data.pop("type")
+        return TrafficSourceBBIPEntity(**data)
