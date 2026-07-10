@@ -1,0 +1,28 @@
+import unittest
+from scanbackup.infrastructure.persistence.mongodb.collections.operation import (
+    CollectionOperation,
+)
+
+
+class TestCollectionOperation(unittest.TestCase):
+    """Unit tests for the CollectionOperation abstract interface."""
+
+    def test_cannot_be_instantiated_directly(self) -> None:
+        """An ABC with unimplemented abstract methods must not be instantiable."""
+        with self.assertRaises(TypeError):
+            CollectionOperation()
+
+    def test_incomplete_subclass_cannot_be_instantiated(self) -> None:
+        """A subclass missing an abstract method override must fail too."""
+
+        class IncompleteCollection(CollectionOperation):
+            @staticmethod
+            def create(database):
+                return None
+
+        with self.assertRaises(TypeError):
+            IncompleteCollection()
+
+
+if __name__ == "__main__":
+    unittest.main()
