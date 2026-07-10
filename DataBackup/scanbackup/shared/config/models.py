@@ -27,6 +27,7 @@ class ScannerConfigModel(BaseModel):
     file_delimiter: str
     port_separator_replacement: str
     space_separator_replacement: str
+    max_workers: int = Field(ge=1)
     scan_credentials: ScanCredentialSchema
 
 

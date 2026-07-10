@@ -26,13 +26,14 @@ metadata:
     date_format: "%Y-%m-%d %H:%M:%S"
 
   scanner:
-    dir_storage: "data"
+    dir_storage: "traffic"
     dir_sources: "sources"
     extension: "csv"
     date_format: "%Y-%m-%d"
     file_delimiter: ";"
     port_separator_replacement: "&"
     space_separator_replacement: "_"
+    max_workers: 5
     scan_credentials:
       username: "username"
       password: "password"

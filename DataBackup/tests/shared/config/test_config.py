@@ -36,6 +36,7 @@ metadata:
     file_delimiter: ";"
     port_separator_replacement: "&"
     space_separator_replacement: "_"
+    max_workers: 5
     scan_credentials:
       username: "username"
       password: "password"

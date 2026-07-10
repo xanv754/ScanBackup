@@ -42,6 +42,7 @@ metadata:
     file_delimiter: ";"
     port_separator_replacement: "&"
     space_separator_replacement: "_"
+    max_workers: 5
     scan_credentials:
       username: "username"
       password: "password"
@@ -393,6 +394,24 @@ Símbolo de separador de data. Este símbolo será utilizado para separar la dat
 ### Ejemplo
 ```yaml
 file_delimiter: ";"
+```
+
+---
+
+## max_workers
+
+| Propiedad         | Valor   |
+| ----------------- | ------- |
+| Tipo              | integer |
+| Obligatorio       | Sí      |
+
+#### Descripción
+
+Cantidad máxima de interfaces que el scanner consultará en paralelo (hilos concurrentes) al recolectar la data de tráfico de una capa. Valor mínimo: 1.
+
+### Ejemplo
+```yaml
+max_workers: 5
 ```
 
 ---
