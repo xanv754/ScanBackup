@@ -1,5 +1,4 @@
 import yaml
-from pathlib import Path
 from scrapper_scanbackup.utils.config.model import (
     ConfigModel,
     CredentialModel,
@@ -7,6 +6,7 @@ from scrapper_scanbackup.utils.config.model import (
     ExporterModel,
     HeaderModel,
 )
+from scrapper_scanbackup.utils.config.paths import get_base_dir
 
 
 class ScrapperSetting:
@@ -16,7 +16,8 @@ class ScrapperSetting:
         self._load_config()
 
     def _load_config(self) -> None:
-        filepath = Path(__file__).parent.parent.parent.parent / "config.yml"
+        """Carga y valida `config.yml` desde el directorio base (ver `get_base_dir`)."""
+        filepath = get_base_dir() / "config.yml"
         if not filepath.exists():
             raise FileNotFoundError("No se encuentra el archivo de configuración")
         raw = yaml.safe_load(filepath.read_text())

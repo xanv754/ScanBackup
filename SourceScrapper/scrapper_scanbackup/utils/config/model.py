@@ -1,5 +1,6 @@
 from pydantic import BaseModel, field_validator
 from pathlib import Path
+from scrapper_scanbackup.utils.config.paths import get_base_dir
 
 
 class ExporterModel(BaseModel):
@@ -9,7 +10,8 @@ class ExporterModel(BaseModel):
     @field_validator("dir")
     @classmethod
     def create_dir(cls, value: Path) -> Path:
-        path = Path(__file__).parent.parent.parent.parent / value
+        """Resuelve `dir` contra el directorio base (ver `get_base_dir`) y lo crea si no existe."""
+        path = get_base_dir() / value
         path.mkdir(parents=True, exist_ok=True)
         return path
 
