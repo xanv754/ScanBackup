@@ -10,9 +10,26 @@ from scanbackup.domain.entities.bbip.traffic.summaries.daily import (
     TrafficDailySummaryBBIPField,
     TrafficDailySummaryBBIPEntity,
 )
-from scanbackup.domain.entities.bbip.ip.source import IPSourceBBIPField
-from scanbackup.domain.entities.bbip.ip.data import IPActiveBBIPField
-from scanbackup.domain.entities.bbip.ip.summaries.daily import IPDailySummaryBBIPField
+from scanbackup.domain.entities.bbip.traffic.summaries.hour import (
+    TrafficHourSummaryBBIPField,
+    TrafficHourSummaryBBIPEntity,
+)
+from scanbackup.domain.entities.bbip.ip.source import (
+    IPSourceBBIPField,
+    IPSourceBBIPEntity,
+)
+from scanbackup.domain.entities.bbip.ip.data import (
+    IPActiveBBIPField,
+    IPActiveBBIPEntity,
+)
+from scanbackup.domain.entities.bbip.ip.summaries.daily import (
+    IPDailySummaryBBIPField,
+    IPDailySummaryBBIPEntity,
+)
+from scanbackup.domain.entities.bbip.ip.summaries.hour import (
+    IPHourSummaryBBIPField,
+    IPHourSummaryBBIPEntity,
+)
 
 __all__ = [
     "TrafficSourceBBIPField",
@@ -21,7 +38,14 @@ __all__ = [
     "TrafficBBIPEntity",
     "TrafficDailySummaryBBIPField",
     "TrafficDailySummaryBBIPEntity",
+    "TrafficHourSummaryBBIPField",
+    "TrafficHourSummaryBBIPEntity",
     "IPSourceBBIPField",
+    "IPSourceBBIPEntity",
     "IPActiveBBIPField",
+    "IPActiveBBIPEntity",
     "IPDailySummaryBBIPField",
+    "IPDailySummaryBBIPEntity",
+    "IPHourSummaryBBIPField",
+    "IPHourSummaryBBIPEntity",
 ]

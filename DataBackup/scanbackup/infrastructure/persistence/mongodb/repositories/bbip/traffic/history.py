@@ -1,3 +1,4 @@
+from datetime import date
 from pymongo import ReplaceOne
 from pymongo.errors import BulkWriteError
 
@@ -9,6 +10,7 @@ from scanbackup.domain import (
 from scanbackup.shared import (
     Configuration,
     MongoInsertFailedError,
+    MongoGetFailedError,
     MongoConnectionError,
 )
 from scanbackup.infrastructure.persistence.mongodb.connections.database import (
@@ -89,6 +91,34 @@ class MongoTrafficHistoryBBIPRepository(TrafficHistoryBBIPRepository):
             raise MongoInsertFailedError(
                 error=error,
                 extra_msg=f"Fallo al insertar nuevos valores históricos en la colección {self.name_collection}",
+            )
+        finally:
+            client.close_connection()
+
+    def get_by_date(self, target_date: date) -> list[TrafficBBIPEntity]:
+        client = MongoDatabase()
+        try:
+            collection = self._get_collection(client, self.name_collection)
+            documents = collection.find(
+                {TrafficBBIPField.DATE.value: target_date.isoformat()}
+            )
+            return [
+                TrafficBBIPEntity(
+                    date=doc[TrafficBBIPField.DATE.value],
+                    time=doc[TrafficBBIPField.TIME.value],
+                    in_prom=doc[TrafficBBIPField.IN_PROM.value],
+                    in_max=doc[TrafficBBIPField.IN_MAX.value],
+                    out_prom=doc[TrafficBBIPField.OUT_PROM.value],
+                    out_max=doc[TrafficBBIPField.OUT_MAX.value],
+                    device=doc[TrafficBBIPField.DEVICE.value],
+                )
+                for doc in documents
+            ]
+        except MongoConnectionError:
+            raise
+        except Exception as error:
+            raise MongoGetFailedError(
+                name_collection=self.name_collection, error=error
             )
         finally:
             client.close_connection()

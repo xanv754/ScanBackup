@@ -74,6 +74,7 @@ class TrafficDailySummaryBBIPCollection(CollectionOperation):
     @staticmethod
     def export_data(
         database: Database,
+        dirpath: Path | None = None,
         include_id: bool = False,
     ) -> str:
         try:
@@ -87,7 +88,7 @@ class TrafficDailySummaryBBIPCollection(CollectionOperation):
                 else [MongoTrafficDailySummaryBBIPDTO(**doc) for doc in documents]
             )
 
-            writer = CSVWriter()
+            writer = CSVWriter(dir=dirpath)
             return writer.export(
                 filename=TrafficDailySummaryBBIPCollection._NAME, data=data
             )

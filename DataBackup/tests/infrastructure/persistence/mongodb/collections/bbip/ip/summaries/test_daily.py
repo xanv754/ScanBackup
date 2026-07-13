@@ -70,7 +70,7 @@ class TestIPDailySummaryBBIPCollectionExportData(unittest.TestCase):
         database = MagicMock()
         collection = MagicMock()
         collection.find.return_value = [
-            {"in_prom": 1.0, "in_max": 2.0, "device": "Gi0/0/0"}
+            {"date": "2026-01-01", "in_prom": 1.0, "in_max": 2.0, "device": "Gi0/0/0"}
         ]
         database.__getitem__.return_value = collection
         mock_writer_cls.return_value.export.return_value = "/tmp/out.csv"
@@ -78,6 +78,20 @@ class TestIPDailySummaryBBIPCollectionExportData(unittest.TestCase):
         result = IPDailySummaryBBIPCollection.export_data(database)
 
         self.assertEqual(result, "/tmp/out.csv")
+
+    @patch(f"{MODULE}.CSVWriter")
+    def test_passes_dirpath_to_the_writer(self, mock_writer_cls) -> None:
+        """export_data() must forward the given dirpath to CSVWriter."""
+        from pathlib import Path
+
+        database = MagicMock()
+        collection = MagicMock()
+        collection.find.return_value = []
+        database.__getitem__.return_value = collection
+
+        IPDailySummaryBBIPCollection.export_data(database, dirpath=Path("/tmp/out"))
+
+        mock_writer_cls.assert_called_once_with(dir=Path("/tmp/out"))
 
 
 class TestIPDailySummaryBBIPCollectionImportData(unittest.TestCase):

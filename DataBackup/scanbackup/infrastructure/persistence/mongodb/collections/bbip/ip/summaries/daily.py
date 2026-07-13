@@ -74,6 +74,7 @@ class IPDailySummaryBBIPCollection(CollectionOperation):
     @staticmethod
     def export_data(
         database: Database,
+        dirpath: Path | None = None,
         include_id: bool = False,
     ) -> str:
         try:
@@ -87,7 +88,7 @@ class IPDailySummaryBBIPCollection(CollectionOperation):
                 else [MongoIPDailySummaryBBIPDTO(**doc) for doc in documents]
             )
 
-            writer = CSVWriter()
+            writer = CSVWriter(dir=dirpath)
             return writer.export(
                 filename=IPDailySummaryBBIPCollection._NAME, data=data
             )

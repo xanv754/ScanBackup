@@ -1,11 +1,12 @@
 import unittest
+from datetime import date, time
 from unittest.mock import MagicMock
-import pandas as pd
+from bson import ObjectId
 from scanbackup.application.use_case.bbip.updaters.daily_summary_traffic import (
     TrafficDailySummaryUpdaterUseCase,
     FACTOR_BBIP,
 )
-from scanbackup.domain import TrafficDailySummaryBBIPEntity
+from scanbackup.domain import TrafficDailySummaryBBIPEntity, TrafficBBIPEntity, TrafficSourceBBIPEntity
 
 
 class TestTrafficDailySummaryUpdaterUseCase(unittest.TestCase):
@@ -16,46 +17,35 @@ class TestTrafficDailySummaryUpdaterUseCase(unittest.TestCase):
         self.repo = MagicMock()
         self.use_case = TrafficDailySummaryUpdaterUseCase(self.repo)
 
-    def test_execute_aggregates_and_inserts_one_summary_per_interface(self) -> None:
-        """execute() must average/max the raw samples and insert one entity per device."""
-        data = pd.DataFrame(
-            [
-                {
-                    "Date": "2026-01-01",
-                    "Interface": "Gi0/0/0",
-                    "Layer": "BORDE",
-                    "Model": "Cisco",
-                    "Capacity": 1000.0,
-                    "In_Prom": 100.0,
-                    "Out_Prom": 50.0,
-                    "In_Max": 200.0,
-                    "Out_Max": 100.0,
-                },
-                {
-                    "Date": "2026-01-01",
-                    "Interface": "Gi0/0/0",
-                    "Layer": "BORDE",
-                    "Model": "Cisco",
-                    "Capacity": 1000.0,
-                    "In_Prom": 200.0,
-                    "Out_Prom": 150.0,
-                    "In_Max": 300.0,
-                    "Out_Max": 200.0,
-                },
-            ]
-        )
-        sources = pd.DataFrame(
-            [
-                {
-                    "Interface": "Gi0/0/0",
-                    "Layer": "BORDE",
-                    "Model": "Cisco",
-                    "Device": "68123456789abcdef0123456",
-                }
-            ]
+    def _sample(self, device, in_prom, out_prom, in_max, out_max) -> TrafficBBIPEntity:
+        """Build a raw traffic sample for a given device."""
+        return TrafficBBIPEntity(
+            date=date(2026, 1, 1),
+            time=time(10, 0, 0),
+            in_prom=in_prom,
+            out_prom=out_prom,
+            in_max=in_max,
+            out_max=out_max,
+            device=device,
         )
 
-        self.use_case.execute(data, sources)
+    def test_execute_aggregates_and_inserts_one_summary_per_device(self) -> None:
+        """execute() must average/max the raw samples and insert one entity per device."""
+        device = ObjectId()
+        samples = [
+            self._sample(device, 100.0, 50.0, 200.0, 100.0),
+            self._sample(device, 200.0, 150.0, 300.0, 200.0),
+        ]
+        source = TrafficSourceBBIPEntity(
+            id=device,
+            link="http://example.com",
+            interface="Gi0/0/0",
+            capacity=1000.0,
+            model="Cisco",
+            layer="BORDE",
+        )
+
+        self.use_case.execute(samples, [source])
 
         self.repo.insert.assert_called_once()
         entities = self.repo.insert.call_args[0][0]
@@ -71,29 +61,21 @@ class TestTrafficDailySummaryUpdaterUseCase(unittest.TestCase):
         self.assertAlmostEqual(entity.in_max, expected_in_max)
         self.assertAlmostEqual(entity.out_max, expected_out_max)
         self.assertAlmostEqual(entity.use, expected_use)
+        self.assertEqual(entity.device, device)
 
-    def test_execute_drops_interfaces_missing_from_sources(self) -> None:
-        """A traffic row whose interface has no matching source must be excluded."""
-        data = pd.DataFrame(
-            [
-                {
-                    "Date": "2026-01-01",
-                    "Interface": "Unmatched",
-                    "Layer": "BORDE",
-                    "Model": "Cisco",
-                    "Capacity": 1000.0,
-                    "In_Prom": 100.0,
-                    "Out_Prom": 50.0,
-                    "In_Max": 200.0,
-                    "Out_Max": 100.0,
-                }
-            ]
-        )
-        sources = pd.DataFrame(
-            [{"Interface": "Other", "Layer": "BORDE", "Model": "Cisco", "Device": "abc"}]
+    def test_execute_drops_samples_missing_from_sources(self) -> None:
+        """A sample whose device has no matching source must be excluded."""
+        samples = [self._sample(ObjectId(), 100.0, 50.0, 200.0, 100.0)]
+        other_source = TrafficSourceBBIPEntity(
+            id=ObjectId(),
+            link="http://example.com",
+            interface="Other",
+            capacity=1000.0,
+            model="Cisco",
+            layer="BORDE",
         )
 
-        self.use_case.execute(data, sources)
+        self.use_case.execute(samples, [other_source])
 
         self.repo.insert.assert_called_once_with([])
 
