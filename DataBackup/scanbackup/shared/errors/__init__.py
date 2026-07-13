@@ -33,7 +33,7 @@ from scanbackup.shared.errors.input_error import (
     ContentFileError,
     DataNotFoundError,
 )
-from scanbackup.shared.errors.scanner_error import ScannerError, ScannerConfigError
+from scanbackup.shared.errors.scanner_error import ScannerError
 from scanbackup.shared.errors.updater_error import UpdaterError
 
 __all__ = [
@@ -64,6 +64,5 @@ __all__ = [
     "ContentFileError",
     "DataNotFoundError",
     "ScannerError",
-    "ScannerConfigError",
     "UpdaterError",
 ]

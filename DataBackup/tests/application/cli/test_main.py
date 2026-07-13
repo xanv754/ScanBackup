@@ -11,10 +11,10 @@ class TestSystemCli(unittest.TestCase):
         self.runner = CliRunner()
 
     def test_registers_all_subcommands(self) -> None:
-        """The root group must expose database, scanner, sources and history."""
+        """The root group must expose database, sources, history and summaries."""
         result = self.runner.invoke(cli, ["--help"])
         self.assertEqual(result.exit_code, 0)
-        for name in ["database", "scanner", "sources", "history"]:
+        for name in ["database", "sources", "history", "summaries"]:
             self.assertIn(name, result.output)
 
 

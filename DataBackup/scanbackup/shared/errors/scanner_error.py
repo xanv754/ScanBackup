@@ -12,10 +12,3 @@ class ScannerError(ScanBackupError):
         if layer:
             message = message + f". Error en la capa: {layer}"
         super().__init__(module=module, message=message, error=error)
-
-
-class ScannerConfigError(ScanBackupError):
-    def __init__(self, error: Any = None) -> None:
-        module = ModuleSystem.SCANNER
-        message = "Fallo configuración para la captura de data"
-        super().__init__(module=module, message=message, error=error)

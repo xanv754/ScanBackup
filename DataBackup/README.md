@@ -64,21 +64,33 @@ python -m scanbackup database import --collection <nombre> --filepath <archivo.c
 python -m scanbackup database export --collection <nombre> --dirpath <carpeta> [--delimiter ";"] [--id]
 ```
 
-### `scanner` — recolector de tráfico de SCAN
-
-```bash
-python -m scanbackup scanner run [--date YYYY-MM-DD] [--layer <CAPA>]
-```
-
-Sin argumentos, captura el tráfico del día anterior para todas las capas configuradas.
-
 ### `history` — administrador del historial
 
 ```bash
-python -m scanbackup history upload --layer <CAPA> [--date YYYY-MM-DD]
+python -m scanbackup history upload [--date YYYY-MM-DD]
 ```
 
-Almacena en el sistema el tráfico obtenido de SCAN para la capa y fecha indicadas.
+Recolecta de SCAN el tráfico del día indicado (por defecto, el día anterior) para todas las fuentes con estatus `ACTIVO` en la base de datos, sin importar su capa, y lo almacena en el sistema.
+
+```bash
+python -m scanbackup history ip-upload [--date YYYY-MM-DD]
+```
+
+Recolecta de SCAN las IP activas del día indicado (por defecto, el día anterior) para todas las fuentes con estatus `ACTIVO` en la base de datos, sin importar su capa, y lo almacena en el sistema.
+
+### `summaries` — administrador de los resúmenes
+
+```bash
+python -m scanbackup summaries traffic-generate [--date YYYY-MM-DD]
+```
+
+Genera el resumen diario de tráfico del día indicado (por defecto, el día anterior), leyendo el histórico ya almacenado de todas las capas configuradas. Por cada interfaz, promedia sus muestras de 5 minutos (`In Prom`, `In Max`, `Out Prom`, `Out Max`), calcula el porcentaje de uso (el mayor entre `In Max` y `Out Max`, dividido entre la capacidad de la interfaz) y guarda el resultado asociado al `device` de la fuente.
+
+```bash
+python -m scanbackup summaries ip-generate [--date YYYY-MM-DD]
+```
+
+Genera el resumen diario de IP activas del día indicado (por defecto, el día anterior), leyendo el histórico ya almacenado de todas las capas IP configuradas. Por cada interfaz, promedia sus muestras de 5 minutos (`In Prom`, `In Max`) y guarda el resultado asociado al `device` de la fuente.
 
 ## Pruebas unitarias
 

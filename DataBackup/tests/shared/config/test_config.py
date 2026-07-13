@@ -29,13 +29,7 @@ metadata:
     msg_format: "%(asctime)s %(levelname)s %(message)s"
     date_format: "%Y-%m-%d %H:%M:%S"
   scanner:
-    dir_storage: "data"
-    dir_sources: "sources"
-    extension: "csv"
-    date_format: "%Y-%m-%d"
     file_delimiter: ";"
-    port_separator_replacement: "&"
-    space_separator_replacement: "_"
     max_workers: 5
     scan_credentials:
       username: "username"
@@ -95,6 +89,7 @@ class TestConfiguration(TempDirTestCase):
         config = Configuration()
         metadata = config.get_cfg_metadata()
         self.assertEqual(metadata.dir_data, "data")
+        self.assertEqual(metadata.scanner.max_workers, 5)
         self.assertEqual(metadata.scanner.file_delimiter, ";")
 
     def test_get_projectpath_returns_scanbackup_parent(self) -> None:

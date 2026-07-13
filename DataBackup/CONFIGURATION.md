@@ -35,13 +35,7 @@ metadata:
     date_format: "%Y-%m-%d %H:%M:%S"
 
   scanner:
-    dir_storage: "data"
-    dir_sources: "sources"
-    extension: "csv"
-    date_format: "%Y-%m-%d"
     file_delimiter: ";"
-    port_separator_replacement: "&"
-    space_separator_replacement: "_"
     max_workers: 5
     scan_credentials:
       username: "username"
@@ -319,64 +313,7 @@ date_format: "%Y-%m-%d %H:%M:%S"
 
 # metadata.scanner
 
-Configuración utilizada por el módulo de recolector del tráfico existente en SCAN.
-
-## dir_storage
-
-| Propiedad         | Valor  |
-| ----------------- | ------ |
-| Tipo              | string |
-| Obligatorio       | Sí     |
-
-#### Descripción
-
-Nombre de la carpeta donde se almacenarán los datos recolectados por el scanner.
-
----
-
-## dir_sources
-
-| Propiedad         | Valor  |
-| ----------------- | ------ |
-| Tipo              | string |
-| Obligatorio       | Sí     |
-
-#### Descripción
-
-Nombre de la carpeta donde se esperan encontrar las fuentes de enlaces a recolectar data por el scanner.
-
----
-
-## extension
-
-| Propiedad         | Valor  |
-| ----------------- | ------ |
-| Tipo              | string |
-| Obligatorio       | Sí     |
-
-#### Descripción
-
-Nombre de la extensión de los archivos a recolectar por el scanner.
-
----
-
-## date_format
-
-| Propiedad         | Valor  |
-| ----------------- | ------ |
-| Tipo              | string |
-| Obligatorio       | Sí     |
-
-#### Descripción
-
-Formato de fecha para los datos de tráfico obtenido. Léase [Formatos para fechas](https://www.gnu.org/software/coreutils/manual/html_node/Date-conversion-specifiers.html) para obtener más información sobre los formatos de fechas válidos para el scanner.
-
-### Ejemplo
-```yaml
-date_format: "%Y-%m-%d"
-```
-
----
+Configuración utilizada por el módulo recolector de la data de SCAN (tráfico e IP activas) y por la exportación/importación genérica de colecciones (`database export`/`database import`).
 
 ## file_delimiter
 
@@ -387,9 +324,7 @@ date_format: "%Y-%m-%d"
 
 #### Descripción
 
-Símbolo de separador de data. Este símbolo será utilizado para separar la data de tráfico obtenida.
-
-> Nota: Este símbolo debe concordar con el delimitador de la fuente de enlaces sumistrada al scanner.
+Símbolo delimitador por defecto usado al exportar e importar colecciones en formato CSV, cuando no se especifica uno explícitamente mediante `--delimiter`.
 
 ### Ejemplo
 ```yaml
@@ -407,44 +342,12 @@ file_delimiter: ";"
 
 #### Descripción
 
-Cantidad máxima de interfaces que el scanner consultará en paralelo (hilos concurrentes) al recolectar la data de tráfico de una capa. Valor mínimo: 1.
+Cantidad máxima de fuentes que se consultarán en paralelo (hilos concurrentes) al recolectar la data de SCAN. Valor mínimo: 1.
 
 ### Ejemplo
 ```yaml
 max_workers: 5
 ```
-
----
-
-## port_separator_replacement
-
-| Propiedad         | Valor  |
-| ----------------- | ------ |
-| Tipo              | string |
-| Obligatorio       | Sí     |
-| Valor por defecto | N/A    |
-
-#### Descripción
-
-Símbolo para reemplazar el símbolo "/" separador de puertos en los nombres de los enlaces de red.
-
-> Advertencia: Recomendamos **NO** utilizar el símbolo "\\".
-
----
-
-## space_separator_replacement
-
-| Propiedad         | Valor  |
-| ----------------- | ------ |
-| Tipo              | string |
-| Obligatorio       | Sí     |
-| Valor por defecto | N/A    |
-
-#### Descripción
-
-Símbolo para reemplazar el espacio en los nombres de los enlaces de red.
-
-> Advertencia: Recomendamos **NO** utilizar el símbolo "\\".
 
 ---
 

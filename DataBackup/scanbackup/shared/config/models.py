@@ -20,13 +20,7 @@ class ScanCredentialSchema(BaseModel):
 
 
 class ScannerConfigModel(BaseModel):
-    dir_storage: str
-    dir_sources: str
-    extension: str
-    date_format: str
     file_delimiter: str
-    port_separator_replacement: str
-    space_separator_replacement: str
     max_workers: int = Field(ge=1)
     scan_credentials: ScanCredentialSchema
 

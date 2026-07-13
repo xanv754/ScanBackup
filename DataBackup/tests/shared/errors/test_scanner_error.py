@@ -1,6 +1,6 @@
 import unittest
 from unittest.mock import patch
-from scanbackup.shared.errors.scanner_error import ScannerError, ScannerConfigError
+from scanbackup.shared.errors.scanner_error import ScannerError
 
 
 @patch("scanbackup.shared.errors.system.Terminal")
@@ -17,11 +17,6 @@ class TestScannerError(unittest.TestCase):
         """ScannerError must include the failing layer when provided."""
         error = ScannerError(layer="BORDE")
         self.assertIn("BORDE", str(error))
-
-    def test_scanner_config_error_default_message(self, mock_log, mock_terminal) -> None:
-        """ScannerConfigError must always report the fixed configuration failure text."""
-        error = ScannerConfigError()
-        self.assertIn("configuración", str(error))
 
 
 if __name__ == "__main__":
