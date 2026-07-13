@@ -15,17 +15,31 @@ class TestHistoryCli(unittest.TestCase):
 
     @patch(f"{MODULE}.TrafficHistoryUpdater")
     def test_upload_delegates_with_given_options(self, mock_updater) -> None:
-        """The 'upload' command must forward --layer and --date to TrafficHistoryUpdater."""
-        result = self.runner.invoke(
-            cli, ["upload", "--layer", "BORDE", "--date", "2026-01-01"]
-        )
+        """The 'upload' command must forward --date to TrafficHistoryUpdater."""
+        result = self.runner.invoke(cli, ["upload", "--date", "2026-01-01"])
         self.assertEqual(result.exit_code, 0)
-        mock_updater.execute.assert_called_once_with(layer="BORDE", date_str="2026-01-01")
+        mock_updater.execute.assert_called_once_with(date_str="2026-01-01")
 
-    def test_upload_requires_layer(self) -> None:
-        """The 'upload' command must fail when --layer is not provided."""
+    @patch(f"{MODULE}.TrafficHistoryUpdater")
+    def test_upload_without_options_uses_defaults(self, mock_updater) -> None:
+        """The 'upload' command must call TrafficHistoryUpdater with date_str=None when omitted."""
         result = self.runner.invoke(cli, ["upload"])
-        self.assertNotEqual(result.exit_code, 0)
+        self.assertEqual(result.exit_code, 0)
+        mock_updater.execute.assert_called_once_with(date_str=None)
+
+    @patch(f"{MODULE}.IPHistoryUpdater")
+    def test_ip_upload_delegates_with_given_options(self, mock_updater) -> None:
+        """The 'ip-upload' command must forward --date to IPHistoryUpdater."""
+        result = self.runner.invoke(cli, ["ip-upload", "--date", "2026-01-01"])
+        self.assertEqual(result.exit_code, 0)
+        mock_updater.execute.assert_called_once_with(date_str="2026-01-01")
+
+    @patch(f"{MODULE}.IPHistoryUpdater")
+    def test_ip_upload_without_options_uses_defaults(self, mock_updater) -> None:
+        """The 'ip-upload' command must call IPHistoryUpdater with date_str=None when omitted."""
+        result = self.runner.invoke(cli, ["ip-upload"])
+        self.assertEqual(result.exit_code, 0)
+        mock_updater.execute.assert_called_once_with(date_str=None)
 
 
 if __name__ == "__main__":

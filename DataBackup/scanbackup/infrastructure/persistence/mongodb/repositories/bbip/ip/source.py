@@ -2,9 +2,9 @@ from pymongo import UpdateOne
 from pymongo.errors import BulkWriteError
 
 from scanbackup.domain import (
-    TrafficSourceBBIPRepository,
-    TrafficSourceBBIPEntity,
-    TrafficSourceBBIPField,
+    IPSourceBBIPRepository,
+    IPSourceBBIPEntity,
+    IPSourceBBIPField,
 )
 from scanbackup.shared import (
     Configuration,
@@ -21,13 +21,13 @@ from scanbackup.infrastructure.persistence.mongodb.constants.collection import (
 )
 
 
-class MongoTrafficSourceBBIPRepository(TrafficSourceBBIPRepository):
+class MongoIPSourceBBIPRepository(IPSourceBBIPRepository):
     def _get_collection(self, client: MongoDatabase):
         config = Configuration().get_cfg_database()
         client.set_uri(config)
         client.open_connection()
         database = client.get_connection()
-        return database[MongoCollectionName.TRAFFIC_SOURCES.value]
+        return database[MongoCollectionName.IP_SOURCES.value]
 
     def get_existing_keys(self) -> list[dict]:
         client = MongoDatabase()
@@ -38,9 +38,8 @@ class MongoTrafficSourceBBIPRepository(TrafficSourceBBIPRepository):
                     {},
                     {
                         "_id": 0,
-                        TrafficSourceBBIPField.INTERFACE.value: 1,
-                        TrafficSourceBBIPField.LAYER.value: 1,
-                        TrafficSourceBBIPField.MODEL.value: 1,
+                        IPSourceBBIPField.INTERFACE.value: 1,
+                        IPSourceBBIPField.LAYER.value: 1,
                     },
                 )
             )
@@ -50,21 +49,20 @@ class MongoTrafficSourceBBIPRepository(TrafficSourceBBIPRepository):
             raise MongoGetFailedError(
                 error=error,
                 extra_msg="Fallo al obtener claves existentes",
-                name_collection=MongoCollectionName.TRAFFIC_SOURCES.value,
+                name_collection=MongoCollectionName.IP_SOURCES.value,
             )
         finally:
             client.close_connection()
 
-    def upsert_sources(self, data: list[TrafficSourceBBIPEntity]) -> None:
+    def upsert_sources(self, data: list[IPSourceBBIPEntity]) -> None:
         client = MongoDatabase()
         try:
             collection = self._get_collection(client)
             operations = [
                 UpdateOne(
                     filter={
-                        TrafficSourceBBIPField.INTERFACE.value: entity.interface,
-                        TrafficSourceBBIPField.LAYER.value: entity.layer,
-                        TrafficSourceBBIPField.MODEL.value: entity.model,
+                        IPSourceBBIPField.INTERFACE.value: entity.interface,
+                        IPSourceBBIPField.LAYER.value: entity.layer,
                     },
                     update={
                         "$set": entity.model_dump(exclude={"id"}, exclude_none=True)
@@ -79,7 +77,7 @@ class MongoTrafficSourceBBIPRepository(TrafficSourceBBIPRepository):
         except BulkWriteError as error:
             raise MongoInsertFailedError(
                 error=error,
-                extra_msg=f"Upsert parcial fallido en {MongoCollectionName.TRAFFIC_SOURCES.value}",
+                extra_msg=f"Upsert parcial fallido en {MongoCollectionName.IP_SOURCES.value}",
             )
         except Exception as error:
             raise MongoInsertFailedError(
@@ -96,14 +94,11 @@ class MongoTrafficSourceBBIPRepository(TrafficSourceBBIPRepository):
                 filter={
                     "$nor": [
                         {
-                            TrafficSourceBBIPField.INTERFACE.value: k[
-                                TrafficSourceBBIPField.INTERFACE.value
+                            IPSourceBBIPField.INTERFACE.value: k[
+                                IPSourceBBIPField.INTERFACE.value
                             ],
-                            TrafficSourceBBIPField.LAYER.value: k[
-                                TrafficSourceBBIPField.LAYER.value
-                            ],
-                            TrafficSourceBBIPField.MODEL.value: k[
-                                TrafficSourceBBIPField.MODEL.value
+                            IPSourceBBIPField.LAYER.value: k[
+                                IPSourceBBIPField.LAYER.value
                             ],
                         }
                         for k in present_keys
@@ -116,89 +111,89 @@ class MongoTrafficSourceBBIPRepository(TrafficSourceBBIPRepository):
         except Exception as error:
             raise MongoInsertFailedError(
                 error=error,
-                extra_msg=f"Fallo al discontinuar fuentes en {MongoCollectionName.TRAFFIC_SOURCES.value}",
+                extra_msg=f"Fallo al discontinuar fuentes en {MongoCollectionName.IP_SOURCES.value}",
             )
         finally:
             client.close_connection()
 
-    def get_sources_by_layer(self, layer: str) -> list[TrafficSourceBBIPEntity]:
+    def get_sources_by_layer(self, layer: str) -> list[IPSourceBBIPEntity]:
         client = MongoDatabase()
         try:
             collection = self._get_collection(client)
             documents = collection.find(
                 {
-                    TrafficSourceBBIPField.LAYER.value: layer,
-                    TrafficSourceBBIPField.STATUS.value: SourceStatus.ACTIVE.value,
+                    IPSourceBBIPField.LAYER.value: layer,
+                    IPSourceBBIPField.STATUS.value: SourceStatus.ACTIVE.value,
                 },
                 {"_id": 0},
             )
-            return [TrafficSourceBBIPEntity(**doc) for doc in documents]
+            return [IPSourceBBIPEntity(**doc) for doc in documents]
         except MongoConnectionError:
             raise
         except Exception as error:
             raise MongoGetFailedError(
-                name_collection=MongoCollectionName.TRAFFIC_SOURCES.value, error=error
+                name_collection=MongoCollectionName.IP_SOURCES.value, error=error
             )
         finally:
             client.close_connection()
 
-    def get_sources_by_layer_id(self, layer: str) -> list[TrafficSourceBBIPEntity]:
+    def get_sources_by_layer_id(self, layer: str) -> list[IPSourceBBIPEntity]:
         client = MongoDatabase()
         try:
             collection = self._get_collection(client)
             documents = collection.find(
                 {
-                    TrafficSourceBBIPField.LAYER.value: layer,
-                    TrafficSourceBBIPField.STATUS.value: SourceStatus.ACTIVE.value,
+                    IPSourceBBIPField.LAYER.value: layer,
+                    IPSourceBBIPField.STATUS.value: SourceStatus.ACTIVE.value,
                 }
             )
             return [
-                TrafficSourceBBIPEntity(**{**doc, "id": doc["_id"], "_id": None})
+                IPSourceBBIPEntity(**{**doc, "id": doc["_id"], "_id": None})
                 for doc in documents
             ]
         except MongoConnectionError:
             raise
         except Exception as error:
             raise MongoGetFailedError(
-                name_collection=MongoCollectionName.TRAFFIC_SOURCES.value, error=error
+                name_collection=MongoCollectionName.IP_SOURCES.value, error=error
             )
         finally:
             client.close_connection()
 
-    def get_all_active_sources(self) -> list[TrafficSourceBBIPEntity]:
+    def get_all_active_sources(self) -> list[IPSourceBBIPEntity]:
         client = MongoDatabase()
         try:
             collection = self._get_collection(client)
             documents = collection.find(
-                {TrafficSourceBBIPField.STATUS.value: SourceStatus.ACTIVE.value}
+                {IPSourceBBIPField.STATUS.value: SourceStatus.ACTIVE.value}
             )
             return [
-                TrafficSourceBBIPEntity(**{**doc, "id": doc["_id"], "_id": None})
+                IPSourceBBIPEntity(**{**doc, "id": doc["_id"], "_id": None})
                 for doc in documents
             ]
         except MongoConnectionError:
             raise
         except Exception as error:
             raise MongoGetFailedError(
-                name_collection=MongoCollectionName.TRAFFIC_SOURCES.value, error=error
+                name_collection=MongoCollectionName.IP_SOURCES.value, error=error
             )
         finally:
             client.close_connection()
 
-    def get_all_sources(self) -> list[TrafficSourceBBIPEntity]:
+    def get_all_sources(self) -> list[IPSourceBBIPEntity]:
         client = MongoDatabase()
         try:
             collection = self._get_collection(client)
             documents = collection.find({})
             return [
-                TrafficSourceBBIPEntity(**{**doc, "id": doc["_id"], "_id": None})
+                IPSourceBBIPEntity(**{**doc, "id": doc["_id"], "_id": None})
                 for doc in documents
             ]
         except MongoConnectionError:
             raise
         except Exception as error:
             raise MongoGetFailedError(
-                name_collection=MongoCollectionName.TRAFFIC_SOURCES.value, error=error
+                name_collection=MongoCollectionName.IP_SOURCES.value, error=error
             )
         finally:
             client.close_connection()

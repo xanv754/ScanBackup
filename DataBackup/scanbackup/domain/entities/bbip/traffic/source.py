@@ -1,7 +1,7 @@
 from enum import Enum
 from pydantic import BaseModel, field_validator
 from scanbackup.domain.services.validator import ValidatorConfig
-from scanbackup.shared import SourceStatus
+from scanbackup.shared import SourceStatus, PyObjectId
 
 
 class TrafficSourceBBIPField(str, Enum):
@@ -15,7 +15,7 @@ class TrafficSourceBBIPField(str, Enum):
 
 
 class TrafficSourceBBIPEntity(BaseModel):
-    device: str | None = None
+    id: PyObjectId | None = None
     link: str
     interface: str
     capacity: float

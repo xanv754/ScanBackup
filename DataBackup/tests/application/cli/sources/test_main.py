@@ -39,6 +39,31 @@ class TestSourcesCli(unittest.TestCase):
         self.assertEqual(result.exit_code, 0)
         mock_export.assert_called_once_with(path="out", layer="BORDE")
 
+    @patch(f"{MODULE}.ip_upload_to_database")
+    def test_ip_upload_delegates_with_given_filepath(self, mock_upload) -> None:
+        """The 'ip-upload' command must forward --filepath as file=."""
+        with self.runner.isolated_filesystem():
+            with open("sources.csv", "w") as f:
+                f.write("link;interface\n")
+            result = self.runner.invoke(
+                cli, ["ip-upload", "--filepath", "sources.csv"]
+            )
+        self.assertEqual(result.exit_code, 0)
+        mock_upload.assert_called_once_with(file="sources.csv")
+
+    @patch(f"{MODULE}.ip_export_from_database")
+    def test_ip_export_delegates_with_given_options(self, mock_export) -> None:
+        """The 'ip-export' command must forward --dirpath and --layer."""
+        with self.runner.isolated_filesystem():
+            import os
+
+            os.mkdir("out")
+            result = self.runner.invoke(
+                cli, ["ip-export", "--dirpath", "out", "--layer", "IP_BRAS"]
+            )
+        self.assertEqual(result.exit_code, 0)
+        mock_export.assert_called_once_with(path="out", layer="IP_BRAS")
+
     @patch(f"{MODULE}.scrapper_sources")
     def test_updater_without_outdir_uses_default_signature(self, mock_scrapper) -> None:
         """The 'updater' command without --outdir must call scrapper_sources(layer=...)."""

@@ -1,5 +1,5 @@
 from pathlib import Path
-from sources_scrapper.scrapper_scanbackup import UpdaterSources
+from scrapper_scanbackup import UpdaterSources
 
 
 def scrapper_sources(layer: str = "all", outdir: Path | None = None) -> None:

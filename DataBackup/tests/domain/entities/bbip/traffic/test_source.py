@@ -54,7 +54,7 @@ class TestTrafficSourceBBIPEntity(unittest.TestCase):
 
     @patch("scanbackup.domain.services.validator.ValidatorConfig.valid_layer_bbip")
     def test_default_status_and_optional_fields(self, mock_valid_layer) -> None:
-        """device and comments must remain optional and default to None."""
+        """id and comments must remain optional and default to None."""
         mock_valid_layer.return_value = True
         entity = TrafficSourceBBIPEntity(
             link="http://example.com",
@@ -63,7 +63,7 @@ class TestTrafficSourceBBIPEntity(unittest.TestCase):
             model="Cisco",
             layer="BORDE",
         )
-        self.assertIsNone(entity.device)
+        self.assertIsNone(entity.id)
         self.assertIsNone(entity.comments)
 
 

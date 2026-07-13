@@ -1,29 +1,28 @@
 from pathlib import Path
 from scanbackup.domain import (
-    TrafficSourceBBIPField,
-    TrafficSourceBBIPRepository,
-    TrafficSourceBBIPEntity,
+    IPSourceBBIPField,
+    IPSourceBBIPRepository,
+    IPSourceBBIPEntity,
 )
-from scanbackup.infrastructure import TrafficSourceBBIPReader, CSVWriter
+from scanbackup.infrastructure import IPSourceBBIPReader, CSVWriter
 from scanbackup.shared import CSVExportError, Log
 
 
-class TrafficSourceUpdaterUseCase:
-    _repo: TrafficSourceBBIPRepository
+class IPSourceUpdaterUseCase:
+    _repo: IPSourceBBIPRepository
     _path: Path
 
-    def __init__(self, repository: TrafficSourceBBIPRepository, path: Path) -> None:
+    def __init__(self, repository: IPSourceBBIPRepository, path: Path) -> None:
         self._repo = repository
         self._path = path
 
     def execute(self) -> None:
-        reader = TrafficSourceBBIPReader()
-        sources: list[TrafficSourceBBIPEntity] = reader.import_data(self._path)
+        reader = IPSourceBBIPReader()
+        sources: list[IPSourceBBIPEntity] = reader.import_data(self._path)
         present_keys = [
             {
-                TrafficSourceBBIPField.INTERFACE.value: s.interface,
-                TrafficSourceBBIPField.LAYER.value: s.layer,
-                TrafficSourceBBIPField.MODEL.value: s.model,
+                IPSourceBBIPField.INTERFACE.value: s.interface,
+                IPSourceBBIPField.LAYER.value: s.layer,
             }
             for s in sources
         ]
@@ -42,9 +41,8 @@ class TrafficSourceUpdaterUseCase:
                     data=data,
                     exclude={
                         "id",
-                        TrafficSourceBBIPField.STATUS.value,
-                        TrafficSourceBBIPField.COMMENTS.value,
-                        TrafficSourceBBIPField.LAYER.value,
+                        IPSourceBBIPField.STATUS.value,
+                        IPSourceBBIPField.LAYER.value,
                     },
                 )
             except CSVExportError:

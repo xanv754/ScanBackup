@@ -2,21 +2,25 @@ import unittest
 from unittest.mock import MagicMock, patch
 from bson import ObjectId
 from pymongo.errors import BulkWriteError
-from scanbackup.infrastructure.persistence.mongodb.repositories.bbip.traffic.source import (
-    MongoTrafficSourceBBIPRepository,
+from scanbackup.infrastructure.persistence.mongodb.repositories.bbip.ip.source import (
+    MongoIPSourceBBIPRepository,
 )
-from scanbackup.domain import TrafficSourceBBIPEntity
-from scanbackup.shared import MongoInsertFailedError, MongoGetFailedError, MongoConnectionError
+from scanbackup.domain import IPSourceBBIPEntity
+from scanbackup.shared import (
+    MongoInsertFailedError,
+    MongoGetFailedError,
+    MongoConnectionError,
+)
 
-MODULE = "scanbackup.infrastructure.persistence.mongodb.repositories.bbip.traffic.source"
+MODULE = "scanbackup.infrastructure.persistence.mongodb.repositories.bbip.ip.source"
 
 
-class TestMongoTrafficSourceBBIPRepository(unittest.TestCase):
-    """Unit tests for the MongoTrafficSourceBBIPRepository."""
+class TestMongoIPSourceBBIPRepository(unittest.TestCase):
+    """Unit tests for the MongoIPSourceBBIPRepository."""
 
     def setUp(self) -> None:
-        """Build a repository instance and a sample entity for reuse across tests."""
-        self.repository = MongoTrafficSourceBBIPRepository()
+        """Build a repository instance for reuse across tests."""
+        self.repository = MongoIPSourceBBIPRepository()
 
     def _mock_client(self, mock_client_cls) -> MagicMock:
         """Return the client returned by the patched MongoDatabase class."""
@@ -29,15 +33,17 @@ class TestMongoTrafficSourceBBIPRepository(unittest.TestCase):
     def test_get_existing_keys_projects_expected_fields(
         self, mock_client_cls, mock_configuration
     ) -> None:
-        """get_existing_keys must project only interface/layer/model, excluding _id."""
+        """get_existing_keys must project only interface/layer, excluding _id."""
         client = self._mock_client(mock_client_cls)
         collection = MagicMock()
-        collection.find.return_value = [{"interface": "Gi0/0/0", "layer": "BORDE", "model": "Cisco"}]
+        collection.find.return_value = [
+            {"interface": "BRAS-00", "layer": "BRASIP"}
+        ]
         client.get_connection.return_value.__getitem__.return_value = collection
 
         result = self.repository.get_existing_keys()
 
-        self.assertEqual(result, [{"interface": "Gi0/0/0", "layer": "BORDE", "model": "Cisco"}])
+        self.assertEqual(result, [{"interface": "BRAS-00", "layer": "BRASIP"}])
         client.close_connection.assert_called_once()
 
     @patch(f"{MODULE}.Configuration")
@@ -73,15 +79,16 @@ class TestMongoTrafficSourceBBIPRepository(unittest.TestCase):
         client = self._mock_client(mock_client_cls)
         collection = MagicMock()
         client.get_connection.return_value.__getitem__.return_value = collection
-        entity = TrafficSourceBBIPEntity(
-            link="http://example.com",
-            interface="Gi0/0/0",
-            capacity=100.0,
-            model="Cisco",
-            layer="BORDE",
-        )
 
-        with patch("scanbackup.domain.services.validator.ValidatorConfig.valid_layer_bbip", return_value=True):
+        with patch(
+            "scanbackup.domain.services.validator.ValidatorConfig.valid_layer_ip",
+            return_value=True,
+        ):
+            entity = IPSourceBBIPEntity(
+                link="http://example.com",
+                interface="BRAS-00",
+                layer="BRASIP",
+            )
             self.repository.upsert_sources([entity])
 
         collection.bulk_write.assert_called_once()
@@ -113,7 +120,7 @@ class TestMongoTrafficSourceBBIPRepository(unittest.TestCase):
         client.get_connection.return_value.__getitem__.return_value = collection
 
         self.repository.discontinue_missing(
-            [{"interface": "Gi0/0/0", "layer": "BORDE", "model": "Cisco"}]
+            [{"interface": "BRAS-00", "layer": "BRASIP"}]
         )
 
         collection.update_many.assert_called_once()
@@ -129,20 +136,21 @@ class TestMongoTrafficSourceBBIPRepository(unittest.TestCase):
         collection.find.return_value = [
             {
                 "link": "http://example.com",
-                "interface": "Gi0/0/0",
-                "capacity": 100.0,
-                "model": "Cisco",
-                "layer": "BORDE",
+                "interface": "BRAS-00",
+                "layer": "BRASIP",
                 "status": "ACTIVO",
             }
         ]
         client.get_connection.return_value.__getitem__.return_value = collection
 
-        with patch("scanbackup.domain.services.validator.ValidatorConfig.valid_layer_bbip", return_value=True):
-            result = self.repository.get_sources_by_layer("BORDE")
+        with patch(
+            "scanbackup.domain.services.validator.ValidatorConfig.valid_layer_ip",
+            return_value=True,
+        ):
+            result = self.repository.get_sources_by_layer("BRASIP")
 
         self.assertEqual(len(result), 1)
-        self.assertIsInstance(result[0], TrafficSourceBBIPEntity)
+        self.assertIsInstance(result[0], IPSourceBBIPEntity)
 
     @patch(f"{MODULE}.Configuration")
     @patch(f"{MODULE}.MongoDatabase")
@@ -157,19 +165,21 @@ class TestMongoTrafficSourceBBIPRepository(unittest.TestCase):
             {
                 "_id": oid,
                 "link": "http://example.com",
-                "interface": "Gi0/0/0",
-                "capacity": 100.0,
-                "model": "Cisco",
-                "layer": "BORDE",
+                "interface": "BRAS-00",
+                "layer": "BRASIP",
                 "status": "ACTIVO",
             }
         ]
         client.get_connection.return_value.__getitem__.return_value = collection
 
-        with patch("scanbackup.domain.services.validator.ValidatorConfig.valid_layer_bbip", return_value=True):
-            result = self.repository.get_sources_by_layer_id("BORDE")
+        with patch(
+            "scanbackup.domain.services.validator.ValidatorConfig.valid_layer_ip",
+            return_value=True,
+        ):
+            result = self.repository.get_sources_by_layer_id("BRASIP")
 
         self.assertEqual(result[0].id, oid)
+        self.assertEqual(result[0].interface, "BRAS-00")
 
     @patch(f"{MODULE}.Configuration")
     @patch(f"{MODULE}.MongoDatabase")
@@ -184,16 +194,17 @@ class TestMongoTrafficSourceBBIPRepository(unittest.TestCase):
             {
                 "_id": oid,
                 "link": "http://example.com",
-                "interface": "Gi0/0/0",
-                "capacity": 100.0,
-                "model": "Cisco",
-                "layer": "BORDE",
+                "interface": "BRAS-00",
+                "layer": "BRASIP",
                 "status": "ACTIVO",
             }
         ]
         client.get_connection.return_value.__getitem__.return_value = collection
 
-        with patch("scanbackup.domain.services.validator.ValidatorConfig.valid_layer_bbip", return_value=True):
+        with patch(
+            "scanbackup.domain.services.validator.ValidatorConfig.valid_layer_ip",
+            return_value=True,
+        ):
             result = self.repository.get_all_active_sources()
 
         collection.find.assert_called_once_with({"status": "ACTIVO"})
@@ -213,16 +224,17 @@ class TestMongoTrafficSourceBBIPRepository(unittest.TestCase):
             {
                 "_id": oid,
                 "link": "http://example.com",
-                "interface": "Gi0/0/0",
-                "capacity": 100.0,
-                "model": "Cisco",
-                "layer": "BORDE",
+                "interface": "BRAS-00",
+                "layer": "BRASIP",
                 "status": "DESINCORPORADO",
             }
         ]
         client.get_connection.return_value.__getitem__.return_value = collection
 
-        with patch("scanbackup.domain.services.validator.ValidatorConfig.valid_layer_bbip", return_value=True):
+        with patch(
+            "scanbackup.domain.services.validator.ValidatorConfig.valid_layer_ip",
+            return_value=True,
+        ):
             result = self.repository.get_all_sources()
 
         collection.find.assert_called_once_with({})

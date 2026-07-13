@@ -1,3 +1,5 @@
-from scanbackup.infrastructure.collectors.executer_scan import SCANScanner
+from scanbackup.infrastructure.collectors.scan_downloader import SCANLogDownloader
+from scanbackup.infrastructure.collectors.mrtg_fetcher import MRTGFetcher
+from scanbackup.infrastructure.collectors.ip_fetcher import IPActiveFetcher
 
-__all__ = ["SCANScanner"]
+__all__ = ["SCANLogDownloader", "MRTGFetcher", "IPActiveFetcher"]

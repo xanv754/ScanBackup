@@ -2,11 +2,11 @@ import unittest
 from datetime import datetime, date
 from unittest.mock import patch
 from bson import ObjectId
-from scanbackup.infrastructure.collectors.mrtg_fetcher import MRTGFetcher
-from scanbackup.domain.entities.bbip.traffic.source import TrafficSourceBBIPEntity
-from scanbackup.domain.entities.bbip.traffic.data import TrafficBBIPEntity
+from scanbackup.infrastructure.collectors.ip_fetcher import IPActiveFetcher
+from scanbackup.domain.entities.bbip.ip.source import IPSourceBBIPEntity
+from scanbackup.domain.entities.bbip.ip.data import IPActiveBBIPEntity
 
-MODULE = "scanbackup.infrastructure.collectors.mrtg_fetcher"
+MODULE = "scanbackup.infrastructure.collectors.ip_fetcher"
 
 
 def _epoch(date_str: str) -> int:
@@ -14,20 +14,18 @@ def _epoch(date_str: str) -> int:
     return int(datetime.strptime(date_str, "%Y-%m-%d").replace(hour=10).timestamp())
 
 
-@patch("scanbackup.domain.services.validator.ValidatorConfig.valid_layer_bbip")
+@patch("scanbackup.domain.services.validator.ValidatorConfig.valid_layer_ip")
 @patch(f"{MODULE}.SCANLogDownloader")
-class TestMRTGFetcher(unittest.TestCase):
-    """Unit tests for the MRTGFetcher parsing logic (downloading is mocked away)."""
+class TestIPActiveFetcher(unittest.TestCase):
+    """Unit tests for the IPActiveFetcher parsing logic (downloading is mocked away)."""
 
-    def _source(self) -> TrafficSourceBBIPEntity:
-        """Build a valid interface source entity for `fetch()` calls."""
-        return TrafficSourceBBIPEntity(
+    def _source(self) -> IPSourceBBIPEntity:
+        """Build a valid IP source entity for `fetch()` calls."""
+        return IPSourceBBIPEntity(
             id=ObjectId(),
-            link="http://example.com/mrtg/log",
+            link="http://example.com/ip/log",
             interface="Gi0/0/0",
-            capacity=100.0,
-            model="Cisco",
-            layer="BORDE",
+            layer="IP_BRAS",
         )
 
     def test_fetch_returns_samples_matching_target_date(
@@ -36,23 +34,21 @@ class TestMRTGFetcher(unittest.TestCase):
         """Only samples whose date matches `target_date` must be returned as entities."""
         mock_valid_layer.return_value = True
         mock_downloader_cls.return_value.download.return_value = (
-            f"{_epoch('2026-01-02')} 100 200 300 400\n"
-            f"{_epoch('2026-01-01')} 999 999 999 999\n"
+            f"{_epoch('2026-01-02')} 120 150\n"
+            f"{_epoch('2026-01-01')} 999 999\n"
             "malformed line\n"
         )
         source = self._source()
 
-        fetcher = MRTGFetcher(username="user", password="pass")
+        fetcher = IPActiveFetcher(username="user", password="pass")
         samples = fetcher.fetch(source, target_date=date(2026, 1, 2))
 
         self.assertEqual(len(samples), 1)
         sample = samples[0]
-        self.assertIsInstance(sample, TrafficBBIPEntity)
+        self.assertIsInstance(sample, IPActiveBBIPEntity)
         self.assertEqual(sample.date, date(2026, 1, 2))
-        self.assertEqual(sample.in_prom, 100.0)
-        self.assertEqual(sample.out_prom, 200.0)
-        self.assertEqual(sample.in_max, 300.0)
-        self.assertEqual(sample.out_max, 400.0)
+        self.assertEqual(sample.in_prom, 120.0)
+        self.assertEqual(sample.in_max, 150.0)
         self.assertEqual(sample.device, source.id)
 
     def test_fetch_ignores_samples_past_the_max_window(
@@ -60,12 +56,12 @@ class TestMRTGFetcher(unittest.TestCase):
     ) -> None:
         """Samples beyond the first 500 lines of the log must be discarded."""
         mock_valid_layer.return_value = True
-        noise_line = f"{_epoch('2026-01-01')} 1 1 1 1"
-        matching_line = f"{_epoch('2026-01-02')} 1 1 1 1"
-        lines = [noise_line] * MRTGFetcher._MAX_SAMPLES + [matching_line]
+        noise_line = f"{_epoch('2026-01-01')} 1 1"
+        matching_line = f"{_epoch('2026-01-02')} 1 1"
+        lines = [noise_line] * IPActiveFetcher._MAX_SAMPLES + [matching_line]
         mock_downloader_cls.return_value.download.return_value = "\n".join(lines)
 
-        fetcher = MRTGFetcher(username="user", password="pass")
+        fetcher = IPActiveFetcher(username="user", password="pass")
         samples = fetcher.fetch(self._source(), target_date=date(2026, 1, 2))
 
         self.assertEqual(samples, [])
@@ -78,7 +74,7 @@ class TestMRTGFetcher(unittest.TestCase):
         mock_downloader_cls.return_value.download.return_value = ""
         source = self._source()
 
-        MRTGFetcher(username="user", password="pass").fetch(
+        IPActiveFetcher(username="user", password="pass").fetch(
             source, target_date=date(2026, 1, 2)
         )
 
