@@ -1,4 +1,5 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, field_validator
+from bson import ObjectId
 from datetime import date, time
 
 
@@ -6,13 +7,18 @@ class MongoTrafficHistoryBBIPDTO(BaseModel):
     id: str | None = None
     date: date
     time: time
-    in_prom: float
-    in_max: float
-    out_prom: float
-    out_max: float
-    device: str
+    in_prom: float = Field(alias="inProm")
+    in_max: float = Field(alias="inMax")
+    out_prom: float = Field(alias="outProm")
+    out_max: float = Field(alias="outMax")
+    device: str = Field(alias="id_source")
 
-    model_config = {"arbitrary_types_allowed": True}
+    model_config = {"arbitrary_types_allowed": True, "populate_by_name": True}
+
+    @field_validator("device", mode="before")
+    @classmethod
+    def _coerce_device_to_str(cls, value: object) -> object:
+        return str(value) if isinstance(value, ObjectId) else value
 
     @classmethod
     def from_mongo(cls, doc: dict) -> "MongoTrafficHistoryBBIPDTO":

@@ -4,7 +4,7 @@ from pydantic import BaseModel
 class MongoIPSourceBBIPDTO(BaseModel):
     id: str | None = None
     link: str
-    device: str
+    interface: str
     status: str
     layer: str
 

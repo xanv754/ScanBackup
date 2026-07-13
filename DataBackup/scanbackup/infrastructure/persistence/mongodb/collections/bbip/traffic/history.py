@@ -68,6 +68,7 @@ class TrafficHistoryBBIPCollection:
     def export_data(
         name_collection: str,
         database: Database,
+        dirpath: Path | None = None,
         include_id: bool = False,
     ) -> str:
         try:
@@ -81,7 +82,7 @@ class TrafficHistoryBBIPCollection:
                 else [MongoTrafficHistoryBBIPDTO(**doc) for doc in documents]
             )
 
-            writer = CSVWriter()
+            writer = CSVWriter(dir=dirpath)
             return writer.export(filename=name_collection, data=data)
         except Exception as error:
             raise MongoExportCollectionError(name_collection, error=error)

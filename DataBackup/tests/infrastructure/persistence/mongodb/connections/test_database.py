@@ -102,6 +102,8 @@ class TestMongoDatabase(unittest.TestCase):
 
         mock_traffic_source_collection.create.assert_not_called()
 
+    @patch(f"{MODULE}.IPHourSummaryBBIPCollection")
+    @patch(f"{MODULE}.TrafficHourSummaryBBIPCollection")
     @patch(f"{MODULE}.IPHistoryBBIPCollection")
     @patch(f"{MODULE}.TrafficHistoryBBIPCollection")
     @patch(f"{MODULE}.IPDailySummaryBBIPCollection")
@@ -118,6 +120,8 @@ class TestMongoDatabase(unittest.TestCase):
         mock_ip_daily,
         mock_traffic_history,
         mock_ip_history,
+        mock_traffic_hour,
+        mock_ip_hour,
     ) -> None:
         """create_collections must create every collection absent from the database."""
         mock_db = MagicMock()
@@ -134,6 +138,8 @@ class TestMongoDatabase(unittest.TestCase):
         mock_ip_daily.create.assert_called_once()
         mock_traffic_history.create.assert_called_once()
         mock_ip_history.create.assert_called_once()
+        mock_traffic_hour.create.assert_called_once()
+        mock_ip_hour.create.assert_called_once()
 
     @patch(f"{MODULE}.MongoClient")
     def test_import_data_missing_file_raises(self, mock_client_cls) -> None:
@@ -192,18 +198,18 @@ class TestMongoDatabase(unittest.TestCase):
     def test_import_data_routes_bbip_layer_to_traffic_history(
         self, mock_client_cls, mock_traffic_history
     ) -> None:
-        """A collection name matching a BBIP layer must route to TrafficHistoryBBIPCollection."""
+        """A collection name matching a BBIP layer's history collection must route to TrafficHistoryBBIPCollection."""
         import tempfile
 
         mock_db = MagicMock()
-        mock_db.list_collection_names.return_value = ["BORDE"]
+        mock_db.list_collection_names.return_value = ["BORDE_TRAFFIC_HISTORY_BBIP"]
         mock_client_cls.return_value.__getitem__.return_value = mock_db
 
         with tempfile.NamedTemporaryFile(suffix=".csv") as tmp_file:
             db = MongoDatabase()
             db.set_uri(self.db_config)
             db.import_data(
-                name_collection="BORDE",
+                name_collection="BORDE_TRAFFIC_HISTORY_BBIP",
                 config=self.layers_config,
                 input_filepath=tmp_file.name,
                 delimiter=";",
@@ -263,6 +269,189 @@ class TestMongoDatabase(unittest.TestCase):
         )
 
         self.assertEqual(result, "/tmp/traffic_source.csv")
+
+    @patch(f"{MODULE}.TrafficSourceBBIPCollection")
+    @patch(f"{MODULE}.MongoClient")
+    def test_export_data_propagates_dirpath_to_the_collection(
+        self, mock_client_cls, mock_traffic_source
+    ) -> None:
+        """export_data must forward the given dirpath to the routed collection class."""
+        from pathlib import Path
+
+        mock_db = MagicMock()
+        mock_db.list_collection_names.return_value = ["TRAFFIC_SOURCE_BBIP"]
+        mock_client_cls.return_value.__getitem__.return_value = mock_db
+
+        db = MongoDatabase()
+        db.set_uri(self.db_config)
+        db.export_data(
+            config=self.layers_config,
+            name_collection="TRAFFIC_SOURCE_BBIP",
+            dirpath=Path("/tmp/exports"),
+        )
+
+        mock_traffic_source.export_data.assert_called_once_with(
+            database=mock_db, dirpath=Path("/tmp/exports"), include_id=True
+        )
+
+    @patch(f"{MODULE}.TrafficHistoryBBIPCollection")
+    @patch(f"{MODULE}.MongoClient")
+    def test_export_data_routes_bbip_layer_to_traffic_history(
+        self, mock_client_cls, mock_traffic_history
+    ) -> None:
+        """A collection name matching a BBIP layer's history collection must route to TrafficHistoryBBIPCollection."""
+        mock_db = MagicMock()
+        mock_db.list_collection_names.return_value = ["BORDE_TRAFFIC_HISTORY_BBIP"]
+        mock_client_cls.return_value.__getitem__.return_value = mock_db
+        mock_traffic_history.export_data.return_value = "/tmp/borde.csv"
+
+        db = MongoDatabase()
+        db.set_uri(self.db_config)
+        result = db.export_data(
+            config=self.layers_config, name_collection="BORDE_TRAFFIC_HISTORY_BBIP"
+        )
+
+        mock_traffic_history.export_data.assert_called_once()
+        self.assertEqual(result, "/tmp/borde.csv")
+
+    @patch(f"{MODULE}.IPHistoryBBIPCollection")
+    @patch(f"{MODULE}.MongoClient")
+    def test_export_data_routes_ip_layer_to_ip_history(
+        self, mock_client_cls, mock_ip_history
+    ) -> None:
+        """A collection name matching an IP layer's history collection must route to IPHistoryBBIPCollection."""
+        mock_db = MagicMock()
+        mock_db.list_collection_names.return_value = ["DINT_IP_HISTORY_BBIP"]
+        mock_client_cls.return_value.__getitem__.return_value = mock_db
+        mock_ip_history.export_data.return_value = "/tmp/dint.csv"
+
+        db = MongoDatabase()
+        db.set_uri(self.db_config)
+        result = db.export_data(
+            config=self.layers_config, name_collection="DINT_IP_HISTORY_BBIP"
+        )
+
+        mock_ip_history.export_data.assert_called_once()
+        self.assertEqual(result, "/tmp/dint.csv")
+
+    def test_match_history_layer_requires_the_exact_suffix(self) -> None:
+        """A collection name without the history suffix must never match, even with a valid layer prefix."""
+        db = MongoDatabase()
+
+        self.assertFalse(
+            db._match_history_layer("BORDE", ["BORDE"], "TRAFFIC_HISTORY_BBIP")
+        )
+        self.assertFalse(
+            db._match_history_layer(
+                "BORDE_SOMETHING_ELSE", ["BORDE"], "TRAFFIC_HISTORY_BBIP"
+            )
+        )
+
+    def test_match_history_layer_is_case_insensitive(self) -> None:
+        """Layer name comparison must ignore case in both the collection and the config."""
+        db = MongoDatabase()
+
+        self.assertTrue(
+            db._match_history_layer(
+                "borde_traffic_history_bbip", ["BORDE"], "TRAFFIC_HISTORY_BBIP"
+            )
+        )
+
+    def test_match_history_layer_rejects_unconfigured_layers(self) -> None:
+        """A well-formed history collection name for an unconfigured layer must not match."""
+        db = MongoDatabase()
+
+        self.assertFalse(
+            db._match_history_layer(
+                "UNKNOWN_TRAFFIC_HISTORY_BBIP", ["BORDE"], "TRAFFIC_HISTORY_BBIP"
+            )
+        )
+
+    @patch(f"{MODULE}.TrafficHourSummaryBBIPCollection")
+    @patch(f"{MODULE}.MongoClient")
+    def test_import_data_routes_traffic_hour_summary(
+        self, mock_client_cls, mock_traffic_hour
+    ) -> None:
+        """The traffic hour summary collection name must route to TrafficHourSummaryBBIPCollection."""
+        import tempfile
+
+        mock_db = MagicMock()
+        mock_db.list_collection_names.return_value = ["TRAFFIC_HOUR_SUMMARY_BBIP"]
+        mock_client_cls.return_value.__getitem__.return_value = mock_db
+
+        with tempfile.NamedTemporaryFile(suffix=".csv") as tmp_file:
+            db = MongoDatabase()
+            db.set_uri(self.db_config)
+            db.import_data(
+                name_collection="TRAFFIC_HOUR_SUMMARY_BBIP",
+                config=self.layers_config,
+                input_filepath=tmp_file.name,
+                delimiter=";",
+            )
+
+        mock_traffic_hour.import_data.assert_called_once()
+
+    @patch(f"{MODULE}.IPHourSummaryBBIPCollection")
+    @patch(f"{MODULE}.MongoClient")
+    def test_import_data_routes_ip_hour_summary(
+        self, mock_client_cls, mock_ip_hour
+    ) -> None:
+        """The IP hour summary collection name must route to IPHourSummaryBBIPCollection."""
+        import tempfile
+
+        mock_db = MagicMock()
+        mock_db.list_collection_names.return_value = ["IP_HOUR_SUMMARY_BBIP"]
+        mock_client_cls.return_value.__getitem__.return_value = mock_db
+
+        with tempfile.NamedTemporaryFile(suffix=".csv") as tmp_file:
+            db = MongoDatabase()
+            db.set_uri(self.db_config)
+            db.import_data(
+                name_collection="IP_HOUR_SUMMARY_BBIP",
+                config=self.layers_config,
+                input_filepath=tmp_file.name,
+                delimiter=";",
+            )
+
+        mock_ip_hour.import_data.assert_called_once()
+
+    @patch(f"{MODULE}.TrafficHourSummaryBBIPCollection")
+    @patch(f"{MODULE}.MongoClient")
+    def test_export_data_routes_traffic_hour_summary(
+        self, mock_client_cls, mock_traffic_hour
+    ) -> None:
+        """The traffic hour summary collection name must route to TrafficHourSummaryBBIPCollection."""
+        mock_db = MagicMock()
+        mock_db.list_collection_names.return_value = ["TRAFFIC_HOUR_SUMMARY_BBIP"]
+        mock_client_cls.return_value.__getitem__.return_value = mock_db
+        mock_traffic_hour.export_data.return_value = "/tmp/traffic_hour.csv"
+
+        db = MongoDatabase()
+        db.set_uri(self.db_config)
+        result = db.export_data(
+            config=self.layers_config, name_collection="TRAFFIC_HOUR_SUMMARY_BBIP"
+        )
+
+        self.assertEqual(result, "/tmp/traffic_hour.csv")
+
+    @patch(f"{MODULE}.IPHourSummaryBBIPCollection")
+    @patch(f"{MODULE}.MongoClient")
+    def test_export_data_routes_ip_hour_summary(
+        self, mock_client_cls, mock_ip_hour
+    ) -> None:
+        """The IP hour summary collection name must route to IPHourSummaryBBIPCollection."""
+        mock_db = MagicMock()
+        mock_db.list_collection_names.return_value = ["IP_HOUR_SUMMARY_BBIP"]
+        mock_client_cls.return_value.__getitem__.return_value = mock_db
+        mock_ip_hour.export_data.return_value = "/tmp/ip_hour.csv"
+
+        db = MongoDatabase()
+        db.set_uri(self.db_config)
+        result = db.export_data(
+            config=self.layers_config, name_collection="IP_HOUR_SUMMARY_BBIP"
+        )
+
+        self.assertEqual(result, "/tmp/ip_hour.csv")
 
 
 if __name__ == "__main__":

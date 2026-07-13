@@ -74,7 +74,7 @@ class TestTrafficSourceBBIPCollectionExportData(unittest.TestCase):
                 "link": "http://example.com",
                 "interface": "Gi0/0/0",
                 "capacity": 100.0,
-                "type": "Cisco",
+                "model": "Cisco",
                 "status": "ACTIVO",
                 "layer": "BORDE",
             }
@@ -85,6 +85,20 @@ class TestTrafficSourceBBIPCollectionExportData(unittest.TestCase):
         result = TrafficSourceBBIPCollection.export_data(database)
 
         self.assertEqual(result, "/tmp/out.csv")
+
+    @patch(f"{MODULE}.CSVWriter")
+    def test_passes_dirpath_to_the_writer(self, mock_writer_cls) -> None:
+        """export_data() must forward the given dirpath to CSVWriter."""
+        from pathlib import Path
+
+        database = MagicMock()
+        collection = MagicMock()
+        collection.find.return_value = []
+        database.__getitem__.return_value = collection
+
+        TrafficSourceBBIPCollection.export_data(database, dirpath=Path("/tmp/out"))
+
+        mock_writer_cls.assert_called_once_with(dir=Path("/tmp/out"))
 
 
 class TestTrafficSourceBBIPCollectionImportData(unittest.TestCase):

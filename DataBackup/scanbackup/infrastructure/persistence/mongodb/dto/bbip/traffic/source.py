@@ -6,7 +6,7 @@ class MongoTrafficSourceBBIPDTO(BaseModel):
     link: str
     interface: str
     capacity: float
-    type: str
+    model: str
     status: str
     layer: str
     comments: str | None = None

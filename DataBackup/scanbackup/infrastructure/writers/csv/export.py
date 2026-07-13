@@ -18,9 +18,9 @@ class CSVWriter(BaseWriter):
             delimiter = cfg_metadata.scanner.file_delimiter
 
             if not exclude:
-                rows = [item.model_dump() for item in data]
+                rows = [item.model_dump(by_alias=True) for item in data]
             else:
-                rows = [item.model_dump(exclude=exclude) for item in data]
+                rows = [item.model_dump(by_alias=True, exclude=exclude) for item in data]
             headers = list(rows[0].keys())
 
             with filepath.open("w", newline="", encoding="utf-8") as f:

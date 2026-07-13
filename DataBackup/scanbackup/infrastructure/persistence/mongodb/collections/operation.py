@@ -18,6 +18,7 @@ class CollectionOperation(ABC):
     @abstractmethod
     def export_data(
         database: Database,
+        dirpath: Path | None = None,
         include_id: bool = False,
     ) -> None:
         pass

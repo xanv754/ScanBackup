@@ -38,6 +38,12 @@ from scanbackup.infrastructure.persistence.mongodb.collections.bbip.traffic.summ
 from scanbackup.infrastructure.persistence.mongodb.collections.bbip.ip.summaries.daily import (
     IPDailySummaryBBIPCollection,
 )
+from scanbackup.infrastructure.persistence.mongodb.collections.bbip.traffic.summaries.hour import (
+    TrafficHourSummaryBBIPCollection,
+)
+from scanbackup.infrastructure.persistence.mongodb.collections.bbip.ip.summaries.hour import (
+    IPHourSummaryBBIPCollection,
+)
 
 
 class MongoDatabase:
@@ -57,6 +63,21 @@ class MongoDatabase:
         db = self._client[self._config.name]
         collection_list = db.list_collection_names()
         return name in collection_list
+
+    def _match_history_layer(
+        self, name_collection: str, layer_names: list[str], suffix: str
+    ) -> bool:
+        """Check whether `name_collection` is the history collection of one of `layer_names`.
+
+        History collections are named "<LAYER>_<suffix>" (e.g. "BORDE_TRAFFIC_HISTORY_BBIP"),
+        not the bare layer name, so a plain membership check against `layer_names` never matches.
+        """
+        expected_suffix = "_" + suffix
+        upper_name = name_collection.upper()
+        if not upper_name.endswith(expected_suffix):
+            return False
+        layer_prefix = upper_name[: -len(expected_suffix)]
+        return layer_prefix in {layer.upper() for layer in layer_names}
 
     def set_uri(self, config: DatabaseConfigModel) -> None:
         self._config = config
@@ -133,6 +154,11 @@ class MongoDatabase:
             ):
                 TrafficDailySummaryBBIPCollection.create(database=db)
 
+            if not self._check_collection(
+                MongoCollectionName.TRAFFIC_HOUR_SUMMARY.value
+            ):
+                TrafficHourSummaryBBIPCollection.create(database=db)
+
             # IP SOURCES
             if not self._check_collection(MongoCollectionName.IP_SOURCES.value):
                 IPSourceBBIPCollection.create(database=db)
@@ -150,6 +176,9 @@ class MongoDatabase:
             # IP SUMMARIES
             if not self._check_collection(MongoCollectionName.IP_DAILY_SUMMARY):
                 IPDailySummaryBBIPCollection.create(database=db)
+
+            if not self._check_collection(MongoCollectionName.IP_HOUR_SUMMARY.value):
+                IPHourSummaryBBIPCollection.create(database=db)
         except MongoCreateCollectionError:
             raise
         except MongoConnectionError:
@@ -180,7 +209,9 @@ class MongoDatabase:
                 raise MongoCollectionNotFoundError(name_collection)
 
             # HISTORIES
-            if name_collection in config.bbip.names:
+            if self._match_history_layer(
+                name_collection, config.bbip.names, SuffixCollectionName.TRAFFIC_HISTORIES.value
+            ):
                 TrafficHistoryBBIPCollection.import_data(
                     name_collection=name_collection,
                     database=self._client[self._config.name],
@@ -188,7 +219,9 @@ class MongoDatabase:
                     delimiter=delimiter,
                 )
 
-            elif name_collection in config.ip.names:
+            elif self._match_history_layer(
+                name_collection, config.ip.names, SuffixCollectionName.IP_HISTORIES.value
+            ):
                 IPHistoryBBIPCollection.import_data(
                     name_collection=name_collection,
                     database=self._client[self._config.name],
@@ -226,6 +259,20 @@ class MongoDatabase:
                     delimiter=delimiter,
                 )
 
+            elif name_collection == MongoCollectionName.TRAFFIC_HOUR_SUMMARY.value:
+                TrafficHourSummaryBBIPCollection.import_data(
+                    database=self._client[self._config.name],
+                    input_path=filepath,
+                    delimiter=delimiter,
+                )
+
+            elif name_collection == MongoCollectionName.IP_HOUR_SUMMARY.value:
+                IPHourSummaryBBIPCollection.import_data(
+                    database=self._client[self._config.name],
+                    input_path=filepath,
+                    delimiter=delimiter,
+                )
+
             else:
                 raise LayerNotDefined(layer_name=name_collection)
         except LayerNotDefined:
@@ -251,6 +298,7 @@ class MongoDatabase:
         self,
         config: LayerConfigModel,
         name_collection: str,
+        dirpath: Path | None = None,
         include_id: bool = True,
     ) -> str:
         try:
@@ -260,17 +308,23 @@ class MongoDatabase:
                 raise MongoCollectionNotFoundError(name_collection)
 
             # HISTORIES
-            if name_collection in config.bbip.names:
+            if self._match_history_layer(
+                name_collection, config.bbip.names, SuffixCollectionName.TRAFFIC_HISTORIES.value
+            ):
                 filepath = TrafficHistoryBBIPCollection.export_data(
                     name_collection=name_collection,
                     database=self._client[self._config.name],
+                    dirpath=dirpath,
                     include_id=include_id,
                 )
 
-            elif name_collection in config.ip.names:
+            elif self._match_history_layer(
+                name_collection, config.ip.names, SuffixCollectionName.IP_HISTORIES.value
+            ):
                 filepath = IPHistoryBBIPCollection.export_data(
                     name_collection=name_collection,
                     database=self._client[self._config.name],
+                    dirpath=dirpath,
                     include_id=include_id,
                 )
 
@@ -278,12 +332,14 @@ class MongoDatabase:
             elif name_collection == MongoCollectionName.TRAFFIC_SOURCES.value:
                 filepath = TrafficSourceBBIPCollection.export_data(
                     database=self._client[self._config.name],
+                    dirpath=dirpath,
                     include_id=include_id,
                 )
 
             elif name_collection == MongoCollectionName.IP_SOURCES.value:
                 filepath = IPSourceBBIPCollection.export_data(
                     database=self._client[self._config.name],
+                    dirpath=dirpath,
                     include_id=include_id,
                 )
 
@@ -291,12 +347,28 @@ class MongoDatabase:
             elif name_collection == MongoCollectionName.TRAFFIC_DAILY_SUMMARY.value:
                 filepath = TrafficDailySummaryBBIPCollection.export_data(
                     database=self._client[self._config.name],
+                    dirpath=dirpath,
                     include_id=include_id,
                 )
 
             elif name_collection == MongoCollectionName.IP_DAILY_SUMMARY.value:
                 filepath = IPDailySummaryBBIPCollection.export_data(
                     database=self._client[self._config.name],
+                    dirpath=dirpath,
+                    include_id=include_id,
+                )
+
+            elif name_collection == MongoCollectionName.TRAFFIC_HOUR_SUMMARY.value:
+                filepath = TrafficHourSummaryBBIPCollection.export_data(
+                    database=self._client[self._config.name],
+                    dirpath=dirpath,
+                    include_id=include_id,
+                )
+
+            elif name_collection == MongoCollectionName.IP_HOUR_SUMMARY.value:
+                filepath = IPHourSummaryBBIPCollection.export_data(
+                    database=self._client[self._config.name],
+                    dirpath=dirpath,
                     include_id=include_id,
                 )
 

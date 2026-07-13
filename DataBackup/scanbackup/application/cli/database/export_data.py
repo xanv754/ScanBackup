@@ -1,3 +1,4 @@
+from pathlib import Path
 from scanbackup.infrastructure.persistence.mongodb.connections.database import (
     MongoDatabase,
 )
@@ -29,6 +30,7 @@ def export_data_from_database(
             filepath_export = database.export_data(
                 config=cfg_layers,
                 name_collection=collection,
+                dirpath=Path(dirpath),
                 include_id=id,
             )
         except Exception:

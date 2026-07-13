@@ -37,6 +37,23 @@ class TestMongoIPHistoryBBIPDTO(unittest.TestCase):
         )
         self.assertIsNone(dto.id)
 
+    def test_builds_from_the_real_mongo_document_shape(self) -> None:
+        """The DTO must accept the actual Mongo field names (camelCase + id_source ObjectId)."""
+        device_id = ObjectId()
+        doc = {
+            "date": date(2026, 1, 1),
+            "time": time(10, 0),
+            "inProm": 1.0,
+            "inMax": 2.0,
+            "id_source": device_id,
+        }
+
+        dto = MongoIPHistoryBBIPDTO(**doc)
+
+        self.assertEqual(dto.in_prom, 1.0)
+        self.assertEqual(dto.in_max, 2.0)
+        self.assertEqual(dto.device, str(device_id))
+
 
 if __name__ == "__main__":
     unittest.main()

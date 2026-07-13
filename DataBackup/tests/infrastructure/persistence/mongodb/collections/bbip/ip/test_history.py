@@ -93,6 +93,22 @@ class TestIPHistoryBBIPCollectionExportData(unittest.TestCase):
 
         self.assertEqual(result, "/tmp/out.csv")
 
+    @patch(f"{MODULE}.CSVWriter")
+    def test_passes_dirpath_to_the_writer(self, mock_writer_cls) -> None:
+        """export_data() must forward the given dirpath to CSVWriter."""
+        from pathlib import Path
+
+        database = MagicMock()
+        collection = MagicMock()
+        collection.find.return_value = []
+        database.__getitem__.return_value = collection
+
+        IPHistoryBBIPCollection.export_data(
+            "BORDE_IP_HISTORY_BBIP", database, dirpath=Path("/tmp/out")
+        )
+
+        mock_writer_cls.assert_called_once_with(dir=Path("/tmp/out"))
+
 
 class TestIPHistoryBBIPCollectionImportData(unittest.TestCase):
     """Unit tests for IPHistoryBBIPCollection.import_data."""

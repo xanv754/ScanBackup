@@ -1,4 +1,5 @@
 import unittest
+from pathlib import Path
 from unittest.mock import MagicMock, patch
 from scanbackup.application.cli.database.export_data import export_data_from_database
 
@@ -27,7 +28,10 @@ class TestExportDataFromDatabase(unittest.TestCase):
         export_data_from_database(collection="TRAFFIC_SOURCE_BBIP", dirpath="/tmp")
 
         database.export_data.assert_called_once_with(
-            config=cfg_layers, name_collection="TRAFFIC_SOURCE_BBIP", include_id=False
+            config=cfg_layers,
+            name_collection="TRAFFIC_SOURCE_BBIP",
+            dirpath=Path("/tmp"),
+            include_id=False,
         )
         final_message = terminal.info.call_args_list[-1].args[0]
         self.assertIn("/tmp/out.csv", final_message)

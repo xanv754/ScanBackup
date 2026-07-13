@@ -14,7 +14,7 @@ class TestMongoIPSourceBBIPDTO(unittest.TestCase):
         doc = {
             "_id": oid,
             "link": "http://example.com",
-            "device": "Gi0/0/0",
+            "interface": "Gi0/0/0",
             "status": "ACTIVO",
             "layer": "DINT",
         }
@@ -27,7 +27,7 @@ class TestMongoIPSourceBBIPDTO(unittest.TestCase):
     def test_id_defaults_to_none_when_omitted(self) -> None:
         """Building the DTO without an id (e.g. a projected-out '_id') must not fail."""
         dto = MongoIPSourceBBIPDTO(
-            link="http://example.com", device="Gi0/0/0", status="ACTIVO", layer="DINT"
+            link="http://example.com", interface="Gi0/0/0", status="ACTIVO", layer="DINT"
         )
         self.assertIsNone(dto.id)
 

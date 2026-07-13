@@ -77,6 +77,7 @@ class TrafficSourceBBIPCollection(CollectionOperation):
     @staticmethod
     def export_data(
         database: Database,
+        dirpath: Path | None = None,
         include_id: bool = False,
     ) -> str:
         name_collection = TrafficSourceBBIPCollection._NAME
@@ -91,7 +92,7 @@ class TrafficSourceBBIPCollection(CollectionOperation):
                 else [MongoTrafficSourceBBIPDTO(**doc) for doc in documents]
             )
 
-            writer = CSVWriter()
+            writer = CSVWriter(dir=dirpath)
             return writer.export(
                 filename=TrafficSourceBBIPCollection._NAME, data=data
             )

@@ -41,7 +41,7 @@ class IPSourceBBIPCollection(CollectionOperation):
             collection.create_index(
                 [
                     (IPSourceBBIPField.LAYER.value, ASCENDING),
-                    (IPSourceBBIPField.LINK.value, ASCENDING),
+                    (IPSourceBBIPField.INTERFACE.value, ASCENDING),
                 ],
                 unique=True,
                 name=f"unique_{name_collection.lower()}",
@@ -73,6 +73,7 @@ class IPSourceBBIPCollection(CollectionOperation):
     @staticmethod
     def export_data(
         database: Database,
+        dirpath: Path | None = None,
         include_id: bool = False,
     ) -> str:
         name_collection = IPSourceBBIPCollection._NAME
@@ -87,7 +88,7 @@ class IPSourceBBIPCollection(CollectionOperation):
                 else [MongoIPSourceBBIPDTO(**doc) for doc in documents]
             )
 
-            writer = CSVWriter()
+            writer = CSVWriter(dir=dirpath)
             return writer.export(filename=IPSourceBBIPCollection._NAME, data=data)
         except Exception as error:
             raise MongoExportCollectionError(name_collection, error=error)

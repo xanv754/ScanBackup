@@ -70,7 +70,7 @@ class TestIPSourceBBIPCollectionExportData(unittest.TestCase):
         database = MagicMock()
         collection = MagicMock()
         collection.find.return_value = [
-            {"link": "http://example.com", "device": "Gi0/0/0", "status": "ACTIVO", "layer": "DINT"}
+            {"link": "http://example.com", "interface": "Gi0/0/0", "status": "ACTIVO", "layer": "DINT"}
         ]
         database.__getitem__.return_value = collection
         mock_writer_cls.return_value.export.return_value = "/tmp/out.csv"
@@ -88,7 +88,7 @@ class TestIPSourceBBIPCollectionExportData(unittest.TestCase):
             {
                 "_id": "abc123",
                 "link": "http://example.com",
-                "device": "Gi0/0/0",
+                "interface": "Gi0/0/0",
                 "status": "ACTIVO",
                 "layer": "DINT",
             }
@@ -100,6 +100,20 @@ class TestIPSourceBBIPCollectionExportData(unittest.TestCase):
 
         exported_data = mock_writer_cls.return_value.export.call_args.kwargs["data"]
         self.assertEqual(exported_data[0].id, "abc123")
+
+    @patch(f"{MODULE}.CSVWriter")
+    def test_passes_dirpath_to_the_writer(self, mock_writer_cls) -> None:
+        """export_data() must forward the given dirpath to CSVWriter."""
+        from pathlib import Path
+
+        database = MagicMock()
+        collection = MagicMock()
+        collection.find.return_value = []
+        database.__getitem__.return_value = collection
+
+        IPSourceBBIPCollection.export_data(database, dirpath=Path("/tmp/out"))
+
+        mock_writer_cls.assert_called_once_with(dir=Path("/tmp/out"))
 
 
 class TestIPSourceBBIPCollectionImportData(unittest.TestCase):

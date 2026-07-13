@@ -1,13 +1,12 @@
 from typing import Any, Dict
 from scanbackup.domain import IPSourceBBIPField
 
-
 SOURCE_IP_BBIP_SCHEMA: Dict[str, Dict[str, Any]] = {
     "$jsonSchema": {
         "bsonType": "object",
         "required": [
             IPSourceBBIPField.LINK.value,
-            IPSourceBBIPField.DEVICE.value,
+            IPSourceBBIPField.INTERFACE.value,
             IPSourceBBIPField.STATUS.value,
         ],
         "properties": {
@@ -15,7 +14,7 @@ SOURCE_IP_BBIP_SCHEMA: Dict[str, Dict[str, Any]] = {
                 "bsonType": "string",
                 "description": "URL link to the device logs",
             },
-            IPSourceBBIPField.DEVICE.value: {
+            IPSourceBBIPField.INTERFACE.value: {
                 "bsonType": "string",
                 "description": "Interface name of the device",
             },

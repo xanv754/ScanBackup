@@ -16,7 +16,7 @@ class TestMongoTrafficSourceBBIPDTO(unittest.TestCase):
             "link": "http://example.com",
             "interface": "Gi0/0/0",
             "capacity": 100.0,
-            "type": "Cisco",
+            "model": "Cisco",
             "status": "ACTIVO",
             "layer": "BORDE",
             "comments": None,
@@ -25,7 +25,7 @@ class TestMongoTrafficSourceBBIPDTO(unittest.TestCase):
         dto = MongoTrafficSourceBBIPDTO.from_mongo(doc)
 
         self.assertEqual(dto.id, str(oid))
-        self.assertEqual(dto.type, "Cisco")
+        self.assertEqual(dto.model, "Cisco")
 
     def test_comments_defaults_to_none(self) -> None:
         """Omitting comments must default to None instead of raising."""
@@ -35,7 +35,7 @@ class TestMongoTrafficSourceBBIPDTO(unittest.TestCase):
             "link": "http://example.com",
             "interface": "Gi0/0/0",
             "capacity": 100.0,
-            "type": "Cisco",
+            "model": "Cisco",
             "status": "ACTIVO",
             "layer": "BORDE",
         }
@@ -50,7 +50,7 @@ class TestMongoTrafficSourceBBIPDTO(unittest.TestCase):
             link="http://example.com",
             interface="Gi0/0/0",
             capacity=100.0,
-            type="Cisco",
+            model="Cisco",
             status="ACTIVO",
             layer="BORDE",
         )
