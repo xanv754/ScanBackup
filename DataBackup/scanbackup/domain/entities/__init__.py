@@ -14,6 +14,10 @@ from scanbackup.domain.entities.bbip.traffic.summaries.hour import (
     TrafficHourSummaryBBIPField,
     TrafficHourSummaryBBIPEntity,
 )
+from scanbackup.domain.entities.bbip.traffic.reports.daily import (
+    TrafficDailyReportBBIPField,
+    TrafficDailyReportBBIPEntity,
+)
 from scanbackup.domain.entities.bbip.ip.source import (
     IPSourceBBIPField,
     IPSourceBBIPEntity,
@@ -40,6 +44,8 @@ __all__ = [
     "TrafficDailySummaryBBIPEntity",
     "TrafficHourSummaryBBIPField",
     "TrafficHourSummaryBBIPEntity",
+    "TrafficDailyReportBBIPField",
+    "TrafficDailyReportBBIPEntity",
     "IPSourceBBIPField",
     "IPSourceBBIPEntity",
     "IPActiveBBIPField",

@@ -14,7 +14,7 @@ class TestSystemCli(unittest.TestCase):
         """The root group must expose database, sources, history and summaries."""
         result = self.runner.invoke(cli, ["--help"])
         self.assertEqual(result.exit_code, 0)
-        for name in ["database", "sources", "history", "summaries"]:
+        for name in ["database", "sources", "history", "summaries", "reports"]:
             self.assertIn(name, result.output)
 
 

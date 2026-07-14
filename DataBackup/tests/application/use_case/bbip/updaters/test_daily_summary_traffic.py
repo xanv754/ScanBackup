@@ -4,8 +4,8 @@ from unittest.mock import MagicMock
 from bson import ObjectId
 from scanbackup.application.use_case.bbip.updaters.daily_summary_traffic import (
     TrafficDailySummaryUpdaterUseCase,
-    FACTOR_BBIP,
 )
+from scanbackup.domain.services.bbip.traffic_summary import FACTOR_BBIP
 from scanbackup.domain import TrafficDailySummaryBBIPEntity, TrafficBBIPEntity, TrafficSourceBBIPEntity
 
 

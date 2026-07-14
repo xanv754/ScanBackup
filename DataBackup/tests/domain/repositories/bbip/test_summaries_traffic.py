@@ -1,4 +1,5 @@
 import unittest
+from datetime import date
 from scanbackup.domain.repositories.bbip.summaries.traffic import (
     TrafficDailySummaryBBIPRepository,
     TrafficHourSummaryBBIPRepository,
@@ -12,6 +13,18 @@ class TestTrafficDailySummaryBBIPRepository(unittest.TestCase):
         """The base insert method must be callable and return nothing."""
         repository = TrafficDailySummaryBBIPRepository()
         result = repository.insert([])
+        self.assertIsNone(result)
+
+    def test_get_by_date_is_a_no_op(self) -> None:
+        """The base get_by_date method must be callable and return nothing."""
+        repository = TrafficDailySummaryBBIPRepository()
+        result = repository.get_by_date(date(2026, 1, 1))
+        self.assertIsNone(result)
+
+    def test_get_by_date_range_is_a_no_op(self) -> None:
+        """The base get_by_date_range method must be callable and return nothing."""
+        repository = TrafficDailySummaryBBIPRepository()
+        result = repository.get_by_date_range(date(2026, 1, 1), date(2026, 1, 31))
         self.assertIsNone(result)
 
 

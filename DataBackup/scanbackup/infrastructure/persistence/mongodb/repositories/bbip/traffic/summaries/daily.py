@@ -1,3 +1,4 @@
+from datetime import date
 from pymongo import ReplaceOne
 from pymongo.errors import BulkWriteError
 
@@ -9,6 +10,7 @@ from scanbackup.domain import (
 from scanbackup.shared import (
     Configuration,
     MongoInsertFailedError,
+    MongoGetFailedError,
     MongoConnectionError,
 )
 from scanbackup.infrastructure.persistence.mongodb.connections.database import (
@@ -68,6 +70,71 @@ class MongoTrafficDailySummaryBBIPRepository(TrafficDailySummaryBBIPRepository):
             raise MongoInsertFailedError(
                 error=error,
                 extra_msg=f"Fallo al insertar nuevos valores históricos en la colección {MongoCollectionName.TRAFFIC_DAILY_SUMMARY.value}",
+            )
+        finally:
+            client.close_connection()
+
+    def get_by_date(self, target_date: date) -> list[TrafficDailySummaryBBIPEntity]:
+        client = MongoDatabase()
+        try:
+            collection = self._get_collection(client)
+            documents = collection.find(
+                {TrafficDailySummaryBBIPField.DATE.value: target_date.isoformat()}
+            )
+            return [
+                TrafficDailySummaryBBIPEntity(
+                    date=doc[TrafficDailySummaryBBIPField.DATE.value],
+                    in_prom=doc[TrafficDailySummaryBBIPField.IN_PROM.value],
+                    in_max=doc[TrafficDailySummaryBBIPField.IN_MAX.value],
+                    out_prom=doc[TrafficDailySummaryBBIPField.OUT_PROM.value],
+                    out_max=doc[TrafficDailySummaryBBIPField.OUT_MAX.value],
+                    use=doc[TrafficDailySummaryBBIPField.USE.value],
+                    device=doc[TrafficDailySummaryBBIPField.DEVICE.value],
+                )
+                for doc in documents
+            ]
+        except MongoConnectionError:
+            raise
+        except Exception as error:
+            raise MongoGetFailedError(
+                name_collection=MongoCollectionName.TRAFFIC_DAILY_SUMMARY.value,
+                error=error,
+            )
+        finally:
+            client.close_connection()
+
+    def get_by_date_range(
+        self, start_date: date, end_date: date
+    ) -> list[TrafficDailySummaryBBIPEntity]:
+        client = MongoDatabase()
+        try:
+            collection = self._get_collection(client)
+            documents = collection.find(
+                {
+                    TrafficDailySummaryBBIPField.DATE.value: {
+                        "$gte": start_date.isoformat(),
+                        "$lte": end_date.isoformat(),
+                    }
+                }
+            )
+            return [
+                TrafficDailySummaryBBIPEntity(
+                    date=doc[TrafficDailySummaryBBIPField.DATE.value],
+                    in_prom=doc[TrafficDailySummaryBBIPField.IN_PROM.value],
+                    in_max=doc[TrafficDailySummaryBBIPField.IN_MAX.value],
+                    out_prom=doc[TrafficDailySummaryBBIPField.OUT_PROM.value],
+                    out_max=doc[TrafficDailySummaryBBIPField.OUT_MAX.value],
+                    use=doc[TrafficDailySummaryBBIPField.USE.value],
+                    device=doc[TrafficDailySummaryBBIPField.DEVICE.value],
+                )
+                for doc in documents
+            ]
+        except MongoConnectionError:
+            raise
+        except Exception as error:
+            raise MongoGetFailedError(
+                name_collection=MongoCollectionName.TRAFFIC_DAILY_SUMMARY.value,
+                error=error,
             )
         finally:
             client.close_connection()
