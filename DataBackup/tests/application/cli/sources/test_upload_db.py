@@ -14,10 +14,18 @@ MODULE = "scanbackup.application.cli.sources.upload_db"
 class TestTrafficUploadToDatabase(unittest.TestCase):
     """Unit tests for the traffic_upload_to_database CLI orchestration function."""
 
+    @patch(f"{MODULE}.CSVWriter")
+    @patch(f"{MODULE}.TrafficSourceBBIPReader")
     @patch(f"{MODULE}.TrafficSourceUpdaterUseCase")
     @patch(f"{MODULE}.MongoTrafficSourceBBIPRepository")
     def test_executes_the_use_case_with_the_given_file(
-        self, mock_repo_cls, mock_use_case_cls, mock_log, mock_terminal
+        self,
+        mock_repo_cls,
+        mock_use_case_cls,
+        mock_reader_cls,
+        mock_writer_cls,
+        mock_log,
+        mock_terminal,
     ) -> None:
         """The given filepath must be wrapped into a Path and passed to the use case."""
         use_case = MagicMock()
@@ -26,7 +34,10 @@ class TestTrafficUploadToDatabase(unittest.TestCase):
         traffic_upload_to_database("/tmp/sources.csv")
 
         mock_use_case_cls.assert_called_once_with(
-            repository=mock_repo_cls.return_value, path=Path("/tmp/sources.csv")
+            repository=mock_repo_cls.return_value,
+            path=Path("/tmp/sources.csv"),
+            reader=mock_reader_cls.return_value,
+            writer_factory=mock_writer_cls,
         )
         use_case.execute.assert_called_once()
 
@@ -46,10 +57,18 @@ class TestTrafficUploadToDatabase(unittest.TestCase):
 class TestIPUploadToDatabase(unittest.TestCase):
     """Unit tests for the ip_upload_to_database CLI orchestration function."""
 
+    @patch(f"{MODULE}.CSVWriter")
+    @patch(f"{MODULE}.IPSourceBBIPReader")
     @patch(f"{MODULE}.IPSourceUpdaterUseCase")
     @patch(f"{MODULE}.MongoIPSourceBBIPRepository")
     def test_executes_the_use_case_with_the_given_file(
-        self, mock_repo_cls, mock_use_case_cls, mock_log, mock_terminal
+        self,
+        mock_repo_cls,
+        mock_use_case_cls,
+        mock_reader_cls,
+        mock_writer_cls,
+        mock_log,
+        mock_terminal,
     ) -> None:
         """The given filepath must be wrapped into a Path and passed to the use case."""
         use_case = MagicMock()
@@ -58,7 +77,10 @@ class TestIPUploadToDatabase(unittest.TestCase):
         ip_upload_to_database("/tmp/sources.csv")
 
         mock_use_case_cls.assert_called_once_with(
-            repository=mock_repo_cls.return_value, path=Path("/tmp/sources.csv")
+            repository=mock_repo_cls.return_value,
+            path=Path("/tmp/sources.csv"),
+            reader=mock_reader_cls.return_value,
+            writer_factory=mock_writer_cls,
         )
         use_case.execute.assert_called_once()
 

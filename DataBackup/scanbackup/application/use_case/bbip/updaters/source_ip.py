@@ -1,24 +1,35 @@
+from collections.abc import Callable
 from pathlib import Path
 from scanbackup.domain import (
     IPSourceBBIPField,
     IPSourceBBIPRepository,
     IPSourceBBIPEntity,
 )
-from scanbackup.infrastructure import IPSourceBBIPReader, CSVWriter
+from scanbackup.infrastructure.readers.reader import BaseReader
+from scanbackup.infrastructure.writers.writer import BaseWriter
 from scanbackup.shared import CSVExportError, Log
 
 
 class IPSourceUpdaterUseCase:
     _repo: IPSourceBBIPRepository
     _path: Path
+    _reader: BaseReader
+    _writer_factory: Callable[..., BaseWriter]
 
-    def __init__(self, repository: IPSourceBBIPRepository, path: Path) -> None:
+    def __init__(
+        self,
+        repository: IPSourceBBIPRepository,
+        path: Path,
+        reader: BaseReader,
+        writer_factory: Callable[..., BaseWriter],
+    ) -> None:
         self._repo = repository
         self._path = path
+        self._reader = reader
+        self._writer_factory = writer_factory
 
     def execute(self) -> None:
-        reader = IPSourceBBIPReader()
-        sources: list[IPSourceBBIPEntity] = reader.import_data(self._path)
+        sources: list[IPSourceBBIPEntity] = self._reader.import_data(self._path)
         present_keys = [
             {
                 IPSourceBBIPField.INTERFACE.value: s.interface,
@@ -35,7 +46,7 @@ class IPSourceUpdaterUseCase:
                 layer = layer.upper()
                 data = self._repo.get_sources_by_layer(layer)
 
-                csv = CSVWriter(dir=self._path)
+                csv = self._writer_factory(dir=self._path)
                 csv.export(
                     filename=layer,
                     data=data,

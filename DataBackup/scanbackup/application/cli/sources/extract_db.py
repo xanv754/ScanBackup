@@ -2,6 +2,9 @@ from pathlib import Path
 from scanbackup.infrastructure import (
     MongoTrafficSourceBBIPRepository,
     MongoIPSourceBBIPRepository,
+    TrafficSourceBBIPReader,
+    IPSourceBBIPReader,
+    CSVWriter,
 )
 from scanbackup.application.use_case.bbip.updaters.source_traffic import (
     TrafficSourceUpdaterUseCase,
@@ -33,7 +36,12 @@ def traffic_export_from_database(
 
             terminal.loading(status, "Exportando información...")
 
-            process = TrafficSourceUpdaterUseCase(repository=repository, path=dirpath)
+            process = TrafficSourceUpdaterUseCase(
+                repository=repository,
+                path=dirpath,
+                reader=TrafficSourceBBIPReader(),
+                writer_factory=CSVWriter,
+            )
             if not layer:
                 layers = cfg_layers.bbip.names
             else:
@@ -69,7 +77,12 @@ def ip_export_from_database(path: str | None = None, layer: str | None = None) -
 
             terminal.loading(status, "Exportando información...")
 
-            process = IPSourceUpdaterUseCase(repository=repository, path=dirpath)
+            process = IPSourceUpdaterUseCase(
+                repository=repository,
+                path=dirpath,
+                reader=IPSourceBBIPReader(),
+                writer_factory=CSVWriter,
+            )
             if not layer:
                 layers = cfg_layers.ip.names
             else:

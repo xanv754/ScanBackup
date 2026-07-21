@@ -14,11 +14,20 @@ MODULE = "scanbackup.application.cli.sources.extract_db"
 class TestTrafficExportFromDatabase(unittest.TestCase):
     """Unit tests for the traffic_export_from_database CLI orchestration function."""
 
+    @patch(f"{MODULE}.CSVWriter")
+    @patch(f"{MODULE}.TrafficSourceBBIPReader")
     @patch(f"{MODULE}.TrafficSourceUpdaterUseCase")
     @patch(f"{MODULE}.MongoTrafficSourceBBIPRepository")
     @patch(f"{MODULE}.Configuration")
     def test_exports_all_configured_bbip_layers_when_none_given(
-        self, mock_configuration, mock_repo_cls, mock_use_case_cls, mock_log, mock_terminal
+        self,
+        mock_configuration,
+        mock_repo_cls,
+        mock_use_case_cls,
+        mock_reader_cls,
+        mock_writer_cls,
+        mock_log,
+        mock_terminal,
     ) -> None:
         """Without --layer, every configured BBIP layer name must be exported."""
         cfg_layers = MagicMock()
@@ -31,7 +40,10 @@ class TestTrafficExportFromDatabase(unittest.TestCase):
 
         use_case.export.assert_called_once_with(["BORDE", "RAI"])
         mock_use_case_cls.assert_called_once_with(
-            repository=mock_repo_cls.return_value, path=Path("/tmp/out")
+            repository=mock_repo_cls.return_value,
+            path=Path("/tmp/out"),
+            reader=mock_reader_cls.return_value,
+            writer_factory=mock_writer_cls,
         )
 
     @patch(f"{MODULE}.TrafficSourceUpdaterUseCase")
@@ -49,11 +61,20 @@ class TestTrafficExportFromDatabase(unittest.TestCase):
 
         use_case.export.assert_called_once_with(["BORDE"])
 
+    @patch(f"{MODULE}.CSVWriter")
+    @patch(f"{MODULE}.TrafficSourceBBIPReader")
     @patch(f"{MODULE}.TrafficSourceUpdaterUseCase")
     @patch(f"{MODULE}.MongoTrafficSourceBBIPRepository")
     @patch(f"{MODULE}.Configuration")
     def test_defaults_to_home_when_no_path_given(
-        self, mock_configuration, mock_repo_cls, mock_use_case_cls, mock_log, mock_terminal
+        self,
+        mock_configuration,
+        mock_repo_cls,
+        mock_use_case_cls,
+        mock_reader_cls,
+        mock_writer_cls,
+        mock_log,
+        mock_terminal,
     ) -> None:
         """Without --dirpath, the export must default to the user's home directory."""
         mock_configuration.return_value.get_cfg_layers.return_value = MagicMock(
@@ -63,7 +84,10 @@ class TestTrafficExportFromDatabase(unittest.TestCase):
         traffic_export_from_database()
 
         mock_use_case_cls.assert_called_once_with(
-            repository=mock_repo_cls.return_value, path=Path.home()
+            repository=mock_repo_cls.return_value,
+            path=Path.home(),
+            reader=mock_reader_cls.return_value,
+            writer_factory=mock_writer_cls,
         )
 
     @patch(f"{MODULE}.TrafficSourceUpdaterUseCase")
@@ -83,11 +107,20 @@ class TestTrafficExportFromDatabase(unittest.TestCase):
 class TestIPExportFromDatabase(unittest.TestCase):
     """Unit tests for the ip_export_from_database CLI orchestration function."""
 
+    @patch(f"{MODULE}.CSVWriter")
+    @patch(f"{MODULE}.IPSourceBBIPReader")
     @patch(f"{MODULE}.IPSourceUpdaterUseCase")
     @patch(f"{MODULE}.MongoIPSourceBBIPRepository")
     @patch(f"{MODULE}.Configuration")
     def test_exports_all_configured_ip_layers_when_none_given(
-        self, mock_configuration, mock_repo_cls, mock_use_case_cls, mock_log, mock_terminal
+        self,
+        mock_configuration,
+        mock_repo_cls,
+        mock_use_case_cls,
+        mock_reader_cls,
+        mock_writer_cls,
+        mock_log,
+        mock_terminal,
     ) -> None:
         """Without --layer, every configured IP layer name must be exported."""
         cfg_layers = MagicMock()
@@ -100,7 +133,10 @@ class TestIPExportFromDatabase(unittest.TestCase):
 
         use_case.export.assert_called_once_with(["IP_BRAS"])
         mock_use_case_cls.assert_called_once_with(
-            repository=mock_repo_cls.return_value, path=Path("/tmp/out")
+            repository=mock_repo_cls.return_value,
+            path=Path("/tmp/out"),
+            reader=mock_reader_cls.return_value,
+            writer_factory=mock_writer_cls,
         )
 
     @patch(f"{MODULE}.IPSourceUpdaterUseCase")
@@ -118,11 +154,20 @@ class TestIPExportFromDatabase(unittest.TestCase):
 
         use_case.export.assert_called_once_with(["IP_BRAS"])
 
+    @patch(f"{MODULE}.CSVWriter")
+    @patch(f"{MODULE}.IPSourceBBIPReader")
     @patch(f"{MODULE}.IPSourceUpdaterUseCase")
     @patch(f"{MODULE}.MongoIPSourceBBIPRepository")
     @patch(f"{MODULE}.Configuration")
     def test_defaults_to_home_when_no_path_given(
-        self, mock_configuration, mock_repo_cls, mock_use_case_cls, mock_log, mock_terminal
+        self,
+        mock_configuration,
+        mock_repo_cls,
+        mock_use_case_cls,
+        mock_reader_cls,
+        mock_writer_cls,
+        mock_log,
+        mock_terminal,
     ) -> None:
         """Without --dirpath, the export must default to the user's home directory."""
         mock_configuration.return_value.get_cfg_layers.return_value = MagicMock(
@@ -132,7 +177,10 @@ class TestIPExportFromDatabase(unittest.TestCase):
         ip_export_from_database()
 
         mock_use_case_cls.assert_called_once_with(
-            repository=mock_repo_cls.return_value, path=Path.home()
+            repository=mock_repo_cls.return_value,
+            path=Path.home(),
+            reader=mock_reader_cls.return_value,
+            writer_factory=mock_writer_cls,
         )
 
     @patch(f"{MODULE}.IPSourceUpdaterUseCase")

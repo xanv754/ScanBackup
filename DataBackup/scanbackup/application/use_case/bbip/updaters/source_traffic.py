@@ -1,24 +1,35 @@
+from collections.abc import Callable
 from pathlib import Path
 from scanbackup.domain import (
     TrafficSourceBBIPField,
     TrafficSourceBBIPRepository,
     TrafficSourceBBIPEntity,
 )
-from scanbackup.infrastructure import TrafficSourceBBIPReader, CSVWriter
+from scanbackup.infrastructure.readers.reader import BaseReader
+from scanbackup.infrastructure.writers.writer import BaseWriter
 from scanbackup.shared import CSVExportError, Log
 
 
 class TrafficSourceUpdaterUseCase:
     _repo: TrafficSourceBBIPRepository
     _path: Path
+    _reader: BaseReader
+    _writer_factory: Callable[..., BaseWriter]
 
-    def __init__(self, repository: TrafficSourceBBIPRepository, path: Path) -> None:
+    def __init__(
+        self,
+        repository: TrafficSourceBBIPRepository,
+        path: Path,
+        reader: BaseReader,
+        writer_factory: Callable[..., BaseWriter],
+    ) -> None:
         self._repo = repository
         self._path = path
+        self._reader = reader
+        self._writer_factory = writer_factory
 
     def execute(self) -> None:
-        reader = TrafficSourceBBIPReader()
-        sources: list[TrafficSourceBBIPEntity] = reader.import_data(self._path)
+        sources: list[TrafficSourceBBIPEntity] = self._reader.import_data(self._path)
         present_keys = [
             {
                 TrafficSourceBBIPField.INTERFACE.value: s.interface,
@@ -36,7 +47,7 @@ class TrafficSourceUpdaterUseCase:
                 layer = layer.upper()
                 data = self._repo.get_sources_by_layer(layer)
 
-                csv = CSVWriter(dir=self._path)
+                csv = self._writer_factory(dir=self._path)
                 csv.export(
                     filename=layer,
                     data=data,

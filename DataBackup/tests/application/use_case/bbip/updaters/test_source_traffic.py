@@ -3,28 +3,27 @@ from scanbackup.application.use_case.bbip.updaters.source_traffic import (
     TrafficSourceUpdaterUseCase,
 )
 from scanbackup.domain import TrafficSourceBBIPEntity
+from scanbackup.infrastructure import CSVWriter
 from scanbackup.shared import CSVExportError
 from tests.support import TempDirTestCase
-
-MODULE = "scanbackup.application.use_case.bbip.updaters.source_traffic"
 
 
 class TestTrafficSourceUpdaterUseCase(TempDirTestCase):
     """Unit tests for the TrafficSourceUpdaterUseCase."""
 
     def setUp(self) -> None:
-        """Build a use case instance backed by a mocked repository."""
+        """Build a use case instance backed by a mocked repository and reader."""
         super().setUp()
         self.repo = MagicMock()
-        self.use_case = TrafficSourceUpdaterUseCase(self.repo, self.tmp_dir)
+        self.reader = MagicMock()
+        self.use_case = TrafficSourceUpdaterUseCase(
+            self.repo, self.tmp_dir, reader=self.reader, writer_factory=CSVWriter
+        )
 
-    @patch(f"{MODULE}.TrafficSourceBBIPReader")
-    def test_execute_upserts_and_discontinues_missing_sources(
-        self, mock_reader_cls
-    ) -> None:
+    def test_execute_upserts_and_discontinues_missing_sources(self) -> None:
         """execute() must upsert every parsed source and discontinue the rest."""
         source = MagicMock(interface="Gi0/0/0", layer="BORDE", model="Cisco")
-        mock_reader_cls.return_value.import_data.return_value = [source]
+        self.reader.import_data.return_value = [source]
 
         self.use_case.execute()
 

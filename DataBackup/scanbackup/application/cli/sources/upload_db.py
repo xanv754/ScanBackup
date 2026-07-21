@@ -2,6 +2,9 @@ from pathlib import Path
 from scanbackup.infrastructure import (
     MongoTrafficSourceBBIPRepository,
     MongoIPSourceBBIPRepository,
+    TrafficSourceBBIPReader,
+    IPSourceBBIPReader,
+    CSVWriter,
 )
 from scanbackup.application.use_case.bbip.updaters.source_traffic import (
     TrafficSourceUpdaterUseCase,
@@ -26,7 +29,12 @@ def traffic_upload_to_database(file: str) -> None:
 
             terminal.loading(status, "Procesando información...")
 
-            process = TrafficSourceUpdaterUseCase(repository=repository, path=filepath)
+            process = TrafficSourceUpdaterUseCase(
+                repository=repository,
+                path=filepath,
+                reader=TrafficSourceBBIPReader(),
+                writer_factory=CSVWriter,
+            )
             process.execute()
         except Exception:
             message = "Falla de actualización de los archivos fuentes"
@@ -52,7 +60,12 @@ def ip_upload_to_database(file: str) -> None:
 
             terminal.loading(status, "Procesando información...")
 
-            process = IPSourceUpdaterUseCase(repository=repository, path=filepath)
+            process = IPSourceUpdaterUseCase(
+                repository=repository,
+                path=filepath,
+                reader=IPSourceBBIPReader(),
+                writer_factory=CSVWriter,
+            )
             process.execute()
         except Exception:
             message = "Falla de actualización de los archivos fuentes"
