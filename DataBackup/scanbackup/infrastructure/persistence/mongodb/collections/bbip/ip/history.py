@@ -1,20 +1,11 @@
 from pathlib import Path
-from bson import ObjectId
-from pymongo import ASCENDING, ReplaceOne
+from pymongo import ASCENDING
 from pymongo.database import Database
-from pymongo.errors import CollectionInvalid
-from scanbackup.shared import (
-    FileEmptyError,
-    MongoCreateCollectionError,
-    MongoExportCollectionError,
-    MongoImportCollectionError,
-    MongoDeleteCollectionError,
-    DataContentError,
-)
 from scanbackup.domain import IPActiveBBIPField
 from scanbackup.infrastructure.persistence.mongodb.schemas.bbip.ip.active import (
     IP_HISTORY_SCHEMA,
 )
+from scanbackup.infrastructure.persistence.mongodb.collections import mongo_io
 from scanbackup.infrastructure.readers import IPHistoryBBIPImport
 from scanbackup.infrastructure.writers import CSVWriter
 from scanbackup.infrastructure.persistence.mongodb.dto.bbip.ip.history import (
@@ -23,44 +14,40 @@ from scanbackup.infrastructure.persistence.mongodb.dto.bbip.ip.history import (
 
 
 class IPHistoryBBIPCollection:
+    """Mongo collection for a single BBIP layer's active-IP history (e.g. `DINT_IP_HISTORY_BBIP`)."""
+
     @staticmethod
-    def create(name_collection: str, database: Database) -> None:
-        try:
-            database.create_collection(
-                name=name_collection, validator=IP_HISTORY_SCHEMA
-            )
-            collection = database[name_collection]
-            collection.create_index(
+    def _indexes(name_collection: str) -> tuple[mongo_io.IndexSpec, ...]:
+        """Build the unique device/date/time index and the secondary date index."""
+        return (
+            (
                 [
                     (IPActiveBBIPField.DEVICE.value, ASCENDING),
                     (IPActiveBBIPField.DATE.value, ASCENDING),
                     (IPActiveBBIPField.TIME.value, ASCENDING),
                 ],
-                unique=True,
-                name=f"unique_ip_{name_collection.lower()}",
-            )
-            collection.create_index(
-                [
-                    (IPActiveBBIPField.DATE.value, ASCENDING),
-                ],
-                name=f"date_ip_{name_collection.lower()}",
-            )
-        except CollectionInvalid as error:
-            raise MongoCreateCollectionError(
-                name_collection,
-                error=f"La colección no es válida para creación\n{error}",
-            )
-        except Exception as error:
-            raise MongoCreateCollectionError(name_collection, error=error)
+                True,
+                f"unique_ip_{name_collection.lower()}",
+            ),
+            (
+                [(IPActiveBBIPField.DATE.value, ASCENDING)],
+                False,
+                f"date_ip_{name_collection.lower()}",
+            ),
+        )
+
+    @staticmethod
+    def create(name_collection: str, database: Database) -> None:
+        mongo_io.create_collection(
+            name_collection,
+            database,
+            IP_HISTORY_SCHEMA,
+            IPHistoryBBIPCollection._indexes(name_collection),
+        )
 
     @staticmethod
     def delete(name_collection: str, database: Database) -> None:
-        try:
-            collection = database[name_collection]
-            collection.delete_many({})
-            collection.drop()
-        except Exception as error:
-            raise MongoDeleteCollectionError(name_collection, error=error)
+        mongo_io.delete_collection(name_collection, database)
 
     @staticmethod
     def export_data(
@@ -69,21 +56,14 @@ class IPHistoryBBIPCollection:
         dirpath: Path | None = None,
         include_id: bool = False,
     ) -> str:
-        try:
-            collection = database[name_collection]
-            projection = {} if include_id else {"_id": 0}
-            documents = collection.find({}, projection)
-
-            data = (
-                [MongoIPHistoryBBIPDTO.from_mongo(doc) for doc in documents]
-                if include_id
-                else [MongoIPHistoryBBIPDTO(**doc) for doc in documents]
-            )
-
-            writer = CSVWriter(dir=dirpath)
-            return writer.export(filename=name_collection, data=data)
-        except Exception as error:
-            raise MongoExportCollectionError(name_collection, error=error)
+        return mongo_io.export_collection(
+            name_collection,
+            database,
+            MongoIPHistoryBBIPDTO,
+            CSVWriter,
+            dirpath,
+            include_id,
+        )
 
     @staticmethod
     def import_data(
@@ -92,39 +72,15 @@ class IPHistoryBBIPCollection:
         input_path: Path,
         delimiter: str,
     ) -> None:
-        try:
-            collection = database[name_collection]
-            reader = IPHistoryBBIPImport(delimiter)
-            rows = reader.import_data(input_path)
-
-            operations = []
-            for row in rows:
-                if "_id" in row:
-                    doc_id = ObjectId(row.pop("_id"))
-                    operations.append(ReplaceOne({"_id": doc_id}, row, upsert=True))
-                else:
-                    operations.append(
-                        ReplaceOne(
-                            {
-                                IPActiveBBIPField.DEVICE.value: row[
-                                    IPActiveBBIPField.DEVICE.value
-                                ],
-                                IPActiveBBIPField.DATE.value: row[
-                                    IPActiveBBIPField.DATE.value
-                                ],
-                                IPActiveBBIPField.TIME.value: row[
-                                    IPActiveBBIPField.TIME.value
-                                ],
-                            },
-                            row,
-                            upsert=True,
-                        )
-                    )
-            if operations:
-                collection.bulk_write(operations, ordered=False)
-        except DataContentError:
-            raise
-        except FileEmptyError:
-            return
-        except Exception as error:
-            raise MongoImportCollectionError(name_collection, error=error)
+        mongo_io.import_upsert_by_key(
+            name_collection,
+            database,
+            IPHistoryBBIPImport,
+            input_path,
+            delimiter,
+            (
+                IPActiveBBIPField.DEVICE.value,
+                IPActiveBBIPField.DATE.value,
+                IPActiveBBIPField.TIME.value,
+            ),
+        )

@@ -4,15 +4,17 @@ from pathlib import Path
 
 
 class CollectionOperation(ABC):
+    """Interface for a fixed-name Mongo collection (source or summary)."""
+
     @staticmethod
     @abstractmethod
     def create(database: Database) -> None:
-        pass
+        """Create the collection with its schema validator and indexes."""
 
     @staticmethod
     @abstractmethod
     def delete(database: Database) -> None:
-        pass
+        """Delete every document in the collection and drop it."""
 
     @staticmethod
     @abstractmethod
@@ -21,9 +23,9 @@ class CollectionOperation(ABC):
         dirpath: Path | None = None,
         include_id: bool = False,
     ) -> None:
-        pass
+        """Export every document in the collection to a CSV file."""
 
     @staticmethod
     @abstractmethod
     def import_data(database: Database, input_path: Path, delimiter: str) -> None:
-        pass
+        """Import the rows of `input_path` into the collection."""

@@ -1,15 +1,6 @@
 from pathlib import Path
 from pymongo import ASCENDING
 from pymongo.database import Database
-from pymongo.errors import CollectionInvalid, BulkWriteError
-from scanbackup.shared import (
-    DataContentError,
-    FileEmptyError,
-    MongoCreateCollectionError,
-    MongoExportCollectionError,
-    MongoImportCollectionError,
-    MongoDeleteCollectionError,
-)
 from scanbackup.domain import IPDailySummaryBBIPField
 from scanbackup.infrastructure.persistence.mongodb.constants.collection import (
     MongoCollectionName,
@@ -20,6 +11,7 @@ from scanbackup.infrastructure.persistence.mongodb.schemas.bbip.ip.summaries.dai
 from scanbackup.infrastructure.persistence.mongodb.collections.operation import (
     CollectionOperation,
 )
+from scanbackup.infrastructure.persistence.mongodb.collections import mongo_io
 from scanbackup.infrastructure.readers import IPDailySummaryBBIPImport
 from scanbackup.infrastructure.writers import CSVWriter
 from scanbackup.infrastructure.persistence.mongodb.dto.bbip.ip.summaries import (
@@ -28,48 +20,37 @@ from scanbackup.infrastructure.persistence.mongodb.dto.bbip.ip.summaries import 
 
 
 class IPDailySummaryBBIPCollection(CollectionOperation):
+    """Mongo collection for BBIP active-IP daily summaries (`IP_DAILY_SUMMARY_BBIP`)."""
+
     _NAME = MongoCollectionName.IP_DAILY_SUMMARY.value
+    _INDEXES: tuple[mongo_io.IndexSpec, ...] = (
+        (
+            [
+                (IPDailySummaryBBIPField.DEVICE.value, ASCENDING),
+                (IPDailySummaryBBIPField.DATE.value, ASCENDING),
+            ],
+            True,
+            f"unique_{_NAME.lower()}",
+        ),
+        (
+            [(IPDailySummaryBBIPField.DATE.value, ASCENDING)],
+            False,
+            f"date_{_NAME.lower()}",
+        ),
+    )
 
     @staticmethod
     def create(database: Database) -> None:
-        try:
-            database.create_collection(
-                name=IPDailySummaryBBIPCollection._NAME,
-                validator=DAILY_SUMMARY_SCHEMA,
-            )
-            collection = database[IPDailySummaryBBIPCollection._NAME]
-            collection.create_index(
-                [
-                    (IPDailySummaryBBIPField.DEVICE.value, ASCENDING),
-                    (IPDailySummaryBBIPField.DATE.value, ASCENDING),
-                ],
-                unique=True,
-                name=f"unique_{IPDailySummaryBBIPCollection._NAME.lower()}",
-            )
-            collection.create_index(
-                [(IPDailySummaryBBIPField.DATE.value, ASCENDING)],
-                name=f"date_{IPDailySummaryBBIPCollection._NAME.lower()}",
-            )
-        except CollectionInvalid as error:
-            raise MongoCreateCollectionError(
-                IPDailySummaryBBIPCollection._NAME,
-                error=f"La colección no es válida para creación\n{error}",
-            )
-        except Exception as error:
-            raise MongoCreateCollectionError(
-                IPDailySummaryBBIPCollection._NAME, error=error
-            )
+        mongo_io.create_collection(
+            IPDailySummaryBBIPCollection._NAME,
+            database,
+            DAILY_SUMMARY_SCHEMA,
+            IPDailySummaryBBIPCollection._INDEXES,
+        )
 
     @staticmethod
     def delete(database: Database) -> None:
-        try:
-            collection = database[IPDailySummaryBBIPCollection._NAME]
-            collection.delete_many({})
-            collection.drop()
-        except Exception as error:
-            raise MongoDeleteCollectionError(
-                IPDailySummaryBBIPCollection._NAME, error=error
-            )
+        mongo_io.delete_collection(IPDailySummaryBBIPCollection._NAME, database)
 
     @staticmethod
     def export_data(
@@ -77,25 +58,14 @@ class IPDailySummaryBBIPCollection(CollectionOperation):
         dirpath: Path | None = None,
         include_id: bool = False,
     ) -> str:
-        try:
-            collection = database[IPDailySummaryBBIPCollection._NAME]
-            projection = {} if include_id else {"_id": 0}
-            documents = collection.find({}, projection)
-
-            data = (
-                [MongoIPDailySummaryBBIPDTO.from_mongo(doc) for doc in documents]
-                if include_id
-                else [MongoIPDailySummaryBBIPDTO(**doc) for doc in documents]
-            )
-
-            writer = CSVWriter(dir=dirpath)
-            return writer.export(
-                filename=IPDailySummaryBBIPCollection._NAME, data=data
-            )
-        except Exception as error:
-            raise MongoExportCollectionError(
-                IPDailySummaryBBIPCollection._NAME, error=error
-            )
+        return mongo_io.export_collection(
+            IPDailySummaryBBIPCollection._NAME,
+            database,
+            MongoIPDailySummaryBBIPDTO,
+            CSVWriter,
+            dirpath,
+            include_id,
+        )
 
     @staticmethod
     def import_data(
@@ -103,30 +73,10 @@ class IPDailySummaryBBIPCollection(CollectionOperation):
         input_path: Path,
         delimiter: str,
     ) -> None:
-        try:
-            reader = IPDailySummaryBBIPImport(delimiter)
-            documents = reader.import_data(input_path)
-
-            collection = database[IPDailySummaryBBIPCollection._NAME]
-            try:
-                collection.insert_many(documents, ordered=False)
-            except BulkWriteError as bwe:
-                non_duplicate_errors = [
-                    err
-                    for err in bwe.details.get("writeErrors", [])
-                    if err.get("code") != 11000
-                ]
-                if non_duplicate_errors:
-                    raise MongoImportCollectionError(
-                        IPDailySummaryBBIPCollection._NAME, error=bwe
-                    )
-        except FileEmptyError:
-            return
-        except DataContentError:
-            raise
-        except MongoImportCollectionError:
-            raise
-        except Exception as error:
-            raise MongoImportCollectionError(
-                IPDailySummaryBBIPCollection._NAME, error=error
-            )
+        mongo_io.import_insert_many(
+            IPDailySummaryBBIPCollection._NAME,
+            database,
+            IPDailySummaryBBIPImport,
+            input_path,
+            delimiter,
+        )

@@ -1,20 +1,11 @@
 from pathlib import Path
-from bson import ObjectId
-from pymongo import ASCENDING, ReplaceOne
+from pymongo import ASCENDING
 from pymongo.database import Database
-from pymongo.errors import CollectionInvalid
-from scanbackup.shared import (
-    FileEmptyError,
-    MongoCreateCollectionError,
-    MongoExportCollectionError,
-    MongoImportCollectionError,
-    MongoDeleteCollectionError,
-    DataContentError,
-)
 from scanbackup.domain import TrafficBBIPField
 from scanbackup.infrastructure.persistence.mongodb.schemas.bbip.traffic.data import (
     BBIP_TRAFFIC_SCHEMA,
 )
+from scanbackup.infrastructure.persistence.mongodb.collections import mongo_io
 from scanbackup.infrastructure.readers import (
     TrafficHistoryBBIPImport,
 )
@@ -25,44 +16,40 @@ from scanbackup.infrastructure.writers import CSVWriter
 
 
 class TrafficHistoryBBIPCollection:
+    """Mongo collection for a single BBIP layer's traffic history (e.g. `BORDE_TRAFFIC_HISTORY_BBIP`)."""
+
     @staticmethod
-    def create(name_collection: str, database: Database) -> None:
-        try:
-            database.create_collection(
-                name=name_collection, validator=BBIP_TRAFFIC_SCHEMA
-            )
-            collection = database[name_collection]
-            collection.create_index(
+    def _indexes(name_collection: str) -> tuple[mongo_io.IndexSpec, ...]:
+        """Build the unique device/date/time index and the secondary date index."""
+        return (
+            (
                 [
                     (TrafficBBIPField.DEVICE.value, ASCENDING),
                     (TrafficBBIPField.DATE.value, ASCENDING),
                     (TrafficBBIPField.TIME.value, ASCENDING),
                 ],
-                unique=True,
-                name=f"unique_traffic_{name_collection.lower()}",
-            )
-            collection.create_index(
-                [
-                    (TrafficBBIPField.DATE.value, ASCENDING),
-                ],
-                name=f"date_traffic_{name_collection.lower()}",
-            )
-        except CollectionInvalid as error:
-            raise MongoCreateCollectionError(
-                name_collection,
-                error=f"La colección no es válida para creación\n{error}",
-            )
-        except Exception as error:
-            raise MongoCreateCollectionError(name_collection, error=error)
+                True,
+                f"unique_traffic_{name_collection.lower()}",
+            ),
+            (
+                [(TrafficBBIPField.DATE.value, ASCENDING)],
+                False,
+                f"date_traffic_{name_collection.lower()}",
+            ),
+        )
+
+    @staticmethod
+    def create(name_collection: str, database: Database) -> None:
+        mongo_io.create_collection(
+            name_collection,
+            database,
+            BBIP_TRAFFIC_SCHEMA,
+            TrafficHistoryBBIPCollection._indexes(name_collection),
+        )
 
     @staticmethod
     def delete(name_collection: str, database: Database) -> None:
-        try:
-            collection = database[name_collection]
-            collection.delete_many({})
-            collection.drop()
-        except Exception as error:
-            raise MongoDeleteCollectionError(name_collection, error=error)
+        mongo_io.delete_collection(name_collection, database)
 
     @staticmethod
     def export_data(
@@ -71,21 +58,14 @@ class TrafficHistoryBBIPCollection:
         dirpath: Path | None = None,
         include_id: bool = False,
     ) -> str:
-        try:
-            collection = database[name_collection]
-            projection = {} if include_id else {"_id": 0}
-            documents = collection.find({}, projection)
-
-            data = (
-                [MongoTrafficHistoryBBIPDTO.from_mongo(doc) for doc in documents]
-                if include_id
-                else [MongoTrafficHistoryBBIPDTO(**doc) for doc in documents]
-            )
-
-            writer = CSVWriter(dir=dirpath)
-            return writer.export(filename=name_collection, data=data)
-        except Exception as error:
-            raise MongoExportCollectionError(name_collection, error=error)
+        return mongo_io.export_collection(
+            name_collection,
+            database,
+            MongoTrafficHistoryBBIPDTO,
+            CSVWriter,
+            dirpath,
+            include_id,
+        )
 
     @staticmethod
     def import_data(
@@ -94,40 +74,15 @@ class TrafficHistoryBBIPCollection:
         input_path: Path,
         delimiter: str | None = None,
     ) -> None:
-        try:
-            reader = TrafficHistoryBBIPImport(delimiter)
-            rows = reader.import_data(input_path)
-
-            operations = []
-            for row in rows:
-                if "_id" in row:
-                    doc_id = ObjectId(row.pop("_id"))
-                    operations.append(ReplaceOne({"_id": doc_id}, row, upsert=True))
-                else:
-                    operations.append(
-                        ReplaceOne(
-                            {
-                                TrafficBBIPField.DEVICE.value: row[
-                                    TrafficBBIPField.DEVICE.value
-                                ],
-                                TrafficBBIPField.DATE.value: row[
-                                    TrafficBBIPField.DATE.value
-                                ],
-                                TrafficBBIPField.TIME.value: row[
-                                    TrafficBBIPField.TIME.value
-                                ],
-                            },
-                            row,
-                            upsert=True,
-                        )
-                    )
-
-            if operations:
-                collection = database[name_collection]
-                collection.bulk_write(operations)
-        except FileEmptyError:
-            return
-        except DataContentError:
-            raise
-        except Exception as error:
-            raise MongoImportCollectionError(name_collection, error=error)
+        mongo_io.import_upsert_by_key(
+            name_collection,
+            database,
+            TrafficHistoryBBIPImport,
+            input_path,
+            delimiter,
+            (
+                TrafficBBIPField.DEVICE.value,
+                TrafficBBIPField.DATE.value,
+                TrafficBBIPField.TIME.value,
+            ),
+        )

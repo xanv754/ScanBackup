@@ -1,15 +1,6 @@
 from pathlib import Path
 from pymongo import ASCENDING
 from pymongo.database import Database
-from pymongo.errors import CollectionInvalid, BulkWriteError
-from scanbackup.shared import (
-    FileEmptyError,
-    MongoCreateCollectionError,
-    MongoExportCollectionError,
-    MongoImportCollectionError,
-    MongoDeleteCollectionError,
-    DataContentError,
-)
 from scanbackup.domain import TrafficHourSummaryBBIPField
 from scanbackup.infrastructure.persistence.mongodb.constants.collection import (
     MongoCollectionName,
@@ -20,6 +11,7 @@ from scanbackup.infrastructure.persistence.mongodb.schemas.bbip.traffic.summarie
 from scanbackup.infrastructure.persistence.mongodb.collections.operation import (
     CollectionOperation,
 )
+from scanbackup.infrastructure.persistence.mongodb.collections import mongo_io
 from scanbackup.infrastructure.readers import TrafficHourSummaryBBIPImport
 from scanbackup.infrastructure.persistence.mongodb.dto.bbip.traffic.summaries import (
     MongoTrafficHourSummaryBBIPDTO,
@@ -28,49 +20,38 @@ from scanbackup.infrastructure.writers import CSVWriter
 
 
 class TrafficHourSummaryBBIPCollection(CollectionOperation):
+    """Mongo collection for BBIP traffic hourly summaries (`TRAFFIC_HOUR_SUMMARY_BBIP`)."""
+
     _NAME = MongoCollectionName.TRAFFIC_HOUR_SUMMARY.value
+    _INDEXES: tuple[mongo_io.IndexSpec, ...] = (
+        (
+            [
+                (TrafficHourSummaryBBIPField.DEVICE.value, ASCENDING),
+                (TrafficHourSummaryBBIPField.DATE.value, ASCENDING),
+                (TrafficHourSummaryBBIPField.TIME.value, ASCENDING),
+            ],
+            True,
+            f"unique_{_NAME.lower()}",
+        ),
+        (
+            [(TrafficHourSummaryBBIPField.DATE.value, ASCENDING)],
+            False,
+            f"date_{_NAME.lower()}",
+        ),
+    )
 
     @staticmethod
     def create(database: Database) -> None:
-        try:
-            database.create_collection(
-                name=TrafficHourSummaryBBIPCollection._NAME,
-                validator=HOUR_SUMMARY_SCHEMA,
-            )
-            collection = database[TrafficHourSummaryBBIPCollection._NAME]
-            collection.create_index(
-                [
-                    (TrafficHourSummaryBBIPField.DEVICE.value, ASCENDING),
-                    (TrafficHourSummaryBBIPField.DATE.value, ASCENDING),
-                    (TrafficHourSummaryBBIPField.TIME.value, ASCENDING),
-                ],
-                unique=True,
-                name=f"unique_{TrafficHourSummaryBBIPCollection._NAME.lower()}",
-            )
-            collection.create_index(
-                [(TrafficHourSummaryBBIPField.DATE.value, ASCENDING)],
-                name=f"date_{TrafficHourSummaryBBIPCollection._NAME.lower()}",
-            )
-        except CollectionInvalid as error:
-            raise MongoCreateCollectionError(
-                TrafficHourSummaryBBIPCollection._NAME,
-                error=f"La colección no es válida para creación\n{error}",
-            )
-        except Exception as error:
-            raise MongoCreateCollectionError(
-                TrafficHourSummaryBBIPCollection._NAME, error=error
-            )
+        mongo_io.create_collection(
+            TrafficHourSummaryBBIPCollection._NAME,
+            database,
+            HOUR_SUMMARY_SCHEMA,
+            TrafficHourSummaryBBIPCollection._INDEXES,
+        )
 
     @staticmethod
     def delete(database: Database) -> None:
-        try:
-            collection = database[TrafficHourSummaryBBIPCollection._NAME]
-            collection.delete_many({})
-            collection.drop()
-        except Exception as error:
-            raise MongoDeleteCollectionError(
-                TrafficHourSummaryBBIPCollection._NAME, error=error
-            )
+        mongo_io.delete_collection(TrafficHourSummaryBBIPCollection._NAME, database)
 
     @staticmethod
     def export_data(
@@ -78,25 +59,14 @@ class TrafficHourSummaryBBIPCollection(CollectionOperation):
         dirpath: Path | None = None,
         include_id: bool = False,
     ) -> str:
-        try:
-            collection = database[TrafficHourSummaryBBIPCollection._NAME]
-            projection = {} if include_id else {"_id": 0}
-            documents = collection.find({}, projection)
-
-            data = (
-                [MongoTrafficHourSummaryBBIPDTO.from_mongo(doc) for doc in documents]
-                if include_id
-                else [MongoTrafficHourSummaryBBIPDTO(**doc) for doc in documents]
-            )
-
-            writer = CSVWriter(dir=dirpath)
-            return writer.export(
-                filename=TrafficHourSummaryBBIPCollection._NAME, data=data
-            )
-        except Exception as error:
-            raise MongoExportCollectionError(
-                TrafficHourSummaryBBIPCollection._NAME, error=error
-            )
+        return mongo_io.export_collection(
+            TrafficHourSummaryBBIPCollection._NAME,
+            database,
+            MongoTrafficHourSummaryBBIPDTO,
+            CSVWriter,
+            dirpath,
+            include_id,
+        )
 
     @staticmethod
     def import_data(
@@ -104,30 +74,10 @@ class TrafficHourSummaryBBIPCollection(CollectionOperation):
         input_path: Path,
         delimiter: str,
     ) -> None:
-        try:
-            reader = TrafficHourSummaryBBIPImport(delimiter)
-            documents = reader.import_data(input_path)
-
-            collection = database[TrafficHourSummaryBBIPCollection._NAME]
-            try:
-                collection.insert_many(documents, ordered=False)
-            except BulkWriteError as bwe:
-                non_duplicate_errors = [
-                    err
-                    for err in bwe.details.get("writeErrors", [])
-                    if err.get("code") != 11000
-                ]
-                if non_duplicate_errors:
-                    raise MongoImportCollectionError(
-                        TrafficHourSummaryBBIPCollection._NAME, error=bwe
-                    )
-        except DataContentError:
-            raise
-        except FileEmptyError:
-            return
-        except MongoImportCollectionError:
-            raise
-        except Exception as error:
-            raise MongoImportCollectionError(
-                TrafficHourSummaryBBIPCollection._NAME, error=error
-            )
+        mongo_io.import_insert_many(
+            TrafficHourSummaryBBIPCollection._NAME,
+            database,
+            TrafficHourSummaryBBIPImport,
+            input_path,
+            delimiter,
+        )
