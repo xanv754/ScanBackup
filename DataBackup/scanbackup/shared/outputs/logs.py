@@ -3,6 +3,7 @@ from os import makedirs
 from pathlib import Path
 from logging.handlers import TimedRotatingFileHandler
 from scanbackup.shared.config.config import Configuration
+from scanbackup.shared.paths import get_project_root
 
 
 class LogHandler:
@@ -19,7 +20,7 @@ class LogHandler:
             log_cfg = metadata.logs
 
             filepath = Path(
-                Path(__file__).resolve().parent.parent.parent.parent
+                get_project_root()
                 / metadata.dir_data
                 / log_cfg.dir_name
                 / f"{log_cfg.filename}.{log_cfg.extension}"

@@ -4,15 +4,14 @@ from scanbackup.shared.config.models import (
     LayerConfigModel,
     ConfigModel,
 )
+from scanbackup.shared.paths import get_project_root
 from pathlib import Path
 import yaml
 
 
 class Configuration:
     _instance: "Configuration | None" = None
-    _filepath: Path = (
-        Path(__file__).resolve().parent.parent.parent.parent / "config.yml"
-    )
+    _filepath: Path = get_project_root() / "config.yml"
     _config: ConfigModel
 
     def __new__(cls) -> "Configuration":
@@ -33,8 +32,7 @@ class Configuration:
         return str(self._filepath.resolve())
     
     def get_projectpath(self) -> str:
-        path = Path(__file__).parent.parent.parent.parent
-        return str(path.resolve())
+        return str(get_project_root())
 
     def get_cfg(self) -> ConfigModel:
         return self._config

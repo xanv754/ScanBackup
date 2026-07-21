@@ -1,6 +1,7 @@
 # Files
 CLAUDE.md
 config.yml
+*.tar
 */data/*
 */sources/*
 */routines/tmp/*

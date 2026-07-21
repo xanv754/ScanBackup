@@ -92,6 +92,49 @@ python -m scanbackup summaries ip-generate [--date YYYY-MM-DD]
 
 Genera el resumen diario de IP activas del día indicado (por defecto, el día anterior), leyendo el histórico ya almacenado de todas las capas IP configuradas. Por cada interfaz, promedia sus muestras de 5 minutos (`In Prom`, `In Max`) y guarda el resultado asociado al `device` de la fuente.
 
+## Docker
+
+El proyecto incluye un `Dockerfile` que empaqueta únicamente el CLI (la API con FastAPI aún no está implementada). La imagen instala el paquete y expone la CLI como punto de entrada, ejecutándose como usuario no root.
+
+> Nota: el subcomando `sources` requiere el paquete `scrapper_scanbackup` (proyecto SourceScrapper), que no forma parte de las dependencias de este proyecto ni de la imagen. Si no está disponible en el entorno, el CLI lo omite automáticamente y el resto de comandos (`database`, `history`, `summaries`, `reports`) funciona con normalidad.
+
+`config.yml` y la carpeta `data/` no se copian dentro de la imagen (el primero contiene credenciales y está en `.gitignore`; la segunda es estado en tiempo de ejecución). Ambos deben montarse como volúmenes al correr el contenedor, en `/app/config.yml` y `/app/data` respectivamente.
+
+### Makefile
+
+Los siguientes targets automatizan el ciclo de construcción, empaquetado y ejecución de la imagen:
+
+```bash
+make build      # Construye la imagen scanbackup:latest
+make package    # Construye la imagen y la exporta a scanbackup.tar (docker save)
+make load       # Carga una imagen desde scanbackup.tar (docker load)
+make run        # Ejecuta el contenedor, montando ./config.yml y ./data
+make clean      # Elimina scanbackup.tar y la imagen local
+```
+
+`package` y `load` permiten transferir la imagen a otro entorno sin depender de un registry: se construye y empaqueta en un lugar, se copia el `.tar` y se carga en el destino.
+
+`run` acepta argumentos adicionales para la CLI mediante la variable `ARGS`:
+
+```bash
+make run ARGS="--help"
+make run ARGS="database setup"
+make run ARGS="history upload --date 2026-07-19"
+```
+
+### Uso manual con Docker
+
+Equivalente a `make build` y `make run` sin pasar por el Makefile:
+
+```bash
+docker build --build-arg UID=$(id -u) --build-arg GID=$(id -g) -t scanbackup:latest .
+
+docker run --rm \
+  -v "$(pwd)/config.yml:/app/config.yml:ro" \
+  -v "$(pwd)/data:/app/data" \
+  scanbackup:latest database setup
+```
+
 ## Pruebas unitarias
 
 El proyecto usa `unittest` junto con `unittest.mock`, mockeando el filesystem y las llamadas a la base de datos.
