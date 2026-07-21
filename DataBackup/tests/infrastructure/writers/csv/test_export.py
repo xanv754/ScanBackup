@@ -2,7 +2,6 @@ import csv
 from unittest.mock import MagicMock, patch
 from pydantic import BaseModel
 from scanbackup.infrastructure.writers.csv.export import CSVWriter
-from scanbackup.shared import CSVExportError
 from tests.support import TempDirTestCase
 
 
@@ -32,7 +31,9 @@ class TestCSVWriter(TempDirTestCase):
         mock_configuration.return_value = self._mock_configuration()
         writer = CSVWriter(dir=self.tmp_dir)
 
-        result = writer.export(filename="items", data=[_Item(name="a", value=1)])
+        result = writer.export(
+            filename="items", data=[_Item(name="a", value=1)], model=_Item
+        )
 
         expected_path = self.tmp_dir / "items.csv"
         self.assertEqual(result, str(expected_path.resolve()))
@@ -47,7 +48,10 @@ class TestCSVWriter(TempDirTestCase):
         writer = CSVWriter(dir=self.tmp_dir)
 
         writer.export(
-            filename="items", data=[_Item(name="a", value=1)], exclude={"value"}
+            filename="items",
+            data=[_Item(name="a", value=1)],
+            model=_Item,
+            exclude={"value"},
         )
 
         expected_path = self.tmp_dir / "items.csv"
@@ -56,13 +60,21 @@ class TestCSVWriter(TempDirTestCase):
         self.assertEqual(rows, [{"name": "a"}])
 
     @patch("scanbackup.infrastructure.writers.csv.export.Configuration")
-    def test_empty_data_raises_csv_export_error(self, mock_configuration) -> None:
-        """Exporting an empty dataset must be wrapped into CSVExportError."""
+    def test_empty_data_writes_header_only_csv(self, mock_configuration) -> None:
+        """Exporting an empty dataset must produce a CSV with headers and no rows."""
         mock_configuration.return_value = self._mock_configuration()
         writer = CSVWriter(dir=self.tmp_dir)
 
-        with self.assertRaises(CSVExportError):
-            writer.export(filename="items", data=[])
+        result = writer.export(filename="items", data=[], model=_Item)
+
+        expected_path = self.tmp_dir / "items.csv"
+        self.assertEqual(result, str(expected_path.resolve()))
+        with expected_path.open(encoding="utf-8") as f:
+            rows = list(csv.DictReader(f, delimiter=";"))
+        self.assertEqual(rows, [])
+        with expected_path.open(encoding="utf-8") as f:
+            header_line = f.readline().strip()
+        self.assertEqual(header_line, "name;value")
 
 
 if __name__ == "__main__":

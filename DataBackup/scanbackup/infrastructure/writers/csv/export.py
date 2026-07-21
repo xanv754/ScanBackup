@@ -7,7 +7,11 @@ from pydantic import BaseModel
 
 class CSVWriter(BaseWriter):
     def export(
-        self, filename: str, data: Sequence[BaseModel], exclude: set | None = None
+        self,
+        filename: str,
+        data: Sequence[BaseModel],
+        model: type[BaseModel],
+        exclude: set | None = None,
     ) -> str:
         filepath = self.dir / filename
         filepath = filepath.with_suffix(".csv")
@@ -21,7 +25,11 @@ class CSVWriter(BaseWriter):
                 rows = [item.model_dump(by_alias=True) for item in data]
             else:
                 rows = [item.model_dump(by_alias=True, exclude=exclude) for item in data]
-            headers = list(rows[0].keys())
+            headers = [
+                field.alias or name
+                for name, field in model.model_fields.items()
+                if not exclude or name not in exclude
+            ]
 
             with filepath.open("w", newline="", encoding="utf-8") as f:
                 writer = csv.DictWriter(f, fieldnames=headers, delimiter=delimiter)

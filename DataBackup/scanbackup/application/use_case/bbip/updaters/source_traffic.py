@@ -51,6 +51,7 @@ class TrafficSourceUpdaterUseCase:
                 csv.export(
                     filename=layer,
                     data=data,
+                    model=TrafficSourceBBIPEntity,
                     exclude={
                         "id",
                         TrafficSourceBBIPField.STATUS.value,

@@ -50,6 +50,7 @@ class IPSourceUpdaterUseCase:
                 csv.export(
                     filename=layer,
                     data=data,
+                    model=IPSourceBBIPEntity,
                     exclude={
                         "id",
                         IPSourceBBIPField.STATUS.value,
