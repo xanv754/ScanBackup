@@ -24,8 +24,12 @@ class BrasSourceUpdater:
         url_base = f"{parsed_url.scheme}://{parsed_url.netloc}"
 
         # Side bar menu
-        bar = html.find("div", class_="sidebar")
-        list_menu = bar.find("ul", role="menu")
+        bar = Scrapper.safe_find(html, "BRAS", "menú lateral (div.sidebar)", "div", class_="sidebar")
+        if bar is None:
+            return []
+        list_menu = Scrapper.safe_find(bar, "BRAS", "lista de menú (ul[role=menu])", "ul", role="menu")
+        if list_menu is None:
+            return []
 
         # Get BRAS list of menu
         bras_menu = []
@@ -35,7 +39,10 @@ class BrasSourceUpdater:
                 and "nav-item" in menu["class"]
                 and "menu" in menu["class"]
             ):
-                label = menu.find("a").get_text()
+                anchor = Scrapper.safe_find(menu, "BRAS", "etiqueta <a> del ítem de menú", "a")
+                if anchor is None:
+                    continue
+                label = anchor.get_text()
                 label = label.strip()
                 if re.fullmatch(r"[A-Z]{3}-BRAS", label):
                     bras_menu.append((label, menu))
@@ -43,7 +50,9 @@ class BrasSourceUpdater:
         # Get BRAS options inside the options menu
         bras_options = []
         for brasname, menu in bras_menu:
-            list_content = menu.find("ul")
+            list_content = Scrapper.safe_find(menu, brasname, "submenú (ul)", "ul")
+            if list_content is None:
+                continue
             for content in list_content.find_all("li"):
                 options = content.find_all("p")
                 for option in options:
@@ -58,12 +67,26 @@ class BrasSourceUpdater:
         for brasname, content, type_bras in bras_options:
             list_option = content.find_all("li")
             for option in list_option:
-                label = option.find("p").get_text()
+                label_tag = Scrapper.safe_find(option, brasname, "etiqueta <p> de la opción", "p")
+                if label_tag is None:
+                    continue
+                label = label_tag.get_text()
 
                 pattern = rf"^{re.escape(brasname)}-\d{{2}}$"
                 if re.match(pattern, label):
-                    link = option.find("a").get("href").strip()
-                    link = url_base + link
+                    anchor = Scrapper.safe_find(
+                        option, brasname, "etiqueta <a> de la página de BRAS", "a"
+                    )
+                    if anchor is None:
+                        continue
+                    href = anchor.get("href")
+                    if href is None:
+                        print(
+                            f"{brasname}: la etiqueta <a> de la página no tiene atributo 'href'. "
+                            "Se omite esta página."
+                        )
+                        continue
+                    link = url_base + href.strip()
                     bras_pages.append(
                         BrasPageModel(
                             name=label,

@@ -63,15 +63,26 @@ class IxpDefault:
         url_base = f"{parsed_url.scheme}://{parsed_url.netloc}"
 
         # Main page
-        main = html.find(id="main")
+        main = Scrapper.safe_find(html, "IXP", "main (id=main)", id="main")
+        if main is None:
+            return sources
 
         # Interfaces list
-        container_interfaces = main.find("div", class_="row")
+        container_interfaces = Scrapper.safe_find(
+            main, "IXP", "contenedor de interfaces (div.row)", "div", class_="row"
+        )
+        if container_interfaces is None:
+            return sources
 
         # Info Interface
         for div in container_interfaces.find_all("div", recursive=False):
             # Interface Name
-            title = div.find("li", id="subtitulo").get_text()
+            subtitulo = Scrapper.safe_find(
+                div, "IXP", "título de interfaz (li#subtitulo)", "li", id="subtitulo"
+            )
+            if subtitulo is None:
+                continue
+            title = subtitulo.get_text()
             title = title.upper()
 
             title = title.replace("ROUTER", "")
@@ -80,9 +91,24 @@ class IxpDefault:
             title = title.strip()
 
             # Link .log
-            link = url_base + div.find("li", id="graficas").find("a").get(
-                "href"
-            ).replace(".html", ".log")
+            graficas = Scrapper.safe_find(
+                div, "IXP", "enlace de gráficas (li#graficas)", "li", id="graficas"
+            )
+            if graficas is None:
+                continue
+            anchor = Scrapper.safe_find(
+                graficas, "IXP", "etiqueta <a> del enlace de gráficas", "a"
+            )
+            if anchor is None:
+                continue
+            href = anchor.get("href")
+            if href is None:
+                print(
+                    "IXP: la etiqueta <a> de gráficas no tiene atributo 'href'. "
+                    "Se omite esta interfaz."
+                )
+                continue
+            link = url_base + href.replace(".html", ".log")
 
             # Capacity
             capacity = self._extract_capacity(title)

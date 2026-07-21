@@ -37,15 +37,32 @@ class BrasDefaultUplink:
                 continue
 
             # Main page
-            main = html.find("section", class_="content")
-            first_div = main.find("div", class_="row")
-            second_div = first_div.find("div", class_="col-md-12")
+            main = Scrapper.safe_find(
+                html, self._type_link, "sección principal (section.content)", "section", class_="content"
+            )
+            if main is None:
+                continue
+            first_div = Scrapper.safe_find(
+                main, self._type_link, "contenedor de interfaces (div.row)", "div", class_="row"
+            )
+            if first_div is None:
+                continue
+            second_div = Scrapper.safe_find(
+                first_div, self._type_link, "contenedor de interfaces (div.col-md-12)", "div", class_="col-md-12"
+            )
+            if second_div is None:
+                continue
 
             # Interfaces list
             container_interfaces = second_div.find_all("div", class_="col-sm-12")
             for container in container_interfaces:
                 # Interface name
-                title = container.find("li", id="subtitulo").get_text()
+                subtitulo = Scrapper.safe_find(
+                    container, self._type_link, "título de interfaz (li#subtitulo)", "li", id="subtitulo"
+                )
+                if subtitulo is None:
+                    continue
+                title = subtitulo.get_text()
                 title = title.upper()
 
                 # Skip summaries
@@ -58,9 +75,24 @@ class BrasDefaultUplink:
                 title = title.strip()
 
                 # Link .log
-                link = url_base + container.find("li", id="graficas").find("a").get(
-                    "href"
-                ).replace(".html", ".log")
+                graficas = Scrapper.safe_find(
+                    container, self._type_link, "enlace de gráficas (li#graficas)", "li", id="graficas"
+                )
+                if graficas is None:
+                    continue
+                anchor = Scrapper.safe_find(
+                    graficas, self._type_link, "etiqueta <a> del enlace de gráficas", "a"
+                )
+                if anchor is None:
+                    continue
+                href = anchor.get("href")
+                if href is None:
+                    print(
+                        f"{self._type_link}: la etiqueta <a> de gráficas no tiene atributo 'href'. "
+                        "Se omite esta interfaz."
+                    )
+                    continue
+                link = url_base + href.replace(".html", ".log")
 
                 # Capacity
                 capacity = self._extract_capacity(title)
