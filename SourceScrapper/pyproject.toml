@@ -34,5 +34,5 @@ scanbackup = "scrapper_scanbackup.__main__:cli"
 [project.optional-dependencies]
 dev = ["black"]
 
-[tool.setuptools]
-packages = ["scrapper_scanbackup"]
+[tool.setuptools.packages.find]
+include = ["scrapper_scanbackup*"]

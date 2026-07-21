@@ -118,13 +118,17 @@ El `Dockerfile` fija `SCANBACKUP_HOME=/app` (ver [Archivo de configuración](#ar
 
 ### Construir la imagen
 
+El contenedor corre con un usuario no-root (`scanbackup`) cuyo UID/GID se fijan en build time. Pásalos como build args para que coincidan con el dueño del directorio del host que vayas a montar como bind mount, así el proceso puede escribir en él sin problemas de permisos:
+
 ```bash
-docker build -t scanbackup-sources .
+docker build --build-arg UID=$(id -u) --build-arg GID=$(id -g) -t scanbackup-sources .
 ```
+
+Si se omiten, `UID`/`GID` por defecto son `1000`.
 
 ### Ejecutar el contenedor
 
-El `ENTRYPOINT` es `scanbackup` y el `CMD` por defecto es `run`, así que basta con montar `config.yml` y la carpeta de datos:
+El `ENTRYPOINT` es `scanbackup` y el `CMD` por defecto es `run`, así que basta con montar `config.yml` y la carpeta de datos (puede ser cualquier ruta del host, no necesariamente `./data`):
 
 ```bash
 docker run --rm \
@@ -141,6 +145,18 @@ docker run --rm \
   -v "$(pwd)/data:/app/data" \
   scanbackup-sources run --layer borde
 ```
+
+### Makefile
+
+El `Makefile` envuelve los comandos anteriores. `UID`/`GID` se toman automáticamente del usuario que invoca `make` (`id -u`/`id -g`); `config.yml` y `data/` se montan siempre desde la raíz del proyecto.
+
+| Regla | Qué hace |
+| --- | --- |
+| `make build` | Construye la imagen (`docker build`) pasando `UID`/`GID` del host como build args. |
+| `make package` | Ejecuta `build` y además empaqueta la imagen resultante en `scanbackup-sources.tar` (`docker save`). |
+| `make load` | Carga en el daemon local una imagen previamente empaquetada (`docker load -i scanbackup-sources.tar`). |
+| `make run` | Corre el contenedor (`docker run --rm`) con `config.yml` y `data/` montados. Admite `ARGS` para sobrescribir el `CMD`, por ejemplo `make run ARGS="run --layer borde"`. |
+| `make clean` | Borra el `.tar` empaquetado y elimina la imagen local (`docker rmi`), ignorando el error si no existe. |
 
 ## Pruebas unitarias
 
