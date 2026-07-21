@@ -46,13 +46,13 @@ class TrafficReportService:
         return rows
 
     @staticmethod
-    def aggregate_monthly(
-        summaries: list[TrafficDailySummaryBBIPEntity], month_start: date
+    def aggregate_by_device(
+        summaries: list[TrafficDailySummaryBBIPEntity], stamp_date: date
     ) -> list[TrafficDailySummaryBBIPEntity]:
-        """Reduce every device's daily summaries within a month into a single monthly rollup per device.
+        """Reduce every device's daily summaries within a date range into a single rollup per device.
 
         The "prom" values are averaged, while the "max" and "use" values keep
-        the highest value recorded during the month.
+        the highest value recorded within the range.
         """
         grouped: dict[PyObjectId, list[TrafficDailySummaryBBIPEntity]] = defaultdict(
             list
@@ -62,7 +62,7 @@ class TrafficReportService:
 
         return [
             TrafficDailySummaryBBIPEntity(
-                date=month_start,
+                date=stamp_date,
                 in_prom=mean(s.in_prom for s in group),
                 out_prom=mean(s.out_prom for s in group),
                 in_max=max(s.in_max for s in group),

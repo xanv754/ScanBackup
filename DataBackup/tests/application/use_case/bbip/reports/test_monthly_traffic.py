@@ -144,5 +144,82 @@ class TestTrafficMonthlyReportGeneratorUseCase(unittest.TestCase):
             self._build_use_case(["BORDE"]).execute()
 
 
+class TestTrafficMonthlyReportGeneratorUseCaseResolveLiteralRange(unittest.TestCase):
+    """Unit tests for TrafficMonthlyReportGeneratorUseCase.resolve_literal_range."""
+
+    def test_spans_the_30_trailing_days_including_the_reference_date(self) -> None:
+        """Literal mode must span the 30 trailing days counting back from the reference date, inclusive."""
+        reference_date = date(2026, 2, 9)
+
+        start, end = TrafficMonthlyReportGeneratorUseCase.resolve_literal_range(
+            reference_date
+        )
+
+        self.assertEqual(start, date(2026, 1, 11))
+        self.assertEqual(end, date(2026, 2, 9))
+
+
+class TestTrafficMonthlyReportGeneratorUseCaseLiteralMode(unittest.TestCase):
+    """Unit tests for the TrafficMonthlyReportGeneratorUseCase in literal mode."""
+
+    def setUp(self) -> None:
+        """Build a use case wired with mocked repositories."""
+        self.source_repo = MagicMock()
+        self.daily_repo = MagicMock()
+
+    def _build_literal_use_case(
+        self, layers: list[str], reference_date: date = date(2026, 2, 9)
+    ) -> TrafficMonthlyReportGeneratorUseCase:
+        """Build a literal-mode use case instance sharing this test's mocked collaborators."""
+        return TrafficMonthlyReportGeneratorUseCase(
+            source_repository=self.source_repo,
+            daily_repository=self.daily_repo,
+            layers=layers,
+            filename="ScanBackup_2026-01-11_2026-02-09",
+            literal=True,
+            reference_date=reference_date,
+        )
+
+    def test_queries_the_30_trailing_days(self) -> None:
+        """execute() in literal mode must query the 30 trailing days from the reference date."""
+        self.daily_repo.get_by_date_range.return_value = []
+        self.source_repo.get_all_active_sources.return_value = []
+
+        with patch(f"{ADAPTER_MODULE}.ExcelWriter"):
+            self._build_literal_use_case(["BORDE"]).execute()
+
+        self.daily_repo.get_by_date_range.assert_called_once_with(
+            date(2026, 1, 11), date(2026, 2, 9)
+        )
+
+    @patch(f"{ADAPTER_MODULE}.ExcelWriter")
+    def test_averages_prom_and_keeps_the_highest_max_and_use(
+        self, mock_writer_cls
+    ) -> None:
+        """Prom values must be averaged; max and use values must keep the highest recorded."""
+        source = _source("Gi0/0/0", "BORDE")
+        self.source_repo.get_all_active_sources.return_value = [source]
+        self.daily_repo.get_by_date_range.return_value = [
+            _summary(source.id, 1, in_prom=10.0, out_prom=4.0, in_max=20.0, out_max=15.0, use=40.0),
+            _summary(source.id, 2, in_prom=20.0, out_prom=6.0, in_max=30.0, out_max=10.0, use=60.0),
+        ]
+        writer = MagicMock()
+        writer.export.return_value = "/tmp/ScanBackup_2026-01-11_2026-02-09.xlsx"
+        mock_writer_cls.return_value = writer
+
+        result = self._build_literal_use_case(["BORDE"]).execute()
+
+        self.assertEqual(result, "/tmp/ScanBackup_2026-01-11_2026-02-09.xlsx")
+        rows = writer.export.call_args.kwargs["data"]
+        self.assertEqual(len(rows), 1)
+        row = rows[0]
+        self.assertEqual(row.in_prom, 15.0)
+        self.assertEqual(row.out_prom, 5.0)
+        self.assertEqual(row.in_max, 30.0)
+        self.assertEqual(row.out_max, 15.0)
+        self.assertEqual(row.use, 60.0)
+        self.assertEqual(row.date, date(2026, 1, 11))
+
+
 if __name__ == "__main__":
     unittest.main()

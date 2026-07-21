@@ -55,8 +55,8 @@ class TestTrafficReportServiceBuildRows(unittest.TestCase):
         self.assertEqual(rows, [])
 
 
-class TestTrafficReportServiceAggregateMonthly(unittest.TestCase):
-    """Unit tests for TrafficReportService.aggregate_monthly."""
+class TestTrafficReportServiceAggregateByDevice(unittest.TestCase):
+    """Unit tests for TrafficReportService.aggregate_by_device."""
 
     def test_averages_prom_and_keeps_the_highest_max_and_use(self) -> None:
         """Prom values must be averaged; max and use values must keep the highest recorded."""
@@ -66,7 +66,7 @@ class TestTrafficReportServiceAggregateMonthly(unittest.TestCase):
             _summary(device, 2, in_prom=20.0, out_prom=6.0, in_max=30.0, out_max=10.0, use=60.0),
         ]
 
-        rollups = TrafficReportService.aggregate_monthly(summaries, date(2026, 1, 1))
+        rollups = TrafficReportService.aggregate_by_device(summaries, date(2026, 1, 1))
 
         self.assertEqual(len(rollups), 1)
         rollup = rollups[0]
@@ -83,7 +83,7 @@ class TestTrafficReportServiceAggregateMonthly(unittest.TestCase):
         device_a, device_b = ObjectId(), ObjectId()
         summaries = [_summary(device_a, 1), _summary(device_b, 1)]
 
-        rollups = TrafficReportService.aggregate_monthly(summaries, date(2026, 1, 1))
+        rollups = TrafficReportService.aggregate_by_device(summaries, date(2026, 1, 1))
 
         devices = {rollup.device for rollup in rollups}
         self.assertEqual(devices, {device_a, device_b})

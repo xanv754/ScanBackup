@@ -5,6 +5,17 @@ from unittest.mock import MagicMock, patch
 from scanbackup.application.cli.reports.generator import (
     TrafficDailyReportGenerator,
     TrafficMonthlyReportGenerator,
+    TrafficWeeklyReportGenerator,
+    TrafficBiweeklyReportGenerator,
+)
+from scanbackup.application.use_case.bbip.reports.monthly_traffic import (
+    TrafficMonthlyReportGeneratorUseCase,
+)
+from scanbackup.application.use_case.bbip.reports.weekly_traffic import (
+    TrafficWeeklyReportGeneratorUseCase,
+)
+from scanbackup.application.use_case.bbip.reports.biweekly_traffic import (
+    TrafficBiweeklyReportGeneratorUseCase,
 )
 
 MODULE = "scanbackup.application.cli.reports.generator"
@@ -195,6 +206,259 @@ class TestTrafficMonthlyReportGenerator(unittest.TestCase):
             mock_use_case_cls.call_args.kwargs["filename"],
             f"ScanBackup_{expected_year:04d}-{expected_month:02d}",
         )
+
+    @patch(f"{MODULE}.TrafficMonthlyReportGeneratorUseCase")
+    @patch(f"{MODULE}.Configuration")
+    @patch(f"{MODULE}.MongoTrafficDailySummaryBBIPRepository")
+    @patch(f"{MODULE}.MongoTrafficSourceBBIPRepository")
+    def test_literal_mode_ignores_month_str_and_spans_30_trailing_days_from_today(
+        self,
+        mock_source_repo,
+        mock_daily_repo,
+        mock_configuration,
+        mock_use_case_cls,
+    ) -> None:
+        """Literal mode must ignore month_str and query the 30 trailing days from today."""
+        self._mock_configuration(mock_configuration, ["BORDE", "DINT"])
+        mock_use_case_cls.resolve_literal_range = TrafficMonthlyReportGeneratorUseCase.resolve_literal_range
+        use_case = MagicMock()
+        use_case.execute.return_value = "/downloads/ScanBackup_2026-01-01_2026-01-30.xlsx"
+        mock_use_case_cls.return_value = use_case
+        today = date.today()
+        expected_start, expected_end = TrafficMonthlyReportGeneratorUseCase.resolve_literal_range(
+            today
+        )
+
+        result = TrafficMonthlyReportGenerator.execute(
+            month_str="2020-05", literal=True, output_dir="/downloads"
+        )
+
+        mock_use_case_cls.assert_called_once_with(
+            source_repository=mock_source_repo.return_value,
+            daily_repository=mock_daily_repo.return_value,
+            layers=["BORDE", "DINT"],
+            filename=f"ScanBackup_{expected_start}_{expected_end}",
+            literal=True,
+            reference_date=today,
+            output_dir=Path("/downloads"),
+        )
+        use_case.execute.assert_called_once()
+        self.assertEqual(
+            result, "/downloads/ScanBackup_2026-01-01_2026-01-30.xlsx"
+        )
+
+
+class TestTrafficWeeklyReportGenerator(unittest.TestCase):
+    """Unit tests for the TrafficWeeklyReportGenerator CLI orchestration class."""
+
+    def _mock_configuration(self, mock_configuration, names: list[str]) -> MagicMock:
+        """Wire a fake Configuration exposing the configured bbip layer names and report prefix."""
+        layers = MagicMock()
+        layers.bbip.names = names
+        reports = MagicMock()
+        reports.preffix_name = "ScanBackup"
+        metadata = MagicMock()
+        metadata.reports = reports
+        config = mock_configuration.return_value
+        config.get_cfg_layers.return_value = layers
+        config.get_cfg_metadata.return_value = metadata
+        return config
+
+    @patch(f"{MODULE}.TrafficWeeklyReportGeneratorUseCase")
+    @patch(f"{MODULE}.Configuration")
+    @patch(f"{MODULE}.MongoTrafficDailySummaryBBIPRepository")
+    @patch(f"{MODULE}.MongoTrafficSourceBBIPRepository")
+    def test_executes_the_use_case_with_configured_layers_and_prefixed_filename(
+        self,
+        mock_source_repo,
+        mock_daily_repo,
+        mock_configuration,
+        mock_use_case_cls,
+    ) -> None:
+        """The use case must be built with configured layers, prefixed filename, and given output dir."""
+        self._mock_configuration(mock_configuration, ["BORDE", "DINT"])
+        use_case = MagicMock()
+        use_case.execute.return_value = "/downloads/ScanBackup_2026-01-05_2026-01-11.xlsx"
+        mock_use_case_cls.return_value = use_case
+        mock_use_case_cls.resolve_week_range = TrafficWeeklyReportGeneratorUseCase.resolve_week_range
+        today = date.today()
+        expected_start, expected_end = TrafficWeeklyReportGeneratorUseCase.resolve_week_range(
+            today, False
+        )
+
+        result = TrafficWeeklyReportGenerator.execute(
+            literal=False, output_dir="/downloads"
+        )
+
+        mock_use_case_cls.assert_called_once_with(
+            source_repository=mock_source_repo.return_value,
+            daily_repository=mock_daily_repo.return_value,
+            layers=["BORDE", "DINT"],
+            reference_date=today,
+            filename=f"ScanBackup_{expected_start}_{expected_end}",
+            literal=False,
+            output_dir=Path("/downloads"),
+        )
+        use_case.execute.assert_called_once()
+        self.assertEqual(
+            result, "/downloads/ScanBackup_2026-01-05_2026-01-11.xlsx"
+        )
+
+    @patch(f"{MODULE}.TrafficWeeklyReportGeneratorUseCase")
+    @patch(f"{MODULE}.Configuration")
+    @patch(f"{MODULE}.MongoTrafficDailySummaryBBIPRepository")
+    @patch(f"{MODULE}.MongoTrafficSourceBBIPRepository")
+    def test_no_output_dir_defaults_to_none(
+        self,
+        mock_source_repo,
+        mock_daily_repo,
+        mock_configuration,
+        mock_use_case_cls,
+    ) -> None:
+        """Omitting output_dir must pass None so the writer falls back to its default directory."""
+        self._mock_configuration(mock_configuration, ["BORDE"])
+        mock_use_case_cls.resolve_week_range = TrafficWeeklyReportGeneratorUseCase.resolve_week_range
+
+        TrafficWeeklyReportGenerator.execute()
+
+        self.assertIsNone(mock_use_case_cls.call_args.kwargs["output_dir"])
+
+    @patch(f"{MODULE}.TrafficWeeklyReportGeneratorUseCase")
+    @patch(f"{MODULE}.Configuration")
+    @patch(f"{MODULE}.MongoTrafficDailySummaryBBIPRepository")
+    @patch(f"{MODULE}.MongoTrafficSourceBBIPRepository")
+    def test_literal_flag_is_forwarded_to_the_use_case(
+        self,
+        mock_source_repo,
+        mock_daily_repo,
+        mock_configuration,
+        mock_use_case_cls,
+    ) -> None:
+        """The --literal flag must be forwarded to the use case as-is."""
+        self._mock_configuration(mock_configuration, ["BORDE"])
+        mock_use_case_cls.resolve_week_range = TrafficWeeklyReportGeneratorUseCase.resolve_week_range
+
+        TrafficWeeklyReportGenerator.execute(literal=True)
+
+        self.assertTrue(mock_use_case_cls.call_args.kwargs["literal"])
+
+
+class TestTrafficBiweeklyReportGenerator(unittest.TestCase):
+    """Unit tests for the TrafficBiweeklyReportGenerator CLI orchestration class."""
+
+    def _mock_configuration(self, mock_configuration, names: list[str]) -> MagicMock:
+        """Wire a fake Configuration exposing the configured bbip layer names and report prefix."""
+        layers = MagicMock()
+        layers.bbip.names = names
+        reports = MagicMock()
+        reports.preffix_name = "ScanBackup"
+        metadata = MagicMock()
+        metadata.reports = reports
+        config = mock_configuration.return_value
+        config.get_cfg_layers.return_value = layers
+        config.get_cfg_metadata.return_value = metadata
+        return config
+
+    @patch(f"{MODULE}.TrafficBiweeklyReportGeneratorUseCase")
+    @patch(f"{MODULE}.Configuration")
+    @patch(f"{MODULE}.MongoTrafficDailySummaryBBIPRepository")
+    @patch(f"{MODULE}.MongoTrafficSourceBBIPRepository")
+    def test_executes_the_use_case_with_given_month_and_prefixed_filename(
+        self,
+        mock_source_repo,
+        mock_daily_repo,
+        mock_configuration,
+        mock_use_case_cls,
+    ) -> None:
+        """The use case must be built with configured layers, the 1st-15th of the given month, and prefixed filename."""
+        self._mock_configuration(mock_configuration, ["BORDE", "DINT"])
+        mock_use_case_cls.resolve_biweekly_range = TrafficBiweeklyReportGeneratorUseCase.resolve_biweekly_range
+        use_case = MagicMock()
+        use_case.execute.return_value = "/downloads/ScanBackup_2026-01-01_2026-01-15.xlsx"
+        mock_use_case_cls.return_value = use_case
+
+        result = TrafficBiweeklyReportGenerator.execute(
+            month_str="2026-01", output_dir="/downloads"
+        )
+
+        mock_use_case_cls.assert_called_once_with(
+            source_repository=mock_source_repo.return_value,
+            daily_repository=mock_daily_repo.return_value,
+            layers=["BORDE", "DINT"],
+            reference_date=date(2026, 1, 1),
+            filename="ScanBackup_2026-01-01_2026-01-15",
+            literal=False,
+            output_dir=Path("/downloads"),
+        )
+        use_case.execute.assert_called_once()
+        self.assertEqual(
+            result, "/downloads/ScanBackup_2026-01-01_2026-01-15.xlsx"
+        )
+
+    @patch(f"{MODULE}.TrafficBiweeklyReportGeneratorUseCase")
+    @patch(f"{MODULE}.Configuration")
+    @patch(f"{MODULE}.MongoTrafficDailySummaryBBIPRepository")
+    @patch(f"{MODULE}.MongoTrafficSourceBBIPRepository")
+    def test_no_month_str_defaults_to_the_current_month(
+        self,
+        mock_source_repo,
+        mock_daily_repo,
+        mock_configuration,
+        mock_use_case_cls,
+    ) -> None:
+        """Omitting month_str must default to the 1st of the current calendar month."""
+        self._mock_configuration(mock_configuration, ["BORDE"])
+        mock_use_case_cls.resolve_biweekly_range = TrafficBiweeklyReportGeneratorUseCase.resolve_biweekly_range
+        today = date.today()
+
+        TrafficBiweeklyReportGenerator.execute(month_str=None)
+
+        self.assertEqual(
+            mock_use_case_cls.call_args.kwargs["reference_date"],
+            date(today.year, today.month, 1),
+        )
+
+    @patch(f"{MODULE}.TrafficBiweeklyReportGeneratorUseCase")
+    @patch(f"{MODULE}.Configuration")
+    @patch(f"{MODULE}.MongoTrafficDailySummaryBBIPRepository")
+    @patch(f"{MODULE}.MongoTrafficSourceBBIPRepository")
+    def test_literal_mode_ignores_month_str_and_uses_today(
+        self,
+        mock_source_repo,
+        mock_daily_repo,
+        mock_configuration,
+        mock_use_case_cls,
+    ) -> None:
+        """Literal mode must ignore month_str and anchor the range on today."""
+        self._mock_configuration(mock_configuration, ["BORDE"])
+        mock_use_case_cls.resolve_biweekly_range = TrafficBiweeklyReportGeneratorUseCase.resolve_biweekly_range
+        today = date.today()
+
+        TrafficBiweeklyReportGenerator.execute(month_str="2020-05", literal=True)
+
+        self.assertTrue(mock_use_case_cls.call_args.kwargs["literal"])
+        self.assertEqual(
+            mock_use_case_cls.call_args.kwargs["reference_date"], today
+        )
+
+    @patch(f"{MODULE}.TrafficBiweeklyReportGeneratorUseCase")
+    @patch(f"{MODULE}.Configuration")
+    @patch(f"{MODULE}.MongoTrafficDailySummaryBBIPRepository")
+    @patch(f"{MODULE}.MongoTrafficSourceBBIPRepository")
+    def test_no_output_dir_defaults_to_none(
+        self,
+        mock_source_repo,
+        mock_daily_repo,
+        mock_configuration,
+        mock_use_case_cls,
+    ) -> None:
+        """Omitting output_dir must pass None so the writer falls back to its default directory."""
+        self._mock_configuration(mock_configuration, ["BORDE"])
+        mock_use_case_cls.resolve_biweekly_range = TrafficBiweeklyReportGeneratorUseCase.resolve_biweekly_range
+
+        TrafficBiweeklyReportGenerator.execute(month_str="2026-01")
+
+        self.assertIsNone(mock_use_case_cls.call_args.kwargs["output_dir"])
 
 
 if __name__ == "__main__":
