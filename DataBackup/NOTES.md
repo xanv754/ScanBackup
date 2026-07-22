@@ -1,3 +1,10 @@
+# 2026-07-22
+- Se refactorizó el proyecto para consolidarlo como estable
+- Se ajustaron las pruebas unitarias
+- Se añadieron los reportes quincenal
+- Se añadieron nuevas funciones para la obtención de reporte
+- TODO: Validar las importaciones de todo el sistema
+
 # 2026-07-12
 - Se realizó los casos de uso de las IP (fuentes, historial, resumenes).
 - Se realizó los casos de uso para obtener los resúmenes diarios y almacenarlos de tráfico.

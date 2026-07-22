@@ -58,9 +58,14 @@ Los comandos están agrupados en cuatro módulos:
 ### `database` — administrador de la base de datos
 
 ```bash
-python -m scanbackup database setup                                       # Crea las colecciones definidas en la configuración
-python -m scanbackup database inspect                                     # Lista las colecciones existentes
+# Crea las colecciones definidas en la configuración
+python -m scanbackup database setup
+
+# Lista las colecciones existentes   
+python -m scanbackup database inspect
+
 python -m scanbackup database import --collection <nombre> --filepath <archivo.csv> [--delimiter ";"]
+
 python -m scanbackup database export --collection <nombre> --dirpath <carpeta> [--delimiter ";"] [--id]
 ```
 
@@ -94,11 +99,11 @@ Genera el resumen diario de IP activas del día indicado (por defecto, el día a
 
 ## Docker
 
-El proyecto incluye un `Dockerfile` que empaqueta únicamente el CLI (la API con FastAPI aún no está implementada). La imagen instala el paquete y expone la CLI como punto de entrada, ejecutándose como usuario no root.
+El proyecto incluye un `Dockerfile` que empaqueta únicamente el CLI. La imagen instala el paquete y expone la CLI como punto de entrada, ejecutándose como usuario no root.
 
-> Nota: el subcomando `sources` requiere el paquete `scrapper_scanbackup` (proyecto SourceScrapper), que no forma parte de las dependencias de este proyecto ni de la imagen. Si no está disponible en el entorno, el CLI lo omite automáticamente y el resto de comandos (`database`, `history`, `summaries`, `reports`) funciona con normalidad.
+> Nota: el subcomando `sources` requiere el paquete `scrapper_scanbackup` (proyecto SourceScrapper), que no forma parte de las dependencias de este proyecto ni de la imagen.
 
-`config.yml` y la carpeta `data/` no se copian dentro de la imagen (el primero contiene credenciales y está en `.gitignore`; la segunda es estado en tiempo de ejecución). Ambos deben montarse como volúmenes al correr el contenedor, en `/app/config.yml` y `/app/data` respectivamente.
+`config.yml` y la carpeta `data/`, ambos deben montarse como volúmenes al correr el contenedor, en `/app/config.yml` y `/app/data` respectivamente.
 
 ### Makefile
 
