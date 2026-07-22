@@ -1,15 +1,15 @@
 import unittest
 from unittest.mock import MagicMock, patch
-from scanbackup.application.adapters.bbip.reports.traffic_report import (
-    export_traffic_report,
+from scanbackup.infrastructure.writers.excel.traffic_report import (
+    ExcelTrafficReportBBIPExporter,
 )
 from scanbackup.domain import TrafficDailyReportBBIPField
 
-MODULE = "scanbackup.application.adapters.bbip.reports.traffic_report"
+MODULE = "scanbackup.infrastructure.writers.excel.traffic_report"
 
 
-class TestExportTrafficReport(unittest.TestCase):
-    """Unit tests for export_traffic_report."""
+class TestExcelTrafficReportBBIPExporter(unittest.TestCase):
+    """Unit tests for ExcelTrafficReportBBIPExporter."""
 
     @patch(f"{MODULE}.ExcelWriter")
     def test_uppercases_layers_and_delegates_to_the_writer(
@@ -20,7 +20,7 @@ class TestExportTrafficReport(unittest.TestCase):
         writer.export.return_value = "/tmp/report.xlsx"
         mock_writer_cls.return_value = writer
 
-        result = export_traffic_report(
+        result = ExcelTrafficReportBBIPExporter().export(
             rows=[], layers=["borde", "DINT"], filename="report", output_dir=None
         )
 

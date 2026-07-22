@@ -3,10 +3,8 @@ from datetime import date
 from scanbackup.domain import (
     TrafficSourceBBIPRepository,
     TrafficDailySummaryBBIPRepository,
+    TrafficReportBBIPExporter,
     TrafficReportService,
-)
-from scanbackup.application.adapters.bbip.reports.traffic_report import (
-    export_traffic_report,
 )
 from scanbackup.shared import ExportError, ExcelExportError
 
@@ -16,6 +14,7 @@ class TrafficDailyReportGeneratorUseCase:
 
     _repo_sources: TrafficSourceBBIPRepository
     _repo_daily: TrafficDailySummaryBBIPRepository
+    _report_exporter: TrafficReportBBIPExporter
     _layers: list[str]
     _date: date
     _filename: str
@@ -25,6 +24,7 @@ class TrafficDailyReportGeneratorUseCase:
         self,
         source_repository: TrafficSourceBBIPRepository,
         daily_repository: TrafficDailySummaryBBIPRepository,
+        report_exporter: TrafficReportBBIPExporter,
         layers: list[str],
         data_date: str,
         filename: str,
@@ -37,6 +37,8 @@ class TrafficDailyReportGeneratorUseCase:
                 for every active interface's descriptive data.
             daily_repository (TrafficDailySummaryBBIPRepository): Repository
                 queried for the stored daily summary of the target date.
+            report_exporter (TrafficReportBBIPExporter): Exporter used to
+                write the joined rows into the resulting report file.
             layers (list[str]): Every configured traffic layer, in any casing.
                 One Excel sheet is produced per layer, even when it has no data.
             data_date (str): The day to report, formatted as YYYY-MM-DD.
@@ -46,6 +48,7 @@ class TrafficDailyReportGeneratorUseCase:
         """
         self._repo_sources = source_repository
         self._repo_daily = daily_repository
+        self._report_exporter = report_exporter
         self._layers = layers
         self._date = date.fromisoformat(data_date)
         self._filename = filename
@@ -66,7 +69,7 @@ class TrafficDailyReportGeneratorUseCase:
             sources = self._repo_sources.get_all_active_sources()
             summaries = self._repo_daily.get_by_date(self._date)
             rows = TrafficReportService.build_rows(sources, summaries)
-            return export_traffic_report(
+            return self._report_exporter.export(
                 rows, self._layers, self._filename, self._output_dir
             )
         except ExcelExportError:

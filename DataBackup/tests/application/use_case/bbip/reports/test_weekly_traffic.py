@@ -1,14 +1,12 @@
 import unittest
 from datetime import date
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 from bson import ObjectId
 from scanbackup.application.use_case.bbip.reports.weekly_traffic import (
     TrafficWeeklyReportGeneratorUseCase,
 )
 from scanbackup.domain import TrafficSourceBBIPEntity, TrafficDailySummaryBBIPEntity
 from scanbackup.shared import ExcelExportError, ExportError
-
-ADAPTER_MODULE = "scanbackup.application.adapters.bbip.reports.traffic_report"
 
 
 def _source(interface: str, layer: str, source_id: ObjectId | None = None) -> TrafficSourceBBIPEntity:
@@ -83,9 +81,10 @@ class TestTrafficWeeklyReportGeneratorUseCase(unittest.TestCase):
     """Unit tests for the TrafficWeeklyReportGeneratorUseCase."""
 
     def setUp(self) -> None:
-        """Build a use case wired with mocked repositories."""
+        """Build a use case wired with mocked repositories and exporter."""
         self.source_repo = MagicMock()
         self.daily_repo = MagicMock()
+        self.report_exporter = MagicMock()
 
     def _build_use_case(
         self, layers: list[str], reference_date: date = date(2024, 1, 3), literal: bool = False
@@ -94,6 +93,7 @@ class TestTrafficWeeklyReportGeneratorUseCase(unittest.TestCase):
         return TrafficWeeklyReportGeneratorUseCase(
             source_repository=self.source_repo,
             daily_repository=self.daily_repo,
+            report_exporter=self.report_exporter,
             layers=layers,
             reference_date=reference_date,
             filename="ScanBackup_2023-12-25_2023-12-31",
@@ -105,8 +105,7 @@ class TestTrafficWeeklyReportGeneratorUseCase(unittest.TestCase):
         self.daily_repo.get_by_date_range.return_value = []
         self.source_repo.get_all_active_sources.return_value = []
 
-        with patch(f"{ADAPTER_MODULE}.ExcelWriter"):
-            self._build_use_case(["BORDE"]).execute()
+        self._build_use_case(["BORDE"]).execute()
 
         self.daily_repo.get_by_date_range.assert_called_once_with(
             date(2023, 12, 25), date(2023, 12, 31)
@@ -117,17 +116,13 @@ class TestTrafficWeeklyReportGeneratorUseCase(unittest.TestCase):
         self.daily_repo.get_by_date_range.return_value = []
         self.source_repo.get_all_active_sources.return_value = []
 
-        with patch(f"{ADAPTER_MODULE}.ExcelWriter"):
-            self._build_use_case(["BORDE"], literal=True).execute()
+        self._build_use_case(["BORDE"], literal=True).execute()
 
         self.daily_repo.get_by_date_range.assert_called_once_with(
             date(2023, 12, 28), date(2024, 1, 3)
         )
 
-    @patch(f"{ADAPTER_MODULE}.ExcelWriter")
-    def test_averages_prom_and_keeps_the_highest_max_and_use(
-        self, mock_writer_cls
-    ) -> None:
+    def test_averages_prom_and_keeps_the_highest_max_and_use(self) -> None:
         """Prom values must be averaged; max and use values must keep the highest recorded."""
         source = _source("Gi0/0/0", "BORDE")
         self.source_repo.get_all_active_sources.return_value = [source]
@@ -135,14 +130,12 @@ class TestTrafficWeeklyReportGeneratorUseCase(unittest.TestCase):
             _summary(source.id, date(2023, 12, 25), in_prom=10.0, out_prom=4.0, in_max=20.0, out_max=15.0, use=40.0),
             _summary(source.id, date(2023, 12, 26), in_prom=20.0, out_prom=6.0, in_max=30.0, out_max=10.0, use=60.0),
         ]
-        writer = MagicMock()
-        writer.export.return_value = "/tmp/ScanBackup_2023-12-25_2023-12-31.xlsx"
-        mock_writer_cls.return_value = writer
+        self.report_exporter.export.return_value = "/tmp/ScanBackup_2023-12-25_2023-12-31.xlsx"
 
         result = self._build_use_case(["BORDE"]).execute()
 
         self.assertEqual(result, "/tmp/ScanBackup_2023-12-25_2023-12-31.xlsx")
-        rows = writer.export.call_args.kwargs["data"]
+        rows = self.report_exporter.export.call_args.args[0]
         self.assertEqual(len(rows), 1)
         row = rows[0]
         self.assertEqual(row.in_prom, 15.0)
@@ -152,29 +145,23 @@ class TestTrafficWeeklyReportGeneratorUseCase(unittest.TestCase):
         self.assertEqual(row.use, 60.0)
         self.assertEqual(row.date, date(2023, 12, 25))
 
-    @patch(f"{ADAPTER_MODULE}.ExcelWriter")
-    def test_drops_summaries_whose_source_is_not_active(self, mock_writer_cls) -> None:
+    def test_drops_summaries_whose_source_is_not_active(self) -> None:
         """A device with no matching active source must be dropped from the report."""
         self.source_repo.get_all_active_sources.return_value = []
         self.daily_repo.get_by_date_range.return_value = [
             _summary(ObjectId(), date(2023, 12, 25))
         ]
-        writer = MagicMock()
-        mock_writer_cls.return_value = writer
 
         self._build_use_case(["BORDE"]).execute()
 
-        rows = writer.export.call_args.kwargs["data"]
+        rows = self.report_exporter.export.call_args.args[0]
         self.assertEqual(rows, [])
 
-    @patch(f"{ADAPTER_MODULE}.ExcelWriter")
-    def test_excel_export_error_is_propagated_unwrapped(self, mock_writer_cls) -> None:
-        """An ExcelExportError raised by the writer must propagate without double-wrapping."""
+    def test_excel_export_error_is_propagated_unwrapped(self) -> None:
+        """An ExcelExportError raised by the exporter must propagate without double-wrapping."""
         self.source_repo.get_all_active_sources.return_value = []
         self.daily_repo.get_by_date_range.return_value = []
-        writer = MagicMock()
-        writer.export.side_effect = ExcelExportError()
-        mock_writer_cls.return_value = writer
+        self.report_exporter.export.side_effect = ExcelExportError()
 
         with self.assertRaises(ExcelExportError):
             self._build_use_case(["BORDE"]).execute()

@@ -14,6 +14,9 @@ from scanbackup.domain.repositories.bbip.summaries.ip import (
     IPDailySummaryBBIPRepository,
     IPHourSummaryBBIPRepository,
 )
+from scanbackup.domain.repositories.bbip.reports.traffic import (
+    TrafficReportBBIPExporter,
+)
 
 __all__ = [
     "TrafficSourceBBIPRepository",
@@ -24,4 +27,5 @@ __all__ = [
     "IPHistoryBBIPRepository",
     "IPDailySummaryBBIPRepository",
     "IPHourSummaryBBIPRepository",
+    "TrafficReportBBIPExporter",
 ]

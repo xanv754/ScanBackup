@@ -2,7 +2,7 @@ import unittest
 from pathlib import Path
 from datetime import date, timedelta
 from unittest.mock import MagicMock, patch
-from scanbackup.application.cli.reports.generator import (
+from scanbackup.infrastructure.cli.reports.generator import (
     TrafficDailyReportGenerator,
     TrafficMonthlyReportGenerator,
     TrafficWeeklyReportGenerator,
@@ -18,7 +18,7 @@ from scanbackup.application.use_case.bbip.reports.biweekly_traffic import (
     TrafficBiweeklyReportGeneratorUseCase,
 )
 
-MODULE = "scanbackup.application.cli.reports.generator"
+MODULE = "scanbackup.infrastructure.cli.reports.generator"
 
 
 class TestTrafficDailyReportGenerator(unittest.TestCase):
@@ -41,8 +41,10 @@ class TestTrafficDailyReportGenerator(unittest.TestCase):
     @patch(f"{MODULE}.Configuration")
     @patch(f"{MODULE}.MongoTrafficDailySummaryBBIPRepository")
     @patch(f"{MODULE}.MongoTrafficSourceBBIPRepository")
+    @patch(f"{MODULE}.ExcelTrafficReportBBIPExporter")
     def test_executes_the_use_case_with_configured_layers_and_prefixed_filename(
         self,
+        mock_exporter_cls,
         mock_source_repo,
         mock_daily_repo,
         mock_configuration,
@@ -61,6 +63,7 @@ class TestTrafficDailyReportGenerator(unittest.TestCase):
         mock_use_case_cls.assert_called_once_with(
             source_repository=mock_source_repo.return_value,
             daily_repository=mock_daily_repo.return_value,
+            report_exporter=mock_exporter_cls.return_value,
             layers=["BORDE", "DINT"],
             data_date="2026-01-01",
             filename="ScanBackup_2026-01-01",
@@ -135,8 +138,10 @@ class TestTrafficMonthlyReportGenerator(unittest.TestCase):
     @patch(f"{MODULE}.Configuration")
     @patch(f"{MODULE}.MongoTrafficDailySummaryBBIPRepository")
     @patch(f"{MODULE}.MongoTrafficSourceBBIPRepository")
+    @patch(f"{MODULE}.ExcelTrafficReportBBIPExporter")
     def test_executes_the_use_case_with_configured_layers_and_prefixed_filename(
         self,
+        mock_exporter_cls,
         mock_source_repo,
         mock_daily_repo,
         mock_configuration,
@@ -155,6 +160,7 @@ class TestTrafficMonthlyReportGenerator(unittest.TestCase):
         mock_use_case_cls.assert_called_once_with(
             source_repository=mock_source_repo.return_value,
             daily_repository=mock_daily_repo.return_value,
+            report_exporter=mock_exporter_cls.return_value,
             layers=["BORDE", "DINT"],
             year=2026,
             month=1,
@@ -211,8 +217,10 @@ class TestTrafficMonthlyReportGenerator(unittest.TestCase):
     @patch(f"{MODULE}.Configuration")
     @patch(f"{MODULE}.MongoTrafficDailySummaryBBIPRepository")
     @patch(f"{MODULE}.MongoTrafficSourceBBIPRepository")
+    @patch(f"{MODULE}.ExcelTrafficReportBBIPExporter")
     def test_literal_mode_ignores_month_str_and_spans_30_trailing_days_from_today(
         self,
+        mock_exporter_cls,
         mock_source_repo,
         mock_daily_repo,
         mock_configuration,
@@ -236,6 +244,7 @@ class TestTrafficMonthlyReportGenerator(unittest.TestCase):
         mock_use_case_cls.assert_called_once_with(
             source_repository=mock_source_repo.return_value,
             daily_repository=mock_daily_repo.return_value,
+            report_exporter=mock_exporter_cls.return_value,
             layers=["BORDE", "DINT"],
             filename=f"ScanBackup_{expected_start}_{expected_end}",
             literal=True,
@@ -268,8 +277,10 @@ class TestTrafficWeeklyReportGenerator(unittest.TestCase):
     @patch(f"{MODULE}.Configuration")
     @patch(f"{MODULE}.MongoTrafficDailySummaryBBIPRepository")
     @patch(f"{MODULE}.MongoTrafficSourceBBIPRepository")
+    @patch(f"{MODULE}.ExcelTrafficReportBBIPExporter")
     def test_executes_the_use_case_with_configured_layers_and_prefixed_filename(
         self,
+        mock_exporter_cls,
         mock_source_repo,
         mock_daily_repo,
         mock_configuration,
@@ -293,6 +304,7 @@ class TestTrafficWeeklyReportGenerator(unittest.TestCase):
         mock_use_case_cls.assert_called_once_with(
             source_repository=mock_source_repo.return_value,
             daily_repository=mock_daily_repo.return_value,
+            report_exporter=mock_exporter_cls.return_value,
             layers=["BORDE", "DINT"],
             reference_date=today,
             filename=f"ScanBackup_{expected_start}_{expected_end}",
@@ -363,8 +375,10 @@ class TestTrafficBiweeklyReportGenerator(unittest.TestCase):
     @patch(f"{MODULE}.Configuration")
     @patch(f"{MODULE}.MongoTrafficDailySummaryBBIPRepository")
     @patch(f"{MODULE}.MongoTrafficSourceBBIPRepository")
+    @patch(f"{MODULE}.ExcelTrafficReportBBIPExporter")
     def test_executes_the_use_case_with_given_month_and_prefixed_filename(
         self,
+        mock_exporter_cls,
         mock_source_repo,
         mock_daily_repo,
         mock_configuration,
@@ -384,6 +398,7 @@ class TestTrafficBiweeklyReportGenerator(unittest.TestCase):
         mock_use_case_cls.assert_called_once_with(
             source_repository=mock_source_repo.return_value,
             daily_repository=mock_daily_repo.return_value,
+            report_exporter=mock_exporter_cls.return_value,
             layers=["BORDE", "DINT"],
             reference_date=date(2026, 1, 1),
             filename="ScanBackup_2026-01-01_2026-01-15",

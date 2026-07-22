@@ -3,6 +3,7 @@ from datetime import date, datetime, timedelta
 from scanbackup.infrastructure import (
     MongoTrafficSourceBBIPRepository,
     MongoTrafficDailySummaryBBIPRepository,
+    ExcelTrafficReportBBIPExporter,
 )
 from scanbackup.application.use_case.bbip.reports.daily_traffic import (
     TrafficDailyReportGeneratorUseCase,
@@ -45,6 +46,7 @@ class TrafficDailyReportGenerator:
         use_case = TrafficDailyReportGeneratorUseCase(
             source_repository=MongoTrafficSourceBBIPRepository(),
             daily_repository=MongoTrafficDailySummaryBBIPRepository(),
+            report_exporter=ExcelTrafficReportBBIPExporter(),
             layers=layers,
             data_date=date_str,
             filename=filename,
@@ -88,6 +90,7 @@ class TrafficMonthlyReportGenerator:
             use_case = TrafficMonthlyReportGeneratorUseCase(
                 source_repository=MongoTrafficSourceBBIPRepository(),
                 daily_repository=MongoTrafficDailySummaryBBIPRepository(),
+                report_exporter=ExcelTrafficReportBBIPExporter(),
                 layers=layers,
                 filename=filename,
                 literal=True,
@@ -108,6 +111,7 @@ class TrafficMonthlyReportGenerator:
         use_case = TrafficMonthlyReportGeneratorUseCase(
             source_repository=MongoTrafficSourceBBIPRepository(),
             daily_repository=MongoTrafficDailySummaryBBIPRepository(),
+            report_exporter=ExcelTrafficReportBBIPExporter(),
             layers=layers,
             year=year,
             month=month,
@@ -147,6 +151,7 @@ class TrafficWeeklyReportGenerator:
         use_case = TrafficWeeklyReportGeneratorUseCase(
             source_repository=MongoTrafficSourceBBIPRepository(),
             daily_repository=MongoTrafficDailySummaryBBIPRepository(),
+            report_exporter=ExcelTrafficReportBBIPExporter(),
             layers=layers,
             reference_date=today,
             filename=filename,
@@ -199,6 +204,7 @@ class TrafficBiweeklyReportGenerator:
         use_case = TrafficBiweeklyReportGeneratorUseCase(
             source_repository=MongoTrafficSourceBBIPRepository(),
             daily_repository=MongoTrafficDailySummaryBBIPRepository(),
+            report_exporter=ExcelTrafficReportBBIPExporter(),
             layers=layers,
             reference_date=reference_date,
             filename=filename,

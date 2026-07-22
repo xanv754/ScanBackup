@@ -4,10 +4,8 @@ from datetime import date, timedelta
 from scanbackup.domain import (
     TrafficSourceBBIPRepository,
     TrafficDailySummaryBBIPRepository,
+    TrafficReportBBIPExporter,
     TrafficReportService,
-)
-from scanbackup.application.adapters.bbip.reports.traffic_report import (
-    export_traffic_report,
 )
 from scanbackup.shared import ExportError, ExcelExportError
 
@@ -17,6 +15,7 @@ class TrafficMonthlyReportGeneratorUseCase:
 
     _repo_sources: TrafficSourceBBIPRepository
     _repo_daily: TrafficDailySummaryBBIPRepository
+    _report_exporter: TrafficReportBBIPExporter
     _layers: list[str]
     _start_date: date
     _end_date: date
@@ -27,6 +26,7 @@ class TrafficMonthlyReportGeneratorUseCase:
         self,
         source_repository: TrafficSourceBBIPRepository,
         daily_repository: TrafficDailySummaryBBIPRepository,
+        report_exporter: TrafficReportBBIPExporter,
         layers: list[str],
         filename: str,
         year: int | None = None,
@@ -42,6 +42,8 @@ class TrafficMonthlyReportGeneratorUseCase:
                 for every active interface's descriptive data.
             daily_repository (TrafficDailySummaryBBIPRepository): Repository
                 queried for the stored daily summaries within the target period.
+            report_exporter (TrafficReportBBIPExporter): Exporter used to
+                write the joined rows into the resulting report file.
             layers (list[str]): Every configured traffic layer, in any casing.
                 One Excel sheet is produced per layer, even when it has no data.
             filename (str): Base name of the .xlsx file to create, without extension.
@@ -58,6 +60,7 @@ class TrafficMonthlyReportGeneratorUseCase:
         """
         self._repo_sources = source_repository
         self._repo_daily = daily_repository
+        self._report_exporter = report_exporter
         self._layers = layers
         if literal:
             self._start_date, self._end_date = self.resolve_literal_range(
@@ -95,7 +98,7 @@ class TrafficMonthlyReportGeneratorUseCase:
                 summaries, self._start_date
             )
             rows = TrafficReportService.build_rows(sources, monthly_summaries)
-            return export_traffic_report(
+            return self._report_exporter.export(
                 rows, self._layers, self._filename, self._output_dir
             )
         except ExcelExportError:
