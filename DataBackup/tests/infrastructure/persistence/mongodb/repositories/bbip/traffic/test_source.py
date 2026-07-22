@@ -81,7 +81,7 @@ class TestMongoTrafficSourceBBIPRepository(unittest.TestCase):
             layer="BORDE",
         )
 
-        with patch("scanbackup.domain.services.validator.ValidatorConfig.valid_layer_bbip", return_value=True):
+        with patch("scanbackup.domain.validator.ValidatorConfig.valid_layer_bbip", return_value=True):
             self.repository.upsert_sources([entity])
 
         collection.bulk_write.assert_called_once()
@@ -138,7 +138,7 @@ class TestMongoTrafficSourceBBIPRepository(unittest.TestCase):
         ]
         client.get_connection.return_value.__getitem__.return_value = collection
 
-        with patch("scanbackup.domain.services.validator.ValidatorConfig.valid_layer_bbip", return_value=True):
+        with patch("scanbackup.domain.validator.ValidatorConfig.valid_layer_bbip", return_value=True):
             result = self.repository.get_sources_by_layer("BORDE")
 
         self.assertEqual(len(result), 1)
@@ -166,7 +166,7 @@ class TestMongoTrafficSourceBBIPRepository(unittest.TestCase):
         ]
         client.get_connection.return_value.__getitem__.return_value = collection
 
-        with patch("scanbackup.domain.services.validator.ValidatorConfig.valid_layer_bbip", return_value=True):
+        with patch("scanbackup.domain.validator.ValidatorConfig.valid_layer_bbip", return_value=True):
             result = self.repository.get_sources_by_layer_id("BORDE")
 
         self.assertEqual(result[0].id, oid)
@@ -193,7 +193,7 @@ class TestMongoTrafficSourceBBIPRepository(unittest.TestCase):
         ]
         client.get_connection.return_value.__getitem__.return_value = collection
 
-        with patch("scanbackup.domain.services.validator.ValidatorConfig.valid_layer_bbip", return_value=True):
+        with patch("scanbackup.domain.validator.ValidatorConfig.valid_layer_bbip", return_value=True):
             result = self.repository.get_all_active_sources()
 
         collection.find.assert_called_once_with({"status": "ACTIVO"})
@@ -222,7 +222,7 @@ class TestMongoTrafficSourceBBIPRepository(unittest.TestCase):
         ]
         client.get_connection.return_value.__getitem__.return_value = collection
 
-        with patch("scanbackup.domain.services.validator.ValidatorConfig.valid_layer_bbip", return_value=True):
+        with patch("scanbackup.domain.validator.ValidatorConfig.valid_layer_bbip", return_value=True):
             result = self.repository.get_all_sources()
 
         collection.find.assert_called_once_with({})

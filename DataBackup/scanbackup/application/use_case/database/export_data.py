@@ -1,20 +1,18 @@
 from pathlib import Path
-from scanbackup.infrastructure.persistence.mongodb.connections.database import (
-    MongoDatabase,
-)
+from scanbackup.domain import BaseDatabase
 from scanbackup.shared import DatabaseConfigModel, LayerConfigModel
 
 
 class DatabaseExportUseCase:
     """Exports a named collection of the database into a .csv file."""
 
-    _database: MongoDatabase
+    _database: BaseDatabase
 
-    def __init__(self, database: MongoDatabase) -> None:
+    def __init__(self, database: BaseDatabase) -> None:
         """Store the database gateway used to export the data.
 
         Args:
-            database (MongoDatabase): Gateway used to connect and export data.
+            database (BaseDatabase): Gateway used to connect and export data.
         """
         self._database = database
 

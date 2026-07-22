@@ -9,7 +9,7 @@ from scanbackup.infrastructure.persistence.mongodb.schemas.bbip.traffic.data imp
 from scanbackup.infrastructure.persistence.mongodb.schemas.bbip.ip.active import (
     IPActiveBBIPField,
 )
-from scanbackup.infrastructure.readers.reader import BaseReader
+from scanbackup.domain import BaseReader
 
 
 class TrafficHistoryBBIPImport(BaseReader):

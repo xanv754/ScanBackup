@@ -7,8 +7,8 @@ from scanbackup.domain import (
     IPHistoryBBIPRepository,
     IPSourceBBIPEntity,
     IPActiveBBIPEntity,
+    BaseFetcher,
 )
-from scanbackup.infrastructure.collectors import IPActiveFetcher
 from scanbackup.shared import ScannerError, UpdaterError
 
 IPHistoryRepositoryFactory = Callable[[str], IPHistoryBBIPRepository]
@@ -19,7 +19,7 @@ class IPCollectorUseCase:
 
     _repo_sources: IPSourceBBIPRepository
     _history_repository_factory: IPHistoryRepositoryFactory
-    _fetcher: IPActiveFetcher
+    _fetcher: BaseFetcher
     _date: date
     _max_workers: int
 
@@ -27,7 +27,7 @@ class IPCollectorUseCase:
         self,
         source_repository: IPSourceBBIPRepository,
         history_repository_factory: IPHistoryRepositoryFactory,
-        fetcher: IPActiveFetcher,
+        fetcher: BaseFetcher,
         data_date: str,
         max_workers: int = 1,
     ) -> None:
@@ -38,7 +38,7 @@ class IPCollectorUseCase:
                 every active source across all layers.
             history_repository_factory (IPHistoryRepositoryFactory): Builds the
                 layer-specific history repository given a layer name.
-            fetcher (IPActiveFetcher): Downloads and parses a source's SCAN
+            fetcher (BaseFetcher): Downloads and parses a source's SCAN
                 active-IP log.
             data_date (str): The day to collect, formatted as YYYY-MM-DD.
             max_workers (int): Maximum number of sources fetched concurrently.

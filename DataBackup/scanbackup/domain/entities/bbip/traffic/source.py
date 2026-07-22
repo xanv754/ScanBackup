@@ -1,6 +1,6 @@
 from enum import Enum
 from pydantic import BaseModel, field_validator
-from scanbackup.domain.services.validator import ValidatorConfig
+from scanbackup.domain.validator import ValidatorConfig
 from scanbackup.shared import SourceStatus, PyObjectId
 
 

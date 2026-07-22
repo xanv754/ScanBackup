@@ -20,7 +20,7 @@ class TestTrafficSourceBBIPReader(TempDirTestCase):
         config.get_cfg_metadata.return_value = metadata
         return config
 
-    @patch("scanbackup.domain.services.validator.ValidatorConfig.valid_layer_bbip")
+    @patch("scanbackup.domain.validator.ValidatorConfig.valid_layer_bbip")
     @patch("scanbackup.infrastructure.readers.csv.sources.data.Configuration")
     def test_imports_entities_using_filename_as_layer(
         self, mock_configuration, mock_valid_layer
@@ -43,7 +43,7 @@ class TestTrafficSourceBBIPReader(TempDirTestCase):
         self.assertEqual(sources[0].layer, "BORDE")
         self.assertEqual(sources[0].capacity, 100.5)
 
-    @patch("scanbackup.domain.services.validator.ValidatorConfig.valid_layer_bbip")
+    @patch("scanbackup.domain.validator.ValidatorConfig.valid_layer_bbip")
     @patch("scanbackup.infrastructure.readers.csv.sources.data.Configuration")
     def test_undefined_layer_raises_data_import_error(
         self, mock_configuration, mock_valid_layer
@@ -74,7 +74,7 @@ class TestIPSourceBBIPReader(TempDirTestCase):
         config.get_cfg_metadata.return_value = metadata
         return config
 
-    @patch("scanbackup.domain.services.validator.ValidatorConfig.valid_layer_ip")
+    @patch("scanbackup.domain.validator.ValidatorConfig.valid_layer_ip")
     @patch("scanbackup.infrastructure.readers.csv.sources.data.Configuration")
     def test_imports_entities_using_filename_as_layer(
         self, mock_configuration, mock_valid_layer
@@ -97,7 +97,7 @@ class TestIPSourceBBIPReader(TempDirTestCase):
         self.assertEqual(sources[0].interface, "BRAS-00")
         self.assertEqual(sources[0].link, "http://example.com")
 
-    @patch("scanbackup.domain.services.validator.ValidatorConfig.valid_layer_ip")
+    @patch("scanbackup.domain.validator.ValidatorConfig.valid_layer_ip")
     @patch("scanbackup.infrastructure.readers.csv.sources.data.Configuration")
     def test_undefined_layer_raises_data_import_error(
         self, mock_configuration, mock_valid_layer

@@ -32,7 +32,7 @@ class TestIPSourceUpdaterUseCase(TempDirTestCase):
             [{"interface": "BRAS-00", "layer": "BRASIP"}]
         )
 
-    @patch("scanbackup.domain.services.validator.ValidatorConfig.valid_layer_ip")
+    @patch("scanbackup.domain.validator.ValidatorConfig.valid_layer_ip")
     @patch("scanbackup.infrastructure.writers.csv.export.Configuration")
     def test_export_writes_one_csv_file_per_layer(
         self, mock_configuration, mock_valid_layer

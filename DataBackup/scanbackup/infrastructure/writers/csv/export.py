@@ -1,6 +1,6 @@
 import csv
 from collections.abc import Sequence
-from scanbackup.infrastructure.writers.writer import BaseWriter
+from scanbackup.domain import BaseWriter
 from scanbackup.shared import CSVExportError, Configuration
 from pydantic import BaseModel
 

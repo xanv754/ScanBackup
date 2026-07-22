@@ -2,6 +2,7 @@ from typing import Any
 from pathlib import Path
 from pymongo import MongoClient
 from pymongo.database import Database
+from scanbackup.domain import BaseDatabase
 from scanbackup.shared import (
     DatabaseConfigModel,
     LayerConfigModel,
@@ -46,7 +47,7 @@ from scanbackup.infrastructure.persistence.mongodb.collections.bbip.ip.summaries
 )
 
 
-class MongoDatabase:
+class MongoDatabase(BaseDatabase):
     _instance: "MongoDatabase | None" = None
     _config: DatabaseConfigModel
     _client: MongoClient[Any]

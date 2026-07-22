@@ -15,7 +15,7 @@ from scanbackup.infrastructure.persistence.mongodb.schemas.bbip.traffic.summarie
 from scanbackup.infrastructure.persistence.mongodb.schemas.bbip.ip.summaries.hour import (
     IPHourSummaryBBIPField,
 )
-from scanbackup.infrastructure.readers.reader import BaseReader
+from scanbackup.domain import BaseReader
 
 
 class TrafficDailySummaryBBIPImport(BaseReader):

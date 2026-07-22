@@ -4,7 +4,7 @@ from scanbackup.shared import DataContentError, Configuration
 from scanbackup.infrastructure.persistence.mongodb.schemas.bbip.traffic.source import (
     TrafficSourceBBIPField,
 )
-from scanbackup.infrastructure.readers.reader import BaseReader
+from scanbackup.domain import BaseReader
 
 
 class TrafficSourceBBIPImport(BaseReader):

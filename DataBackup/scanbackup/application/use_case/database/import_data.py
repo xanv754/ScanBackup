@@ -1,19 +1,17 @@
-from scanbackup.infrastructure.persistence.mongodb.connections.database import (
-    MongoDatabase,
-)
+from scanbackup.domain import BaseDatabase
 from scanbackup.shared import DatabaseConfigModel, LayerConfigModel
 
 
 class DatabaseImportUseCase:
     """Imports a .csv file into a named collection of the database."""
 
-    _database: MongoDatabase
+    _database: BaseDatabase
 
-    def __init__(self, database: MongoDatabase) -> None:
+    def __init__(self, database: BaseDatabase) -> None:
         """Store the database gateway used to import the data.
 
         Args:
-            database (MongoDatabase): Gateway used to connect and import data.
+            database (BaseDatabase): Gateway used to connect and import data.
         """
         self._database = database
 

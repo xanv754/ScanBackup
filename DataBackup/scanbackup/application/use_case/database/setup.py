@@ -1,19 +1,17 @@
-from scanbackup.infrastructure.persistence.mongodb.connections.database import (
-    MongoDatabase,
-)
+from scanbackup.domain import BaseDatabase
 from scanbackup.shared import DatabaseConfigModel, LayerConfigModel
 
 
 class DatabaseSetupUseCase:
     """Creates every collection and schema declared in the system configuration."""
 
-    _database: MongoDatabase
+    _database: BaseDatabase
 
-    def __init__(self, database: MongoDatabase) -> None:
+    def __init__(self, database: BaseDatabase) -> None:
         """Store the database gateway used to create the collections.
 
         Args:
-            database (MongoDatabase): Gateway used to connect and create collections.
+            database (BaseDatabase): Gateway used to connect and create collections.
         """
         self._database = database
 

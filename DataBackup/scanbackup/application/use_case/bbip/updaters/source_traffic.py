@@ -4,9 +4,9 @@ from scanbackup.domain import (
     TrafficSourceBBIPField,
     TrafficSourceBBIPRepository,
     TrafficSourceBBIPEntity,
+    BaseReader,
+    BaseWriter,
 )
-from scanbackup.infrastructure.readers.reader import BaseReader
-from scanbackup.infrastructure.writers.writer import BaseWriter
 from scanbackup.shared import CSVExportError, Log
 
 

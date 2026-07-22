@@ -1,9 +1,9 @@
 from datetime import datetime, date
-from scanbackup.domain import IPSourceBBIPEntity, IPActiveBBIPEntity
+from scanbackup.domain import IPSourceBBIPEntity, IPActiveBBIPEntity, BaseFetcher
 from scanbackup.infrastructure.collectors.scan_downloader import SCANLogDownloader
 
 
-class IPActiveFetcher:
+class IPActiveFetcher(BaseFetcher):
     """Downloads and parses the active-IP-count log of a single interface from SCAN."""
 
     _MAX_SAMPLES = 500

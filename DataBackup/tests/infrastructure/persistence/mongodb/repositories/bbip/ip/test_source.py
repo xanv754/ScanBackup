@@ -81,7 +81,7 @@ class TestMongoIPSourceBBIPRepository(unittest.TestCase):
         client.get_connection.return_value.__getitem__.return_value = collection
 
         with patch(
-            "scanbackup.domain.services.validator.ValidatorConfig.valid_layer_ip",
+            "scanbackup.domain.validator.ValidatorConfig.valid_layer_ip",
             return_value=True,
         ):
             entity = IPSourceBBIPEntity(
@@ -144,7 +144,7 @@ class TestMongoIPSourceBBIPRepository(unittest.TestCase):
         client.get_connection.return_value.__getitem__.return_value = collection
 
         with patch(
-            "scanbackup.domain.services.validator.ValidatorConfig.valid_layer_ip",
+            "scanbackup.domain.validator.ValidatorConfig.valid_layer_ip",
             return_value=True,
         ):
             result = self.repository.get_sources_by_layer("BRASIP")
@@ -173,7 +173,7 @@ class TestMongoIPSourceBBIPRepository(unittest.TestCase):
         client.get_connection.return_value.__getitem__.return_value = collection
 
         with patch(
-            "scanbackup.domain.services.validator.ValidatorConfig.valid_layer_ip",
+            "scanbackup.domain.validator.ValidatorConfig.valid_layer_ip",
             return_value=True,
         ):
             result = self.repository.get_sources_by_layer_id("BRASIP")
@@ -202,7 +202,7 @@ class TestMongoIPSourceBBIPRepository(unittest.TestCase):
         client.get_connection.return_value.__getitem__.return_value = collection
 
         with patch(
-            "scanbackup.domain.services.validator.ValidatorConfig.valid_layer_ip",
+            "scanbackup.domain.validator.ValidatorConfig.valid_layer_ip",
             return_value=True,
         ):
             result = self.repository.get_all_active_sources()
@@ -232,7 +232,7 @@ class TestMongoIPSourceBBIPRepository(unittest.TestCase):
         client.get_connection.return_value.__getitem__.return_value = collection
 
         with patch(
-            "scanbackup.domain.services.validator.ValidatorConfig.valid_layer_ip",
+            "scanbackup.domain.validator.ValidatorConfig.valid_layer_ip",
             return_value=True,
         ):
             result = self.repository.get_all_sources()

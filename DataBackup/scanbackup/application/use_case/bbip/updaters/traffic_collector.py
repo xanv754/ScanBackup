@@ -7,8 +7,8 @@ from scanbackup.domain import (
     TrafficHistoryBBIPRepository,
     TrafficSourceBBIPEntity,
     TrafficBBIPEntity,
+    BaseFetcher,
 )
-from scanbackup.infrastructure.collectors import MRTGFetcher
 from scanbackup.shared import ScannerError, UpdaterError
 
 HistoryRepositoryFactory = Callable[[str], TrafficHistoryBBIPRepository]
@@ -19,7 +19,7 @@ class TrafficCollectorUseCase:
 
     _repo_sources: TrafficSourceBBIPRepository
     _history_repository_factory: HistoryRepositoryFactory
-    _fetcher: MRTGFetcher
+    _fetcher: BaseFetcher
     _date: date
     _max_workers: int
 
@@ -27,7 +27,7 @@ class TrafficCollectorUseCase:
         self,
         source_repository: TrafficSourceBBIPRepository,
         history_repository_factory: HistoryRepositoryFactory,
-        fetcher: MRTGFetcher,
+        fetcher: BaseFetcher,
         data_date: str,
         max_workers: int = 1,
     ) -> None:
@@ -38,7 +38,7 @@ class TrafficCollectorUseCase:
                 for every active source across all layers.
             history_repository_factory (HistoryRepositoryFactory): Builds the
                 layer-specific history repository given a layer name.
-            fetcher (MRTGFetcher): Downloads and parses a source's SCAN traffic.
+            fetcher (BaseFetcher): Downloads and parses a source's SCAN traffic.
             data_date (str): The day to collect, formatted as YYYY-MM-DD.
             max_workers (int): Maximum number of sources fetched concurrently.
         """

@@ -1,19 +1,17 @@
-from scanbackup.infrastructure.persistence.mongodb.connections.database import (
-    MongoDatabase,
-)
+from scanbackup.domain import BaseDatabase
 from scanbackup.shared import DatabaseConfigModel
 
 
 class DatabaseInspectUseCase:
     """Lists every collection currently present in the database."""
 
-    _database: MongoDatabase
+    _database: BaseDatabase
 
-    def __init__(self, database: MongoDatabase) -> None:
+    def __init__(self, database: BaseDatabase) -> None:
         """Store the database gateway used to inspect the collections.
 
         Args:
-            database (MongoDatabase): Gateway used to connect and list collections.
+            database (BaseDatabase): Gateway used to connect and list collections.
         """
         self._database = database
 

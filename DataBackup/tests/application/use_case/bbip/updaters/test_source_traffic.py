@@ -32,7 +32,7 @@ class TestTrafficSourceUpdaterUseCase(TempDirTestCase):
             [{"interface": "Gi0/0/0", "layer": "BORDE", "model": "Cisco"}]
         )
 
-    @patch("scanbackup.domain.services.validator.ValidatorConfig.valid_layer_bbip")
+    @patch("scanbackup.domain.validator.ValidatorConfig.valid_layer_bbip")
     @patch("scanbackup.infrastructure.writers.csv.export.Configuration")
     def test_export_writes_one_csv_file_per_layer(
         self, mock_configuration, mock_valid_layer

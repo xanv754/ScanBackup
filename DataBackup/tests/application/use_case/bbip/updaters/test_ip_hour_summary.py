@@ -29,7 +29,7 @@ def _sample(device: ObjectId) -> IPActiveBBIPEntity:
     )
 
 
-@patch("scanbackup.domain.services.validator.ValidatorConfig.valid_layer_ip", return_value=True)
+@patch("scanbackup.domain.validator.ValidatorConfig.valid_layer_ip", return_value=True)
 class TestIPHourSummaryGeneratorUseCase(unittest.TestCase):
     """Unit tests for the IPHourSummaryGeneratorUseCase."""
 

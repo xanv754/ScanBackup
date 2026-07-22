@@ -1,9 +1,9 @@
 from datetime import datetime, date
-from scanbackup.domain import TrafficSourceBBIPEntity, TrafficBBIPEntity
+from scanbackup.domain import TrafficSourceBBIPEntity, TrafficBBIPEntity, BaseFetcher
 from scanbackup.infrastructure.collectors.scan_downloader import SCANLogDownloader
 
 
-class MRTGFetcher:
+class MRTGFetcher(BaseFetcher):
     """Downloads and parses the MRTG traffic log of a single interface from SCAN."""
 
     _MAX_SAMPLES = 500

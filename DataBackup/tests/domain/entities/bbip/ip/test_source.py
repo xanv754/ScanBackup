@@ -22,7 +22,7 @@ class TestIPSourceBBIPField(unittest.TestCase):
 class TestIPSourceBBIPEntity(unittest.TestCase):
     """Unit tests for the IPSourceBBIPEntity model."""
 
-    @patch("scanbackup.domain.services.validator.ValidatorConfig.valid_layer_ip")
+    @patch("scanbackup.domain.validator.ValidatorConfig.valid_layer_ip")
     def test_creates_entity_with_valid_layer(self, mock_valid_layer) -> None:
         """A layer accepted by the validator must build a valid entity."""
         mock_valid_layer.return_value = True
@@ -34,7 +34,7 @@ class TestIPSourceBBIPEntity(unittest.TestCase):
         self.assertEqual(entity.layer, "BRASIP")
         self.assertEqual(entity.status, SourceStatus.ACTIVE.value)
 
-    @patch("scanbackup.domain.services.validator.ValidatorConfig.valid_layer_ip")
+    @patch("scanbackup.domain.validator.ValidatorConfig.valid_layer_ip")
     def test_invalid_layer_raises_validation_error(self, mock_valid_layer) -> None:
         """A layer rejected by the validator must raise a ValidationError."""
         mock_valid_layer.return_value = False
@@ -45,7 +45,7 @@ class TestIPSourceBBIPEntity(unittest.TestCase):
                 layer="UNKNOWN",
             )
 
-    @patch("scanbackup.domain.services.validator.ValidatorConfig.valid_layer_ip")
+    @patch("scanbackup.domain.validator.ValidatorConfig.valid_layer_ip")
     def test_id_is_optional(self, mock_valid_layer) -> None:
         """id must remain optional and default to None."""
         mock_valid_layer.return_value = True

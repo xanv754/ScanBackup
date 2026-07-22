@@ -1,7 +1,7 @@
 from collections import defaultdict
 from pandas import DataFrame, ExcelWriter as PandasExcelWriter
 from pydantic import BaseModel
-from scanbackup.infrastructure.writers.writer import BaseWriter
+from scanbackup.domain import BaseWriter
 from scanbackup.shared import ExcelExportError
 
 

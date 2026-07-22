@@ -1,6 +1,6 @@
 import unittest
 from pathlib import Path
-from scanbackup.infrastructure.readers.reader import BaseReader
+from scanbackup.domain.ports.reader import BaseReader
 
 
 class TestBaseReader(unittest.TestCase):

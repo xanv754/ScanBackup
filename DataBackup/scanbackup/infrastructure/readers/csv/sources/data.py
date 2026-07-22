@@ -4,6 +4,7 @@ from scanbackup.domain import (
     TrafficSourceBBIPEntity,
     IPSourceBBIPEntity,
     ValidatorConfig,
+    BaseReader,
 )
 from scanbackup.shared import (
     DataImportError,
@@ -13,7 +14,6 @@ from scanbackup.shared import (
     LayerNotDefined,
     Configuration,
 )
-from scanbackup.infrastructure.readers.reader import BaseReader
 
 
 class TrafficSourceBBIPReader(BaseReader):

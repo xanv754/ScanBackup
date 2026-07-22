@@ -1,7 +1,7 @@
 import unittest
 from pathlib import Path
 from unittest.mock import patch
-from scanbackup.infrastructure.writers.writer import BaseWriter
+from scanbackup.domain.ports.writer import BaseWriter
 
 
 class _DummyWriter(BaseWriter):
@@ -24,7 +24,7 @@ class TestBaseWriter(unittest.TestCase):
         writer = _DummyWriter(dir=Path("/custom/dir"))
         self.assertEqual(writer.dir, Path("/custom/dir"))
 
-    @patch("scanbackup.infrastructure.writers.writer.Path.home")
+    @patch("scanbackup.domain.ports.writer.Path.home")
     def test_defaults_to_downloads_when_it_exists(self, mock_home) -> None:
         """Downloads must be preferred when it exists under the home directory."""
         fake_home = Path("/fake/home")
@@ -33,7 +33,7 @@ class TestBaseWriter(unittest.TestCase):
             writer = _DummyWriter()
         self.assertEqual(writer.dir, Path(str(fake_home / "Downloads")))
 
-    @patch("scanbackup.infrastructure.writers.writer.Path.home")
+    @patch("scanbackup.domain.ports.writer.Path.home")
     def test_defaults_to_descargas_when_downloads_missing(self, mock_home) -> None:
         """Descargas must be used when Downloads does not exist but Descargas does."""
         fake_home = Path("/fake/home")
@@ -42,7 +42,7 @@ class TestBaseWriter(unittest.TestCase):
             writer = _DummyWriter()
         self.assertEqual(writer.dir, Path(str(fake_home / "Descargas")))
 
-    @patch("scanbackup.infrastructure.writers.writer.Path.home")
+    @patch("scanbackup.domain.ports.writer.Path.home")
     def test_defaults_to_home_when_no_download_dir_exists(self, mock_home) -> None:
         """The home directory itself must be used as a last resort."""
         fake_home = Path("/fake/home")

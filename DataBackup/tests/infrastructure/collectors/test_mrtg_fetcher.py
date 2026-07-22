@@ -14,7 +14,7 @@ def _epoch(date_str: str) -> int:
     return int(datetime.strptime(date_str, "%Y-%m-%d").replace(hour=10).timestamp())
 
 
-@patch("scanbackup.domain.services.validator.ValidatorConfig.valid_layer_bbip")
+@patch("scanbackup.domain.validator.ValidatorConfig.valid_layer_bbip")
 @patch(f"{MODULE}.SCANLogDownloader")
 class TestMRTGFetcher(unittest.TestCase):
     """Unit tests for the MRTGFetcher parsing logic (downloading is mocked away)."""
