@@ -1,6 +1,7 @@
 from scanbackup.infrastructure.persistence.mongodb.connections.database import (
     MongoDatabase,
 )
+from scanbackup.application.use_case.database.inspect import DatabaseInspectUseCase
 from scanbackup.shared import Configuration, Terminal, Log
 
 
@@ -18,9 +19,8 @@ def get_collection_names() -> None:
 
             terminal.loading(status, "Inspeccionando colecciones...")
 
-            database = MongoDatabase()
-            database.set_uri(cfg_db)
-            collections = database.get_collection_names()
+            use_case = DatabaseInspectUseCase(database=MongoDatabase())
+            collections = use_case.execute(cfg_db=cfg_db)
             terminal.list(collections)
         except Exception:
             terminal.error("Proceso fallido. Sin búsqueda")

@@ -1,13 +1,14 @@
 from scanbackup.infrastructure.persistence.mongodb.connections.database import (
     MongoDatabase,
 )
+from scanbackup.application.use_case.database.setup import DatabaseSetupUseCase
 from scanbackup.shared import Configuration, Terminal, Log
 
 
-def import_data_to_database(collection: str, filepath: str, delimiter: str) -> None:
+def setup_database():
     terminal = Terminal()
 
-    start_info = "Importando datos a la base de datos"
+    start_info = "Inicialización colecciones en la base de datos"
     Log.info(start_info)
     terminal.info(start_info)
 
@@ -19,16 +20,10 @@ def import_data_to_database(collection: str, filepath: str, delimiter: str) -> N
 
             terminal.loading(status, "Iniciando proceso...")
 
-            database = MongoDatabase()
-            database.set_uri(cfg_db)
-            database.import_data(
-                name_collection=collection,
-                config=cfg_layers,
-                input_filepath=filepath,
-                delimiter=delimiter,
-            )
+            use_case = DatabaseSetupUseCase(database=MongoDatabase())
+            use_case.execute(cfg_db=cfg_db, cfg_layers=cfg_layers)
         except Exception:
-            terminal.error("Importación de datos fallida")
+            terminal.error("Inicialización de la base de datos fallida")
             exit(1)
         else:
             terminal.info("Proceso finalizado con éxito")

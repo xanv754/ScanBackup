@@ -1,9 +1,9 @@
 import unittest
 from unittest.mock import patch
 from click.testing import CliRunner
-from scanbackup.application.cli.database.main import cli
+from scanbackup.infrastructure.cli.database.main import cli
 
-MODULE = "scanbackup.application.cli.database.main"
+MODULE = "scanbackup.infrastructure.cli.database.main"
 
 
 class TestDatabaseCli(unittest.TestCase):

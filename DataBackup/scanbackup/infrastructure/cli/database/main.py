@@ -1,8 +1,8 @@
 import click
-from scanbackup.application.cli.database.setup import setup_database
-from scanbackup.application.cli.database.inspect import get_collection_names
-from scanbackup.application.cli.database.import_data import import_data_to_database
-from scanbackup.application.cli.database.export_data import (
+from scanbackup.infrastructure.cli.database.setup import setup_database
+from scanbackup.infrastructure.cli.database.inspect import get_collection_names
+from scanbackup.infrastructure.cli.database.import_data import import_data_to_database
+from scanbackup.infrastructure.cli.database.export_data import (
     export_data_from_database,
 )
 

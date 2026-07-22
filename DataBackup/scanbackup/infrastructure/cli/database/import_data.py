@@ -1,19 +1,14 @@
-from pathlib import Path
 from scanbackup.infrastructure.persistence.mongodb.connections.database import (
     MongoDatabase,
 )
+from scanbackup.application.use_case.database.import_data import DatabaseImportUseCase
 from scanbackup.shared import Configuration, Terminal, Log
 
 
-def export_data_from_database(
-    collection: str,
-    dirpath: str,
-    delimiter: str | None = None,
-    id: bool = False,
-) -> None:
+def import_data_to_database(collection: str, filepath: str, delimiter: str) -> None:
     terminal = Terminal()
 
-    start_info = "Exportando datos a la base de datos"
+    start_info = "Importando datos a la base de datos"
     Log.info(start_info)
     terminal.info(start_info)
 
@@ -25,18 +20,16 @@ def export_data_from_database(
 
             terminal.loading(status, "Iniciando proceso...")
 
-            database = MongoDatabase()
-            database.set_uri(cfg_db)
-            filepath_export = database.export_data(
-                config=cfg_layers,
+            use_case = DatabaseImportUseCase(database=MongoDatabase())
+            use_case.execute(
+                cfg_db=cfg_db,
+                cfg_layers=cfg_layers,
                 name_collection=collection,
-                dirpath=Path(dirpath),
-                include_id=id,
+                input_filepath=filepath,
+                delimiter=delimiter,
             )
         except Exception:
-            terminal.error("Exportación de datos fallida")
+            terminal.error("Importación de datos fallida")
             exit(1)
         else:
-            terminal.info(
-                f"Proceso finalizado con éxito. Archivo exportado en {filepath_export}"
-            )
+            terminal.info("Proceso finalizado con éxito")

@@ -1,8 +1,8 @@
 import unittest
 from unittest.mock import MagicMock, patch
-from scanbackup.application.cli.database.import_data import import_data_to_database
+from scanbackup.infrastructure.cli.database.import_data import import_data_to_database
 
-MODULE = "scanbackup.application.cli.database.import_data"
+MODULE = "scanbackup.infrastructure.cli.database.import_data"
 
 
 @patch(f"{MODULE}.Terminal")
@@ -10,35 +10,41 @@ MODULE = "scanbackup.application.cli.database.import_data"
 class TestImportDataToDatabase(unittest.TestCase):
     """Unit tests for the import_data_to_database CLI orchestration function."""
 
+    @patch(f"{MODULE}.DatabaseImportUseCase")
     @patch(f"{MODULE}.MongoDatabase")
     @patch(f"{MODULE}.Configuration")
-    def test_delegates_to_mongo_database_import_data(
-        self, mock_configuration, mock_database_cls, mock_log, mock_terminal
+    def test_executes_the_use_case_with_the_collection_filepath_and_delimiter(
+        self, mock_configuration, mock_database_cls, mock_use_case_cls, mock_log, mock_terminal
     ) -> None:
-        """import_data_to_database must forward the collection/filepath/delimiter."""
+        """import_data_to_database must build the use case and execute it with the given options."""
+        cfg_db = MagicMock()
         cfg_layers = MagicMock()
+        mock_configuration.return_value.get_cfg_database.return_value = cfg_db
         mock_configuration.return_value.get_cfg_layers.return_value = cfg_layers
-        database = MagicMock()
-        mock_database_cls.return_value = database
+        use_case = MagicMock()
+        mock_use_case_cls.return_value = use_case
 
         import_data_to_database(
             collection="TRAFFIC_SOURCE_BBIP", filepath="/tmp/in.csv", delimiter=";"
         )
 
-        database.import_data.assert_called_once_with(
+        mock_use_case_cls.assert_called_once_with(database=mock_database_cls.return_value)
+        use_case.execute.assert_called_once_with(
+            cfg_db=cfg_db,
+            cfg_layers=cfg_layers,
             name_collection="TRAFFIC_SOURCE_BBIP",
-            config=cfg_layers,
             input_filepath="/tmp/in.csv",
             delimiter=";",
         )
 
+    @patch(f"{MODULE}.DatabaseImportUseCase")
     @patch(f"{MODULE}.MongoDatabase")
     @patch(f"{MODULE}.Configuration")
     def test_exits_with_code_1_on_failure(
-        self, mock_configuration, mock_database_cls, mock_log, mock_terminal
+        self, mock_configuration, mock_database_cls, mock_use_case_cls, mock_log, mock_terminal
     ) -> None:
         """Any failure during import must terminate the process with exit(1)."""
-        mock_database_cls.return_value.import_data.side_effect = RuntimeError("boom")
+        mock_use_case_cls.return_value.execute.side_effect = RuntimeError("boom")
 
         with self.assertRaises(SystemExit) as ctx:
             import_data_to_database(
