@@ -41,5 +41,5 @@ scanbackup = "scanbackup.__main__:cli"
 [project.optional-dependencies]
 dev = ["black"]
 
-[tool.setuptools]
-packages = ["scanbackup"]
+[tool.setuptools.packages.find]
+include = ["scanbackup*"]
