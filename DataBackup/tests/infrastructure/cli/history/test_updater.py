@@ -1,12 +1,12 @@
 import unittest
 from datetime import date, timedelta
 from unittest.mock import MagicMock, patch
-from scanbackup.application.cli.history.updater import (
+from scanbackup.infrastructure.cli.history.updater import (
     TrafficHistoryUpdater,
     IPHistoryUpdater,
 )
 
-MODULE = "scanbackup.application.cli.history.updater"
+MODULE = "scanbackup.infrastructure.cli.history.updater"
 
 
 class TestTrafficHistoryUpdater(unittest.TestCase):

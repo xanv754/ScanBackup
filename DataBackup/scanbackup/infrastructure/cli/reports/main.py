@@ -1,5 +1,5 @@
 import click
-from scanbackup.application.cli.reports.generator import (
+from scanbackup.infrastructure.cli.reports.generator import (
     TrafficDailyReportGenerator,
     TrafficMonthlyReportGenerator,
     TrafficWeeklyReportGenerator,

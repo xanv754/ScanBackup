@@ -1,9 +1,9 @@
 import unittest
 from pathlib import Path
 from unittest.mock import MagicMock, patch
-from scanbackup.application.cli.sources.updater import scrapper_sources
+from scanbackup.infrastructure.cli.sources.updater import scrapper_sources
 
-MODULE = "scanbackup.application.cli.sources.updater"
+MODULE = "scanbackup.infrastructure.cli.sources.updater"
 
 
 class TestScrapperSources(unittest.TestCase):

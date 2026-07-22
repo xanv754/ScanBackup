@@ -1,5 +1,5 @@
 import click
-from scanbackup.application.cli.history.updater import (
+from scanbackup.infrastructure.cli.history.updater import (
     TrafficHistoryUpdater,
     IPHistoryUpdater,
 )

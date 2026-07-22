@@ -1,12 +1,12 @@
 import unittest
 from pathlib import Path
 from unittest.mock import MagicMock, patch
-from scanbackup.application.cli.sources.upload_db import (
+from scanbackup.infrastructure.cli.sources.upload_db import (
     traffic_upload_to_database,
     ip_upload_to_database,
 )
 
-MODULE = "scanbackup.application.cli.sources.upload_db"
+MODULE = "scanbackup.infrastructure.cli.sources.upload_db"
 
 
 @patch(f"{MODULE}.Terminal")

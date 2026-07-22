@@ -1,8 +1,8 @@
 import click
-from scanbackup.application.cli.database.main import cli as database_cli
-from scanbackup.application.cli.history.main import cli as history_cli
-from scanbackup.application.cli.summaries.main import cli as summaries_cli
-from scanbackup.application.cli.reports.main import cli as reports_cli
+from scanbackup.infrastructure.cli.database.main import cli as database_cli
+from scanbackup.infrastructure.cli.history.main import cli as history_cli
+from scanbackup.infrastructure.cli.summaries.main import cli as summaries_cli
+from scanbackup.infrastructure.cli.reports.main import cli as reports_cli
 
 @click.group()
 def cli():
@@ -23,7 +23,7 @@ try:
     # sources depende del paquete externo scrapper_scanbackup (proyecto
     # SourceScrapper), no declarado como dependencia de este proyecto. Se
     # registra solo si está disponible en el entorno.
-    from scanbackup.application.cli.sources.main import cli as source_cli
+    from scanbackup.infrastructure.cli.sources.main import cli as source_cli
 except ModuleNotFoundError:
     pass
 else:

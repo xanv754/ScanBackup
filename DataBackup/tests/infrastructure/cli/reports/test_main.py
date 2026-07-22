@@ -1,9 +1,9 @@
 import unittest
 from unittest.mock import patch
 from click.testing import CliRunner
-from scanbackup.application.cli.reports.main import cli
+from scanbackup.infrastructure.cli.reports.main import cli
 
-MODULE = "scanbackup.application.cli.reports.main"
+MODULE = "scanbackup.infrastructure.cli.reports.main"
 
 
 class TestReportsCli(unittest.TestCase):

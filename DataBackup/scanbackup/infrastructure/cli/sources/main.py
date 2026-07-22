@@ -1,14 +1,14 @@
 import click
 from pathlib import Path
-from scanbackup.application.cli.sources.extract_db import (
+from scanbackup.infrastructure.cli.sources.extract_db import (
     traffic_export_from_database,
     ip_export_from_database,
 )
-from scanbackup.application.cli.sources.upload_db import (
+from scanbackup.infrastructure.cli.sources.upload_db import (
     traffic_upload_to_database,
     ip_upload_to_database,
 )
-from scanbackup.application.cli.sources.updater import scrapper_sources
+from scanbackup.infrastructure.cli.sources.updater import scrapper_sources
 
 
 @click.group()

@@ -1,14 +1,14 @@
 import unittest
 from datetime import date, timedelta
 from unittest.mock import MagicMock, patch
-from scanbackup.application.cli.summaries.updater import (
+from scanbackup.infrastructure.cli.summaries.updater import (
     TrafficSummaryUpdater,
     IPSummaryUpdater,
     TrafficHourSummaryUpdater,
     IPHourSummaryUpdater,
 )
 
-MODULE = "scanbackup.application.cli.summaries.updater"
+MODULE = "scanbackup.infrastructure.cli.summaries.updater"
 
 
 class TestTrafficSummaryUpdater(unittest.TestCase):

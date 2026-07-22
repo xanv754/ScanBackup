@@ -1,5 +1,5 @@
 import click
-from scanbackup.application.cli.summaries.updater import (
+from scanbackup.infrastructure.cli.summaries.updater import (
     TrafficSummaryUpdater,
     IPSummaryUpdater,
     TrafficHourSummaryUpdater,

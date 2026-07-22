@@ -1,9 +1,9 @@
 import unittest
 from unittest.mock import patch
 from click.testing import CliRunner
-from scanbackup.application.cli.history.main import cli
+from scanbackup.infrastructure.cli.history.main import cli
 
-MODULE = "scanbackup.application.cli.history.main"
+MODULE = "scanbackup.infrastructure.cli.history.main"
 
 
 class TestHistoryCli(unittest.TestCase):

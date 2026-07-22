@@ -1,6 +1,6 @@
 import unittest
 from click.testing import CliRunner
-from scanbackup.application.cli.main import cli
+from scanbackup.infrastructure.cli.main import cli
 
 
 class TestSystemCli(unittest.TestCase):

@@ -2,9 +2,9 @@ import unittest
 from unittest.mock import patch
 from pathlib import Path
 from click.testing import CliRunner
-from scanbackup.application.cli.sources.main import cli
+from scanbackup.infrastructure.cli.sources.main import cli
 
-MODULE = "scanbackup.application.cli.sources.main"
+MODULE = "scanbackup.infrastructure.cli.sources.main"
 
 
 class TestSourcesCli(unittest.TestCase):
