@@ -5,16 +5,10 @@ from scanbackup.infrastructure import (
     MongoTrafficDailySummaryBBIPRepository,
     ExcelTrafficReportBBIPExporter,
 )
-from scanbackup.application.use_case.bbip.reports.daily_traffic import (
+from scanbackup.application import (
     TrafficDailyReportGeneratorUseCase,
-)
-from scanbackup.application.use_case.bbip.reports.monthly_traffic import (
     TrafficMonthlyReportGeneratorUseCase,
-)
-from scanbackup.application.use_case.bbip.reports.weekly_traffic import (
     TrafficWeeklyReportGeneratorUseCase,
-)
-from scanbackup.application.use_case.bbip.reports.biweekly_traffic import (
     TrafficBiweeklyReportGeneratorUseCase,
 )
 from scanbackup.shared import Configuration

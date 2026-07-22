@@ -2,7 +2,7 @@ from pathlib import Path
 from scanbackup.infrastructure.persistence.mongodb.connections.database import (
     MongoDatabase,
 )
-from scanbackup.application.use_case.database.export_data import DatabaseExportUseCase
+from scanbackup.application import DatabaseExportUseCase
 from scanbackup.shared import Configuration, Terminal, Log
 
 

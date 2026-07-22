@@ -7,10 +7,8 @@ from scanbackup.infrastructure import (
     MRTGFetcher,
     IPActiveFetcher,
 )
-from scanbackup.application.use_case.bbip.updaters.traffic_collector import (
+from scanbackup.application import (
     TrafficCollectorUseCase,
-)
-from scanbackup.application.use_case.bbip.updaters.ip_collector import (
     IPCollectorUseCase,
 )
 from scanbackup.shared import Configuration

@@ -1,31 +1,5 @@
-from scanbackup.domain.repositories.bbip.sources.traffic import (
-    TrafficSourceBBIPRepository,
-)
-from scanbackup.domain.repositories.bbip.history.traffic import (
-    TrafficHistoryBBIPRepository,
-)
-from scanbackup.domain.repositories.bbip.summaries.traffic import (
-    TrafficDailySummaryBBIPRepository,
-    TrafficHourSummaryBBIPRepository,
-)
-from scanbackup.domain.repositories.bbip.sources.ip import IPSourceBBIPRepository
-from scanbackup.domain.repositories.bbip.history.ip import IPHistoryBBIPRepository
-from scanbackup.domain.repositories.bbip.summaries.ip import (
-    IPDailySummaryBBIPRepository,
-    IPHourSummaryBBIPRepository,
-)
-from scanbackup.domain.repositories.bbip.reports.traffic import (
-    TrafficReportBBIPExporter,
-)
+from scanbackup.domain.repositories.bbip import __all__ as bbip_all
 
-__all__ = [
-    "TrafficSourceBBIPRepository",
-    "TrafficHistoryBBIPRepository",
-    "TrafficDailySummaryBBIPRepository",
-    "TrafficHourSummaryBBIPRepository",
-    "IPSourceBBIPRepository",
-    "IPHistoryBBIPRepository",
-    "IPDailySummaryBBIPRepository",
-    "IPHourSummaryBBIPRepository",
-    "TrafficReportBBIPExporter",
-]
+from scanbackup.domain.repositories.bbip import *  # noqa: F401, F403
+
+__all__ = [*bbip_all]

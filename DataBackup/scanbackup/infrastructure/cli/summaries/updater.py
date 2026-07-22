@@ -9,16 +9,10 @@ from scanbackup.infrastructure import (
     MongoIPDailySummaryBBIPRepository,
     MongoIPHourSummaryBBIPRepository,
 )
-from scanbackup.application.use_case.bbip.updaters.traffic_summary import (
+from scanbackup.application import (
     TrafficSummaryGeneratorUseCase,
-)
-from scanbackup.application.use_case.bbip.updaters.ip_summary import (
     IPSummaryGeneratorUseCase,
-)
-from scanbackup.application.use_case.bbip.updaters.traffic_hour_summary import (
     TrafficHourSummaryGeneratorUseCase,
-)
-from scanbackup.application.use_case.bbip.updaters.ip_hour_summary import (
     IPHourSummaryGeneratorUseCase,
 )
 from scanbackup.shared import Configuration

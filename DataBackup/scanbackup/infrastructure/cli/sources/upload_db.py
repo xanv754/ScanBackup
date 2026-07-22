@@ -6,10 +6,8 @@ from scanbackup.infrastructure import (
     IPSourceBBIPReader,
     CSVWriter,
 )
-from scanbackup.application.use_case.bbip.updaters.source_traffic import (
+from scanbackup.application import (
     TrafficSourceUpdaterUseCase,
-)
-from scanbackup.application.use_case.bbip.updaters.source_ip import (
     IPSourceUpdaterUseCase,
 )
 from scanbackup.shared import Terminal, Log

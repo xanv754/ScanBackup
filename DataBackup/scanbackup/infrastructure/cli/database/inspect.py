@@ -1,7 +1,7 @@
 from scanbackup.infrastructure.persistence.mongodb.connections.database import (
     MongoDatabase,
 )
-from scanbackup.application.use_case.database.inspect import DatabaseInspectUseCase
+from scanbackup.application import DatabaseInspectUseCase
 from scanbackup.shared import Configuration, Terminal, Log
 
 
