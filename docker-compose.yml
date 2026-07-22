@@ -1,0 +1,61 @@
+services:
+  mongodb:
+    image: mongo:7
+    container_name: scanbackup-mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER:-root}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:?set MONGO_ROOT_PASSWORD in .env}
+      MONGO_APP_DB: ${MONGO_APP_DB:-scanbackup_db}
+      MONGO_APP_USER: ${MONGO_APP_USER:-scanner}
+      MONGO_APP_PASSWORD: ${MONGO_APP_PASSWORD:?set MONGO_APP_PASSWORD in .env}
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongodb_data:/data/db
+      - ./mongo-init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - scanbackup
+
+  databackup:
+    build:
+      context: ./DataBackup
+      args:
+        UID: ${UID:-1000}
+        GID: ${GID:-1000}
+    container_name: scanbackup-databackup
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    volumes:
+      - ./DataBackup/config.docker.yml:/app/config.yml:ro
+      - ./DataBackup/data:/app/data
+    networks:
+      - scanbackup
+
+  sourcescrapper:
+    build:
+      context: ./SourceScrapper
+      args:
+        UID: ${UID:-1000}
+        GID: ${GID:-1000}
+    container_name: scanbackup-sourcescrapper
+    volumes:
+      - ./SourceScrapper/config.yml:/app/config.yml:ro
+      - ./SourceScrapper/data:/app/data
+    networks:
+      - scanbackup
+    command: ["--help"]
+
+networks:
+  scanbackup:
+    driver: bridge
+
+volumes:
+  mongodb_data:
