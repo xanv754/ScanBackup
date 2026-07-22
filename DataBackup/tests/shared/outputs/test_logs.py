@@ -1,3 +1,4 @@
+import logging
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 from scanbackup.shared.outputs.logs import LogHandler
@@ -52,6 +53,79 @@ class TestLogHandler(TempDirTestCase):
         LogHandler()
 
         mock_exit.assert_called_once_with(1)
+
+    @patch("scanbackup.shared.outputs.logs.TimedRotatingFileHandler")
+    @patch("scanbackup.shared.outputs.logs.logging.Formatter")
+    @patch("scanbackup.shared.outputs.logs.Configuration")
+    def test_builds_formatter_from_configured_formats(
+        self, mock_configuration, mock_formatter_cls, mock_handler_cls
+    ) -> None:
+        """The Formatter must use the msg_format/date_format from configuration, not hardcoded strings."""
+        config = self._mock_configuration(self.tmp_dir)
+        mock_configuration.return_value = config
+        mock_handler_cls.return_value = MagicMock()
+
+        LogHandler()
+
+        log_cfg = config.get_cfg_metadata().logs
+        mock_formatter_cls.assert_called_once_with(log_cfg.msg_format, log_cfg.date_format)
+
+    @patch("scanbackup.shared.outputs.logs.TimedRotatingFileHandler")
+    @patch("scanbackup.shared.outputs.logs.logging.Formatter")
+    @patch("scanbackup.shared.outputs.logs.Configuration")
+    def test_creates_rotating_handler_with_expected_parameters(
+        self, mock_configuration, mock_formatter_cls, mock_handler_cls
+    ) -> None:
+        """The rotating handler must roll weekly, keep 4 backups, use utf-8 and UTC timestamps."""
+        config = self._mock_configuration(self.tmp_dir)
+        mock_configuration.return_value = config
+        mock_formatter = MagicMock()
+        mock_formatter_cls.return_value = mock_formatter
+        mock_handler = MagicMock()
+        mock_handler_cls.return_value = mock_handler
+
+        handler = LogHandler()
+
+        log_cfg = config.get_cfg_metadata().logs
+        expected_filepath = Path(self.tmp_dir) / log_cfg.dir_name / f"{log_cfg.filename}.{log_cfg.extension}"
+        mock_handler_cls.assert_called_once_with(
+            expected_filepath,
+            when="W0",
+            interval=1,
+            backupCount=4,
+            encoding="utf-8",
+            utc=True,
+        )
+        mock_handler.setFormatter.assert_called_once_with(mock_formatter)
+        self.assertIs(handler.file_handler, mock_handler)
+
+    @patch("scanbackup.shared.outputs.logs.logging.basicConfig")
+    @patch("scanbackup.shared.outputs.logs.TimedRotatingFileHandler")
+    @patch("scanbackup.shared.outputs.logs.logging.Formatter")
+    @patch("scanbackup.shared.outputs.logs.Configuration")
+    def test_registers_file_handler_and_logger_is_usable(
+        self, mock_configuration, mock_formatter_cls, mock_handler_cls, mock_basic_config
+    ) -> None:
+        """The rotating handler must be wired into logging.basicConfig and the resulting logger must work."""
+        config = self._mock_configuration(self.tmp_dir)
+        mock_configuration.return_value = config
+        mock_handler = MagicMock()
+        mock_handler_cls.return_value = mock_handler
+
+        handler = LogHandler()
+
+        mock_basic_config.assert_called_once_with(level=logging.INFO, handlers=[mock_handler])
+        self.assertIsInstance(handler.logger, logging.Logger)
+        self.assertEqual(handler.logger.name, "scanbackup.shared.outputs.logs")
+        handler.logger.info("test message")
+
+    def test_module_level_log_export_is_usable(self) -> None:
+        """The Log singleton exported at module import time must be a real, usable logger."""
+        from scanbackup.shared.outputs.logs import Log, LOG_HANDLER
+
+        self.assertIs(Log, LOG_HANDLER.logger)
+        self.assertIsInstance(Log, logging.Logger)
+        Log.info("module level log usability check")
 
 
 if __name__ == "__main__":

@@ -54,9 +54,3 @@ class LogHandler:
 
 LOG_HANDLER = LogHandler()
 Log = LOG_HANDLER.logger
-
-if __name__ == "__main__":
-    print(
-        f"Ubicación física: {LOG_HANDLER.filepath}"
-    )  # TODO: Cambiar esto a una prueba unitaria
-    Log.info("Prueba de informe log")
