@@ -1,15 +1,21 @@
 COMPOSE := docker compose
 LAYER ?= all
 CMD ?= --help
+DATA_DIRS := DataBackup/data SourceScrapper/data
 
 .DEFAULT_GOAL := help
 
-.PHONY: up build down stop start restart clean fclean re logs ps scrape databackup mongo-shell help
+.PHONY: dirs up build down stop start restart clean fclean re logs ps scrape databackup mongo-shell help
 
-up:
+# Crea los directorios montados como volumen con el usuario actual; si no existen,
+# Docker los crea como root y los contenedores (no root) no pueden escribir en ellos.
+dirs:
+	@mkdir -p $(DATA_DIRS)
+
+up: dirs
 	$(COMPOSE) up -d
 
-build:
+build: dirs
 	$(COMPOSE) up -d --build
 
 down:
@@ -37,10 +43,10 @@ logs:
 ps:
 	$(COMPOSE) ps
 
-scrape:
+scrape: dirs
 	$(COMPOSE) run --rm sourcescrapper run --layer $(LAYER)
 
-databackup:
+databackup: dirs
 	$(COMPOSE) run --rm databackup $(CMD)
 
 mongo-shell:
