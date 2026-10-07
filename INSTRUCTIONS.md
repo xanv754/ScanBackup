@@ -17,56 +17,80 @@ No necesitas Python ni MongoDB instalados localmente: todo corre dentro de conte
 
 ---
 
-## 1. Variables de entorno (`.env`)
+## Configuración: qué se edita y dónde
 
-El `.env` en la raíz del repositorio define las credenciales con las que arranca el contenedor de MongoDB.
+Toda la configuración vive en **tres lugares**, y ningún dato se repite entre ellos:
 
-```bash
-cp .env.example .env
-```
-
-Edita `.env` y completa los valores (evita dejar los `change-me` por defecto):
-
-| Variable | Descripción |
+| Archivo | Qué configura |
 | --- | --- |
-| `MONGO_ROOT_USER` / `MONGO_ROOT_PASSWORD` | Credenciales root de arranque de MongoDB (habilitan `--auth`). |
-| `MONGO_APP_DB` | Nombre de la base de datos de la aplicación. |
-| `MONGO_APP_USER` / `MONGO_APP_PASSWORD` | Usuario de aplicación, creado automáticamente en el primer arranque por `mongo-init/init-mongo.js`, con permisos `readWrite` solo sobre `MONGO_APP_DB`. |
+| `docker-compose.yml` (bloque `x-database`) | Base de datos (MongoDB). |
+| `DataBackup/config.yml` | Capas a respaldar, credenciales de SCAN, logs y reportes. |
+| `SourceScrapper/config.yml` | URLs de SCAN por capa y credenciales de scrapping. |
 
-> ⚠️ Estas variables (`MONGO_APP_*`) deben coincidir exactamente con el bloque `database` de `DataBackup/config.docker.yml` (ver paso 2). Si no coinciden, DataBackup no podrá autenticarse contra MongoDB.
+No hay `.env` ni otros archivos de configuración.
 
 ---
 
-## 2. Configuración de DataBackup (`config.docker.yml`)
+## 1. Base de datos (`docker-compose.yml`)
 
-DataBackup necesita un archivo de configuración propio para saber qué capas respaldar, cómo conectarse a Mongo y con qué credenciales consultar SCAN.
+Abre `docker-compose.yml` y edita el bloque `x-database` del inicio del archivo, más la contraseña root del servicio `mongodb`:
 
-```bash
-cp DataBackup/config.example.yml DataBackup/config.docker.yml
+```yaml
+x-database: &database
+  SCANBACKUP_DB_NAME: scanbackup_db
+  SCANBACKUP_DB_USER: scanner
+  SCANBACKUP_DB_PASSWORD: change-me      # ← cambiar
+
+services:
+  mongodb:
+    environment:
+      <<: *database
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: change-me-root   # ← cambiar
 ```
 
-Edita `DataBackup/config.docker.yml`:
+| Valor | Descripción |
+| --- | --- |
+| `SCANBACKUP_DB_NAME` | Nombre de la base de datos de la aplicación. |
+| `SCANBACKUP_DB_USER` / `SCANBACKUP_DB_PASSWORD` | Usuario de aplicación. MongoDB lo crea automáticamente en su primer arranque, con permisos `readWrite` solo sobre `SCANBACKUP_DB_NAME`. DataBackup usa estos mismos valores para conectarse, así que no hay que escribirlos en ningún otro lugar. |
+| `MONGO_INITDB_ROOT_PASSWORD` | Contraseña del usuario root de MongoDB. Solo se usa para inicializar la base y activar la autenticación. |
 
-- **`database.host`**: debe quedar en `"mongodb"` (nombre del servicio en la red interna de Docker, **no** `localhost`).
-- **`database.name` / `database.user` / `database.password`**: deben coincidir con `MONGO_APP_DB` / `MONGO_APP_USER` / `MONGO_APP_PASSWORD` del `.env`.
-- **`layers`**: capas del BackBoneIP a respaldar (`borde`, `dint`, `dist`, `caching`, `rai`, `bras`, `ixp`, `ip_bras`, etc.) agrupadas bajo `bbip` e `ip`.
+> ⚠️ `docker-compose.yml` está versionado en git. Para no subir tus contraseñas por error, después de editarlo ejecuta:
+>
+> ```bash
+> git update-index --skip-worktree docker-compose.yml
+> ```
+>
+> (Para volver a seguir sus cambios: `git update-index --no-skip-worktree docker-compose.yml`.)
+
+> ⚠️ El usuario de aplicación solo se crea cuando el volumen de MongoDB está vacío (primer arranque). Si después cambias estos valores, MongoDB **no** los actualiza: ejecuta `make clean` (borra todos los datos) o cambia la contraseña a mano desde MongoDB.
+
+---
+
+## 2. Configuración de DataBackup (`DataBackup/config.yml`)
+
+```bash
+cp DataBackup/config.example.yml DataBackup/config.yml
+```
+
+Edita `DataBackup/config.yml`:
+
+- **`layers`**: capas del BackBoneIP a respaldar (`borde`, `dint`, `dist`, `caching`, `rai`, `bras`, `ixp`, `ip_bras`, etc.), agrupadas bajo `bbip` e `ip`.
 - **`metadata.scanner.scan_credentials`**: credenciales de acceso a la plataforma SCAN.
+
+Este archivo **no** lleva datos de la base de datos: DataBackup los recibe del paso 1. El mismo `config.yml` sirve tanto en Docker como en ejecución nativa.
 
 Referencia completa de cada campo en [`DataBackup/CONFIGURATION.md`](./DataBackup/CONFIGURATION.md).
 
-> Nota: `config.docker.yml` es el que se monta dentro del contenedor (`docker-compose.yml` lo mapea a `/app/config.yml`). Si además quieres correr DataBackup de forma nativa (sin Docker), necesitas un `DataBackup/config.yml` aparte con `database.host: "localhost"` — ver [`DataBackup/README.md`](./DataBackup/README.md#configuración).
-
 ---
 
-## 3. Configuración de SourceScrapper (`config.yml`)
+## 3. Configuración de SourceScrapper (`SourceScrapper/config.yml`)
 
-SourceScrapper ya trae un `SourceScrapper/config.yml` en este repositorio, pero revísalo/ajústalo antes de levantar el sistema:
+`SourceScrapper/config.yml` **no** viene en el repositorio (está en `.gitignore`); hay que crearlo siguiendo la estructura documentada en [`SourceScrapper/README.md`](./SourceScrapper/README.md#estructura):
 
-- **`scan_credentials`**: credenciales de acceso a SCAN (pueden ser las mismas del paso 2).
-- **`layers`**: cada entrada define una URL de SCAN por capa/fabricante (`layer`, `url`, `type`, `locked`, y `credentials` si `locked: true`).
+- **`scan_credentials`**: credenciales de acceso a SCAN.
+- **`layers`**: cada entrada define una URL de SCAN por capa/fabricante (`layer`, `url`, `type`, `locked` y, si `locked: true`, `credentials`).
 - **`exporter.dir`**: carpeta donde se escriben los CSV generados (por defecto `data`, montada como volumen).
-
-Detalle completo de la estructura en [`SourceScrapper/README.md`](./SourceScrapper/README.md#estructura).
 
 ---
 
@@ -99,7 +123,7 @@ make ps
 
 ## 5. Inicializar la base de datos
 
-Con MongoDB ya corriendo, crea las colecciones definidas en `config.docker.yml`:
+Con MongoDB ya corriendo, crea las colecciones definidas en `DataBackup/config.yml`:
 
 ```bash
 make databackup CMD="database setup"
@@ -133,10 +157,16 @@ make scrape LAYER=borde
 
 Los CSV generados en el paso 6 deben cargarse a MongoDB con el CLI de DataBackup (comandos `sources traffic_upload` / `sources ip_upload`).
 
-> ⚠️ **Importante**: el subcomando `sources` depende del paquete `scrapper_scanbackup` (SourceScrapper), que **no** está instalado en la imagen Docker de `databackup` (ver nota en [`DataBackup/README.md`](./DataBackup/README.md#docker)). Por lo tanto este paso **no se puede ejecutar con `make databackup`**; requiere una instalación nativa de DataBackup con ambos paquetes (`scanbackup` y `scrapper_scanbackup`) en el mismo entorno virtual:
+> ⚠️ **Importante**: el subcomando `sources` depende del paquete `scrapper_scanbackup` (SourceScrapper), que **no** está instalado en la imagen Docker de `databackup` (ver nota en [`DataBackup/README.md`](./DataBackup/README.md#docker)). Por lo tanto este paso **no se puede ejecutar con `make databackup`**; requiere una instalación nativa de DataBackup con ambos paquetes (`scanbackup` y `scrapper_scanbackup`) en el mismo entorno virtual, exportando antes las variables de la base de datos con los valores del paso 1 (ver [Base de datos](./DataBackup/CONFIGURATION.md#base-de-datos)):
 
 ```bash
 # entorno nativo, con ambos paquetes instalados
+export SCANBACKUP_DB_HOST=localhost
+export SCANBACKUP_DB_PORT=27018
+export SCANBACKUP_DB_NAME=scanbackup_db
+export SCANBACKUP_DB_USER=scanner
+export SCANBACKUP_DB_PASSWORD=change-me
+
 python -m scanbackup sources traffic_upload --filepath SourceScrapper/data/BORDE.csv
 python -m scanbackup sources ip_upload --filepath SourceScrapper/data/IP_BRAS.csv
 ```
@@ -183,10 +213,10 @@ make databackup CMD="summaries ip-generate"
 
 ## Resumen del orden completo
 
-1. `cp .env.example .env` y completar credenciales.
-2. `cp DataBackup/config.example.yml DataBackup/config.docker.yml` y ajustar (`host: "mongodb"`, credenciales igual al `.env`, capas, credenciales SCAN).
-3. Ajustar `SourceScrapper/config.yml` (URLs, credenciales, capas).
-4. `make up` (o `make build` la primera vez).
+1. Editar `x-database` y `MONGO_INITDB_ROOT_PASSWORD` en `docker-compose.yml` (y `git update-index --skip-worktree docker-compose.yml`).
+2. `cp DataBackup/config.example.yml DataBackup/config.yml` y ajustar capas y credenciales de SCAN.
+3. Crear/ajustar `SourceScrapper/config.yml` (URLs, credenciales, capas).
+4. `make build` (la primera vez) o `make up`.
 5. `make databackup CMD="database setup"`.
 6. `make scrape`.
 7. Importar los CSV generados con `sources traffic_upload` / `sources ip_upload` (instalación nativa).

@@ -32,29 +32,25 @@ Para instalar y correr cada proyecto de forma nativa (sin Docker), consulta los 
 
 ## Configuración
 
-Cada proyecto necesita su propio `config.yml` para funcionar, tanto en ejecución nativa como en Docker:
+El sistema tiene exactamente tres puntos de configuración, cada uno con una única responsabilidad. Ningún dato se repite entre ellos:
 
-- `DataBackup/config.yml` — conexión a MongoDB, capas a respaldar, credenciales de SCAN, rutas de datos/logs. Puede partir de `DataBackup/config.example.yml`. Ver [Configuración de DataBackup](./DataBackup/CONFIGURATION.md).
-- `SourceScrapper/config.yml` — URLs de SCAN por capa, credenciales de scrapping, formato de exportación. [Configuración de SourceScrapper](./SourceScrapper/README.md#estructura).
+| Archivo | Qué configura |
+| --- | --- |
+| `docker-compose.yml` (bloque `x-database`) | Base de datos: nombre, usuario y contraseña de la aplicación, más la contraseña root de MongoDB. Compose se los pasa a MongoDB (que crea el usuario en su primer arranque) y a DataBackup (que los usa para conectarse). |
+| `DataBackup/config.yml` | Capas a respaldar, credenciales de SCAN, rutas de datos/logs y formato de reportes. Se crea a partir de `DataBackup/config.example.yml`. Ver [Configuración de DataBackup](./DataBackup/CONFIGURATION.md). |
+| `SourceScrapper/config.yml` | URLs de SCAN por capa, credenciales de scrapping y formato de exportación. Ver [Configuración de SourceScrapper](./SourceScrapper/README.md#estructura). |
 
-Para uso con `docker compose`, `DataBackup` requiere además `DataBackup/config.docker.yml` (igual al `config.yml` nativo, pero con `database.host: "mongodb"` en vez de `localhost`, ya que dentro de la red de Docker el servicio de MongoDB se resuelve por su nombre de servicio, no por `localhost`).
-
-También se necesita un `.env` en la raíz del repositorio con las credenciales de arranque de MongoDB, a partir de `.env.example`:
-
-```bash
-cp .env.example .env
-```
-
-Las variables `MONGO_APP_*` del `.env` deben coincidir con el bloque `database` de `DataBackup/config.docker.yml`.
+No se usa ningún `.env`. Los dos `config.yml` están en `.gitignore`.
 
 ## Uso con Docker Compose
 
 ```bash
-cp .env.example .env   # completar con tus credenciales
-make up
+make build
 ```
 
-Esto levanta MongoDB, `databackup` y `sourcescrapper` en una red interna compartida. `databackup` y `sourcescrapper` son imágenes de CLI (no procesos de larga duración), por lo que sus comandos se ejecutan puntualmente con `make databackup` y `make scrape` (ver tabla abajo).
+Esto construye las imágenes y levanta MongoDB, `databackup` y `sourcescrapper` en una red interna compartida. `databackup` y `sourcescrapper` son imágenes de CLI (no procesos de larga duración), por lo que sus comandos se ejecutan puntualmente con `make databackup` y `make scrape` (ver tabla abajo).
+
+La guía completa paso a paso está en [`INSTRUCTIONS.md`](./INSTRUCTIONS.md).
 
 ### Reglas del Makefile
 

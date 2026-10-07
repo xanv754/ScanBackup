@@ -17,13 +17,6 @@ layers:
     names:
       - "example"
 
-database:
-  host: "localhost"
-  port: "27017"
-  name: "scanbackup_db"
-  user: "user"
-  password: "password"
-
 metadata:
   dir_data: "data"
 
@@ -106,103 +99,29 @@ names:
 
 ---
 
-# database
+# Base de datos
 
-Configuración de conexión a la base de datos de MongoDB.
+La conexión a MongoDB **no** se configura en este archivo. DataBackup la lee de las siguientes variables de entorno:
 
-## host
+| Variable | Descripción |
+| --- | --- |
+| `SCANBACKUP_DB_HOST` | Host de MongoDB. |
+| `SCANBACKUP_DB_PORT` | Puerto de MongoDB. |
+| `SCANBACKUP_DB_NAME` | Nombre de la base de datos (también se usa como `authSource`). |
+| `SCANBACKUP_DB_USER` | Usuario de la aplicación. |
+| `SCANBACKUP_DB_PASSWORD` | Contraseña del usuario de la aplicación. |
 
-| Propiedad         | Valor  |
-| ----------------- | ------ |
-| Tipo              | string |
-| Obligatorio       | Sí     |
+Si falta alguna, cualquier comando que use la base de datos falla con un error de validación.
 
-#### Descripción
+- **Docker Compose**: se definen solo en el bloque `x-database` de `docker-compose.yml` (en la raíz del repositorio). Compose las inyecta en el contenedor de MongoDB, que crea el usuario en su primer arranque, y en el de DataBackup. `SCANBACKUP_DB_HOST` (`mongodb`) y `SCANBACKUP_DB_PORT` (`27017`) ya vienen fijos en el servicio `databackup`.
+- **Ejecución nativa**: se exportan en la terminal antes de usar el CLI. Para conectarse al MongoDB del `docker-compose.yml`, usa el puerto publicado en el host (`27018`) y los mismos valores de `x-database`:
 
-Host de conexión a la base de datos.
-
-#### Ejemplo
-
-```yaml
-host: "localhost"
-```
-
----
-
-## port
-
-| Propiedad         | Valor   |
-| ----------------- | ------- |
-| Tipo              | integer |
-| Obligatorio       | Sí      |
-
-#### Descripción
-
-Puerto de conexión a la base de datos.
-
-#### Ejemplo
-
-```yaml
-port: 27017
-```
-
----
-
-## name
-
-| Propiedad         | Valor  |
-| ----------------- | ------ |
-| Tipo              | string |
-| Obligatorio       | Sí     |
-
-#### Descripción
-
-Nombre de la base de datos.
-
-#### Ejemplo
-
-```yaml
-name: my_database
-```
-
----
-
-## user
-
-| Propiedad         | Valor  |
-| ----------------- | ------ |
-| Tipo              | string |
-| Obligatorio       | Sí     |
-| Valor por defecto | N/A    |
-
-#### Descripción
-
-Nombre de usuario para conexión a la base de datos.
-
-#### Ejemplo
-
-```yaml
-user: admin
-```
-
----
-
-## password
-
-| Propiedad         | Valor  |
-| ----------------- | ------ |
-| Tipo              | string |
-| Obligatorio       | Sí     |
-| Valor por defecto | N/A    |
-
-#### Descripción
-
-Contrasena para conexión a la base de datos.
-
-#### Ejemplo
-
-```yaml
-password: secret
+```bash
+export SCANBACKUP_DB_HOST=localhost
+export SCANBACKUP_DB_PORT=27018
+export SCANBACKUP_DB_NAME=scanbackup_db
+export SCANBACKUP_DB_USER=scanner
+export SCANBACKUP_DB_PASSWORD=change-me
 ```
 
 ---

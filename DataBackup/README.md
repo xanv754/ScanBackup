@@ -40,8 +40,9 @@ cp config.example.yml config.yml
 El archivo define, entre otros:
 
 - **`layers`**: las capas del BBIP a respaldar y las colecciones donde se almacenan.
-- **`database`**: los datos de conexión a MongoDB.
 - **`metadata`**: rutas de almacenamiento, configuración de logs, del recolector (scanner) y de reportes.
+
+La conexión a MongoDB **no** está en `config.yml`: se lee de las variables de entorno `SCANBACKUP_DB_HOST`, `SCANBACKUP_DB_PORT`, `SCANBACKUP_DB_NAME`, `SCANBACKUP_DB_USER` y `SCANBACKUP_DB_PASSWORD`. Con Docker Compose las inyecta el bloque `x-database` del `docker-compose.yml` de la raíz; en ejecución nativa hay que exportarlas antes de usar el CLI (ver [Base de datos](./CONFIGURATION.md#base-de-datos)).
 
 La descripción detallada de cada parámetro se encuentra en [`CONFIGURATION.md`](./CONFIGURATION.md).
 
@@ -103,7 +104,7 @@ El proyecto incluye un `Dockerfile` que empaqueta únicamente el CLI. La imagen 
 
 > Nota: el subcomando `sources` requiere el paquete `scrapper_scanbackup` (proyecto SourceScrapper), que no forma parte de las dependencias de este proyecto ni de la imagen.
 
-`config.yml` y la carpeta `data/`, ambos deben montarse como volúmenes al correr el contenedor, en `/app/config.yml` y `/app/data` respectivamente.
+`config.yml` y la carpeta `data/`, ambos deben montarse como volúmenes al correr el contenedor, en `/app/config.yml` y `/app/data` respectivamente. Las variables `SCANBACKUP_DB_*` deben pasarse al contenedor con `-e`.
 
 ### Makefile
 
@@ -113,7 +114,7 @@ Los siguientes targets automatizan el ciclo de construcción, empaquetado y ejec
 make build      # Construye la imagen scanbackup:latest
 make package    # Construye la imagen y la exporta a scanbackup.tar (docker save)
 make load       # Carga una imagen desde scanbackup.tar (docker load)
-make run        # Ejecuta el contenedor, montando ./config.yml y ./data
+make run        # Ejecuta el contenedor, montando ./config.yml y ./data y pasando las SCANBACKUP_DB_* exportadas
 make clean      # Elimina scanbackup.tar y la imagen local
 ```
 
@@ -135,6 +136,11 @@ Equivalente a `make build` y `make run` sin pasar por el Makefile:
 docker build --build-arg UID=$(id -u) --build-arg GID=$(id -g) -t scanbackup:latest .
 
 docker run --rm \
+  -e SCANBACKUP_DB_HOST \
+  -e SCANBACKUP_DB_PORT \
+  -e SCANBACKUP_DB_NAME \
+  -e SCANBACKUP_DB_USER \
+  -e SCANBACKUP_DB_PASSWORD \
   -v "$(pwd)/config.yml:/app/config.yml:ro" \
   -v "$(pwd)/data:/app/data" \
   scanbackup:latest database setup
