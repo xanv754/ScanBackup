@@ -1,7 +1,6 @@
 # Files
 CLAUDE.md
 config.yml
-config.docker.yml
 *.tar
 */data/*
 */sources/*

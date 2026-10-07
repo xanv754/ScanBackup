@@ -8,13 +8,6 @@ layers:
     names:
       - "example"
 
-database:
-  host: "localhost"
-  port: "27017"
-  name: "scanbackup_db"
-  user: "user"
-  password: "password"
-
 metadata:
   dir_data: "data"
 

@@ -1,4 +1,6 @@
 from pathlib import Path
+from unittest.mock import patch
+from pydantic import ValidationError
 from scanbackup.shared.config.config import Configuration
 from tests.support import TempDirTestCase
 
@@ -12,13 +14,6 @@ layers:
     schema_collection: "IP"
     names:
       - "DINT"
-
-database:
-  host: "localhost"
-  port: 27017
-  name: "scanbackup_db"
-  user: "user"
-  password: "password"
 
 metadata:
   dir_data: "data"
@@ -38,6 +33,14 @@ metadata:
     preffix_name: "ScanBackup"
     date_format: "%Y%m%d_%H%M%S"
 """
+
+VALID_DATABASE_ENV = {
+    "SCANBACKUP_DB_HOST": "localhost",
+    "SCANBACKUP_DB_PORT": "27017",
+    "SCANBACKUP_DB_NAME": "scanbackup_db",
+    "SCANBACKUP_DB_USER": "user",
+    "SCANBACKUP_DB_PASSWORD": "password",
+}
 
 
 class TestConfiguration(TempDirTestCase):
@@ -70,12 +73,28 @@ class TestConfiguration(TempDirTestCase):
         config = Configuration()
         self.assertEqual(config.get_filepath(), str(self.config_path.resolve()))
 
-    def test_get_cfg_database_returns_database_model(self) -> None:
-        """get_cfg_database must expose the parsed database section."""
+    def test_get_cfg_database_reads_environment_variables(self) -> None:
+        """get_cfg_database must build the database model from SCANBACKUP_DB_* variables."""
         config = Configuration()
-        db_cfg = config.get_cfg_database()
+        with patch.dict("os.environ", VALID_DATABASE_ENV, clear=True):
+            db_cfg = config.get_cfg_database()
         self.assertEqual(db_cfg.host, "localhost")
         self.assertEqual(db_cfg.port, 27017)
+        self.assertEqual(db_cfg.name, "scanbackup_db")
+        self.assertEqual(db_cfg.user, "user")
+        self.assertEqual(db_cfg.password, "password")
+
+    def test_get_cfg_database_raises_when_variable_is_missing(self) -> None:
+        """get_cfg_database must fail if any SCANBACKUP_DB_* variable is not defined."""
+        config = Configuration()
+        incomplete_env = {
+            key: value
+            for key, value in VALID_DATABASE_ENV.items()
+            if key != "SCANBACKUP_DB_PASSWORD"
+        }
+        with patch.dict("os.environ", incomplete_env, clear=True):
+            with self.assertRaises(ValidationError):
+                config.get_cfg_database()
 
     def test_get_cfg_layers_returns_layers_model(self) -> None:
         """get_cfg_layers must expose the parsed layers section."""

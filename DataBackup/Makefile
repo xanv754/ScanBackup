@@ -31,6 +31,11 @@ load:
 
 run:
 	docker run --rm \
+		-e SCANBACKUP_DB_HOST \
+		-e SCANBACKUP_DB_PORT \
+		-e SCANBACKUP_DB_NAME \
+		-e SCANBACKUP_DB_USER \
+		-e SCANBACKUP_DB_PASSWORD \
 		-v "$(CONFIG_FILE):/app/config.yml:ro" \
 		-v "$(DATA_DIR):/app/data" \
 		$(IMAGE) $(ARGS)

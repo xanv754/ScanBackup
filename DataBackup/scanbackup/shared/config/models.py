@@ -52,5 +52,4 @@ class MetadataConfigModel(BaseModel):
 
 class ConfigModel(BaseModel):
     layers: LayerConfigModel
-    database: DatabaseConfigModel
     metadata: MetadataConfigModel

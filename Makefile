@@ -50,7 +50,7 @@ databackup: dirs
 	$(COMPOSE) run --rm databackup $(CMD)
 
 mongo-shell:
-	docker exec -it scanbackup-mongodb sh -c 'mongosh -u "$$MONGO_APP_USER" -p "$$MONGO_APP_PASSWORD" --authenticationDatabase "$$MONGO_APP_DB" "$$MONGO_APP_DB"'
+	docker exec -it scanbackup-mongodb sh -c 'mongosh -u "$$SCANBACKUP_DB_USER" -p "$$SCANBACKUP_DB_PASSWORD" --authenticationDatabase "$$SCANBACKUP_DB_NAME" "$$SCANBACKUP_DB_NAME"'
 
 help:
 	@echo "Reglas disponibles: up, build, down, stop, start, restart, clean, fclean, re, logs, ps, scrape, databackup, mongo-shell"

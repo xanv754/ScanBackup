@@ -1,19 +1,24 @@
+x-database: &database
+  SCANBACKUP_DB_NAME: scanbackup_db
+  SCANBACKUP_DB_USER: scanner
+  SCANBACKUP_DB_PASSWORD: change-me
+
 services:
   mongodb:
     image: mongo:7
     container_name: scanbackup-mongodb
     restart: unless-stopped
     environment:
-      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER:-root}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:?set MONGO_ROOT_PASSWORD in .env}
-      MONGO_APP_DB: ${MONGO_APP_DB:-scanbackup_db}
-      MONGO_APP_USER: ${MONGO_APP_USER:-scanner}
-      MONGO_APP_PASSWORD: ${MONGO_APP_PASSWORD:?set MONGO_APP_PASSWORD in .env}
+      <<: *database
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: change-me-root
     ports:
       - "27018:27017"
     volumes:
       - mongodb_data:/data/db
-      - ./mongo-init:/docker-entrypoint-initdb.d:ro
+    configs:
+      - source: init-mongo
+        target: /docker-entrypoint-initdb.d/init-mongo.js
     healthcheck:
       test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
       interval: 10s
@@ -29,12 +34,17 @@ services:
       args:
         UID: ${UID:-1000}
         GID: ${GID:-1000}
+    image: scanbackup-databackup
     container_name: scanbackup-databackup
     depends_on:
       mongodb:
         condition: service_healthy
+    environment:
+      <<: *database
+      SCANBACKUP_DB_HOST: mongodb
+      SCANBACKUP_DB_PORT: 27017
     volumes:
-      - ./DataBackup/config.docker.yml:/app/config.yml:ro
+      - ./DataBackup/config.yml:/app/config.yml:ro
       - ./DataBackup/data:/app/data
     networks:
       - scanbackup
@@ -45,6 +55,7 @@ services:
       args:
         UID: ${UID:-1000}
         GID: ${GID:-1000}
+    image: scanbackup-sourcescrapper
     container_name: scanbackup-sourcescrapper
     volumes:
       - ./SourceScrapper/config.yml:/app/config.yml:ro
@@ -52,6 +63,16 @@ services:
     networks:
       - scanbackup
     command: ["--help"]
+
+configs:
+  init-mongo:
+    content: |
+      const env = process.env;
+      db.getSiblingDB(env.SCANBACKUP_DB_NAME).createUser({
+        user: env.SCANBACKUP_DB_USER,
+        pwd: env.SCANBACKUP_DB_PASSWORD,
+        roles: [{ role: "readWrite", db: env.SCANBACKUP_DB_NAME }],
+      });
 
 networks:
   scanbackup:
