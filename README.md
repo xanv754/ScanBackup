@@ -36,11 +36,11 @@ El sistema tiene exactamente tres puntos de configuración, cada uno con una ún
 
 | Archivo | Qué configura |
 | --- | --- |
-| `docker-compose.yml` (bloque `x-database`) | Base de datos: nombre, usuario y contraseña de la aplicación, más la contraseña root de MongoDB. Compose se los pasa a MongoDB (que crea el usuario en su primer arranque) y a DataBackup (que los usa para conectarse). |
+| `docker-compose.yml` (bloque `x-database`) | Base de datos: nombre, usuario y contraseña de la aplicación, más la contraseña root de MongoDB. Compose se los pasa a MongoDB (que crea el usuario en su primer arranque) y a DataBackup (que los usa para conectarse). Se crea a partir de `docker-compose.example.yml`. |
 | `DataBackup/config.yml` | Capas a respaldar, credenciales de SCAN, rutas de datos/logs y formato de reportes. Se crea a partir de `DataBackup/config.example.yml`. Ver [Configuración de DataBackup](./DataBackup/CONFIGURATION.md). |
 | `SourceScrapper/config.yml` | URLs de SCAN por capa, credenciales de scrapping y formato de exportación. Ver [Configuración de SourceScrapper](./SourceScrapper/README.md#estructura). |
 
-No se usa ningún `.env`. Los dos `config.yml` están en `.gitignore`.
+No se usa ningún `.env`. `docker-compose.yml` y los dos `config.yml` están en `.gitignore`.
 
 ## Uso con Docker Compose
 

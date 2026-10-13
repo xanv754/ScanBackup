@@ -1,5 +1,7 @@
 # Files
 config.yml
+config.docker.yml
+docker-compose.yml
 *.tar
 */data/*
 */sources/*

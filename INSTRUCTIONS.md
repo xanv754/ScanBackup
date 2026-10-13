@@ -29,9 +29,17 @@ Toda la configuración vive en **tres lugares**, y ningún dato se repite entre 
 
 No hay `.env` ni otros archivos de configuración.
 
+Ninguno de estos archivos está en el repositorio (están en `.gitignore`, porque llevan contraseñas y credenciales): cada uno se crea en tu máquina —a partir de su plantilla `*.example.yml` cuando existe (`docker-compose.example.yml`, `DataBackup/config.example.yml`)— y se configura para tu sistema antes de levantar nada. Así tus valores nunca se suben por error.
+
 ---
 
 ## 1. Base de datos (`docker-compose.yml`)
+
+Crea el archivo a partir de la plantilla:
+
+```bash
+cp docker-compose.example.yml docker-compose.yml
+```
 
 Abre `docker-compose.yml` y edita el bloque `x-database` del inicio del archivo, más la contraseña root del servicio `mongodb`:
 
@@ -55,13 +63,7 @@ services:
 | `SCANBACKUP_DB_USER` / `SCANBACKUP_DB_PASSWORD` | Usuario de aplicación. MongoDB lo crea automáticamente en su primer arranque, con permisos `readWrite` solo sobre `SCANBACKUP_DB_NAME`. DataBackup usa estos mismos valores para conectarse, así que no hay que escribirlos en ningún otro lugar. |
 | `MONGO_INITDB_ROOT_PASSWORD` | Contraseña del usuario root de MongoDB. Solo se usa para inicializar la base y activar la autenticación. |
 
-> ⚠️ `docker-compose.yml` está versionado en git. Para no subir tus contraseñas por error, después de editarlo ejecuta:
->
-> ```bash
-> git update-index --skip-worktree docker-compose.yml
-> ```
->
-> (Para volver a seguir sus cambios: `git update-index --no-skip-worktree docker-compose.yml`.)
+> ℹ️ Si cambias la estructura de los servicios (no solo los valores), aplica el mismo cambio en `docker-compose.example.yml` para que quede versionado.
 
 > ⚠️ El usuario de aplicación solo se crea cuando el volumen de MongoDB está vacío (primer arranque). Si después cambias estos valores, MongoDB **no** los actualiza: ejecuta `make clean` (borra todos los datos) o cambia la contraseña a mano desde MongoDB.
 
@@ -213,7 +215,7 @@ make databackup CMD="summaries ip-generate"
 
 ## Resumen del orden completo
 
-1. Editar `x-database` y `MONGO_INITDB_ROOT_PASSWORD` en `docker-compose.yml` (y `git update-index --skip-worktree docker-compose.yml`).
+1. `cp docker-compose.example.yml docker-compose.yml` y editar `x-database` y `MONGO_INITDB_ROOT_PASSWORD`.
 2. `cp DataBackup/config.example.yml DataBackup/config.yml` y ajustar capas y credenciales de SCAN.
 3. Crear/ajustar `SourceScrapper/config.yml` (URLs, credenciales, capas).
 4. `make build` (la primera vez) o `make up`.
