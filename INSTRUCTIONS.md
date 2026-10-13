@@ -29,7 +29,7 @@ Toda la configuración vive en **tres lugares**, y ningún dato se repite entre 
 
 No hay `.env` ni otros archivos de configuración.
 
-Ninguno de estos archivos está en el repositorio (están en `.gitignore`, porque llevan contraseñas y credenciales): cada uno se crea en tu máquina —a partir de su plantilla `*.example.yml` cuando existe (`docker-compose.example.yml`, `DataBackup/config.example.yml`)— y se configura para tu sistema antes de levantar nada. Así tus valores nunca se suben por error.
+Ninguno de estos archivos está en el repositorio (están en `.gitignore`, porque llevan contraseñas y credenciales): cada uno se crea en tu máquina a partir de su plantilla `*.example.yml` y se configura para tu sistema antes de levantar nada. Así tus valores nunca se suben por error.
 
 ---
 
@@ -88,7 +88,11 @@ Referencia completa de cada campo en [`DataBackup/CONFIGURATION.md`](./DataBacku
 
 ## 3. Configuración de SourceScrapper (`SourceScrapper/config.yml`)
 
-`SourceScrapper/config.yml` **no** viene en el repositorio (está en `.gitignore`); hay que crearlo siguiendo la estructura documentada en [`SourceScrapper/README.md`](./SourceScrapper/README.md#estructura):
+```bash
+cp SourceScrapper/config.example.yml SourceScrapper/config.yml
+```
+
+Edita `SourceScrapper/config.yml` (referencia completa de cada campo en [`SourceScrapper/README.md`](./SourceScrapper/README.md#estructura)):
 
 - **`scan_credentials`**: credenciales de acceso a SCAN.
 - **`layers`**: cada entrada define una URL de SCAN por capa/fabricante (`layer`, `url`, `type`, `locked` y, si `locked: true`, `credentials`).
@@ -217,7 +221,7 @@ make databackup CMD="summaries ip-generate"
 
 1. `cp docker-compose.example.yml docker-compose.yml` y editar `x-database` y `MONGO_INITDB_ROOT_PASSWORD`.
 2. `cp DataBackup/config.example.yml DataBackup/config.yml` y ajustar capas y credenciales de SCAN.
-3. Crear/ajustar `SourceScrapper/config.yml` (URLs, credenciales, capas).
+3. `cp SourceScrapper/config.example.yml SourceScrapper/config.yml` y ajustar URLs, credenciales y capas.
 4. `make build` (la primera vez) o `make up`.
 5. `make databackup CMD="database setup"`.
 6. `make scrape`.

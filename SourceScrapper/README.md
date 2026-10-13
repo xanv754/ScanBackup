@@ -20,6 +20,12 @@ Esto instala el paquete `scrapper_scanbackup` junto con el script `scanbackup` (
 
 ## Archivo de configuración
 
+`config.yml` no está versionado (contiene credenciales). Créalo a partir de la plantilla y ajústalo a tu sistema:
+
+```bash
+cp config.example.yml config.yml
+```
+
 El módulo espera un archivo `config.yml` dentro de un *directorio base*, resuelto así:
 
 1. Si la variable de entorno `SCANBACKUP_HOME` está definida, se usa esa ruta como directorio base.
