@@ -1,0 +1,64 @@
+[build-system]
+requires = ["setuptools>=77.0.3"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "reports"
+version = "3.0.0"
+description = "Report Generation System for the Network"
+readme = "README.md"
+requires-python = ">=3.13"
+authors = [
+    { name = "Jesus Marañon", email = "jmaranonr@gmail.com" },
+    { name = "Angyee Marin", email = "angyeemarin.dev@gmail.com" }
+]
+keywords = ["grd", "network", "data-processing"]
+classifiers = [
+    "Private :: Do Not Upload",
+    "Programming Language :: Python :: 3.13",
+    "Operating System :: POSIX :: Linux",
+]
+dependencies = [
+    "click>=8.1.8",
+    "openpyxl>=3.1.5",
+    "pymongo>=4.11.3",
+    "pyyaml>=6.0.3",
+]
+
+[project.urls]
+Homepage = "https://github.com/xanv754/ScanBackup"
+
+[project.scripts]
+reports = "reports.__main__:cli"
+
+[project.optional-dependencies]
+test = [
+    "pytest>=8.3",
+]
+dev = [
+    "reports[test]",
+    "ruff>=0.8",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["reports*"]
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+addopts = "-ra --strict-markers --strict-config"
+markers = [
+    "integration: tests that require a running MongoDB instance",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "N", "UP", "B", "SIM", "ERA", "PT", "RUF", "C4", "PTH"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["reports"]
