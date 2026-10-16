@@ -106,3 +106,7 @@ Cada servicio mantiene sus propios archivos `.log` con el registro de operacione
 - Se utiliza el módulo `logging` de la biblioteca estándar, sin dependencias adicionales.
 - Los archivos rotan automáticamente para evitar crecimiento ilimitado.
 - Cada servicio escribe en su propio directorio de logs, sin compartir archivos con otros servicios.
+
+## Exportación de archivos
+
+Todos los archivos generados por el servicio `reports` se almacenan en la carpeta `exports/`, ubicada en un volumen del host (bind mount), de modo que persistan tras la finalización y eliminación del contenedor. Ningún otro servicio escribe en esta carpeta.
