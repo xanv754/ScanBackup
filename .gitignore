@@ -1,17 +1,5 @@
 # Files
-config.yml
-config.docker.yml
-docker-compose.yml
-*.tar
-*/data/*
-*/sources/*
-*/routines/tmp/*
-*/routines/capa
-*/test/correcciondata
-*/test/data/*
-*/test/calculos/*
-*/tmp/*
-*.csv
+*.log
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
