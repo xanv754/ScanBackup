@@ -20,7 +20,7 @@ Los servicios no se comunican directamente entre sí. La base de datos, única p
 
 ## Tecnologías
 
-Las tecnologías listadas a continuación son las definidas para el sistema. No se deben agregar dependencias adicionales sin consultar previamente.
+Las tecnologías listadas a continuación son las definidas para el sistema, aunque pueden a lo largo del desarrollo añadirse nuevas depedencias según sea la necesidad. Estas son las básicas al comenzar.
 
 ### Lenguaje y entorno
 
