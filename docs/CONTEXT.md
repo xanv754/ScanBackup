@@ -1,45 +1,17 @@
 # Proyecto
+SCAN-Backup es un sistema desarrollado para obtener la información de tráfico de las distintas interfaces de red monitoreadas diariamente por el sistema SCAN. Dado que SCAN actualmente no conserva un histórico de los valores de tráfico que registra, SCAN-Backup suple dicha necesidad recolectando los valores de tráfico, en periodos de 5 minutos, que SCAN obtiene del día anterior al actual, y almacenándolos para conformar el histórico de tráfico de las interfaces de red. Todo ello tiene como finalidad poder generar reportes de promedios de tráfico por hora o por día, reportes de valores crudos de varios días en conjunto y reportes de tráfico de interfaces de red específicas, para su exportación a un documento destinado a los analistas, consultores o líderes de la coordinación Gestión Producto Red de Datos de CANTV.
 
-ScanBackup es un sistema especializado en la creación de un backup personal del sistema SCAN. Es un sistema que proactivamente realiza peticiones diarias al sistema SCAN para obtener los distintos valores de tráfico de red de todas las interfaces existentes, con la finalidad de poder almacenar en una base de datos dichos valores, para poder tener un respaldo y poder realizar reportes de distintos días.
+SCAN-Backup no monitorea las interfaces en vivo ni realiza consultas a los equipos de red. Toda la información obtenida se extrae exclusivamente de la información que muestra el sistema SCAN. SCAN-Backup obtiene de SCAN la información de las interfaces de red, lo que le permite consultar los valores de tráfico que SCAN obtuvo de dichas interfaces y almacenarlos en la base de datos de SCAN-Backup. Asimismo, no modifica ni altera los valores de tráfico, ni agrega ni elimina interfaces de red declaradas en SCAN.
 
-ScanBackup recolecta, importa, exporta y gestiona datos de tráfico de red provenientes del sistema de monitoreo SCAN de CANTV. 
+Dado que SCAN no almacena valores de tráfico de días antiguos, SCAN-Backup inicia su recolección a partir de su puesta en marcha. Las consultas a SCAN se realizan diariamente para obtener toda la información de tráfico del día anterior. El sistema depende de los datos de SCAN; por ello, cualquier cambio, detención o corrupción de SCAN, como sistema base, afectará el correcto funcionamiento de SCAN-Backup o, en el peor de los casos, lo impedirá.
 
-SCAN es un sistema antiguo de la empresa que muestra los valores de tráfico de todas las interfaces de red, por cada 5min, pero solamente del día anterior. Este sistema se encarga de consultar dicha información diariamente para almacenarlas y poder visualizar la data de días, meses o incluso años anteriores.
+A la fecha de redacción de este documento, el sistema contempla únicamente la recolección de tráfico de todas las capas del BackboneIP de la red de CANTV.
 
-# Nombre de las capas de red de SCAN
-La información actualmente necesaria es todas las capas del BackBoneIP (BBIP):
-- "BORDE", también llamado "Enlaces Internacionales", son las interfaces que se conectan con el mundo.
-- "BRAS", también llamado "Agregación", son las interfaces principales que van directamente a la MetroEthernet.
-    - "BRAS IP", es la información de las IP activas llegadas a los agregadores.
-- "CACHING", son las interfaces de los servidores de Caching.
-- "RAI", también llamado "Clientes Dedicados", son las interfaces especializadas para las empresas.
-- "DINT", también llamado "Distribución Internet".
-- "DIST", también llamado "Distribución Regional".
-- "IXP", son interfaces para servicios especiales.
+# Estructura del proyecto
+El sistema se divide en tres servicios independientes, cada uno con una única responsabilidad:
 
-# Características del Sistema
-El objetivo de la creación de este sistema se divide en distintas características:
+- **`interface-sync`**: Servicio encargado de obtener, mediante scraping, la lista de interfaces de red existentes en el sistema SCAN y de mantenerla sincronizada en la base de datos. Cada interfaz se registra con su estatus (activa o desincorporada), el cual este servicio actualiza en cada ejecución.
+- **`traffic-collector`**: Servicio encargado de respaldar los valores de tráfico de las interfaces. Obtiene de la base de datos la lista de interfaces con estatus activo, consulta a SCAN los valores de tráfico de cada una y los almacena.
+- **`reports`**: Servicio encargado de generar reportes de tráfico a partir de los datos almacenados en la base de datos, y de exportarlos a archivos para los usuarios del sistema.
 
-## Peticiones
-- Obtener un archivo con el listado todas las interfaces de red existentes en SCAN.
-- Realizar peticiones rápidas de tráfico a todas las interfaces existentes en SCAN.
-
-## Almacenamiento
-- Almacenamiento del listado de interfaces existentes en el sistema SCAN.
-- Almacenamiento de la data cruda del día de todas las interfaces obtenidas de SCAN.
-- Almacenamiento de un resumen de la data (promedios) del día de todas las interfaces obtenidas.
-
-## Reportes
-- Exportación del listado de interfaces activo.
-- Exportación de la data almacenada cruda por capas.
-- Exportación de la data resumida por capas.
-
-# Estructura
-Para lograr los objetivos del sistema, se ha separado la extracción del listado de enlaces de SCAN, de la obtención de tráfico de dichos enlaces. Es por ello que se tiene:
-- `DataBackup`: El sistema encargado de la administración completa de interfaces, su obtención de tráfico y almacenamiento.
-- `SourceScrapper`: El sistema encargado de conocer la estructura interna de SCAN para obtener el listado de interfaces disponibles para consultar el tráfico.
-
-# Notas Importantes
-Es necesario priorizar la correcta comunicación entre ambas partes, y asegurarse de que el sistema funcione y sea de fácil uso y mantenimiento en contenedores docker. Esto con la finalidad de que el proyecto sea altamente portable, para que su funcionamiento no dependa de un servidor en específico.
-
-Además, es importante que el sistema sea de fácil configuración, y tenga un diseño organizado para la fácil creación de manuales e instructivos técnicos y de usuarios.
+Los servicios no se comunican directamente entre sí. La base de datos, única para todos, es el único punto de integración entre ellos.
