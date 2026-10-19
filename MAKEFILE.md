@@ -230,7 +230,7 @@ Notas generales:
 
 ## Entorno de producción
 
-Las reglas de producción usan `docker-compose.prod.yml` y `.env.production`. Su comportamiento es equivalente al de las reglas `dev-*` homónimas, salvo lo indicado en cada una.
+Las reglas de producción usan `docker-compose.yml` y `.env.production`. Su comportamiento es equivalente al de las reglas `dev-*` homónimas, salvo lo indicado en cada una.
 
 ### `make prod-build`
 
@@ -239,7 +239,7 @@ Las reglas de producción usan `docker-compose.prod.yml` y `.env.production`. Su
   make prod-build
   ```
 - **Nombre:** Construir imágenes de los servicios (producción).
-- **Descripción:** Construye las imágenes Docker de `interface-sync`, `traffic-collector` y `reports` usando `docker-compose.prod.yml`. Debe ejecutarse antes de la primera ejecución de los servicios y repetirse cuando cambien las dependencias o el `Dockerfile`. No levanta contenedores ni modifica la base de datos.
+- **Descripción:** Construye las imágenes Docker de `interface-sync`, `traffic-collector` y `reports` usando `docker-compose.yml`. Debe ejecutarse antes de la primera ejecución de los servicios y repetirse cuando cambien las dependencias o el `Dockerfile`. No levanta contenedores ni modifica la base de datos.
 - **Parámetros disponibles:**
   - `PROD_ENV_FILE`: archivo de entorno alternativo.
     ```bash
