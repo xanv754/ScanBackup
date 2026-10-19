@@ -3,7 +3,7 @@ PROD_ENV_FILE ?= .env.production
 ARGS ?=
 
 COMPOSE_DEV = docker compose --env-file $(DEV_ENV_FILE) -f docker-compose.dev.yml
-COMPOSE_PROD = docker compose --env-file $(PROD_ENV_FILE) -f docker-compose.prod.yml
+COMPOSE_PROD = docker compose --env-file $(PROD_ENV_FILE) -f docker-compose.yml
 
 SERVICES = interface-sync traffic-collector reports
 
