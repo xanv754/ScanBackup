@@ -17,8 +17,8 @@ x-mongo-env: &mongo-env
   MONGO_AUTH_SOURCE: ${MONGO_AUTH_SOURCE:-admin}
 
 x-scan-env: &scan-env
-  SCAN_USERNAME: ${SCAN_USERNAME}
-  SCAN_PASSWORD: ${SCAN_PASSWORD}
+  SCAN_USERNAME: ${SCAN_USERNAME:?SCAN_USERNAME is required}
+  SCAN_PASSWORD: ${SCAN_PASSWORD:?SCAN_PASSWORD is required}
 
 services:
   mongo:
