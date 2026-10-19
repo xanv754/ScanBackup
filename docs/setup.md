@@ -16,7 +16,7 @@ Python 3.13 y las dependencias de cada servicio se instalan dentro de las imáge
 ```bash
 git clone https://github.com/xanv754/ScanBackup ScanBackup
 cd ScanBackup
-git checkout develop
+git switch develop
 ```
 
 ## 2. Variables de entorno
