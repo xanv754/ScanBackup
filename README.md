@@ -24,7 +24,7 @@ Para trabajar bajo un ambiente de desarrollo siga las instrucciones de [Setup](.
 | `MONGO_USERNAME` | Sí | Nombre del usuario administrador de MongoDB. Se crea automáticamente la primera vez que se inicia la base de datos y es el que usan los tres servicios para conectarse. |
 | `MONGO_PASSWORD` | Sí | Contraseña del usuario anterior. Usar una contraseña robusta. |
 | `MONGO_DATABASE` | Sí | Nombre de la base de datos donde se almacena toda la información del sistema. Valor recomendado: `scan_backup`. |
-| `MONGO_AUTH_SOURCE` | No | Base de datos donde MongoDB valida al usuario. Por defecto `admin`. |
+| `MONGO_AUTH_SOURCE` | Sí | Base de datos donde MongoDB valida al usuario. Por defecto `admin`. |
 
 > **Importante:** `MONGO_USERNAME`, `MONGO_PASSWORD` y `MONGO_DATABASE` se aplican únicamente cuando MongoDB inicializa su volumen de datos por primera vez. Si se modifican después, el usuario existente no cambia y los servicios dejarán de poder conectarse. Para cambiar credenciales con el sistema ya en uso, hay que modificarlas dentro de MongoDB o eliminar el volumen de datos (esto borra todo el histórico).
 
