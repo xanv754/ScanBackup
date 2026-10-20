@@ -1,6 +1,7 @@
 # Files
 *.log
 exports/*
+config.yml
 
 # IA
 .claude/*.local.*
