@@ -1,0 +1,6 @@
+# Copiar a pages.map y reemplazar con las URLs reales de config.yml de interface-sync.
+#   cp fixtures/pages.map.example fixtures/pages.map
+# Formato: "<path>?<query>"  <archivo en fixtures/pages/>;
+
+"/cgi-bin/<script>.cgi?<query>"  borde-huawei.html;
+"/cgi-bin/<otro-script>.cgi?<query>"  bras.html;

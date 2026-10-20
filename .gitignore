@@ -1,7 +1,16 @@
-# Files
-*.log
-exports/*
-config.yml
+# Output locals
+logs/
+exports/
+
+# Config files
+services/*/config.yml
+
+# Dev files
+dev/scan-simulator/fixtures/pages.map
+dev/scan-simulator/fixtures/pages/*
+dev/scan-simulator/fixtures/static/*
+!dev/scan-simulator/fixtures/pages/.gitkeep
+!dev/scan-simulator/fixtures/static/.gitkeep
 
 # IA
 .claude/*.local.*

@@ -20,6 +20,12 @@ x-scan-env: &scan-env
   SCAN_USERNAME: ${SCAN_USERNAME:?SCAN_USERNAME is required}
   SCAN_PASSWORD: ${SCAN_PASSWORD:?SCAN_PASSWORD is required}
 
+x-scan-deps: &scan-deps
+  mongo:
+    condition: service_healthy
+  scan-simulator:
+    condition: service_healthy
+
 services:
   mongo:
     image: mongo:8.0
@@ -50,8 +56,52 @@ services:
     networks:
       - scan-backup
 
+  scan-simulator-certs:
+    image: alpine/openssl
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - >-
+        test -f /certs/tls.crt ||
+        openssl req -x509 -newkey rsa:2048 -nodes -days 3650
+        -keyout /certs/tls.key -out /certs/tls.crt
+        -subj "/CN=scan-simulator"
+    restart: "no"
+    network_mode: none
+    volumes:
+      - scan-simulator-certs:/certs
+
+  scan-simulator:
+    image: nginx:1.28-alpine
+    container_name: scan-backup-scan-simulator-dev
+    restart: unless-stopped
+    depends_on:
+      scan-simulator-certs:
+        condition: service_completed_successfully
+    environment:
+      <<: *scan-env
+      NGINX_ENVSUBST_FILTER: ^SCAN_
+    ports:
+      - "127.0.0.1:${SCAN_SIM_HOST_PORT:-8443}:443"
+    volumes:
+      - ./dev/scan-simulator/templates:/etc/nginx/templates:ro
+      - ./dev/scan-simulator/fixtures:/fixtures:ro
+      - scan-simulator-certs:/certs:ro
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    networks:
+      scan-backup:
+        aliases:
+          - monitoreo11.cantv.net
+          - monitoreo8.cantv.net
+          - monitoreo10.cantv.net
+
   interface-sync:
     <<: *service-defaults
+    depends_on: *scan-deps
     profiles: ["services"]
     build:
       context: ./services/interface-sync
@@ -71,6 +121,7 @@ services:
 
   traffic-collector:
     <<: *service-defaults
+    depends_on: *scan-deps
     profiles: ["services"]
     build:
       context: ./services/traffic-collector
@@ -113,3 +164,5 @@ networks:
 volumes:
   mongo-data:
     name: scan-backup-mongo-data-dev
+  scan-simulator-certs:
+    name: scan-backup-scan-simulator-certs-dev
