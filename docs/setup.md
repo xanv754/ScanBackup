@@ -35,8 +35,8 @@ Completar en `.env.development`:
 | `MONGO_HOST_PORT` | Sí | Puerto del host por el que se expone MongoDB. | `27017` |
 | `SCAN_USERNAME` | Sí | Nombre del usuario de acceso al simulador de SCAN. | --- |
 | `SCAN_PASSWORD` | Sí | Contraseña del usuario de acceso al simulador de SCAN. | --- |
-| `APP_UID` | Sí | Nombre de la base de datos que utilizan los servicios | Valor de respuesta de la ejecución del comando `id -u`. |
-| `APP_GID` | Sí | Nombre de la base de datos que utilizan los servicios | Valor de respuesta de la ejecución del comando `id -g`. |
+| `APP_UID` | Sí | ID del usuario (UID) con el que se ejecutan los procesos dentro de los contenedores. | Valor de respuesta de la ejecución del comando `id -u`. |
+| `APP_GID` | Sí | ID del grupo (GID) con el que se ejecutan los procesos dentro de los contenedores. | Valor de respuesta de la ejecución del comando `id -g`. |
 | `SCAN_SIM_HOST_PORT` | No | Puerto del host donde se publica el simulador de SCAN en `127.0.0.1` | `8443` |
 
 ## 3. Preparar directorios del host
