@@ -81,9 +81,7 @@ services:
     image: scan-backup/traffic-collector:dev
     environment:
       <<: [*mongo-env, *scan-env]
-      CONFIG_PATH: /app/config.yml
     volumes:
-      - ./services/traffic-collector/config.yml:/app/config.yml:ro
       - ./services/traffic-collector/src:/app/src
       - ./services/traffic-collector/tests:/app/tests
       - ./logs/traffic-collector:/logs
