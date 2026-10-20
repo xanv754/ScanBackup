@@ -17,6 +17,11 @@ El `Makefile` es el punto de entrada operativo de SCAN-Backup. Cada regla lanza 
 | [`dev-report`](#make-dev-report) / [`prod-report`](#make-prod-report) | Generar reportes |
 | [`dev-test`](#make-dev-test) | Ejecutar pruebas de todos los servicios |
 | [`dev-test-<servicio>`](#make-dev-test-servicio) | Ejecutar pruebas de un servicio |
+| [`dev-sim-up`](#make-dev-sim-up) | Levantar el simulador de SCAN |
+| [`dev-sim-down`](#make-dev-sim-down) | Detener y eliminar el simulador de SCAN |
+| [`dev-sim-restart`](#make-dev-sim-restart) | Recrear el simulador de SCAN |
+| [`dev-sim-status`](#make-dev-sim-status) | Ver estado del simulador de SCAN |
+| [`dev-sim-logs`](#make-dev-sim-logs) | Ver logs del simulador de SCAN |
 
 ## Variables generales
 
@@ -224,6 +229,84 @@ Notas generales:
   - `DEV_ENV_FILE`: archivo de entorno alternativo.
     ```bash
     make dev-test-reports DEV_ENV_FILE=.env.otro
+    ```
+
+### Simulador de SCAN (desarrollo)
+
+El simulador es un servicio nginx (`scan-simulator`) que replica SCAN para desarrollo: HTTPS con certificado autofirmado, autenticación HTTP Basic y las páginas y logs MRTG de `dev/scan-simulator/fixtures/`. Los hosts de SCAN resuelven hacia él mediante aliases de red. No existe en producción.
+
+Los servicios `interface-sync`, `traffic-collector` y `reports` dependen de él: al ejecutar `dev-sync`, `dev-collect` o `dev-report`, Docker Compose lo levanta automáticamente si no está activo. `dev-down` y `dev-clean` también lo detienen. Las reglas `dev-test-*` no lo levantan (`--no-deps`).
+
+Los cambios en `dev/scan-simulator/templates/` o en `dev/scan-simulator/fixtures/pages.map` solo se aplican al recrear el contenedor: ejecutar `make dev-sim-restart` después de modificarlos.
+
+### `make dev-sim-up`
+
+- **Comando:**
+  ```bash
+  make dev-sim-up
+  ```
+- **Nombre:** Levantar el simulador de SCAN (desarrollo).
+- **Descripción:** Inicia el contenedor `scan-simulator` en segundo plano y espera a que pase su healthcheck. Si el contenedor ya está activo, no lo reinicia. Genera el certificado autofirmado en el volumen `scan-simulator-certs` solo si aún no existe.
+- **Parámetros disponibles:**
+  - `DEV_ENV_FILE`: archivo de entorno alternativo. Debe contener `SCAN_USERNAME` y `SCAN_PASSWORD`.
+    ```bash
+    make dev-sim-up DEV_ENV_FILE=.env.otro
+    ```
+
+### `make dev-sim-down`
+
+- **Comando:**
+  ```bash
+  make dev-sim-down
+  ```
+- **Nombre:** Detener y eliminar el simulador de SCAN (desarrollo).
+- **Descripción:** Detiene y elimina únicamente el contenedor `scan-simulator`. No afecta a MongoDB ni a los demás servicios, y conserva el volumen de certificados. No elimina las fixtures del host.
+- **Parámetros disponibles:**
+  - `DEV_ENV_FILE`: archivo de entorno alternativo.
+    ```bash
+    make dev-sim-down DEV_ENV_FILE=.env.otro
+    ```
+
+### `make dev-sim-restart`
+
+- **Comando:**
+  ```bash
+  make dev-sim-restart
+  ```
+- **Nombre:** Recrear el simulador de SCAN (desarrollo).
+- **Descripción:** Recrea el contenedor `scan-simulator` y espera a que pase su healthcheck. Es necesaria después de modificar las plantillas de nginx o `pages.map`, porque nginx lee esos archivos al iniciar. Si el simulador no está activo, lo levanta.
+- **Parámetros disponibles:**
+  - `DEV_ENV_FILE`: archivo de entorno alternativo.
+    ```bash
+    make dev-sim-restart DEV_ENV_FILE=.env.otro
+    ```
+
+### `make dev-sim-status`
+
+- **Comando:**
+  ```bash
+  make dev-sim-status
+  ```
+- **Nombre:** Ver estado del simulador de SCAN (desarrollo).
+- **Descripción:** Muestra el estado del contenedor `scan-simulator` y su resultado de healthcheck (`healthy`, `unhealthy` o `starting`). No modifica nada.
+- **Parámetros disponibles:**
+  - `DEV_ENV_FILE`: archivo de entorno alternativo.
+    ```bash
+    make dev-sim-status DEV_ENV_FILE=.env.otro
+    ```
+
+### `make dev-sim-logs`
+
+- **Comando:**
+  ```bash
+  make dev-sim-logs
+  ```
+- **Nombre:** Ver logs del simulador de SCAN (desarrollo).
+- **Descripción:** Muestra en tiempo real los logs de nginx del simulador, incluidas las peticiones sin fixture (404). La salida queda en seguimiento continuo hasta interrumpirla con `Ctrl+C`; interrumpirla no detiene el simulador.
+- **Parámetros disponibles:**
+  - `DEV_ENV_FILE`: archivo de entorno alternativo.
+    ```bash
+    make dev-sim-logs DEV_ENV_FILE=.env.otro
     ```
 
 ---

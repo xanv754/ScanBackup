@@ -10,6 +10,7 @@ SERVICES = interface-sync traffic-collector reports
 .PHONY: init \
 	dev-build dev-up dev-down dev-clean dev-logs \
 	dev-sync dev-collect dev-report dev-test \
+	dev-sim-up dev-sim-down dev-sim-restart dev-sim-status dev-sim-logs \
 	prod-build prod-up prod-down prod-logs \
 	prod-sync prod-collect prod-report
 
@@ -44,6 +45,21 @@ dev-test: $(addprefix dev-test-,$(SERVICES))
 
 dev-test-%:
 	$(COMPOSE_DEV) run --rm --no-deps --entrypoint pytest $* $(ARGS)
+
+dev-sim-up:
+	$(COMPOSE_DEV) up -d --wait scan-simulator
+
+dev-sim-down:
+	$(COMPOSE_DEV) rm -sf scan-simulator
+
+dev-sim-restart:
+	$(COMPOSE_DEV) up -d --force-recreate --wait scan-simulator
+
+dev-sim-status:
+	$(COMPOSE_DEV) ps scan-simulator
+
+dev-sim-logs:
+	$(COMPOSE_DEV) logs -f scan-simulator
 
 prod-build:
 	$(COMPOSE_PROD) --profile services build
