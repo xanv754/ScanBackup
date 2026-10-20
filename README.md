@@ -15,6 +15,8 @@ El archivo resultante contiene credenciales: no debe versionarse ni compartirse.
 | Producción | `.env.production.example` | `docker-compose.yml` |
 | Desarrollo | `.env.development.example` | `docker-compose.dev.yml` |
 
+Para trabajar bajo un ambiente de desarrollo siga las instrucciones de [Setup](./docs/setup.md).
+
 ### Base de datos (MongoDB)
 
 | Variable | Obligatoria | Descripción |
@@ -23,7 +25,6 @@ El archivo resultante contiene credenciales: no debe versionarse ni compartirse.
 | `MONGO_PASSWORD` | Sí | Contraseña del usuario anterior. Usar una contraseña robusta. |
 | `MONGO_DATABASE` | Sí | Nombre de la base de datos donde se almacena toda la información del sistema. Valor recomendado: `scan_backup`. |
 | `MONGO_AUTH_SOURCE` | No | Base de datos donde MongoDB valida al usuario. Por defecto `admin`. |
-| `MONGO_HOST_PORT` | No (solo desarrollo) | Puerto del equipo local por el cual se accede a MongoDB desde herramientas externas (por ejemplo, Compass). Por defecto `27017`. Solo es accesible desde el mismo equipo (`127.0.0.1`). En producción MongoDB no se expone al exterior y esta variable no se utiliza. |
 
 > **Importante:** `MONGO_USERNAME`, `MONGO_PASSWORD` y `MONGO_DATABASE` se aplican únicamente cuando MongoDB inicializa su volumen de datos por primera vez. Si se modifican después, el usuario existente no cambia y los servicios dejarán de poder conectarse. Para cambiar credenciales con el sistema ya en uso, hay que modificarlas dentro de MongoDB o eliminar el volumen de datos (esto borra todo el histórico).
 
