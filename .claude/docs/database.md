@@ -2,8 +2,8 @@
 
 ## Visión general
 - Versión de MongoDB: 8.0
-- Driver/ODM: Motor + Pydantic (Python) + PyMongo
-- Base de datos: `scanbackuo_db` (obtenida de `MONGO_DATABASE` del archivo de variables de entorno `.env.*`)
+- Driver/ODM: Motor + Pydantic (Python) + PyMongo. Todo acceso síncrono.
+- Base de datos: `scan_backup` (obtenida de `MONGO_DATABASE` del archivo de variables de entorno `.env.*`)
 - Rol de Mongo en el sistema: datos de documentos con esquema flexible.
 
 ## Colecciones, Campos, Índices y Relaciones
