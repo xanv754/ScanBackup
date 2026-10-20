@@ -99,6 +99,18 @@ make dev-sim-status    # debe mostrar "healthy"
 
 > **Nota:** Los servicios `dev-sync`, `dev-collect` y `dev-report` lo levantan automáticamente si no está activo.
 
+Una vez que el servicio esté levantado, puedes realizar las peticiones como se realizarían al sistema SCAN. Por ejemplo:
+```bash
+set -a; source .env.development; set +a
+
+# HTML de la página de Borde
+curl -k -u "$SCAN_USERNAME:$SCAN_PASSWORD" \
+  "https://127.0.0.1:8443/cgi-bin/graficas-v2-intl-hw.cgi?/monitoreo/mrtg/dummy/BACKBONE-HW-ENLACES.dummy"
+
+# Valores crudos de una interfaz
+curl -k -u "$SCAN_USERNAME:$SCAN_PASSWORD" https://127.0.0.1:8443/mrtg/r27696-ge200hwi.log
+```
+
 ## 7. Ejecutar los servicios
 
 Los servicios no permanecen levantados; se ejecutan bajo demanda en contenedores efímeros. El orden inicial recomendado es:
