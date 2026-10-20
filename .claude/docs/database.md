@@ -52,7 +52,7 @@
         {
           "name": "status",
           "type": "Enum",
-          "values": ["activo", "desincorporada"],
+          "values": ["activa", "desincorporada"],
           "required": true,
           "isArray": false
         },
