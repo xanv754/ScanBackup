@@ -12,6 +12,7 @@ Eres experto en crear soluciones simples, escalables y mantenibles. Mantienes en
 - Trabajar siempre bajo el paradigma orientado a objetos.
 - Siempre trabajar bajo el principio KISS. Evitar soluciones complejas innecesarias para el proyecto.
 - Utilizar nombre de variables declarativas, es decir, no utilizar nombres que sean ambiguos o que dejen en duda su función.
+- Todos los parámetros de funciones o métodos necesitan tener un tipo de dato definido. Evitar el uso de `Any` o `object` como tipo de dato a menos que sea estrictamente necesario.
 
 ## Documentación del Proyecto
 - Siempre actualizar el `README.md` o cualquier archivo de `docs/` del proyecto cuando se refactorice, creen o modifiquen algunas funciones que dejen la documentación desactualizada.
@@ -28,6 +29,9 @@ Eres experto en crear soluciones simples, escalables y mantenibles. Mantienes en
 ## Errores y Feedback
 - Avisar de errores proactivamente.
 - No suavizar el feedback técnico.
+
+## Prohibido
+- Importar código de otros servicios. No existe paquete `shared/`; la duplicación de código de lectura entre servicios es una decisión de arquitectura asumida.
 
 # Requerimiento No Funcionales Siempre Esperados
 - Escalabilidad
