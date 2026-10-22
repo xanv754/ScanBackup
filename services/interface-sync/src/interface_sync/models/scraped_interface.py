@@ -6,8 +6,9 @@ class ScrapedInterface(BaseModel):
 
     `position` is the 1-based place of the interface in the listing. A `None` value
     means the datum could not be obtained; later validations decide what that implies.
-    The layer always comes from the page configuration. The vendor does too, unless the
-    parser sets its own (`vendor`), as the Bras layer does to tell Uplink from Downlink.
+    The layer comes from the page configuration. The vendor is set by the parser: the one
+    configured for the page (Borde: Huawei, Juniper) or, when the page leaves it undefined,
+    the one found while scraping (Bras: Uplink, Downlink).
     """
 
     model_config = ConfigDict(frozen=True)

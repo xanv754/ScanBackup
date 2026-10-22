@@ -17,6 +17,7 @@ class BordeHuaweiParser(PageParser):
     (`40GE2/0/0` means 40 Gbps). Blocks whose title starts with "Sumatoria" are skipped.
     """
 
+    VENDOR = "Huawei"
     MAIN_ID = "main"
     ROW_CLASS = "row"
     TITLE_ID = "subtitulo"
@@ -46,6 +47,7 @@ class BordeHuaweiParser(PageParser):
                     name=name,
                     scan_url=self._extract_scan_url(block, page_url),
                     capacity_gbps=self._extract_capacity_gbps(name),
+                    vendor=self.VENDOR,
                 )
             )
         return interfaces

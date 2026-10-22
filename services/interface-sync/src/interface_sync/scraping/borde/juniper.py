@@ -18,6 +18,7 @@ class BordeJuniperParser(PageParser):
     "Sumatoria" are skipped.
     """
 
+    VENDOR = "Juniper"
     MAIN_ID = "main"
     ROW_CLASS = "row"
     TITLE_ID = "subtitulo"
@@ -47,6 +48,7 @@ class BordeJuniperParser(PageParser):
                     name=name,
                     scan_url=self._extract_scan_url(block, page_url),
                     capacity_gbps=self._extract_capacity_gbps(name),
+                    vendor=self.VENDOR,
                 )
             )
         return interfaces

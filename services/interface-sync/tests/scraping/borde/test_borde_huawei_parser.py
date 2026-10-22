@@ -46,6 +46,7 @@ def test_valid_interface_is_fully_extracted(parser: BordeHuaweiParser) -> None:
     assert interface.name == "LANAUTILUS I - CHC-HWBORDER-00 40GE2/0/0"
     assert interface.scan_url == "https://scan.example/mrtg/r27696-ge200hwi.log"
     assert interface.capacity_gbps == 40.0
+    assert interface.vendor == "Huawei"
 
 
 @pytest.mark.parametrize(
@@ -68,6 +69,21 @@ def test_name_ignores_prefix_and_suffix_in_any_format(
     [interface] = parser.parse(build_page(build_block(title)), PAGE_URL)
 
     assert interface.name == "X 40GE1/0/0"
+
+
+def test_every_interface_carries_the_vendor_of_the_parser(parser: BordeHuaweiParser) -> None:
+    """RF-003: the vendor is set on every interface, even the incomplete ones."""
+    html = build_page(
+        build_block(f"X 40GE2/0/0{SUFFIX}"),
+        build_block("Sumatoria Y"),
+        build_block(f"Z{SUFFIX}", href=None),
+        build_block(f"W{SUFFIX}", href="/mrtg/w.log"),
+    )
+
+    interfaces = parser.parse(html, PAGE_URL)
+
+    assert len(interfaces) == 3
+    assert {interface.vendor for interface in interfaces} == {"Huawei"}
 
 
 def test_name_is_always_uppercase(parser: BordeHuaweiParser) -> None:
