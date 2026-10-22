@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from interface_sync.utils.service_logger import ServiceLogger
+from interface_sync.utils.logger import ServiceLogger
 
 DATE_PATTERN = r"^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}"
 
