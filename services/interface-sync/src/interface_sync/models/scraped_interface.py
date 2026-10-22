@@ -6,7 +6,8 @@ class ScrapedInterface(BaseModel):
 
     `position` is the 1-based place of the interface in the listing. A `None` value
     means the datum could not be obtained; later validations decide what that implies.
-    Layer and vendor are not part of it: they come from the page configuration.
+    The layer always comes from the page configuration. The vendor does too, unless the
+    parser sets its own (`vendor`), as the Bras layer does to tell Uplink from Downlink.
     """
 
     model_config = ConfigDict(frozen=True)
@@ -15,3 +16,4 @@ class ScrapedInterface(BaseModel):
     name: str | None
     scan_url: str | None
     capacity_gbps: float | None
+    vendor: str | None = None

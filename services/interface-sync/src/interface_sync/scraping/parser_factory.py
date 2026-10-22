@@ -1,23 +1,32 @@
-from typing import ClassVar
+from collections.abc import Callable
 
 from interface_sync.exceptions import UnsupportedPageError
 from interface_sync.models import PageConfig
 from interface_sync.scraping.borde.huawei import BordeHuaweiParser
 from interface_sync.scraping.borde.juniper import BordeJuniperParser
+from interface_sync.scraping.bras.bras_parser import BrasParser
+from interface_sync.scraping.html_fetcher import HtmlFetcher
 from interface_sync.scraping.page_parser import PageParser
 
 
 class PageParserFactory:
-    """Creates the parser that matches the layer and vendor of a configured page."""
+    """Creates the parser that matches the layer and vendor of a configured page.
 
-    PARSERS: ClassVar[dict[tuple[str, str], type[PageParser]]] = {
-        ("Borde", "Huawei"): BordeHuaweiParser,
-        ("Borde", "Juniper"): BordeJuniperParser,
-    }
+    Parsers of layers whose configured page only links to other pages (Bras) receive the
+    downloader of those pages.
+    """
+
+    def __init__(self, fetcher: HtmlFetcher) -> None:
+        """Register the parser builders of every supported layer and vendor."""
+        self._builders: dict[tuple[str, str], Callable[[], PageParser]] = {
+            ("Borde", "Huawei"): BordeHuaweiParser,
+            ("Borde", "Juniper"): BordeJuniperParser,
+            ("Bras", "Undefined"): lambda: BrasParser(fetcher),
+        }
 
     def create(self, page: PageConfig) -> PageParser:
         """Return a parser for the page; raise `UnsupportedPageError` if none is registered."""
-        parser_class = self.PARSERS.get((page.layer, page.vendor))
-        if parser_class is None:
+        builder = self._builders.get((page.layer, page.vendor))
+        if builder is None:
             raise UnsupportedPageError(page.layer, page.vendor)
-        return parser_class()
+        return builder()

@@ -36,7 +36,7 @@ def test_unsupported_page_fails_before_any_request(client: Mock) -> None:
     page = PageConfig(layer="rai", vendor="huawei", url=URL)
 
     with pytest.raises(UnsupportedPageError):
-        PageScraper(client, PageParserFactory()).scrape(page)
+        PageScraper(client, PageParserFactory(client)).scrape(page)
 
     client.fetch_html.assert_not_called()
 
@@ -47,4 +47,4 @@ def test_download_failure_reaches_the_caller(client: Mock) -> None:
     page = PageConfig(layer="borde", vendor="huawei", url=URL)
 
     with pytest.raises(ScanConnectionError):
-        PageScraper(client, PageParserFactory()).scrape(page)
+        PageScraper(client, PageParserFactory(client)).scrape(page)
