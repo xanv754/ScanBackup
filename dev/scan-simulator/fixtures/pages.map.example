@@ -4,3 +4,7 @@
 
 "/cgi-bin/<script>.cgi?<query>"  borde-huawei.html;
 "/cgi-bin/<otro-script>.cgi?<query>"  bras.html;
+
+# Paginas hijas de una capa (ej. BRAS): una entrada por cada enlace del menu de la pagina principal, con su URL exacta.
+"/cgi-bin/bras/<script-uplink>.cgi?<query>"  bras-uplink-anz.html;
+"/cgi-bin/bras/<script-downlink>.cgi?<query>"  bras-downlink-anz.html;

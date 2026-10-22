@@ -86,6 +86,8 @@ Contenido de las fixtures:
 
 - Páginas de las capas: archivos HTML en `dev/scan-simulator/fixtures/pages/`, registrados en `pages.map` con su URL exacta.
 - Logs MRTG: archivos en `dev/scan-simulator/fixtures/static/` con el mismo path de la URL (por ejemplo, `https://<host>/mrtg/x.log` → `fixtures/static/mrtg/x.log`).
+- Páginas hijas: algunas capas (BRAS) enlazan desde su menú a páginas con las interfaces. Cada una se registra por separado en `pages.map` con la URL exacta del enlace en la página principal. Disponible hoy: Uplink y Downlink de ANZ-BRAS-00 (`bras-uplink-anz.html`, `bras-downlink-anz.html`); los demás enlaces del menú responden `404`.
+- Los logs MRTG de las interfaces de estas páginas deben agregarse manualmente en `fixtures/static/mrtg/`; los que no existan responden `404`.
 - Una URL sin fixture responde `404`; el request queda en `make dev-sim-logs`.
 
 > **Recordatorio:** Ambas carpetas se montan en modo lectura, por lo que los cambios en HTML y logs se aplican sin reiniciar. Los cambios en `pages.map` o en las plantillas de `dev/scan-simulator/templates/` requieren `make dev-sim-restart`.
@@ -106,6 +108,10 @@ set -a; source .env.development; set +a
 # HTML de la página de Borde
 curl -k -u "$SCAN_USERNAME:$SCAN_PASSWORD" \
   "https://127.0.0.1:8443/cgi-bin/graficas-v2-intl-hw.cgi?/monitoreo/mrtg/dummy/BACKBONE-HW-ENLACES.dummy"
+
+# HTML de Uplink de ANZ-BRAS-00 (página hija de BRAS)
+curl -k -u "$SCAN_USERNAME:$SCAN_PASSWORD" \
+  "https://127.0.0.1:8443/cgi-bin/bras/uplink-bras-anz.cgi?UPLINK-ANZ-BRAS-00.dummy"
 
 # Valores crudos de una interfaz
 curl -k -u "$SCAN_USERNAME:$SCAN_PASSWORD" https://127.0.0.1:8443/mrtg/r27696-ge200hwi.log
