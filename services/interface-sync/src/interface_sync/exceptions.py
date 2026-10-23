@@ -7,7 +7,11 @@ class InvalidConfigError(Exception):
         super().__init__("; ".join(causes))
 
 
-class MissingCredentialsError(Exception):
+class ServiceStartupError(Exception):
+    """Base error of a condition that prevents the whole process from starting."""
+
+
+class MissingCredentialsError(ServiceStartupError):
     """Raised when the SCAN credentials are not available in the environment."""
 
 
@@ -59,6 +63,14 @@ class UnreadablePageError(PageFetchError):
     def __init__(self, missing_element: str) -> None:
         """Build the cause from the element that was not found."""
         super().__init__(f"página ilegible ({missing_element} ausente)")
+
+
+class InvalidListingError(PageFetchError):
+    """Raised when a page listing has no complete interface to continue the process."""
+
+    def __init__(self, reason: str) -> None:
+        """Build the cause from the reason why the listing is invalid."""
+        super().__init__(f"listado inválido ({reason})")
 
 
 class UnsupportedPageError(PageFetchError):

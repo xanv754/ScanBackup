@@ -20,6 +20,11 @@ class PageConfig(BaseModel):
     url: str = Field(min_length=1)
     vendor: str = UNDEFINED_VENDOR
 
+    @property
+    def label(self) -> str:
+        """Return the layer and vendor as a short text for logs and terminal."""
+        return f"{self.layer} {self.vendor}"
+
     @field_validator("vendor", mode="before")
     @classmethod
     def _default_missing_vendor(cls, vendor: str | None) -> str:
