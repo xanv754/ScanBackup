@@ -112,7 +112,7 @@ Rutas del contenedor: logs en `/logs` (bind mount a `./logs/interface-sync`), c�
 ## Resultados y código de salida [RF-012, RF-013]
 - Resultado por página: exitoso si el listado se obtuvo, es válido y se procesó sin error. Fallido por: sin conexión, credenciales rechazadas, error de SCAN, tiempo agotado, página ilegible, listado inválido o error de base de datos. Interfaces incompletas y capacidades por defecto no hacen fallida una página.
 - Resultado general: exitoso solo si todas las páginas lo fueron. Una página fallida no impide procesar las restantes.
-- Error general del proceso: configuración inválida o base de datos no disponible al iniciar. No se procesa ninguna página.
+- Error general del proceso: configuración inválida, credenciales de SCAN ausentes, SCAN o base de datos no disponibles al iniciar. No se procesa ninguna página.
 - Código de salida `0` únicamente con resultado general exitoso. Cualquier otro caso, distinto de cero. Propuesta: `1` resultado general fallido, `2` error general del proceso.
 
 ## Log [RF-014]

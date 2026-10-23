@@ -148,6 +148,11 @@ Notas generales:
     ```bash
     make dev-sync ARGS="--help"
     ```
+    El comando principal del servicio es `run`; sin él, `interface-sync` solo muestra la ayuda:
+    ```bash
+    make dev-sync ARGS="run"
+    ```
+    Códigos de salida de `run`: `0` todas las páginas exitosas, `1` al menos una página fallida, `2` error general del proceso.
   - `DEV_ENV_FILE`: archivo de entorno alternativo.
     ```bash
     make dev-sync DEV_ENV_FILE=.env.otro
