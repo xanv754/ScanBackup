@@ -7,7 +7,11 @@ import pytest
 from interface_sync.constants.enums import LogEvent
 from interface_sync.exceptions import DatabaseUnavailableError, InvalidConfigError
 from interface_sync.models import BaseUrlCheck, ExitCode, LayerResult, PageConfig, PageResult
-from interface_sync.orchestration import SyncOrchestrator
+from interface_sync.orchestration import (
+    ScanAvailabilityVerifier,
+    ScanCheckOrchestrator,
+    SyncOrchestrator,
+)
 from interface_sync.utils.terminal import Terminal
 
 
@@ -103,7 +107,11 @@ def build_orchestrator(
     decommissioner = FakeLayerDecommissioner(layer_results)
     orchestrator = SyncOrchestrator(
         FakeConfigurationFile(pages),  # type: ignore[arg-type]
-        checker or FakeScanAvailabilityChecker(),  # type: ignore[arg-type]
+        ScanAvailabilityVerifier(
+            checker or FakeScanAvailabilityChecker(),  # type: ignore[arg-type]
+            recording_logger,
+            terminal,
+        ),
         processor,  # type: ignore[arg-type]
         decommissioner,  # type: ignore[arg-type]
         repository or FakeRepository(),  # type: ignore[arg-type]
@@ -288,3 +296,59 @@ def test_scan_available_is_reported_per_base_url(recording_logger: Any):
     assert ("info", f"{LogEvent.SCAN_BASE_RESPONDED}: http://scan") in terminal.lines
     assert ("info", LogEvent.SCAN_AVAILABLE) in terminal.lines
     assert processor.processed == [BORDE_PAGE.label]
+
+
+def build_scan_check_orchestrator(
+    pages: list[PageConfig] | InvalidConfigError,
+    recording_logger: Any,
+    unreachable: dict[str, str] | None = None,
+) -> tuple[ScanCheckOrchestrator, RecordingTerminal]:
+    terminal = RecordingTerminal()
+    verifier = ScanAvailabilityVerifier(
+        FakeScanAvailabilityChecker(unreachable),  # type: ignore[arg-type]
+        recording_logger,
+        terminal,
+    )
+    orchestrator = ScanCheckOrchestrator(
+        FakeConfigurationFile(pages),  # type: ignore[arg-type]
+        verifier,
+        recording_logger,
+        terminal,
+    )
+    return orchestrator, terminal
+
+
+def test_every_base_url_answering_exits_with_zero(recording_logger: Any):
+    """check-scan: exit code 0 and the result on terminal and log."""
+    orchestrator, terminal = build_scan_check_orchestrator(
+        [BORDE_PAGE, DIST_PAGE], recording_logger
+    )
+
+    assert orchestrator.run() is ExitCode.SUCCESS
+    assert ("info", f"{LogEvent.SCAN_BASE_RESPONDED}: http://scan") in terminal.lines
+    assert ("info", LogEvent.SCAN_AVAILABLE) in terminal.lines
+    assert recording_logger.messages("info") == [LogEvent.SCAN_AVAILABLE]
+
+
+def test_unreachable_base_url_exits_with_process_error(recording_logger: Any):
+    """check-scan: a base URL without answer is reported and the exit code is 2."""
+    orchestrator, terminal = build_scan_check_orchestrator(
+        [BORDE_PAGE], recording_logger, {"http://scan": "sin conexión a SCAN"}
+    )
+
+    assert orchestrator.run() is ExitCode.PROCESS_ERROR
+    assert (
+        "error",
+        f"{LogEvent.SCAN_BASE_UNREACHABLE}: http://scan (sin conexión a SCAN)",
+    ) in terminal.lines
+    assert recording_logger.messages("error") == [LogEvent.PROCESS_ERROR]
+
+
+def test_invalid_configuration_exits_with_process_error(recording_logger: Any):
+    """check-scan: an invalid config.yml stops the check before any request."""
+    orchestrator, terminal = build_scan_check_orchestrator(
+        InvalidConfigError(["causa"]), recording_logger
+    )
+
+    assert orchestrator.run() is ExitCode.PROCESS_ERROR
+    assert terminal.messages("error") == [f"{LogEvent.INVALID_CONFIG}: causa"]

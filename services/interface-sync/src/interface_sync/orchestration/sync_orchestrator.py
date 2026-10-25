@@ -1,13 +1,12 @@
 from interface_sync.constants.enums import LogEvent
 from interface_sync.exceptions import (
     InvalidConfigError,
-    ScanUnavailableError,
     ServiceStartupError,
 )
 from interface_sync.models import ExitCode, LayerResult, PageConfig, PageResult
 from interface_sync.orchestration.page_processor import PageProcessor
+from interface_sync.orchestration.scan_availability_verifier import ScanAvailabilityVerifier
 from interface_sync.persistence import InterfaceRepository
-from interface_sync.scraping import ScanAvailabilityChecker
 from interface_sync.synchronization import LayerDecommissioner
 from interface_sync.utils.configuration import ConfigurationFile
 from interface_sync.utils.logger import ServiceLogger
@@ -27,7 +26,7 @@ class SyncOrchestrator:
     def __init__(
         self,
         configuration_file: ConfigurationFile,
-        scan_availability_checker: ScanAvailabilityChecker,
+        scan_availability_verifier: ScanAvailabilityVerifier,
         page_processor: PageProcessor,
         layer_decommissioner: LayerDecommissioner,
         repository: InterfaceRepository,
@@ -36,7 +35,7 @@ class SyncOrchestrator:
     ) -> None:
         """Receive the collaborators of the run."""
         self._configuration_file = configuration_file
-        self._scan_availability_checker = scan_availability_checker
+        self._scan_availability_verifier = scan_availability_verifier
         self._page_processor = page_processor
         self._layer_decommissioner = layer_decommissioner
         self._repository = repository
@@ -48,7 +47,7 @@ class SyncOrchestrator:
         try:
             pages = self._configuration_file.load()
             self._terminal.info(f"{LogEvent.CONFIG_LOADED}: {len(pages)} páginas")
-            self._verify_scan_available(pages)
+            self._scan_availability_verifier.verify(pages)
             self._verify_database_available()
         except InvalidConfigError as error:
             for cause in error.causes:
@@ -61,24 +60,6 @@ class SyncOrchestrator:
         page_results = [self._process_page(page) for page in pages]
         layer_results = self._decommission_layers(page_results)
         return self._report_results(page_results, layer_results)
-
-    def _verify_scan_available(self, pages: list[PageConfig]) -> None:
-        """Check each SCAN base URL; raise `ScanUnavailableError` if any does not answer."""
-        with self._terminal.loading("Verificando SCAN..."):
-            checks = self._scan_availability_checker.check(pages)
-        for check in checks:
-            if check.responded:
-                self._terminal.info(f"{LogEvent.SCAN_BASE_RESPONDED}: {check.base_url}")
-            else:
-                self._terminal.error(
-                    f"{LogEvent.SCAN_BASE_UNREACHABLE}: {check.base_url} ({check.cause})"
-                )
-        unreachable_count = sum(1 for check in checks if not check.responded)
-        if unreachable_count:
-            raise ScanUnavailableError(
-                f"SCAN no disponible: {unreachable_count} de {len(checks)} rutas base sin respuesta"
-            )
-        self._terminal.info(LogEvent.SCAN_AVAILABLE)
 
     def _verify_database_available(self) -> None:
         """Check that the database answers and prepare its indexes; raise `ServiceStartupError`."""

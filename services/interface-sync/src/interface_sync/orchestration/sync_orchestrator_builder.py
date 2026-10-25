@@ -8,6 +8,8 @@ from interface_sync.constants.constants import (
 )
 from interface_sync.models import ScanCredentials
 from interface_sync.orchestration.page_processor import PageProcessor
+from interface_sync.orchestration.scan_availability_verifier import ScanAvailabilityVerifier
+from interface_sync.orchestration.scan_check_orchestrator import ScanCheckOrchestrator
 from interface_sync.orchestration.sync_orchestrator import SyncOrchestrator
 from interface_sync.persistence import InterfaceRepository, MongoConnection, MongoSettings
 from interface_sync.scraping import (
@@ -52,6 +54,19 @@ class SyncOrchestratorBuilder:
         """Return the terminal of the run."""
         return self._terminal
 
+    def build_scan_check(self) -> ScanCheckOrchestrator:
+        """Return the orchestrator that only checks SCAN; it needs no database settings.
+
+        Raise `MissingCredentialsError` when the SCAN credentials are not in the environment.
+        """
+        self._client = ScanClient(ScanCredentials.from_environment())
+        return ScanCheckOrchestrator(
+            ConfigurationFile(self._config_path(), self._logger),
+            self._build_scan_availability_verifier(self._client),
+            self._logger,
+            self._terminal,
+        )
+
     def build(self) -> SyncOrchestrator:
         """Return the orchestrator.
 
@@ -65,7 +80,6 @@ class SyncOrchestratorBuilder:
         repository = InterfaceRepository(self._connection.database)
         planner = InterfaceChangePlanner()
         change_reporter = ChangeReporter(self._logger)
-        config_path = Path(os.environ.get(CONFIG_PATH_VARIABLE, DEFAULT_CONFIG_PATH))
         listing_validator = ListingValidator(
             CompletenessValidator(), CapacityValidator(), self._logger
         )
@@ -79,13 +93,23 @@ class SyncOrchestratorBuilder:
             self._logger,
         )
         return SyncOrchestrator(
-            ConfigurationFile(config_path, self._logger),
-            ScanAvailabilityChecker(self._client, self._logger),
+            ConfigurationFile(self._config_path(), self._logger),
+            self._build_scan_availability_verifier(self._client),
             page_processor,
             LayerDecommissioner(repository, planner, change_reporter, self._logger),
             repository,
             self._logger,
             self._terminal,
+        )
+
+    def _config_path(self) -> Path:
+        """Return the path of `config.yml` taken from `CONFIG_PATH` or the default one."""
+        return Path(os.environ.get(CONFIG_PATH_VARIABLE, DEFAULT_CONFIG_PATH))
+
+    def _build_scan_availability_verifier(self, client: ScanClient) -> ScanAvailabilityVerifier:
+        """Return the SCAN availability verifier that probes through `client`."""
+        return ScanAvailabilityVerifier(
+            ScanAvailabilityChecker(client, self._logger), self._logger, self._terminal
         )
 
     def close(self) -> None:
