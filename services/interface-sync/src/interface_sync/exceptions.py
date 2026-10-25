@@ -1,3 +1,6 @@
+from interface_sync.constants.constants import DATABASE_ERROR_CAUSE
+
+
 class InvalidConfigError(Exception):
     """Raised when `config.yml` is invalid. Holds every cause that was detected."""
 
@@ -13,6 +16,31 @@ class ServiceStartupError(Exception):
 
 class MissingCredentialsError(ServiceStartupError):
     """Raised when the SCAN credentials are not available in the environment."""
+
+
+class MissingDatabaseSettingsError(ServiceStartupError):
+    """Raised when the database settings are not available in the environment."""
+
+
+class DatabaseUnavailableError(ServiceStartupError):
+    """Raised when the database does not answer at startup."""
+
+
+class DatabaseError(Exception):
+    """Raised when a database operation fails; `cause` feeds log and terminal."""
+
+    def __init__(self, cause: str = DATABASE_ERROR_CAUSE) -> None:
+        """Store the cause and use it as the error message."""
+        self.cause = cause
+        super().__init__(cause)
+
+
+class MissingLayerError(Exception):
+    """Raised when an interface reaches the synchronization without its layer."""
+
+
+class EmptyListingError(Exception):
+    """Raised when a decommission is requested without any interface present in the listing."""
 
 
 class PageFetchError(Exception):

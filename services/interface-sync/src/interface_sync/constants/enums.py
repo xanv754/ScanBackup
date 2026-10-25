@@ -1,6 +1,13 @@
 from enum import StrEnum
 
 
+class InterfaceStatus(StrEnum):
+    """Lifecycle status of a stored interface; interfaces are never deleted."""
+
+    ACTIVE = "activa"
+    DECOMMISSIONED = "desincorporada"
+
+
 class LogEvent(StrEnum):
     """Messages shared by the log and the terminal for the same event."""
 
@@ -13,6 +20,15 @@ class LogEvent(StrEnum):
     GENERAL_FAILED = "Resultado general fallido"
     INCOMPLETE_INTERFACE = "Interfaz incompleta"
     DEFAULT_CAPACITY = "Capacidad por defecto"
+    INTERFACE_UPDATED = "Interfaz actualizada"
+    STATUS_CHANGED = "Cambio de estatus"
+    PAGE_SUMMARY = "Resumen de página"
+    LAYER_SUMMARY = "Resumen de capa"
+    LAYER_SKIPPED = "Capa sin desincorporación"
+    DATABASE_FAILED = "Base de datos fallida"
+    DUPLICATED_INTERFACE = "Interfaz duplicada en otra página"
+    DATABASE_READY = "Base de datos disponible"
+    SCRAPING_SUCCEEDED = "Scraping exitoso"
 
 
 class TerminalLevel(StrEnum):

@@ -3,7 +3,7 @@ import sys
 import click
 
 from interface_sync.constants.enums import LogEvent
-from interface_sync.exceptions import MissingCredentialsError
+from interface_sync.exceptions import MissingCredentialsError, MissingDatabaseSettingsError
 from interface_sync.models import ExitCode
 from interface_sync.orchestration import SyncOrchestratorBuilder
 
@@ -31,7 +31,7 @@ def run() -> None:
     builder = SyncOrchestratorBuilder()
     try:
         exit_code = builder.build().run()
-    except MissingCredentialsError as error:
+    except (MissingCredentialsError, MissingDatabaseSettingsError) as error:
         builder.logger.error(LogEvent.PROCESS_ERROR, str(error))
         builder.terminal.error(str(error))
         exit_code = ExitCode.PROCESS_ERROR
