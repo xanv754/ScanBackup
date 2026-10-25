@@ -53,7 +53,7 @@ Rutas del contenedor: logs en `/logs` (bind mount a `./logs/interface-sync`), c�
 
 ## Configuración [RF-001, RF-002]
 - Estructura: clave `links`, lista de `{layer, url, vendor?}`. `layer` y `url` obligatorios; `vendor` opcional. Nada más es válido.
-- Normalización: `strip()` de capa, URL y proveedor, y luego primera letra en mayúscula y resto en minúscula (`str.capitalize`). Proveedor omitido, vacío o `undefined` (cualquier combinación de mayúsculas) pasa a `Undefined`.
+- Normalización: `strip()` de capa, URL y proveedor, y luego capa y proveedor completamente en mayúscula (`str.upper`); la URL conserva su casing. Proveedor omitido, vacío o `undefined` (cualquier combinación de mayúsculas) pasa a `UNDEFINED`.
 - Causas de invalidez (todas se detectan y se registran en el log, sin cortar en la primera):
   a. archivo inexistente o ilegible
   b. no es YAML
@@ -69,7 +69,7 @@ Rutas del contenedor: logs en `/logs` (bind mount a `./logs/interface-sync`), c�
 - Autenticación básica con `SCAN_USERNAME` / `SCAN_PASSWORD`. Una `requests.Session` reutilizada entre páginas.
 - Solo las páginas declaradas en la configuración. Todas las interfaces que SCAN muestra, sin omitir ni agregar.
 - Por interfaz: `scan_url` (URL de consulta de tráfico), `name`, capacidad en Gbps (solo el número, sin unidad ni conversión). Capa y proveedor vienen de la configuración, no del HTML.
-- Capas actuales (no son un enum): Borde, Bras, Caching, Ixp, Rai, Dint, Dist.
+- Capas actuales (no son un enum): BORDE, BRAS, CACHING, IXP, RAI, DINT, DIST.
 - Mapeo de fallos del cliente (el orden de los `except` importa: `Timeout` antes que `ConnectionError`):
 
 | Condición | Causa de página fallida |
@@ -144,9 +144,9 @@ Fuente de verdad: `docs/DATABASE.md`. Colección propia: `interfaces`.
 | Campo | Tipo | Notas |
 |---|---|---|
 | `_id` | ObjectId | interno |
-| `layer` | String | primera mayúscula, resto minúscula (`Borde`) |
+| `layer` | String | mayúscula completa (`BORDE`) |
 | `name` | String | |
-| `vendor` | String | primera mayúscula, resto minúscula; sin dato: `Undefined` |
+| `vendor` | String | mayúscula completa; sin dato: `UNDEFINED` |
 | `capacity_gbps` | Double | `0` si no está disponible; siempre `float` en Python antes de guardar |
 | `scan_url` | String | clave de negocio, índice único |
 | `status` | Enum | `activa` / `desincorporada` |
