@@ -2,6 +2,7 @@ import math
 
 from pydantic import BaseModel, ConfigDict
 
+from interface_sync.constants.constants import FIELD_CAPACITY_GBPS
 from interface_sync.models import ScrapedInterface
 
 
@@ -34,7 +35,7 @@ class CapacityValidator:
             else:
                 defaulted.append(interface)
                 normalized.append(
-                    interface.model_copy(update={"capacity_gbps": self.DEFAULT_CAPACITY_GBPS})
+                    interface.model_copy(update={FIELD_CAPACITY_GBPS: self.DEFAULT_CAPACITY_GBPS})
                 )
 
         return CapacityResult(interfaces=normalized, defaulted=defaulted)

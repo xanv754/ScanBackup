@@ -2,8 +2,7 @@ from urllib.parse import urlsplit
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-UNDEFINED_VENDOR = "Undefined"
-ALLOWED_URL_SCHEMES = ("http", "https")
+from interface_sync.constants.constants import ALLOWED_URL_SCHEMES, UNDEFINED_VENDOR
 
 
 class PageConfig(BaseModel):

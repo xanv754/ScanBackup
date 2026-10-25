@@ -1,6 +1,11 @@
 import os
 from pathlib import Path
 
+from interface_sync.constants.constants import (
+    CONFIG_PATH_VARIABLE,
+    DEFAULT_CONFIG_PATH,
+    LOG_FILE_PATH,
+)
 from interface_sync.models import ScanCredentials
 from interface_sync.orchestration.page_processor import PageProcessor
 from interface_sync.orchestration.sync_orchestrator import SyncOrchestrator
@@ -18,13 +23,9 @@ class SyncOrchestratorBuilder:
     configuration path comes from `CONFIG_PATH`.
     """
 
-    CONFIG_PATH_VARIABLE = "CONFIG_PATH"
-    DEFAULT_CONFIG_PATH = "/app/config.yml"
-    LOG_FILE_PATH = Path("/logs/interface-sync.log")
-
     def __init__(self) -> None:
         """Create the logger and the terminal shared by the whole run."""
-        self._logger = ServiceLogger(self.LOG_FILE_PATH)
+        self._logger = ServiceLogger(LOG_FILE_PATH)
         self._terminal = Terminal()
         self._client: ScanClient | None = None
 
@@ -41,7 +42,7 @@ class SyncOrchestratorBuilder:
     def build(self) -> SyncOrchestrator:
         """Return the orchestrator; raise `MissingCredentialsError` without SCAN credentials."""
         self._client = ScanClient(ScanCredentials.from_environment())
-        config_path = Path(os.environ.get(self.CONFIG_PATH_VARIABLE, self.DEFAULT_CONFIG_PATH))
+        config_path = Path(os.environ.get(CONFIG_PATH_VARIABLE, DEFAULT_CONFIG_PATH))
         listing_validator = ListingValidator(
             CompletenessValidator(), CapacityValidator(), self._logger
         )

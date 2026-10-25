@@ -1,3 +1,4 @@
+from interface_sync.constants.enums import LogEvent
 from interface_sync.exceptions import InvalidConfigError, ServiceStartupError
 from interface_sync.models import ExitCode, PageConfig, PageResult
 from interface_sync.orchestration.page_processor import PageProcessor
@@ -31,13 +32,13 @@ class SyncOrchestrator:
         """Execute the synchronization and return `SUCCESS`, `FAILED` or `PROCESS_ERROR`."""
         try:
             pages = self._configuration_file.load()
-            self._terminal.info(f"Configuración cargada: {len(pages)} páginas")
+            self._terminal.info(f"{LogEvent.CONFIG_LOADED}: {len(pages)} páginas")
             self._verify_scan_available()
             self._verify_database_available()
         except InvalidConfigError as error:
             for cause in error.causes:
-                self._terminal.error(f"Configuración inválida: {cause}")
-            return self._fail_process("Configuración inválida")
+                self._terminal.error(f"{LogEvent.INVALID_CONFIG}: {cause}")
+            return self._fail_process(LogEvent.INVALID_CONFIG)
         except ServiceStartupError as error:
             self._terminal.error(str(error))
             return self._fail_process(str(error))
@@ -60,9 +61,9 @@ class SyncOrchestrator:
         with self._terminal.loading(f"Obteniendo interfaces de {page.label}..."):
             result = self._page_processor.process(page)
         if result.succeeded:
-            self._terminal.info(f"Página exitosa: {result.page_label}")
+            self._terminal.info(f"{LogEvent.PAGE_SUCCEEDED}: {result.page_label}")
         else:
-            self._terminal.error(f"Página fallida: {result.page_label} ({result.cause})")
+            self._terminal.error(f"{LogEvent.PAGE_FAILED}: {result.page_label} ({result.cause})")
         return result
 
     def _report_results(self, results: list[PageResult]) -> ExitCode:
@@ -70,16 +71,14 @@ class SyncOrchestrator:
         failed_labels = [result.page_label for result in results if not result.succeeded]
         if failed_labels:
             summary = f"{len(failed_labels)} de {len(results)} páginas fallidas"
-            self._logger.error(
-                "Resultado general fallido", f"{summary}: {', '.join(failed_labels)}"
-            )
-            self._terminal.error(f"Resultado general fallido: {summary}")
+            self._logger.error(LogEvent.GENERAL_FAILED, f"{summary}: {', '.join(failed_labels)}")
+            self._terminal.error(f"{LogEvent.GENERAL_FAILED}: {summary}")
             return ExitCode.FAILED
-        self._logger.info("Resultado general exitoso", f"{len(results)} páginas")
-        self._terminal.info(f"Resultado general exitoso: {len(results)} páginas")
+        self._logger.info(LogEvent.GENERAL_SUCCEEDED, f"{len(results)} páginas")
+        self._terminal.info(f"{LogEvent.GENERAL_SUCCEEDED}: {len(results)} páginas")
         return ExitCode.SUCCESS
 
     def _fail_process(self, cause: str) -> ExitCode:
         """Log a general process error and return its exit code."""
-        self._logger.error("Error general del proceso", cause)
+        self._logger.error(LogEvent.PROCESS_ERROR, cause)
         return ExitCode.PROCESS_ERROR

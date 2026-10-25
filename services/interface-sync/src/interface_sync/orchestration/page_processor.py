@@ -1,3 +1,4 @@
+from interface_sync.constants.enums import LogEvent
 from interface_sync.exceptions import PageFetchError
 from interface_sync.models import PageConfig, PageResult
 from interface_sync.scraping import PageScraper
@@ -30,13 +31,13 @@ class PageProcessor:
             interfaces = self._scraper.scrape(page)
             listing = self._listing_validator.validate(page, interfaces)
         except PageFetchError as error:
-            self._logger.error("Página fallida", f"{page_label} | {error.cause}")
+            self._logger.error(LogEvent.PAGE_FAILED, f"{page_label} | {error.cause}")
             return PageResult(page_label=page_label, cause=error.cause)
 
         # TODO: persist `listing` (register, update and change status) with the interface
         # repository, log the page summary and turn a database error into a failed page.
         self._logger.info(
-            "Página exitosa",
+            LogEvent.PAGE_SUCCEEDED,
             f"{page_label} | {len(listing.complete_interfaces)} interfaces completas | "
             f"{listing.incomplete_count} incompletas | "
             f"{listing.defaulted_capacity_count} con capacidad por defecto",

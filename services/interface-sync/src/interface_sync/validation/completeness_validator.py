@@ -1,5 +1,6 @@
 from pydantic import BaseModel, ConfigDict
 
+from interface_sync.constants.constants import FIELD_NAME, FIELD_SCAN_URL
 from interface_sync.models import ScrapedInterface
 
 
@@ -24,7 +25,7 @@ class CompletenessResult(BaseModel):
 class CompletenessValidator:
     """Detects interfaces without `name` or `scan_url` [RF-004]. It is pure: no logs, no I/O."""
 
-    REQUIRED_FIELDS = ("name", "scan_url")
+    REQUIRED_FIELDS = (FIELD_NAME, FIELD_SCAN_URL)
 
     def split(self, interfaces: list[ScrapedInterface]) -> CompletenessResult:
         """Separate complete interfaces from incomplete ones, keeping the listing order.

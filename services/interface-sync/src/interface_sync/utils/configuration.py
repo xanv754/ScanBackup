@@ -5,6 +5,8 @@ import yaml
 from pydantic import ValidationError
 from pydantic_core import ErrorDetails
 
+from interface_sync.constants.constants import CONFIG_LINKS_KEY, TEXT_ENCODING
+from interface_sync.constants.enums import LogEvent, ValidationErrorType
 from interface_sync.exceptions import InvalidConfigError
 from interface_sync.models import PageConfig
 from interface_sync.utils.logger import ServiceLogger
@@ -18,12 +20,11 @@ class ConfigurationFile:
     any other problem is accumulated so that every cause is reported in a single run.
     """
 
-    LINKS_KEY = "links"
-    ERROR_MESSAGES: ClassVar[dict[str, str]] = {
-        "missing": "campo obligatorio ausente",
-        "string_too_short": "campo obligatorio vacío",
-        "extra_forbidden": "clave no reconocida",
-        "string_type": "debe ser texto",
+    ERROR_MESSAGES: ClassVar[dict[ValidationErrorType, str]] = {
+        ValidationErrorType.MISSING: "campo obligatorio ausente",
+        ValidationErrorType.STRING_TOO_SHORT: "campo obligatorio vacío",
+        ValidationErrorType.EXTRA_FORBIDDEN: "clave no reconocida",
+        ValidationErrorType.STRING_TYPE: "debe ser texto",
     }
 
     def __init__(self, config_path: Path, logger: ServiceLogger) -> None:
@@ -37,9 +38,9 @@ class ConfigurationFile:
             pages = self._build_pages()
         except InvalidConfigError as error:
             for cause in error.causes:
-                self._logger.error("Configuración inválida", cause)
+                self._logger.error(LogEvent.INVALID_CONFIG, cause)
             raise
-        self._logger.info("Configuración cargada", f"{len(pages)} páginas")
+        self._logger.info(LogEvent.CONFIG_LOADED, f"{len(pages)} páginas")
         return pages
 
     def _build_pages(self) -> list[PageConfig]:
@@ -63,7 +64,7 @@ class ConfigurationFile:
     def _read_content(self) -> dict:
         """Parse the file; raise `InvalidConfigError` when it cannot be inspected further."""
         try:
-            raw_text = self._config_path.read_text(encoding="utf-8")
+            raw_text = self._config_path.read_text(encoding=TEXT_ENCODING)
         except (OSError, UnicodeDecodeError) as error:
             raise InvalidConfigError(
                 [f"No se puede leer el archivo {self._config_path} ({error})"]
@@ -76,30 +77,24 @@ class ConfigurationFile:
                 [f"El archivo {self._config_path} no es YAML válido ({reason})"]
             ) from error
         if not content:
-            raise InvalidConfigError(
-                [f"El archivo {self._config_path} no tiene contenido"]
-            )
+            raise InvalidConfigError([f"El archivo {self._config_path} no tiene contenido"])
         if not isinstance(content, dict):
             raise InvalidConfigError(
-                [
-                    f"El archivo {self._config_path} debe ser un mapeo con '{self.LINKS_KEY}'"
-                ]
+                [f"El archivo {self._config_path} debe ser un mapeo con '{CONFIG_LINKS_KEY}'"]
             )
         return content
 
     def _extract_links(self, content: dict) -> tuple[list | None, list[str]]:
         """Return the raw `links` entries (None if not inspectable) and the causes found."""
         causes = [
-            f"Clave no reconocida en la raíz: '{key}'"
-            for key in content
-            if key != self.LINKS_KEY
+            f"Clave no reconocida en la raíz: '{key}'" for key in content if key != CONFIG_LINKS_KEY
         ]
-        raw_links = content.get(self.LINKS_KEY)
+        raw_links = content.get(CONFIG_LINKS_KEY)
         if not raw_links:
-            causes.append(f"La clave '{self.LINKS_KEY}' no existe o está vacía")
+            causes.append(f"La clave '{CONFIG_LINKS_KEY}' no existe o está vacía")
             return None, causes
         if not isinstance(raw_links, list):
-            causes.append(f"La clave '{self.LINKS_KEY}' debe ser una lista")
+            causes.append(f"La clave '{CONFIG_LINKS_KEY}' debe ser una lista")
             return None, causes
         return raw_links, causes
 
@@ -117,9 +112,9 @@ class ConfigurationFile:
 
     def _describe_reason(self, detail: ErrorDetails) -> str:
         """Return the cause text for a validation error."""
-        if detail["type"] == "value_error":
+        if detail["type"] == ValidationErrorType.VALUE_ERROR:
             return str(detail["ctx"]["error"])  # type: ignore
-        if detail["type"] == "model_type":
+        if detail["type"] == ValidationErrorType.MODEL_TYPE:
             return "cada entrada debe ser un mapeo con layer, url y vendor opcional"
         return self.ERROR_MESSAGES.get(detail["type"], detail["msg"])
 

@@ -1,3 +1,5 @@
+from interface_sync.constants.constants import FIELD_LABELS, FIELD_NAME, FIELD_SCAN_URL
+from interface_sync.constants.enums import LogEvent
 from interface_sync.exceptions import InvalidListingError
 from interface_sync.models import PageConfig, ScrapedInterface, ValidatedListing
 from interface_sync.utils.logger import ServiceLogger
@@ -32,7 +34,7 @@ class ListingValidator:
         Incomplete interfaces are discarded before the capacity is checked. Raises
         `InvalidListingError` when the page has no interfaces or none of them is complete.
         """
-        page_label = f"{page.layer} {page.vendor}"
+        page_label = page.label
         completeness = self._completeness_validator.split(interfaces)
 
         for incomplete in completeness.incomplete:
@@ -47,7 +49,7 @@ class ListingValidator:
 
         for defaulted in capacity.defaulted:
             self._logger.warning(
-                "Capacidad por defecto",
+                LogEvent.DEFAULT_CAPACITY,
                 f"{page_label} | posición {defaulted.position} | {defaulted.name}",
             )
 
@@ -69,9 +71,12 @@ class ListingValidator:
         interface = incomplete.interface
         known_data = [
             f"{field_name}={value}"
-            for field_name, value in (("nombre", interface.name), ("url", interface.scan_url))
+            for field_name, value in (
+                (FIELD_LABELS[FIELD_NAME], interface.name),
+                (FIELD_LABELS[FIELD_SCAN_URL], interface.scan_url),
+            )
             if value
         ]
         details = [page_label, f"posición {interface.position}", *known_data]
         details.append(f"faltan: {', '.join(incomplete.missing_fields)}")
-        self._logger.warning("Interfaz incompleta", " | ".join(details))
+        self._logger.warning(LogEvent.INCOMPLETE_INTERFACE, " | ".join(details))

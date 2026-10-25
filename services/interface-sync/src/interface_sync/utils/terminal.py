@@ -5,6 +5,13 @@ from datetime import datetime
 from rich.console import Console
 from rich.text import Text
 
+from interface_sync.constants.constants import (
+    DATE_FORMAT,
+    TERMINAL_LEVEL_STYLES,
+    TERMINAL_SPINNER_NAME,
+)
+from interface_sync.constants.enums import TerminalLevel
+
 
 class Terminal:
     """Prints service events to the terminal using Rich.
@@ -13,12 +20,6 @@ class Terminal:
     (`INFO` green, `WARNING` yellow, `ERROR` red) and the message keeps the default
     color of the terminal. `ERROR` lines are written to `stderr`; the rest to `stdout`.
     """
-
-    DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
-    INFO_STYLE = "green"
-    WARNING_STYLE = "yellow"
-    ERROR_STYLE = "red"
-    SPINNER_NAME = "dots"
 
     def __init__(
         self,
@@ -31,15 +32,15 @@ class Terminal:
 
     def info(self, message: str) -> None:
         """Print an informational message."""
-        self._print(self._output_console, "INFO", self.INFO_STYLE, message)
+        self._print(self._output_console, TerminalLevel.INFO, message)
 
     def warning(self, message: str) -> None:
         """Print a message about an event that needs attention."""
-        self._print(self._output_console, "WARNING", self.WARNING_STYLE, message)
+        self._print(self._output_console, TerminalLevel.WARNING, message)
 
     def error(self, message: str) -> None:
         """Print a failure message to `stderr`."""
-        self._print(self._error_console, "ERROR", self.ERROR_STYLE, message)
+        self._print(self._error_console, TerminalLevel.ERROR, message)
 
     @contextmanager
     def loading(self, message: str) -> Iterator[None]:
@@ -48,15 +49,15 @@ class Terminal:
         The spinner is removed when the block ends, even if it raises. On non-interactive
         terminals Rich does not animate it.
         """
-        with self._output_console.status(message, spinner=self.SPINNER_NAME):
+        with self._output_console.status(message, spinner=TERMINAL_SPINNER_NAME):
             yield
 
-    def _print(self, console: Console, level: str, level_style: str, message: str) -> None:
+    def _print(self, console: Console, level: TerminalLevel, message: str) -> None:
         """Compose and print a line without interpreting markup or highlighting the message."""
         line = Text()
-        line.append(datetime.now().strftime(self.DATE_FORMAT))
+        line.append(datetime.now().strftime(DATE_FORMAT))
         line.append(" ")
-        line.append(level, style=level_style)
+        line.append(level, style=TERMINAL_LEVEL_STYLES[level])
         line.append(" ")
         line.append(message)
         console.print(line, highlight=False, soft_wrap=True)

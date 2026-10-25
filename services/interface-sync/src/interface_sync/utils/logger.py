@@ -2,6 +2,16 @@ import logging
 from logging.handlers import TimedRotatingFileHandler
 from pathlib import Path
 
+from interface_sync.constants.constants import (
+    DATE_FORMAT,
+    LOG_DETAILS_SEPARATOR,
+    LOG_FORMAT,
+    LOG_ROTATION_DAY,
+    LOG_ROTATION_SUFFIX,
+    LOGGER_NAME,
+    TEXT_ENCODING,
+)
+
 
 class ServiceLogger:
     """Writes service events to a log file that rotates weekly (Sunday to Saturday).
@@ -10,16 +20,10 @@ class ServiceLogger:
     The `details` part is optional; when omitted, only the message is written.
     """
 
-    LOG_FORMAT = "%(asctime)s %(levelname)s %(message)s"
-    DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
-    DETAILS_SEPARATOR = " - "
-    ROTATION_DAY = "W5"
-    ROTATION_SUFFIX = "%Y-%m-%d"
-
     def __init__(
         self,
         log_file_path: Path,
-        logger_name: str = "interface_sync",
+        logger_name: str = LOGGER_NAME,
         retained_weeks: int = 12,
     ) -> None:
         """Create the log directory and attach a weekly rotating file handler.
@@ -35,12 +39,12 @@ class ServiceLogger:
             log_file_path.parent.mkdir(parents=True, exist_ok=True)
             handler = TimedRotatingFileHandler(
                 filename=log_file_path,
-                when=self.ROTATION_DAY,
+                when=LOG_ROTATION_DAY,
                 backupCount=retained_weeks,
-                encoding="utf-8",
+                encoding=TEXT_ENCODING,
             )
-            handler.suffix = self.ROTATION_SUFFIX
-            handler.setFormatter(logging.Formatter(self.LOG_FORMAT, self.DATE_FORMAT))
+            handler.suffix = LOG_ROTATION_SUFFIX
+            handler.setFormatter(logging.Formatter(LOG_FORMAT, DATE_FORMAT))
             self._logger.addHandler(handler)
 
     def info(self, message: str, details: str = "") -> None:
@@ -59,4 +63,4 @@ class ServiceLogger:
         """Join the general message with its details when details are provided."""
         if not details:
             return message
-        return f"{message}{self.DETAILS_SEPARATOR}{details}"
+        return f"{message}{LOG_DETAILS_SEPARATOR}{details}"

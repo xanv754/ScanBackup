@@ -2,6 +2,7 @@ import sys
 
 import click
 
+from interface_sync.constants.enums import LogEvent
 from interface_sync.exceptions import MissingCredentialsError
 from interface_sync.models import ExitCode
 from interface_sync.orchestration import SyncOrchestratorBuilder
@@ -31,11 +32,11 @@ def run() -> None:
     try:
         exit_code = builder.build().run()
     except MissingCredentialsError as error:
-        builder.logger.error("Error general del proceso", str(error))
+        builder.logger.error(LogEvent.PROCESS_ERROR, str(error))
         builder.terminal.error(str(error))
         exit_code = ExitCode.PROCESS_ERROR
     except Exception as error:
-        builder.logger.error("Error general del proceso", f"error inesperado: {error!r}")
+        builder.logger.error(LogEvent.PROCESS_ERROR, f"error inesperado: {error!r}")
         builder.terminal.error(f"Error inesperado: {error!r}")
         exit_code = ExitCode.PROCESS_ERROR
     finally:

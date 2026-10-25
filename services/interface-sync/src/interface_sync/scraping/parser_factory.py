@@ -1,5 +1,15 @@
 from collections.abc import Callable
 
+from interface_sync.constants.constants import (
+    LAYER_BORDE,
+    LAYER_BRAS,
+    LAYER_CACHING,
+    LAYER_DINT,
+    LAYER_DIST,
+    LAYER_IXP,
+    LAYER_RAI,
+    UNDEFINED_VENDOR,
+)
 from interface_sync.exceptions import UnsupportedPageError
 from interface_sync.models import PageConfig
 from interface_sync.scraping.borde.huawei import BordeHuaweiParser
@@ -25,14 +35,14 @@ class PageParserFactory:
     def __init__(self, fetcher: HtmlFetcher) -> None:
         """Register the parser builders of every supported layer and vendor."""
         self._builders: dict[tuple[str, str], Callable[[], PageParser]] = {
-            ("Borde", "Huawei"): BordeHuaweiParser,
-            ("Borde", "Juniper"): BordeJuniperParser,
-            ("Bras", "Undefined"): lambda: BrasParser(fetcher),
-            ("Caching", "Undefined"): lambda: CachingParser(fetcher),
-            ("Dint", "Huawei"): DintHuaweiParser,
-            ("Dist", "Huawei"): DistHuaweiParser,
-            ("Ixp", "Undefined"): lambda: IxpParser(IxpVendorExtractor()),
-            ("Rai", "Huawei"): RaiHuaweiParser,
+            (LAYER_BORDE, BordeHuaweiParser.VENDOR): BordeHuaweiParser,
+            (LAYER_BORDE, BordeJuniperParser.VENDOR): BordeJuniperParser,
+            (LAYER_BRAS, UNDEFINED_VENDOR): lambda: BrasParser(fetcher),
+            (LAYER_CACHING, UNDEFINED_VENDOR): lambda: CachingParser(fetcher),
+            (LAYER_DINT, DintHuaweiParser.VENDOR): DintHuaweiParser,
+            (LAYER_DIST, DistHuaweiParser.VENDOR): DistHuaweiParser,
+            (LAYER_IXP, UNDEFINED_VENDOR): lambda: IxpParser(IxpVendorExtractor()),
+            (LAYER_RAI, RaiHuaweiParser.VENDOR): RaiHuaweiParser,
         }
 
     def create(self, page: PageConfig) -> PageParser:
