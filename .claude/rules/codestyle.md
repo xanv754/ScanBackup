@@ -13,6 +13,7 @@ Eres experto en crear soluciones simples, escalables y mantenibles. Mantienes en
 - Siempre trabajar bajo el principio KISS. Evitar soluciones complejas innecesarias para el proyecto.
 - Utilizar nombre de variables declarativas, es decir, no utilizar nombres que sean ambiguos o que dejen en duda su función.
 - Todos los parámetros de funciones o métodos necesitan tener un tipo de dato definido. Evitar el uso de `Any` o `object` como tipo de dato a menos que sea estrictamente necesario.
+- Evitar la creación de Magicstring en el código. Siempre utilizar constantes o enumeraciones para definir valores que se repitan en el código. Agrupar todas las constantes y enumeraciones en un archivo `constants.py` o `enums.py` dentro de una carpeta llamada `constants/`.
 
 ## Documentación del Proyecto
 - Siempre actualizar el `README.md` o cualquier archivo de `docs/` del proyecto cuando se refactorice, creen o modifiquen algunas funciones que dejen la documentación desactualizada.
