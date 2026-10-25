@@ -9,6 +9,8 @@ from interface_sync.scraping.caching.caching_parser import CachingParser
 from interface_sync.scraping.dint.huawei import DintHuaweiParser
 from interface_sync.scraping.distr.huawei import DistHuaweiParser
 from interface_sync.scraping.html_fetcher import HtmlFetcher
+from interface_sync.scraping.ixp.ixp_parser import IxpParser
+from interface_sync.scraping.ixp.vendor_extractor import IxpVendorExtractor
 from interface_sync.scraping.page_parser import PageParser
 
 
@@ -28,6 +30,7 @@ class PageParserFactory:
             ("Caching", "Undefined"): lambda: CachingParser(fetcher),
             ("Dint", "Huawei"): DintHuaweiParser,
             ("Dist", "Huawei"): DistHuaweiParser,
+            ("Ixp", "Undefined"): lambda: IxpParser(IxpVendorExtractor()),
         }
 
     def create(self, page: PageConfig) -> PageParser:

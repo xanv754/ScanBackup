@@ -11,6 +11,7 @@ from interface_sync.scraping.bras.bras_parser import BrasParser
 from interface_sync.scraping.caching.caching_parser import CachingParser
 from interface_sync.scraping.dint.huawei import DintHuaweiParser
 from interface_sync.scraping.distr.huawei import DistHuaweiParser
+from interface_sync.scraping.ixp.ixp_parser import IxpParser
 
 URL = "https://scan.example/page.cgi"
 
@@ -57,13 +58,21 @@ def test_dist_huawei_page_gets_its_parser() -> None:
     assert isinstance(PageParserFactory(Mock()).create(page), DistHuaweiParser)
 
 
+def test_ixp_page_gets_its_parser() -> None:
+    """RF-003: Ixp + Undefined resolves to IxpParser."""
+    page = PageConfig(layer="ixp", vendor="undefined", url=URL)
+
+    assert isinstance(PageParserFactory(Mock()).create(page), IxpParser)
+
+
 @pytest.mark.parametrize(
     ("layer", "vendor"),
     [
         ("borde", "cisco"),
         ("rai", "huawei"),
         ("borde", None),
-        ("ixp", "undefined"),
+        ("ixp", "huawei"),
+        ("rai", "undefined"),
         ("bras", "huawei"),
         ("caching", "huawei"),
         ("dint", "juniper"),
