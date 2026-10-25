@@ -95,23 +95,26 @@ Rutas del contenedor: logs en `/logs` (bind mount a `./logs/interface-sync`), c�
   - Sin diferencias: no se toca el registro ni `updated_at`.
   - `updated_at` cambia solo si el registro se modifica (datos o estatus). `created_at` nunca cambia.
   - Capacidad obtenida `0` (por defecto) no sustituye una almacenada distinta de `0`. Almacenada `0` y obtenida numérica: la sustituye.
+  - Vendor: el obtenido es el del parser o, si no se pudo extraer, el de `config.yml` (o `UNDEFINED`). Todo vendor distinto de `UNDEFINED` tiene prioridad: `UNDEFINED` obtenido nunca sustituye a uno concreto almacenado; un concreto obtenido siempre sustituye al almacenado (sea `UNDEFINED` u otro concreto).
   - Datos y estatus de una misma interfaz se aplican en una sola modificación con una sola `updated_at`.
-- Estatus, por página con listado válido, sobre las interfaces almacenadas con la `layer` y el `vendor` de esa página:
+- Estatus, por capa. Una capa se evalúa solo si todas sus páginas fueron exitosas (listado válido y almacenamiento sin error):
 
-| Almacenada | Aparece en el listado | Resultado |
+| Almacenada | Aparece en el listado de la capa | Resultado |
 |---|---|---|
 | `activa` | no | pasa a `desincorporada` |
-| `desincorporada` | sí y continúa el proceso | pasa a `activa` |
+| `desincorporada` | sí y continúa el proceso | pasa a `activa` (junto con sus cambios de datos, en una sola modificación) |
 | `desincorporada` | no | sin cambios, sin tocar `updated_at` |
-| otra capa/proveedor, o página fallida/inválida | n/a | no se afecta |
+| capa con alguna página fallida o inválida | n/a | no se afecta |
 
-- "Aparece" se decide por `scan_url` presente en el listado obtenido, incluso si la interfaz es incompleta. Solo las que continúan pueden pasar a `activa`.
-- Falla de página [RF-010]: no se registra, actualiza ni cambia estatus de nada de esa capa/proveedor. Error de base de datos a mitad de página: la página falla, se detiene, se conserva lo ya aplicado. Lo aplicado en páginas exitosas se conserva aunque otra falle.
+- "Aparece" se decide por `scan_url` presente en el listado obtenido, incluso si la interfaz es incompleta. Solo las que continúan pueden pasar a `activa`. La capa y el vendor no intervienen en la decisión de desincorporar, solo la presencia de la `scan_url` dentro de la capa. Un listado vacío nunca llega al almacenamiento ni desincorpora nada.
+- Una misma `scan_url` mostrada por dos páginas pertenece a la primera página procesada (orden de `config.yml`); las siguientes la omiten del almacenamiento con un warning, pero cuenta como presente en su listado. Así su capa no cambia en cada ejecución [RF-011].
+- Falla de página [RF-010]: no se registra, actualiza ni cambia estatus de nada de esa página, y su capa no se desincorpora. Error de base de datos a mitad de página: el resultado de base de datos de la página es fallido (el del scraping se informa por separado), se detiene, se conserva lo ya aplicado y el proceso termina con código `1`. Lo aplicado en páginas exitosas se conserva aunque otra falle.
 - Idempotencia [RF-011]: dos ejecuciones seguidas sin cambios en SCAN ni en la configuración, la segunda no modifica ningún registro.
 
 ## Resultados y código de salida [RF-012, RF-013]
 - Resultado por página: exitoso si el listado se obtuvo, es válido y se procesó sin error. Fallido por: sin conexión, credenciales rechazadas, error de SCAN, tiempo agotado, página ilegible, listado inválido o error de base de datos. Interfaces incompletas y capacidades por defecto no hacen fallida una página.
-- Resultado general: exitoso solo si todas las páginas lo fueron. Una página fallida no impide procesar las restantes.
+- Resultado por capa: la desincorporación se informa por capa (exitosa, omitida por página fallida o fallida por base de datos). El resultado del scraping y el de la base de datos se informan por separado.
+- Resultado general: exitoso solo si todas las páginas y todas las desincorporaciones de capa lo fueron. Una página fallida no impide procesar las restantes.
 - Error general del proceso: configuración inválida, credenciales de SCAN ausentes, SCAN o base de datos no disponibles al iniciar. No se procesa ninguna página.
 - Código de salida `0` únicamente con resultado general exitoso. Cualquier otro caso, distinto de cero. Propuesta: `1` resultado general fallido, `2` error general del proceso.
 
@@ -139,14 +142,16 @@ Cada mensaje: fecha y hora, nivel (`error`, `warning`, `info`) y descripción. A
 
 # Modelo de datos
 
-Fuente de verdad: `docs/DATABASE.md`. Colección propia: `interfaces`.
+Todo el acceso a MongoDB vive en `persistence/` (conexión, `InterfaceDocument` y `InterfaceRepository` sobre `pydantic-mongo`). La decisión de qué cambia es pura y vive en `synchronization/`.
+
+Fuente de verdad: `.claude/docs/database.md`. Colección propia: `interfaces`.
 
 | Campo | Tipo | Notas |
 |---|---|---|
 | `_id` | ObjectId | interno |
 | `layer` | String | mayúscula completa (`BORDE`) |
 | `name` | String | |
-| `vendor` | String | mayúscula completa; sin dato: `UNDEFINED` |
+| `vendor` | String | mayúscula completa; sin dato: `UNDEFINED`; concreto tiene prioridad sobre `UNDEFINED` |
 | `capacity_gbps` | Double | `0` si no está disponible; siempre `float` en Python antes de guardar |
 | `scan_url` | String | clave de negocio, índice único |
 | `status` | Enum | `activa` / `desincorporada` |
@@ -160,9 +165,9 @@ Reglas:
 - Fechas: `datetime` timezone-aware en UTC (`datetime.now(timezone.utc)`), cliente con `tz_aware=True`. Nunca `Timestamp` de BSON.
 - Los nombres `scan_url` y `capacity_gbps` no se renombran.
 - `interfaces` nunca se elimina ni usa `deleted_at`; el ciclo de vida es `status`.
-- Esquema cambia primero en `docs/DATABASE.md`, después en el código.
-- Consulta de una página: interfaces con `layer` y `vendor` de la página, más las que tengan alguna `scan_url` del listado (para detectar cambios de capa o proveedor). Una sola consulta con `$or` por página, no una por interfaz.
-- Escrituras por página con `bulk_write(ordered=True)`: se detiene en el primer error y conserva lo aplicado, que es lo que exige RF-010. Actualizaciones con filtro por `scan_url` y `$set`; solo los campos que cambian, más `status` si cambia, más `updated_at`.
+- Esquema cambia primero en `.claude/docs/database.md`, después en el código.
+- Consultas: por página, una sola con `scan_url $in` de las interfaces completas del listado; por capa, una con las `activa` de la capa (`idx_layer_name`). Nunca una por interfaz.
+- Escrituras con `bulk_write(ordered=True)` (por página y por capa): se detiene en el primer error y conserva lo aplicado, que es lo que exige RF-010. Actualizaciones con filtro por `scan_url` y `$set`; solo los campos que cambian, más `status` si cambia, más `updated_at`.
 
 # Pruebas
 

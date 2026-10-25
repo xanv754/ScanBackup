@@ -222,7 +222,7 @@
 3. **Tipos numéricos:** los valores de tráfico y `capacity_gbps` son `Double`. Convertir siempre a `float` en Python antes de guardar, para evitar tipos mixtos (`int`/`float`) en un mismo campo.
 4. **Fechas:** `date` es string `YYYY-MM-DD` (solo clave del bucket). `ts`, `created_at` y `updated_at` son `Date` nativo (`datetime`), nunca `Timestamp` de BSON. El formato `HH:MM:SS` se aplica solo al exportar.
 5. **Zona horaria:** `America/Caracas` (UTC-4 fijo). En agregaciones por hora o día, usar `timezone: "America/Caracas"` en los operadores de fecha.
-6. **Estandarización:** `layer` y `vendor` se almacenan con la primera letra en mayúscula y el resto en minúscula (por ejemplo, `Borde`, `Huawei`). Un `vendor` omitido, vacío o `undefined` se almacena como `Undefined`. Las capas son configurables, por lo que `layer` no es un enum.
+6. **Estandarización:** `layer` y `vendor` se almacenan en mayúscula completa (por ejemplo, `BORDE`, `HUAWEI`). Un `vendor` omitido, vacío o `undefined` se almacena como `UNDEFINED`. Todo `vendor` distinto de `UNDEFINED` tiene prioridad: un `UNDEFINED` obtenido nunca sustituye a un `vendor` almacenado distinto de `UNDEFINED`. Las capas son configurables, por lo que `layer` no es un enum.
 7. **Estatus:** `Status` (`activa`, `desincorporada`) es un `Enum` de Python, definido en un único lugar y validado en los repositorios.
 8. **Capacidad sin dato:** `capacity_gbps` vale `0` cuando la capacidad no está disponible.
 9. **Nombres declarativos:** `scan_url` equivale a la "dirección URL de consulta de tráfico" del ERS y `capacity_gbps` lleva la unidad en el nombre. No renombrar.
