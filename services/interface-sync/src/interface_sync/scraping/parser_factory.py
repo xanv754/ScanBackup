@@ -6,6 +6,7 @@ from interface_sync.scraping.borde.huawei import BordeHuaweiParser
 from interface_sync.scraping.borde.juniper import BordeJuniperParser
 from interface_sync.scraping.bras.bras_parser import BrasParser
 from interface_sync.scraping.caching.caching_parser import CachingParser
+from interface_sync.scraping.dint.huawei import DintHuaweiParser
 from interface_sync.scraping.html_fetcher import HtmlFetcher
 from interface_sync.scraping.page_parser import PageParser
 
@@ -24,6 +25,7 @@ class PageParserFactory:
             ("Borde", "Juniper"): BordeJuniperParser,
             ("Bras", "Undefined"): lambda: BrasParser(fetcher),
             ("Caching", "Undefined"): lambda: CachingParser(fetcher),
+            ("Dint", "Huawei"): DintHuaweiParser,
         }
 
     def create(self, page: PageConfig) -> PageParser:
