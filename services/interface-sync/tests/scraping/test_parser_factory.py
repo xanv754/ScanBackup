@@ -32,14 +32,14 @@ def test_borde_juniper_page_gets_its_parser() -> None:
 
 
 def test_bras_page_gets_its_parser_with_the_fetcher() -> None:
-    """RF-003: Bras + Undefined resolves to BrasParser."""
+    """RF-003: Bras + UNDEFINED resolves to BrasParser."""
     page = PageConfig(layer="bras", vendor="undefined", url=URL)
 
     assert isinstance(PageParserFactory(Mock()).create(page), BrasParser)
 
 
 def test_caching_page_gets_its_parser_with_the_fetcher() -> None:
-    """RF-003: Caching + Undefined resolves to CachingParser."""
+    """RF-003: Caching + UNDEFINED resolves to CachingParser."""
     page = PageConfig(layer="caching", vendor="undefined", url=URL)
 
     assert isinstance(PageParserFactory(Mock()).create(page), CachingParser)
@@ -60,7 +60,7 @@ def test_dist_huawei_page_gets_its_parser() -> None:
 
 
 def test_ixp_page_gets_its_parser() -> None:
-    """RF-003: Ixp + Undefined resolves to IxpParser."""
+    """RF-003: Ixp + UNDEFINED resolves to IxpParser."""
     page = PageConfig(layer="ixp", vendor="undefined", url=URL)
 
     assert isinstance(PageParserFactory(Mock()).create(page), IxpParser)
@@ -96,4 +96,4 @@ def test_unsupported_layer_or_vendor_raises(layer: str, vendor: str | None) -> N
     with pytest.raises(UnsupportedPageError) as error_info:
         PageParserFactory(Mock()).create(page)
 
-    assert layer.capitalize() in error_info.value.cause
+    assert layer.upper() in error_info.value.cause

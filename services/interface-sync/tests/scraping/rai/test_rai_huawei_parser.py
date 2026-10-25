@@ -46,7 +46,7 @@ def test_valid_interface_is_fully_extracted(parser: RaiHuaweiParser) -> None:
     assert interface.name == "CNT-HWRAI-01 (100GE1/0/0 CONEXIÓN CON PFI-HWBORDE-01 100GE1/0/8)"
     assert interface.scan_url == "https://scan.example/mrtg/r27116-ge100.log"
     assert interface.capacity_gbps == 100.0
-    assert interface.vendor == "Huawei"
+    assert interface.vendor == "HUAWEI"
 
 
 @pytest.mark.parametrize(
@@ -288,7 +288,7 @@ def test_every_interface_carries_the_vendor_of_the_parser(parser: RaiHuaweiParse
     interfaces = parser.parse(html, PAGE_URL)
 
     assert len(interfaces) == 3
-    assert {interface.vendor for interface in interfaces} == {"Huawei"}
+    assert {interface.vendor for interface in interfaces} == {"HUAWEI"}
 
 
 def test_positions_follow_page_order(parser: RaiHuaweiParser) -> None:

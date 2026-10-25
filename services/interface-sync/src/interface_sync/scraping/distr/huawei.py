@@ -19,7 +19,7 @@ class DistHuaweiParser(PageParser):
     `200Eth-Trunk1` and `GE1/1/4(10G)` are read; the neighbor device is ignored).
     """
 
-    VENDOR = "Huawei"
+    VENDOR = "HUAWEI"
     MAIN_ID = "main"
     ROW_CLASS = "row"
     TITLE_ID = "subtitulo"

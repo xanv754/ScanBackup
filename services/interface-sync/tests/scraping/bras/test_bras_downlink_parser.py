@@ -123,7 +123,7 @@ def test_valid_interface_is_fully_extracted() -> None:
     assert interface.name == "ANZ-BRAS-00 - (10GB GE1/0/1)"
     assert interface.scan_url == "https://scan.example/mrtg/r27429-ge101.log"
     assert interface.capacity_gbps == 10.0
-    assert interface.vendor == "Downlink"
+    assert interface.vendor == "DOWNLINK"
 
 
 def test_device_pages_are_fetched_in_menu_order_with_absolute_urls() -> None:

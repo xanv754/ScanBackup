@@ -5,15 +5,15 @@ from interface_sync.constants.enums import TerminalLevel
 TEXT_ENCODING = "utf-8"
 DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 
-LAYER_BORDE = "Borde"
-LAYER_BRAS = "Bras"
-LAYER_CACHING = "Caching"
-LAYER_DINT = "Dint"
-LAYER_DIST = "Dist"
-LAYER_IXP = "Ixp"
-LAYER_RAI = "Rai"
+LAYER_BORDE = "BORDE"
+LAYER_BRAS = "BRAS"
+LAYER_CACHING = "CACHING"
+LAYER_DINT = "DINT"
+LAYER_DIST = "DIST"
+LAYER_IXP = "IXP"
+LAYER_RAI = "RAI"
 
-UNDEFINED_VENDOR = "Undefined"
+UNDEFINED_VENDOR = "UNDEFINED"
 
 FIELD_NAME = "name"
 FIELD_SCAN_URL = "scan_url"

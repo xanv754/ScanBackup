@@ -17,7 +17,7 @@ class BordeHuaweiParser(PageParser):
     (`40GE2/0/0` means 40 Gbps). Blocks whose title starts with "Sumatoria" are skipped.
     """
 
-    VENDOR = "Huawei"
+    VENDOR = "HUAWEI"
     MAIN_ID = "main"
     ROW_CLASS = "row"
     TITLE_ID = "subtitulo"

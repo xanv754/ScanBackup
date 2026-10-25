@@ -126,7 +126,7 @@ def test_valid_interface_is_fully_extracted(vendor: str) -> None:
     assert interface.name == LONG_NAME.removeprefix("Router ").upper()
     assert interface.scan_url == "https://scan.example/mrtg/r27421-ge110-2171.log"
     assert interface.capacity_gbps == 100.0
-    assert interface.vendor == vendor
+    assert interface.vendor == vendor.upper()
 
 
 def test_only_its_own_service_page_is_downloaded(vendor: str) -> None:

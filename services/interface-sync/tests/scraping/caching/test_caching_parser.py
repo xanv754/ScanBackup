@@ -77,12 +77,12 @@ def test_services_are_joined_in_order_with_global_positions_and_own_vendor(
     interfaces = CachingParser(fetcher).parse(build_menu(), MENU_URL)
 
     assert [(i.position, i.name, i.vendor) for i in interfaces] == [
-        (1, "G1 (100GE1)", "Google"),
-        (2, "A1 (ETH-TRUNK1)", "Akamai"),
-        (3, "I1 (100GE3)", "Inter"),
-        (4, "N1 (100GE4)", "Netflix"),
-        (5, "N2 (100GE5)", "Netflix"),
-        (6, "B1 (100GE6)", "Abatvgo"),
+        (1, "G1 (100GE1)", "GOOGLE"),
+        (2, "A1 (ETH-TRUNK1)", "AKAMAI"),
+        (3, "I1 (100GE3)", "INTER"),
+        (4, "N1 (100GE4)", "NETFLIX"),
+        (5, "N2 (100GE5)", "NETFLIX"),
+        (6, "B1 (100GE6)", "ABATVGO"),
     ]
 
 
@@ -90,14 +90,14 @@ def test_service_with_only_summaries_contributes_nothing(fetcher: FakeFetcher) -
     """RF-003: Facebook with only summaries yields zero interfaces and is not an error."""
     interfaces = CachingParser(fetcher).parse(build_menu(), MENU_URL)
 
-    assert "Facebook" not in {i.vendor for i in interfaces}
+    assert "FACEBOOK" not in {i.vendor for i in interfaces}
 
 
 def test_service_missing_from_menu_contributes_nothing(fetcher: FakeFetcher) -> None:
     """RF-003: a service absent from the menu is skipped; the others are still returned."""
     interfaces = CachingParser(fetcher).parse(build_menu(missing=("Netflix",)), MENU_URL)
 
-    assert "Netflix" not in {i.vendor for i in interfaces}
+    assert "NETFLIX" not in {i.vendor for i in interfaces}
     assert [i.position for i in interfaces] == [1, 2, 3, 4]
 
 
@@ -131,7 +131,7 @@ def test_services_are_independent_of_each_other(fetcher: FakeFetcher) -> None:
 
     without_google = CachingParser(fetcher).parse(build_menu(missing=("Google",)), MENU_URL)
 
-    assert {i.vendor for i in without_google} == {"Akamai", "Inter", "Netflix", "Abatvgo"}
+    assert {i.vendor for i in without_google} == {"AKAMAI", "INTER", "NETFLIX", "ABATVGO"}
 
 
 def test_fetcher_is_injected_not_created() -> None:

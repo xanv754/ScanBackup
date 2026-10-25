@@ -20,7 +20,7 @@ class BrasDownlinkParser(PageParser):
     contain "Sumatoria" are skipped. Capacity comes from the port name (`10GB GE1/0/1`).
     """
 
-    VENDOR = "Downlink"
+    VENDOR = "DOWNLINK"
     SIDEBAR_CLASS = "sidebar"
     MENU_ROLE = "menu"
     GROUP_CLASSES = ("nav-item", "menu")

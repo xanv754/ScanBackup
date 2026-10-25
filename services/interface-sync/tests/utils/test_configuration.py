@@ -53,14 +53,14 @@ def test_load_valid_configuration(config_path: Path, recording_logger: Recording
     pages = ConfigurationFile(config_path, recording_logger).load()
 
     assert [(p.layer, p.vendor, p.url) for p in pages] == [
-        ("Borde", "Huawei", "https://host/a?X=1"),
-        ("Ixp", "Undefined", "http://host/b"),
+        ("BORDE", "HUAWEI", "https://host/a?X=1"),
+        ("IXP", "UNDEFINED", "http://host/b"),
     ]
     assert recording_logger.records == [("info", "Configuración cargada", "2 páginas")]
 
 
 def test_load_standardizes_layer_and_vendor(config_path: Path, recording_logger: RecordingLogger):
-    """RF-002: text is stripped and layer and vendor are capitalized; the URL is kept."""
+    """RF-002: text is stripped and layer and vendor are uppercased; the URL is kept."""
     config_path.write_text(
         'links:\n'
         '  - layer: "  bORDE "\n'
@@ -71,7 +71,7 @@ def test_load_standardizes_layer_and_vendor(config_path: Path, recording_logger:
 
     page = ConfigurationFile(config_path, recording_logger).load()[0]
 
-    assert (page.layer, page.vendor, page.url) == ("Borde", "Juniper", "https://Host/Path")
+    assert (page.layer, page.vendor, page.url) == ("BORDE", "JUNIPER", "https://Host/Path")
 
 
 @pytest.mark.parametrize(
@@ -81,12 +81,12 @@ def test_load_standardizes_layer_and_vendor(config_path: Path, recording_logger:
 def test_load_vendor_defaults_to_undefined(
     config_path: Path, recording_logger: RecordingLogger, vendor_line: str
 ):
-    """RF-002: an omitted, empty or `undefined` vendor becomes `Undefined`."""
+    """RF-002: an omitted, empty or `undefined` vendor becomes `UNDEFINED`."""
     config_path.write_text(
         f"links:\n  - layer: a\n    url: http://h\n{vendor_line}", encoding="utf-8"
     )
 
-    assert ConfigurationFile(config_path, recording_logger).load()[0].vendor == "Undefined"
+    assert ConfigurationFile(config_path, recording_logger).load()[0].vendor == "UNDEFINED"
 
 
 def test_load_same_layer_with_different_vendor_is_valid(
@@ -195,7 +195,7 @@ def test_load_duplicate_layer_and_vendor_after_standardizing(
 
     causes = load_causes(config_path, content, recording_logger)
 
-    assert causes == ["Capa 'Borde' y proveedor 'Huawei' repetidos entre las páginas 1 y 3"]
+    assert causes == ["Capa 'BORDE' y proveedor 'HUAWEI' repetidos entre las páginas 1 y 3"]
 
 
 def test_load_accumulates_all_causes(config_path: Path, recording_logger: RecordingLogger):

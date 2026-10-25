@@ -19,7 +19,7 @@ class RaiHuaweiParser(PageParser):
     `30GB Eth-Trunk0` are read; the neighbor device is ignored).
     """
 
-    VENDOR = "Huawei"
+    VENDOR = "HUAWEI"
     MAIN_ID = "main"
     ROW_CLASS = "row"
     TITLE_ID = "subtitulo"

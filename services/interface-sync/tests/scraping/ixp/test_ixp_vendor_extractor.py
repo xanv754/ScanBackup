@@ -27,15 +27,15 @@ def test_position_code_is_the_vendor(
 @pytest.mark.parametrize(
     ("name", "expected"),
     [
-        ("X (100GB ETH-TRUNK1.1502 CONEXIÓN CON PEERING PRIVADO CANTV - MOVILNET)", "Movilnet"),
-        ("X (CONEXIÓN CON PEERING PRIVADO CANTV - VNET)", "Vnet"),
-        ("X (CONEXIÓN CON PEERING PRIVADO CANTV - PatriaCell)", "Patriacell"),
-        ("X (CONEXIÓN CON PEERING PRIVADO CANTV - THUNDERNET)", "Thundernet"),
-        ("X (CONEXIÓN CON PEERING PRIVADO TELEFONICA - CANTV)", "Telefonica"),
-        ("X (CONEXIÓN CON PEERING PRIVADO NETUNO - CANTV)", "Netuno"),
-        ("X (CONEXIÓN CON PEERING PRIVADO cantv - fibex)", "Fibex"),
+        ("X (100GB ETH-TRUNK1.1502 CONEXIÓN CON PEERING PRIVADO CANTV - MOVILNET)", "MOVILNET"),
+        ("X (CONEXIÓN CON PEERING PRIVADO CANTV - VNET)", "VNET"),
+        ("X (CONEXIÓN CON PEERING PRIVADO CANTV - PatriaCell)", "PATRIACELL"),
+        ("X (CONEXIÓN CON PEERING PRIVADO CANTV - THUNDERNET)", "THUNDERNET"),
+        ("X (CONEXIÓN CON PEERING PRIVADO TELEFONICA - CANTV)", "TELEFONICA"),
+        ("X (CONEXIÓN CON PEERING PRIVADO NETUNO - CANTV)", "NETUNO"),
+        ("X (CONEXIÓN CON PEERING PRIVADO cantv - fibex)", "FIBEX"),
         ("X (CONEXIÓN CON PEERING PRIVADO A - B)", "B"),
-        ("X (CONEXIÓN CON PEERING PRIVADO CANTV - NAPVE", "Napve"),
+        ("X (CONEXIÓN CON PEERING PRIVADO CANTV - NAPVE", "NAPVE"),
     ],
 )
 def test_peering_vendor_is_the_side_that_is_not_cantv(
@@ -48,10 +48,10 @@ def test_peering_vendor_is_the_side_that_is_not_cantv(
 @pytest.mark.parametrize(
     ("name", "expected"),
     [
-        ("X (CONEXIÓN CON ALGO NUEVO DIGITEL)", "Digitel"),
-        ("X (CONEXIÓN CON ALGO NUEVO DIGITEL)  ", "Digitel"),
-        ("OPERADOR", "Operador"),
-        ("X CONEXIÓN CON Y (FIBEX)", "Fibex"),
+        ("X (CONEXIÓN CON ALGO NUEVO DIGITEL)", "DIGITEL"),
+        ("X (CONEXIÓN CON ALGO NUEVO DIGITEL)  ", "DIGITEL"),
+        ("OPERADOR", "OPERADOR"),
+        ("X CONEXIÓN CON Y (FIBEX)", "FIBEX"),
     ],
 )
 def test_last_word_is_the_fallback(extractor: IxpVendorExtractor, name: str, expected: str) -> None:
@@ -62,13 +62,13 @@ def test_last_word_is_the_fallback(extractor: IxpVendorExtractor, name: str, exp
 @pytest.mark.parametrize(
     ("name", "expected"),
     [
-        ("X - PEERING PRIVADO CANTV - MDS", "Mds"),
+        ("X - PEERING PRIVADO CANTV - MDS", "MDS"),
         ("X - POSICION a6", "A6"),
-        ("X - PEERING PRIVADO CANTV - iNTER", "Inter"),
+        ("X - PEERING PRIVADO CANTV - iNTER", "INTER"),
     ],
 )
-def test_vendor_is_capitalized(extractor: IxpVendorExtractor, name: str, expected: str) -> None:
-    """RF-003: first letter in uppercase and the rest in lowercase, whatever the input case."""
+def test_vendor_is_uppercase(extractor: IxpVendorExtractor, name: str, expected: str) -> None:
+    """RF-003: always in uppercase, whatever the input case."""
     assert extractor.extract(name) == expected
 
 

@@ -21,7 +21,7 @@ class CachingFacebookParser(PageParser):
     interfaces. Capacity comes from the port name (`100GE1/1/0.2171` means 100 Gbps).
     """
 
-    VENDOR = "Facebook"
+    VENDOR = "FACEBOOK"
     SIDEBAR_CLASS = "sidebar"
     MENU_ROLE = "menu"
     MENU_LABEL_PATTERN = re.compile(r"^SUMA FACEBOOK \(META\)$", re.IGNORECASE)

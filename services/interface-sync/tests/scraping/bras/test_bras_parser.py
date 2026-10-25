@@ -70,10 +70,10 @@ def test_uplink_comes_first_with_global_positions_and_own_vendor(fetcher: FakeFe
     interfaces = BrasParser(fetcher).parse(build_menu(), MENU_URL)
 
     assert [(i.position, i.name, i.vendor) for i in interfaces] == [
-        (1, "U1 (10GB GE1)", "Uplink"),
-        (2, "U2", "Uplink"),
-        (3, "D1 (10GB ET1)", "Downlink"),
-        (4, "D2", "Downlink"),
+        (1, "U1 (10GB GE1)", "UPLINK"),
+        (2, "U2", "UPLINK"),
+        (3, "D1 (10GB ET1)", "DOWNLINK"),
+        (4, "D2", "DOWNLINK"),
     ]
 
 
@@ -81,7 +81,7 @@ def test_only_uplink_in_menu_returns_only_uplink(fetcher: FakeFetcher) -> None:
     """RF-003: a direction absent from the menu contributes nothing."""
     interfaces = BrasParser(fetcher).parse(build_menu(downlink=False), MENU_URL)
 
-    assert {i.vendor for i in interfaces} == {"Uplink"}
+    assert {i.vendor for i in interfaces} == {"UPLINK"}
     assert [i.position for i in interfaces] == [1, 2]
 
 
@@ -116,7 +116,7 @@ def test_uplink_and_downlink_are_independent_of_each_other() -> None:
 
     downlink_only = BrasParser(fetcher).parse(build_menu(uplink=False), MENU_URL)
 
-    assert [(i.name, i.vendor) for i in downlink_only] == [("D1", "Downlink")]
+    assert [(i.name, i.vendor) for i in downlink_only] == [("D1", "DOWNLINK")]
 
 
 def test_fetcher_is_injected_not_created() -> None:

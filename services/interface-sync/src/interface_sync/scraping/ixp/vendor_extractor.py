@@ -10,7 +10,7 @@ class IxpVendorExtractor:
        `CANTV`, the last one.
     3. Otherwise, the last word of the name.
 
-    The vendor is returned with the first letter in uppercase and the rest in lowercase.
+    The vendor is returned in uppercase.
     """
 
     OPERATOR_CANTV = "cantv"
@@ -24,7 +24,7 @@ class IxpVendorExtractor:
         if not name or not name.strip():
             return None
         vendor = self._from_position(name) or self._from_peering(name) or self._from_last_word(name)
-        return vendor.capitalize() if vendor else None
+        return vendor.upper() if vendor else None
 
     def _from_position(self, name: str) -> str | None:
         """Return the switch position code (`A6`) if the name has one."""

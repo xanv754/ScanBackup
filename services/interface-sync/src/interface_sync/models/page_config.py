@@ -8,9 +8,8 @@ from interface_sync.constants.constants import ALLOWED_URL_SCHEMES, UNDEFINED_VE
 class PageConfig(BaseModel):
     """A SCAN listing page declared in `config.yml`, already validated and standardized.
 
-    Whitespace is stripped from every text field. `layer` and `vendor` are capitalized
-    (first letter in uppercase, the rest in lowercase). A missing, empty or `undefined`
-    vendor becomes `Undefined`. The URL keeps its original casing.
+    Whitespace is stripped from every text field. `layer` and `vendor` are converted
+    to uppercase. A missing or empty vendor becomes `UNDEFINED`. The URL keeps its original casing.
     """
 
     model_config = ConfigDict(extra="forbid", frozen=True, str_strip_whitespace=True)
@@ -33,14 +32,14 @@ class PageConfig(BaseModel):
     @field_validator("layer")
     @classmethod
     def _standardize_layer(cls, layer: str) -> str:
-        """Capitalize the layer name."""
-        return layer.capitalize()
+        """Convert the layer name to uppercase."""
+        return layer.upper()
 
     @field_validator("vendor")
     @classmethod
     def _standardize_vendor(cls, vendor: str) -> str:
-        """Capitalize the vendor name; an empty vendor becomes `Undefined`."""
-        return vendor.capitalize() or UNDEFINED_VENDOR
+        """Convert the vendor name to uppercase; an empty vendor becomes `UNDEFINED`."""
+        return vendor.upper() or UNDEFINED_VENDOR
 
     @field_validator("url")
     @classmethod

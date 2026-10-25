@@ -52,7 +52,7 @@ def test_valid_interface_is_fully_extracted(parser: IxpParser) -> None:
     )
     assert interface.scan_url == "https://scan.example/mrtg/rchc-hwdint-01-100et1_1502.log"
     assert interface.capacity_gbps == 100.0
-    assert interface.vendor == "Movilnet"
+    assert interface.vendor == "MOVILNET"
 
 
 @pytest.mark.parametrize(
@@ -270,8 +270,8 @@ def test_vendor_comes_from_each_interface_name(parser: IxpParser) -> None:
 
     assert [(i.position, i.vendor) for i in interfaces] == [
         (1, "A6"),
-        (2, "Digitel"),
-        (3, "Netuno"),
+        (2, "DIGITEL"),
+        (3, "NETUNO"),
     ]
 
 

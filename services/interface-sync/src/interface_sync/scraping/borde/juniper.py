@@ -18,7 +18,7 @@ class BordeJuniperParser(PageParser):
     "Sumatoria" are skipped.
     """
 
-    VENDOR = "Juniper"
+    VENDOR = "JUNIPER"
     MAIN_ID = "main"
     ROW_CLASS = "row"
     TITLE_ID = "subtitulo"

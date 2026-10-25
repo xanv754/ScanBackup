@@ -46,7 +46,7 @@ def test_valid_interface_is_fully_extracted(parser: BordeJuniperParser) -> None:
     assert interface.name == "COLUMBUS XIX - PFI-JBORDE-MX-00 100GB-ET-0/0/12"
     assert interface.scan_url == "https://scan.example/mrtg/epfi-jborde-mx-00-100et0012.log"
     assert interface.capacity_gbps == 100.0
-    assert interface.vendor == "Juniper"
+    assert interface.vendor == "JUNIPER"
 
 
 @pytest.mark.parametrize(
@@ -83,7 +83,7 @@ def test_every_interface_carries_the_vendor_of_the_parser(parser: BordeJuniperPa
     interfaces = parser.parse(html, PAGE_URL)
 
     assert len(interfaces) == 3
-    assert {interface.vendor for interface in interfaces} == {"Juniper"}
+    assert {interface.vendor for interface in interfaces} == {"JUNIPER"}
 
 
 def test_name_is_always_uppercase(parser: BordeJuniperParser) -> None:

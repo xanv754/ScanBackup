@@ -86,7 +86,7 @@ def test_incomplete_interface_is_discarded_with_warning(
         (
             "warning",
             "Interfaz incompleta",
-            "Borde Huawei | posición 2 | url=http://scan/2.log | faltan: name",
+            "BORDE HUAWEI | posición 2 | url=http://scan/2.log | faltan: name",
         )
     ]
 
@@ -105,9 +105,9 @@ def test_incomplete_warning_lists_known_data_and_all_missing_fields(
         (
             "warning",
             "Interfaz incompleta",
-            "Borde Huawei | posición 2 | nombre=IF-2 | faltan: scan_url",
+            "BORDE HUAWEI | posición 2 | nombre=IF-2 | faltan: scan_url",
         ),
-        ("warning", "Interfaz incompleta", "Borde Huawei | posición 3 | faltan: name, scan_url"),
+        ("warning", "Interfaz incompleta", "BORDE HUAWEI | posición 3 | faltan: name, scan_url"),
     ]
 
 
@@ -141,7 +141,7 @@ def test_invalid_capacity_defaults_to_zero_with_warning(
     assert continued.capacity_gbps == 0.0
     assert listing.defaulted_capacity_count == 1
     assert recording_logger.records == [
-        ("warning", "Capacidad por defecto", "Borde Huawei | posición 3 | IF-3")
+        ("warning", "Capacidad por defecto", "BORDE HUAWEI | posición 3 | IF-3")
     ]
 
 
@@ -211,6 +211,6 @@ def test_bras_listing_uses_page_label_and_interface_vendors(
     assert [item.vendor for item in listing.complete_interfaces] == ["Uplink", "Downlink"]
     assert [item.capacity_gbps for item in listing.complete_interfaces] == [10.0, 0.0]
     assert recording_logger.records == [
-        ("warning", "Interfaz incompleta", "Bras Undefined | posición 3 | faltan: name, scan_url"),
-        ("warning", "Capacidad por defecto", "Bras Undefined | posición 2 | DOWN-1"),
+        ("warning", "Interfaz incompleta", "BRAS UNDEFINED | posición 3 | faltan: name, scan_url"),
+        ("warning", "Capacidad por defecto", "BRAS UNDEFINED | posición 2 | DOWN-1"),
     ]
