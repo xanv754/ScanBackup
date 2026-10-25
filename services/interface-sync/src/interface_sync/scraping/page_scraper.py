@@ -16,7 +16,8 @@ class PageScraper:
         self._parser_factory = parser_factory
 
     def scrape(self, page: PageConfig) -> list[ScrapedInterface]:
-        """Download the page and return its interfaces in page order."""
+        """Download the page and return its interfaces in page order, tagged with the layer."""
         parser = self._parser_factory.create(page)
         html = self._client.fetch_html(page.url)
-        return parser.parse(html, page.url)
+        interfaces = parser.parse(html, page.url)
+        return [interface.model_copy(update={"layer": page.layer}) for interface in interfaces]

@@ -6,7 +6,8 @@ class ScrapedInterface(BaseModel):
 
     `position` is the 1-based place of the interface in the listing. A `None` value
     means the datum could not be obtained; later validations decide what that implies.
-    The layer comes from the page configuration. The vendor is set by the parser: the one
+    The layer is set by `PageScraper` from the page configuration (uppercase), the same for
+    every interface of the page. The vendor is set by the parser: the one
     configured for the page (BORDE: HUAWEI, JUNIPER) or, when the page leaves it undefined,
     the one found while scraping (BRAS: UPLINK, DOWNLINK).
     """
@@ -18,3 +19,4 @@ class ScrapedInterface(BaseModel):
     scan_url: str | None
     capacity_gbps: float | None
     vendor: str | None = None
+    layer: str | None = None

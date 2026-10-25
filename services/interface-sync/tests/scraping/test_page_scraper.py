@@ -26,7 +26,7 @@ def test_scrape_downloads_and_parses_the_page(client: Mock) -> None:
 
     result = PageScraper(client, factory).scrape(page)
 
-    assert result == expected
+    assert result == [interface.model_copy(update={"layer": "BORDE"}) for interface in expected]
     client.fetch_html.assert_called_once_with(URL)
     parser.parse.assert_called_once_with("<html></html>", URL)
 
@@ -48,3 +48,21 @@ def test_download_failure_reaches_the_caller(client: Mock) -> None:
 
     with pytest.raises(ScanConnectionError):
         PageScraper(client, PageParserFactory(client)).scrape(page)
+
+
+def test_every_interface_gets_the_layer_of_the_page(client: Mock) -> None:
+    """The layer of the configuration is set on every interface, whatever the parser returns."""
+    parser = Mock()
+    parser.parse.return_value = [
+        ScrapedInterface(position=1, name="A", scan_url="u1", capacity_gbps=1.0, vendor="HUAWEI"),
+        ScrapedInterface(position=2, name=None, scan_url=None, capacity_gbps=None),
+    ]
+    factory = Mock(spec=PageParserFactory)
+    factory.create.return_value = parser
+    client.fetch_html.return_value = "<html></html>"
+    page = PageConfig(layer="dint", vendor="huawei", url=URL)
+
+    result = PageScraper(client, factory).scrape(page)
+
+    assert [interface.layer for interface in result] == ["DINT", "DINT"]
+    assert result[0].vendor == "HUAWEI"
