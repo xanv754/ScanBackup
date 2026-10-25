@@ -70,7 +70,9 @@ class SyncOrchestrator:
         failed_labels = [result.page_label for result in results if not result.succeeded]
         if failed_labels:
             summary = f"{len(failed_labels)} de {len(results)} páginas fallidas"
-            self._logger.error("Resultado general fallido", f"{summary}: {', '.join(failed_labels)}")
+            self._logger.error(
+                "Resultado general fallido", f"{summary}: {', '.join(failed_labels)}"
+            )
             self._terminal.error(f"Resultado general fallido: {summary}")
             return ExitCode.FAILED
         self._logger.info("Resultado general exitoso", f"{len(results)} páginas")
