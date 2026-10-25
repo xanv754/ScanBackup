@@ -10,6 +10,7 @@ from interface_sync.scraping.borde.juniper import BordeJuniperParser
 from interface_sync.scraping.bras.bras_parser import BrasParser
 from interface_sync.scraping.caching.caching_parser import CachingParser
 from interface_sync.scraping.dint.huawei import DintHuaweiParser
+from interface_sync.scraping.distr.huawei import DistHuaweiParser
 
 URL = "https://scan.example/page.cgi"
 
@@ -49,6 +50,13 @@ def test_dint_huawei_page_gets_its_parser() -> None:
     assert isinstance(PageParserFactory(Mock()).create(page), DintHuaweiParser)
 
 
+def test_dist_huawei_page_gets_its_parser() -> None:
+    """RF-003: Dist + Huawei resolves to DistHuaweiParser."""
+    page = PageConfig(layer="dist", vendor="huawei", url=URL)
+
+    assert isinstance(PageParserFactory(Mock()).create(page), DistHuaweiParser)
+
+
 @pytest.mark.parametrize(
     ("layer", "vendor"),
     [
@@ -60,6 +68,8 @@ def test_dint_huawei_page_gets_its_parser() -> None:
         ("caching", "huawei"),
         ("dint", "juniper"),
         ("dint", "undefined"),
+        ("dist", "juniper"),
+        ("dist", "undefined"),
     ],
 )
 def test_unsupported_layer_or_vendor_raises(layer: str, vendor: str | None) -> None:
