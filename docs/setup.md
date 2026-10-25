@@ -67,6 +67,29 @@ Levanta únicamente MongoDB. No hay migraciones ni seeds. La base de datos y el 
 
 > **Nota:** Para acceder desde herramientas externas (por ejemplo, Compass) usar `127.0.0.1:<MONGO_HOST_PORT>`.
 
+### Acceder a `mongosh`
+
+Con MongoDB levantado (`make dev-up`), abrir una sesión interactiva dentro del contenedor `scan-backup-mongo-dev`:
+
+```bash
+set -a; source .env.development; set +a
+
+docker exec -it scan-backup-mongo-dev mongosh \
+  -u "$MONGO_USERNAME" -p "$MONGO_PASSWORD" \
+  --authenticationDatabase "$MONGO_AUTH_SOURCE" "$MONGO_DATABASE"
+```
+
+Una vez dentro, algunos comandos útiles:
+
+```javascript
+show collections
+db.<coleccion>.countDocuments()
+db.<coleccion>.findOne()
+exit
+```
+
+> **Observación:** También se puede conectar desde un `mongosh` instalado en el host usando `mongosh "mongodb://$MONGO_USERNAME:$MONGO_PASSWORD@127.0.0.1:$MONGO_HOST_PORT/$MONGO_DATABASE?authSource=$MONGO_AUTH_SOURCE"`.
+
 ## 6. Simulador de SCAN
 
 En desarrollo no se consulta SCAN real. El servicio `scan-simulator` (nginx) replica SCAN: HTTPS con certificado autofirmado, HTTP Basic con `SCAN_USERNAME`/`SCAN_PASSWORD` y las páginas y logs MRTG de `dev/scan-simulator/fixtures/`. Detalle del servicio en [makefile.md](makefile.md#simulador-de-scan-desarrollo).
