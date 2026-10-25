@@ -44,7 +44,7 @@ def load_causes(
 def test_load_valid_configuration(config_path: Path, recording_logger: RecordingLogger):
     """RF-001: a valid file returns one page per entry, in file order."""
     config_path.write_text(
-        'links:\n'
+        "links:\n"
         '  - layer: "borde"\n    url: "https://host/a?X=1"\n    vendor: "huawei"\n'
         '  - layer: "ixp"\n    url: "http://host/b"\n',
         encoding="utf-8",
@@ -62,7 +62,7 @@ def test_load_valid_configuration(config_path: Path, recording_logger: Recording
 def test_load_standardizes_layer_and_vendor(config_path: Path, recording_logger: RecordingLogger):
     """RF-002: text is stripped and layer and vendor are uppercased; the URL is kept."""
     config_path.write_text(
-        'links:\n'
+        "links:\n"
         '  - layer: "  bORDE "\n'
         '    url: "  https://Host/Path  "\n'
         '    vendor: " jUNIPER "\n',
@@ -221,11 +221,7 @@ def test_load_invalid_entry_is_not_reported_as_duplicate(
     config_path: Path, recording_logger: RecordingLogger
 ):
     """RF-001: duplicate detection only compares entries that are valid on their own."""
-    content = (
-        "links:\n"
-        "  - {layer: a, url: 'http://h/1'}\n"
-        "  - {layer: a, url: 'ftp://h/2'}\n"
-    )
+    content = "links:\n  - {layer: a, url: 'http://h/1'}\n  - {layer: a, url: 'ftp://h/2'}\n"
 
     causes = load_causes(config_path, content, recording_logger)
 

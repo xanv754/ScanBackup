@@ -8,7 +8,9 @@ from interface_sync.validation import CapacityValidator
 
 def build_interface(capacity_gbps: float | None, position: int = 1) -> ScrapedInterface:
     return ScrapedInterface(
-        position=position, name=f"IF-{position}", scan_url="http://scan/1.log",
+        position=position,
+        name=f"IF-{position}",
+        scan_url="http://scan/1.log",
         capacity_gbps=capacity_gbps,
     )
 
@@ -49,7 +51,9 @@ def test_normalization_keeps_the_rest_of_the_interface(validator: CapacityValida
     [normalized] = validator.normalize([interface]).interfaces
 
     assert (normalized.position, normalized.name, normalized.scan_url) == (
-        4, "IF-4", "http://scan/1.log",
+        4,
+        "IF-4",
+        "http://scan/1.log",
     )
     assert interface.capacity_gbps is None
 

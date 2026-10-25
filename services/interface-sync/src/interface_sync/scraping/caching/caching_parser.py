@@ -33,7 +33,5 @@ class CachingParser(PageParser):
         interfaces: list[ScrapedInterface] = []
         for service_parser in self._service_parsers:
             for interface in service_parser.parse(html, page_url):
-                interfaces.append(
-                    interface.model_copy(update={"position": len(interfaces) + 1})
-                )
+                interfaces.append(interface.model_copy(update={"position": len(interfaces) + 1}))
         return interfaces

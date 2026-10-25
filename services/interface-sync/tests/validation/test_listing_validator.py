@@ -199,7 +199,10 @@ def test_bras_listing_uses_page_label_and_interface_vendors(
         position=1, name="UP-1", scan_url="http://scan/u.log", capacity_gbps=10.0, vendor="Uplink"
     )
     downlink = ScrapedInterface(
-        position=2, name="DOWN-1", scan_url="http://scan/d.log", capacity_gbps=None,
+        position=2,
+        name="DOWN-1",
+        scan_url="http://scan/d.log",
+        capacity_gbps=None,
         vendor="Downlink",
     )
     broken = ScrapedInterface(

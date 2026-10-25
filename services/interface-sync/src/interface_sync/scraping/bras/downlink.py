@@ -67,14 +67,10 @@ class BrasDownlinkParser(PageParser):
                 continue
             if not self.GROUP_LABEL_PATTERN.match(group_label):
                 continue
-            device_page_urls.extend(
-                self._read_section_urls(group, group_label, page_url)
-            )
+            device_page_urls.extend(self._read_section_urls(group, group_label, page_url))
         return device_page_urls
 
-    def _read_section_urls(
-        self, group: Tag, group_label: str, page_url: str
-    ) -> list[str]:
+    def _read_section_urls(self, group: Tag, group_label: str, page_url: str) -> list[str]:
         """Return the device page URLs of the "DOWNLINK POR BRAS" section of a BRAS group."""
         group_submenu = group.find("ul", recursive=False)
         if group_submenu is None:
@@ -89,9 +85,7 @@ class BrasDownlinkParser(PageParser):
                 continue
             for device in section_submenu.find_all("li", recursive=False):
                 anchor = device.find("a", href=True, recursive=False)
-                if anchor is None or not device_label_pattern.match(
-                    self._read_label(device)
-                ):
+                if anchor is None or not device_label_pattern.match(self._read_label(device)):
                     continue
                 urls.append(urljoin(page_url, str(anchor["href"]).strip()))
         return urls
@@ -153,9 +147,7 @@ class BrasDownlinkParser(PageParser):
         parts = urlsplit(urljoin(page_url, str(anchor["href"]).strip()))
         if not parts.path.endswith(self.PAGE_EXTENSION):
             return None
-        traffic_path = (
-            parts.path.removesuffix(self.PAGE_EXTENSION) + self.TRAFFIC_EXTENSION
-        )
+        traffic_path = parts.path.removesuffix(self.PAGE_EXTENSION) + self.TRAFFIC_EXTENSION
         return urlunsplit(parts._replace(path=traffic_path))
 
     def _extract_capacity_gbps(self, name: str | None) -> float | None:

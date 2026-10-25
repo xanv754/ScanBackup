@@ -22,9 +22,7 @@ def log_file_path(tmp_path: Path) -> Path:
 
 
 @pytest.fixture
-def service_logger(
-    log_file_path: Path, request: pytest.FixtureRequest
-) -> Iterator[ServiceLogger]:
+def service_logger(log_file_path: Path, request: pytest.FixtureRequest) -> Iterator[ServiceLogger]:
     logger_name = f"test_{request.node.name}"
     service_logger = ServiceLogger(log_file_path, logger_name=logger_name)
     yield service_logger
@@ -42,9 +40,7 @@ def test_info_line_has_date_level_message_and_details(
     service_logger: ServiceLogger, log_file_path: Path
 ) -> None:
     """RF-014: each message has date, level and description."""
-    service_logger.info(
-        "Registro de nueva interfaz", "'CHC-BRAS-01' ha sido registrado"
-    )
+    service_logger.info("Registro de nueva interfaz", "'CHC-BRAS-01' ha sido registrado")
 
     pattern = line_pattern(
         "INFO",
@@ -62,13 +58,9 @@ def test_warning_line_uses_warning_level(
     assert re.match(line_pattern("WARNING", ".+"), read_lines(log_file_path)[0])
 
 
-def test_error_line_uses_error_level(
-    service_logger: ServiceLogger, log_file_path: Path
-) -> None:
+def test_error_line_uses_error_level(service_logger: ServiceLogger, log_file_path: Path) -> None:
     """RF-014: error level is supported."""
-    service_logger.error(
-        "Configuración del sistema", "No se ha encontrado la clave `layer`."
-    )
+    service_logger.error("Configuración del sistema", "No se ha encontrado la clave `layer`.")
 
     assert re.match(line_pattern("ERROR", ".+"), read_lines(log_file_path)[0])
 
@@ -82,9 +74,7 @@ def test_message_without_details_omits_separator(
     assert read_lines(log_file_path)[0].endswith("INFO Resultado general exitoso")
 
 
-def test_messages_are_appended_in_order(
-    service_logger: ServiceLogger, log_file_path: Path
-) -> None:
+def test_messages_are_appended_in_order(service_logger: ServiceLogger, log_file_path: Path) -> None:
     """RF-014: log file is written in append mode."""
     service_logger.info("Primero")
     service_logger.info("Segundo")
@@ -118,19 +108,14 @@ def test_log_directory_is_created_when_missing(
 
 def test_logger_does_not_propagate_to_root(service_logger: ServiceLogger) -> None:
     """RF-014: the root logger must not be used."""
-    assert (
-        logging.getLogger("test_test_logger_does_not_propagate_to_root").propagate
-        is False
-    )
+    assert logging.getLogger("test_test_logger_does_not_propagate_to_root").propagate is False
 
 
 def test_same_logger_name_does_not_duplicate_handlers(
     service_logger: ServiceLogger, log_file_path: Path
 ) -> None:
     """RF-014: repeated instantiation must not duplicate log lines."""
-    ServiceLogger(
-        log_file_path, logger_name="test_same_logger_name_does_not_duplicate_handlers"
-    )
+    ServiceLogger(log_file_path, logger_name="test_same_logger_name_does_not_duplicate_handlers")
     service_logger.info("Una sola vez")
 
     assert len(read_lines(log_file_path)) == 1
