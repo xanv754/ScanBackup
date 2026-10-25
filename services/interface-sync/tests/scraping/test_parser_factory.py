@@ -12,6 +12,7 @@ from interface_sync.scraping.caching.caching_parser import CachingParser
 from interface_sync.scraping.dint.huawei import DintHuaweiParser
 from interface_sync.scraping.distr.huawei import DistHuaweiParser
 from interface_sync.scraping.ixp.ixp_parser import IxpParser
+from interface_sync.scraping.rai.huawei import RaiHuaweiParser
 
 URL = "https://scan.example/page.cgi"
 
@@ -65,11 +66,18 @@ def test_ixp_page_gets_its_parser() -> None:
     assert isinstance(PageParserFactory(Mock()).create(page), IxpParser)
 
 
+def test_rai_huawei_page_gets_its_parser() -> None:
+    """RF-003: Rai + Huawei resolves to RaiHuaweiParser."""
+    page = PageConfig(layer="rai", vendor="huawei", url=URL)
+
+    assert isinstance(PageParserFactory(Mock()).create(page), RaiHuaweiParser)
+
+
 @pytest.mark.parametrize(
     ("layer", "vendor"),
     [
         ("borde", "cisco"),
-        ("rai", "huawei"),
+        ("rai", "juniper"),
         ("borde", None),
         ("ixp", "huawei"),
         ("rai", "undefined"),

@@ -33,7 +33,7 @@ def test_scrape_downloads_and_parses_the_page(client: Mock) -> None:
 
 def test_unsupported_page_fails_before_any_request(client: Mock) -> None:
     """RF-003: no SCAN request is made when the layer/vendor has no parser."""
-    page = PageConfig(layer="rai", vendor="huawei", url=URL)
+    page = PageConfig(layer="rai", vendor="juniper", url=URL)
 
     with pytest.raises(UnsupportedPageError):
         PageScraper(client, PageParserFactory(client)).scrape(page)
