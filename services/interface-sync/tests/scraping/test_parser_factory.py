@@ -8,6 +8,7 @@ from interface_sync.scraping import PageParserFactory
 from interface_sync.scraping.borde.huawei import BordeHuaweiParser
 from interface_sync.scraping.borde.juniper import BordeJuniperParser
 from interface_sync.scraping.bras.bras_parser import BrasParser
+from interface_sync.scraping.caching.caching_parser import CachingParser
 
 URL = "https://scan.example/page.cgi"
 
@@ -33,6 +34,13 @@ def test_bras_page_gets_its_parser_with_the_fetcher() -> None:
     assert isinstance(PageParserFactory(Mock()).create(page), BrasParser)
 
 
+def test_caching_page_gets_its_parser_with_the_fetcher() -> None:
+    """RF-003: Caching + Undefined resolves to CachingParser."""
+    page = PageConfig(layer="caching", vendor="undefined", url=URL)
+
+    assert isinstance(PageParserFactory(Mock()).create(page), CachingParser)
+
+
 @pytest.mark.parametrize(
     ("layer", "vendor"),
     [
@@ -41,6 +49,7 @@ def test_bras_page_gets_its_parser_with_the_fetcher() -> None:
         ("borde", None),
         ("ixp", "undefined"),
         ("bras", "huawei"),
+        ("caching", "huawei"),
     ],
 )
 def test_unsupported_layer_or_vendor_raises(layer: str, vendor: str | None) -> None:

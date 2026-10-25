@@ -5,6 +5,7 @@ from interface_sync.models import PageConfig
 from interface_sync.scraping.borde.huawei import BordeHuaweiParser
 from interface_sync.scraping.borde.juniper import BordeJuniperParser
 from interface_sync.scraping.bras.bras_parser import BrasParser
+from interface_sync.scraping.caching.caching_parser import CachingParser
 from interface_sync.scraping.html_fetcher import HtmlFetcher
 from interface_sync.scraping.page_parser import PageParser
 
@@ -12,8 +13,8 @@ from interface_sync.scraping.page_parser import PageParser
 class PageParserFactory:
     """Creates the parser that matches the layer and vendor of a configured page.
 
-    Parsers of layers whose configured page only links to other pages (Bras) receive the
-    downloader of those pages.
+    Parsers of layers whose configured page only links to other pages (Bras, Caching)
+    receive the downloader of those pages.
     """
 
     def __init__(self, fetcher: HtmlFetcher) -> None:
@@ -22,6 +23,7 @@ class PageParserFactory:
             ("Borde", "Huawei"): BordeHuaweiParser,
             ("Borde", "Juniper"): BordeJuniperParser,
             ("Bras", "Undefined"): lambda: BrasParser(fetcher),
+            ("Caching", "Undefined"): lambda: CachingParser(fetcher),
         }
 
     def create(self, page: PageConfig) -> PageParser:
