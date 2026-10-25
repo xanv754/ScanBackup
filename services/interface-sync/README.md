@@ -10,7 +10,9 @@ make dev-sync ARGS="run"
 
 `run` carga `config.yml`, verifica SCAN y la base de datos, y procesa cada página declarada (scraping, validación y almacenamiento). Muestra un spinner y los mensajes de avance por terminal, y registra los eventos en `/logs/interface-sync.log`.
 
-Estado actual: la verificación de SCAN está pendiente (`TODO`). El almacenamiento está implementado.
+## Verificación de SCAN
+
+Es lo primero que se ejecuta tras cargar `config.yml`. Se deriva la ruta base (esquema y host) de cada página, sin repetidas, y se consulta cada una con la autenticación configurada. Una ruta responde si SCAN contesta con cualquier estatus HTTP salvo `401` (credenciales rechazadas) y `>= 500` (error de SCAN); un `404` en la ruta base cuenta como respuesta. Se verifican todas las rutas, y el resultado de cada una se registra en el log (`info` o `error`) y se muestra por terminal. Si alguna no responde, no se procesa ninguna página y el proceso termina con código `2`.
 
 ## Almacenamiento
 

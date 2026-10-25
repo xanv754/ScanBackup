@@ -136,3 +136,44 @@ def test_same_session_is_reused_between_pages(client: ScanClient, session: Mock)
     client.fetch_html(PAGE_URL + "?other")
 
     assert session.get.call_count == 2
+
+
+@pytest.mark.parametrize("status_code", [200, 301, 403, 404])
+def test_probe_accepts_any_status_except_401_and_server_errors(
+    client: ScanClient, session: Mock, status_code: int
+) -> None:
+    """Startup: a base URL answering 404 still proves SCAN is reachable."""
+    session.get.return_value = build_response(status_code)
+
+    client.probe(PAGE_URL)
+
+
+def test_probe_rejects_401(client: ScanClient, session: Mock) -> None:
+    """Startup: rejected credentials mean SCAN is not usable."""
+    session.get.return_value = build_response(401)
+
+    with pytest.raises(ScanUnauthorizedError):
+        client.probe(PAGE_URL)
+
+
+@pytest.mark.parametrize("status_code", [500, 503])
+def test_probe_rejects_server_errors(client: ScanClient, session: Mock, status_code: int) -> None:
+    """Startup: HTTP 5xx means SCAN is failing."""
+    session.get.return_value = build_response(status_code)
+
+    with pytest.raises(ScanHttpError):
+        client.probe(PAGE_URL)
+
+
+@pytest.mark.parametrize(
+    ("raised", "expected"),
+    [(requests.Timeout(), ScanTimeoutError), (requests.ConnectionError(), ScanConnectionError)],
+)
+def test_probe_maps_transport_failures(
+    client: ScanClient, session: Mock, raised: Exception, expected: type[Exception]
+) -> None:
+    """Startup: transport failures share the mapping of `fetch_html`."""
+    session.get.side_effect = raised
+
+    with pytest.raises(expected):
+        client.probe(PAGE_URL)

@@ -10,7 +10,12 @@ from interface_sync.models import ScanCredentials
 from interface_sync.orchestration.page_processor import PageProcessor
 from interface_sync.orchestration.sync_orchestrator import SyncOrchestrator
 from interface_sync.persistence import InterfaceRepository, MongoConnection, MongoSettings
-from interface_sync.scraping import PageParserFactory, PageScraper, ScanClient
+from interface_sync.scraping import (
+    PageParserFactory,
+    PageScraper,
+    ScanAvailabilityChecker,
+    ScanClient,
+)
 from interface_sync.synchronization import (
     ChangeReporter,
     InterfaceChangePlanner,
@@ -75,6 +80,7 @@ class SyncOrchestratorBuilder:
         )
         return SyncOrchestrator(
             ConfigurationFile(config_path, self._logger),
+            ScanAvailabilityChecker(self._client, self._logger),
             page_processor,
             LayerDecommissioner(repository, planner, change_reporter, self._logger),
             repository,

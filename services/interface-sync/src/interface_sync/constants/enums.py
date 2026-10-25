@@ -29,6 +29,9 @@ class LogEvent(StrEnum):
     DUPLICATED_INTERFACE = "Interfaz duplicada en otra página"
     DATABASE_READY = "Base de datos disponible"
     SCRAPING_SUCCEEDED = "Scraping exitoso"
+    SCAN_BASE_RESPONDED = "SCAN responde"
+    SCAN_BASE_UNREACHABLE = "SCAN sin respuesta"
+    SCAN_AVAILABLE = "SCAN disponible"
 
 
 class TerminalLevel(StrEnum):

@@ -23,6 +23,13 @@ class PageConfig(BaseModel):
         """Return the layer and vendor as a short text for logs and terminal."""
         return f"{self.layer} {self.vendor}"
 
+    @property
+    def base_url(self) -> str:
+        """Return the scheme and host (with port, without credentials) of the page URL."""
+        parsed_url = urlsplit(self.url)
+        host = parsed_url.netloc.rpartition("@")[2]
+        return f"{parsed_url.scheme.lower()}://{host}"
+
     @field_validator("vendor", mode="before")
     @classmethod
     def _default_missing_vendor(cls, vendor: str | None) -> str:

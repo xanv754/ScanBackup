@@ -22,6 +22,10 @@ class MissingDatabaseSettingsError(ServiceStartupError):
     """Raised when the database settings are not available in the environment."""
 
 
+class ScanUnavailableError(ServiceStartupError):
+    """Raised when one or more SCAN base URLs do not answer at startup."""
+
+
 class DatabaseUnavailableError(ServiceStartupError):
     """Raised when the database does not answer at startup."""
 
