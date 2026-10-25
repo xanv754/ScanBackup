@@ -86,7 +86,7 @@ Contenido de las fixtures:
 
 - Páginas de las capas: archivos HTML en `dev/scan-simulator/fixtures/pages/`, registrados en `pages.map` con su URL exacta.
 - Logs MRTG: archivos en `dev/scan-simulator/fixtures/static/` con el mismo path de la URL (por ejemplo, `https://<host>/mrtg/x.log` → `fixtures/static/mrtg/x.log`).
-- Páginas hijas: algunas capas (BRAS) enlazan desde su menú a páginas con las interfaces. Cada una se registra por separado en `pages.map` con la URL exacta del enlace en la página principal. Disponible hoy: Uplink y Downlink de ANZ-BRAS-00 (`bras-uplink-anz.html`, `bras-downlink-anz.html`); los demás enlaces del menú responden `404`.
+- Páginas hijas: algunas capas (BRAS, Caching) enlazan desde su menú a páginas con las interfaces. Cada una se registra por separado en `pages.map` con la URL exacta del enlace en la página principal. Disponible hoy: Uplink y Downlink de ANZ-BRAS-00 (`bras-uplink-anz.html`, `bras-downlink-anz.html`); los demás enlaces del menú responden `404`. Caching enlaza a una página por servicio (Google, Akamai, Facebook, Inter, Netflix, Abatvgo; fixtures `caching-<servicio>.html`), que también debe registrarse en `pages.map`.
 - Los logs MRTG de las interfaces de estas páginas deben agregarse manualmente en `fixtures/static/mrtg/`; los que no existan responden `404`.
 - Una URL sin fixture responde `404`; el request queda en `make dev-sim-logs`.
 
