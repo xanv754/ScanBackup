@@ -15,7 +15,7 @@ El archivo resultante contiene credenciales: no debe versionarse ni compartirse.
 | Producción | `.env.production.example` | `docker-compose.yml` |
 | Desarrollo | `.env.development.example` | `docker-compose.dev.yml` |
 
-Para trabajar bajo un ambiente de desarrollo siga las instrucciones de [Setup](./docs/setup.md).
+Para trabajar bajo un ambiente de desarrollo siga las instrucciones de [Setup](./docs/setup.md). Para el servidor de producción, las de [Producción](./docs/production.md).
 
 ### Base de datos (MongoDB)
 
