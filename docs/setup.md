@@ -182,7 +182,7 @@ make dev-report ARGS="--help"
 - Servicios operativos: `make dev-sync ARGS="--help"` debe terminar con código `0`.
 - Logs de los servicios: `logs/<servicio>/`.
 
-> **Nota:** Las pruebas (`make dev-test`) aún no están disponibles, ya que no existen tests en el proyecto.
+> **Nota:** Las pruebas se ejecutan con `make dev-test-interface-sync` y `make dev-test-traffic-collector`. `reports` aún no tiene tests, por lo que `make dev-test-reports` (y `make dev-test`, que lo incluye) termina sin pruebas ejecutadas. Las pruebas de persistencia de `traffic-collector` se omiten si MongoDB no está activo (`make dev-up`).
 
 ## Detener y reiniciar
 
