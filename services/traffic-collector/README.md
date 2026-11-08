@@ -5,8 +5,8 @@ Recolecta, vía SCAN, el tráfico (periodos de 5 minutos) del día anterior de l
 ## Comando
 
 ```bash
-make dev-collect                    # recolecta el día anterior (America/Caracas)
-make dev-collect ARGS="--force"     # vuelve a consultar lo ya recolectado
+make prod-collect                   # recolecta el día anterior (America/Caracas)
+make prod-collect ARGS="--force"    # vuelve a consultar lo ya recolectado
 ```
 
 Se ejecuta una (1) vez por día vía `crontab` (responsabilidad del usuario de operatividad) y puede reejecutarse el mismo día: las interfaces que ya tienen muestras del día se omiten, con una sola consulta por capa. Con `--force` se consultan todas; por interfaz, solo si la nueva obtención es válida se elimina su resumen y sus valores crudos del día y se almacenan los nuevos. Si no se obtiene, no se elimina nada. Al final de cada ejecución se completan los resúmenes diarios que falten.
@@ -61,11 +61,3 @@ Las fallas de una interfaz (sin conexión, tiempo agotado, credenciales rechazad
 | `reporting/` | Eventos tipados, log y terminal |
 
 `cli.py` es la raíz de composición: ensambla las dependencias y devuelve el código de salida.
-
-## Pruebas
-
-```bash
-make dev-test-traffic-collector
-```
-
-Las pruebas de integración (`-m integration`) usan una base temporal en el MongoDB de desarrollo y un SCAN simulado en proceso; se omiten si MongoDB no está disponible.
