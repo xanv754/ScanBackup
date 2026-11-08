@@ -20,16 +20,18 @@ classifiers = [
 ]
 dependencies = [
     "click>=8.1.8",
+    "pydantic>=2.11",
     "pymongo>=4.11.3",
     "pyyaml>=6.0.3",
     "requests>=2.32",
+    "tzdata>=2024.1",
 ]
 
 [project.urls]
 Homepage = "https://github.com/xanv754/ScanBackup"
 
 [project.scripts]
-traffic_collector = "traffic_collector.__main__:cli"
+traffic_collector = "traffic_collector.cli:cli"
 
 [project.optional-dependencies]
 test = [
@@ -62,3 +64,7 @@ select = ["E", "W", "F", "I", "N", "UP", "B", "SIM", "ERA", "PT", "RUF", "C4", "
 
 [tool.ruff.lint.isort]
 known-first-party = ["traffic_collector"]
+
+[tool.ruff.lint.per-file-ignores]
+# Exception names are fixed by the service guide (ScanTimeout, ScanUnreachable, ...).
+"src/traffic_collector/scan/errors.py" = ["N818"]
