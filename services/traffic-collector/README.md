@@ -9,7 +9,7 @@ make dev-collect                    # recolecta el día anterior (America/Caraca
 make dev-collect ARGS="--force"     # vuelve a consultar lo ya recolectado
 ```
 
-Se ejecuta una (1) vez por día vía `crontab` (responsabilidad del usuario de operatividad) y puede reejecutarse el mismo día: las interfaces que ya tienen muestras del día se omiten, con una sola consulta por capa. Con `--force` se consultan todas; por interfaz, solo si la nueva obtención es válida se elimina su resumen y sus valores crudos del día y se almacenan los nuevos. Si no se obtiene, no se elimina nada.
+Se ejecuta una (1) vez por día vía `crontab` (responsabilidad del usuario de operatividad) y puede reejecutarse el mismo día: las interfaces que ya tienen muestras del día se omiten, con una sola consulta por capa. Con `--force` se consultan todas; por interfaz, solo si la nueva obtención es válida se elimina su resumen y sus valores crudos del día y se almacenan los nuevos. Si no se obtiene, no se elimina nada. Al final de cada ejecución se completan los resúmenes diarios que falten.
 
 ## Configuración
 
@@ -33,7 +33,7 @@ Una configuración ausente o inválida termina el proceso con código `2` y list
 4. Cada línea del `.log` es `<fecha UNIX> <In Prom> <Out Prom> <In Max> <Out Max>`. Las líneas inválidas se descartan con un aviso. Se conservan solo las muestras del día anterior (de 00:00:00 a 23:55:00).
 5. Se esperan 288 muestras: entre 1 y 287, o más de 288, se almacenan con aviso; cero muestras válidas es una interfaz fallida.
 6. Una capa se corta si hay `max_consecutive_failures` interfaces fallidas consecutivas (un éxito reinicia la cuenta) o si falla la base de datos al almacenar. Lo ya almacenado se conserva.
-7. El resumen diario (RF-026) aún no está implementado: solo existe el punto de enganche `SummaryPhase`, que informa «pendiente» y no falla.
+7. Al terminar todas las capas se genera el resumen diario (RF-026) en `traffic_summary_daily`: `in_avg`/`out_avg` son el promedio de las muestras y `in_max`/`out_max` el máximo (nunca el promedio de máximos), todos multiplicados por `8.022` (el factor histórico `0.000000008022` expresado en bps en vez de Gbps; equivale a bps si SCAN reporta bytes/s, unidad aún sin confirmar). Se omiten las interfaces que ya tienen resumen o no tienen muestras. Un error de base de datos detiene la fase y hace fallar el resultado general. El porcentaje de uso no se almacena: lo calcula `reports`.
 
 Las fallas de una interfaz (sin conexión, tiempo agotado, credenciales rechazadas, error HTTP, respuesta vacía, sin muestras válidas, error de base de datos) no se reintentan y se registran con capa, interfaz y causa.
 
@@ -57,7 +57,7 @@ Las fallas de una interfaz (sin conexión, tiempo agotado, credenciales rechazad
 | `parsing/` | Parser del `.log`, filtro del día y validador de muestras (puros) |
 | `scan/` | Cliente HTTP de SCAN y sus errores |
 | `persistence/` | Conexión y repositorios de MongoDB |
-| `collection/` | Procesadores de interfaz y de capa, orquestador y enganche del resumen |
+| `collection/` | Procesadores de interfaz y de capa, orquestador y fase de resumen diario |
 | `reporting/` | Eventos tipados, log y terminal |
 
 `cli.py` es la raíz de composición: ensambla las dependencias y devuelve el código de salida.

@@ -158,7 +158,7 @@ cp services/traffic-collector/config.yml.example services/traffic-collector/conf
 
 ### `traffic-collector`
 
-Recolecta el tráfico (288 muestras de 5 min) del **día anterior** (zona horaria `America/Caracas`) de cada interfaz activa y lo guarda en `traffic_daily`.
+Recolecta el tráfico (288 muestras de 5 min) del **día anterior** (zona horaria `America/Caracas`) de cada interfaz activa y lo guarda en `traffic_daily`; después calcula su resumen diario y lo guarda en `traffic_summary_daily`.
 
 - Requisitos: MongoDB y el simulador levantados (`make dev-collect` los levanta), interfaces cargadas con `make dev-sync` y `services/traffic-collector/config.yml` creado (comando anterior).
 - `config.yml` define `max_concurrent_requests`, `request_timeout_seconds` y `max_consecutive_failures`. Los valores del ejemplo son válidos; un valor ausente o no positivo termina con código `2`.
@@ -166,7 +166,7 @@ Recolecta el tráfico (288 muestras de 5 min) del **día anterior** (zona horari
 - Una capa se corta al acumular `max_consecutive_failures` interfaces fallidas seguidas; las demás capas continúan.
 - Códigos de salida: `0` todo exitoso (o todo omitido), `1` alguna interfaz o capa fallida, o ninguna capa con interfaces activas, `2` error general (configuración inválida, MongoDB inaccesible, log no escribible).
 - Salida y logs: resumen por capa en la terminal y log rotativo en `logs/traffic-collector/`.
-- El resumen diario (RF-026) aún no está implementado: cada ejecución registra el aviso «pendiente».
+- Tras las capas, cada ejecución genera el resumen diario de las interfaces que aún no lo tienen (promedio de `in_avg`/`out_avg`, máximo de `in_max`/`out_max`, por `8.022`) y lo registra en el log. Un error de base de datos en esta fase da código `1`.
 
 > **Observación:** El simulador solo sirve los logs de `fixtures/static/mrtg/`. Si sus datos no incluyen el día anterior, las interfaces fallan con «sin muestras válidas del día anterior» y la ejecución termina con código `1`. Regenerar los fixtures con datos recientes.
 

@@ -1,6 +1,6 @@
 # traffic-collector — guía de implementación de la recolección (RF-016 a RF-025 y RF-027 a RF-030)
  
-Fuera de alcance: el cálculo del resumen diario (RF-026). Solo se deja el punto de enganche.
+El resumen diario (RF-026) está implementado en `collection/summary_calculator.py` y `collection/summary_phase.py`.
 Base: `CLAUDE.md` del servicio, `database.md` y `codestyle.md`.
  
 ## 1. Estructura
@@ -28,11 +28,11 @@ services/traffic-collector/
       connection.py
       interface_repository.py   # solo lectura
       traffic_repository.py     # omisión, guardado, borrado forzado
-      summary_repository.py     # solo borrado del día (force); el resto es de RF-026
+      summary_repository.py     # resumen diario: índices, existentes, upsert y borrado del día (force)
     collection/
       interface_processor.py    # obtener -> parsear -> filtrar -> validar -> InterfaceOutcome
       layer_processor.py        # omisión, paralelismo acotado, corte
-      run_orchestrator.py       # capas en orden, enganche de resumen, resultado general
+      run_orchestrator.py       # capas en orden, fase de resumen, resultado general
     reporting/
       events.py                 # eventos tipados
       run_logger.py             # RF-029
@@ -89,4 +89,4 @@ Patrones: inyección de dependencias por constructor (nada de globales), `Protoc
 - Fixtures y simulador de SCAN con `.log` reales (varias fechas, más y menos de 288 muestras, líneas rotas).
 - Targets finales del `Makefile` y nombres de las claves de `config.yml`.
 - Decisión sobre un RF de lectura y validación de la configuración del collector.
-- Fórmula del resumen diario (RF-026) para conectar `SummaryPhase`.
+- Confirmar la unidad de los valores crudos de SCAN (probablemente bytes/s) con un `.log` real; el resumen guarda crudo × 8.022.

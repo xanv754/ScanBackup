@@ -139,7 +139,7 @@ Ejecuta la recolección todos los días a las 01:00 y toma el tráfico del día 
 - Es idempotente: las interfaces que ya tienen valores del día anterior se omiten sin consultar SCAN, por lo que reejecutar tras un fallo parcial solo reintenta lo pendiente. Para reemplazar los valores existentes: `make prod-collect ARGS="--force"`.
 - Una capa se corta al acumular `max_consecutive_failures` interfaces fallidas seguidas (p. ej. SCAN caído); las demás capas continúan.
 - Cada ejecución escribe un resumen por capa y los errores por interfaz (URL y causa) en `logs/traffic-collector/` (rotativo). Las credenciales no se registran.
-- El resumen diario (RF-026) aún no está implementado: cada ejecución registra el aviso «pendiente».
+- Tras las capas, cada ejecución genera el resumen diario de las interfaces que aún no lo tienen y lo registra en el log. Si esa fase falla por un error de base de datos, el código de salida es `1`; al reejecutar solo se completan los resúmenes faltantes.
 - La regla usa `-T` (sin pseudo-TTY), por lo que es válida en `crontab`.
 - El código de salida del servicio se propaga a `make`: cualquier valor distinto de cero indica fallo (incluida la ausencia de interfaces activas).
 - El usuario del `crontab` debe pertenecer al grupo `docker` y MongoDB debe estar activo (`make prod-up`).
