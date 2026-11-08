@@ -21,7 +21,8 @@ from traffic_collector.reporting.events import (
     LayerStarted,
     ProcessFailed,
     RunFinished,
-    SummaryPending,
+    SummaryFailed,
+    SummaryFinished,
 )
 
 
@@ -117,8 +118,18 @@ class RunLogger:
                     result.failed_count,
                     result.not_processed_count,
                 )
-            case SummaryPending():
-                self._logger.warning("Resumen diario pendiente de implementar (RF-026)")
+            case SummaryFinished():
+                self._logger.info(
+                    "Resumen diario exitoso: %d generados, %d omitidos",
+                    event.generated_count,
+                    event.skipped_count,
+                )
+            case SummaryFailed():
+                self._logger.error(
+                    "Resumen diario fallido por error de base de datos; %d generados",
+                    event.generated_count,
+                    exc_info=event.error,
+                )
             case ProcessFailed():
                 for cause in event.causes:
                     self._logger.error("Error general: %s", cause, exc_info=event.error)

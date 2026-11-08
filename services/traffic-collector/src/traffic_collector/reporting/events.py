@@ -74,8 +74,19 @@ class LayerFinished:
 
 
 @dataclass(frozen=True, slots=True)
-class SummaryPending:
-    """The daily summary is not implemented yet, so it was not generated [RF-026]."""
+class SummaryFinished:
+    """The daily summary finished: summaries written and interfaces skipped [RF-026]."""
+
+    generated_count: int
+    skipped_count: int
+
+
+@dataclass(frozen=True, slots=True)
+class SummaryFailed:
+    """The daily summary stopped by a database error (error) [RF-026]."""
+
+    generated_count: int
+    error: BaseException
 
 
 @dataclass(frozen=True, slots=True)
@@ -105,7 +116,8 @@ type Event = (
     | InterfaceInvalidLines
     | LayerCut
     | LayerFinished
-    | SummaryPending
+    | SummaryFinished
+    | SummaryFailed
     | RunFinished
     | ProcessFailed
 )

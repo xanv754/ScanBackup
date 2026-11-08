@@ -9,9 +9,10 @@ import click
 
 from traffic_collector.clock import CARACAS_TIMEZONE, TargetDate
 from traffic_collector.collection import (
+    DailySummaryCalculator,
+    DailySummaryPhase,
     InterfaceProcessor,
     LayerProcessor,
-    PendingSummaryPhase,
     RunOrchestrator,
 )
 from traffic_collector.constants.constants import (
@@ -104,6 +105,8 @@ def _build_orchestrator(
     interface_repository = InterfaceRepository(database)
     traffic_repository = TrafficRepository(database)
     traffic_repository.ensure_indexes()
+    summary_repository = SummaryRepository(database)
+    summary_repository.ensure_indexes()
     interface_processor = InterfaceProcessor(
         target_date=target_date,
         force=force,
@@ -111,7 +114,7 @@ def _build_orchestrator(
         day_filter=DayFilter(target_date),
         validator=SampleValidator(),
         traffic_store=traffic_repository,
-        summary_store=SummaryRepository(database),
+        summary_store=summary_repository,
     )
     layer_processor = LayerProcessor(
         target_date=target_date,
@@ -127,7 +130,12 @@ def _build_orchestrator(
         target_date=target_date,
         interface_reader=interface_repository,
         layer_collector=layer_processor,
-        summary_phase=PendingSummaryPhase(event_sink),
+        summary_phase=DailySummaryPhase(
+            traffic_reader=traffic_repository,
+            summary_writer=summary_repository,
+            calculator=DailySummaryCalculator(),
+            event_sink=event_sink,
+        ),
         event_sink=event_sink,
     )
 

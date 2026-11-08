@@ -1,4 +1,4 @@
-from collections.abc import Callable
+from collections.abc import Callable, Iterator
 from datetime import UTC, datetime
 
 from bson import ObjectId
@@ -51,6 +51,29 @@ class TrafficRepository:
                 {"_id": 0, "interface_id": 1},
             )
             return {document["interface_id"] for document in documents}
+
+    def daily_by_date(self, date: str) -> Iterator[DailyTraffic]:
+        """Stream the stored days of every interface on `date` with a single cursor."""
+        with translate_database_errors():
+            documents = self._collection.find(
+                {"date": date}, {"interface_id": 1, "layer": 1, "date": 1, "samples": 1}
+            )
+            for document in documents:
+                yield DailyTraffic(
+                    interface_id=document["interface_id"],
+                    layer=document["layer"],
+                    date=document["date"],
+                    samples=tuple(
+                        Sample(
+                            ts=sample["ts"],
+                            in_avg=float(sample["in_avg"]),
+                            out_avg=float(sample["out_avg"]),
+                            in_max=float(sample["in_max"]),
+                            out_max=float(sample["out_max"]),
+                        )
+                        for sample in document["samples"]
+                    ),
+                )
 
     def save(self, daily_traffic: DailyTraffic) -> None:
         """Store the day of an interface; idempotent and safe to repeat [RF-025].

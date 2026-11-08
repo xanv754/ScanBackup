@@ -9,7 +9,8 @@ from traffic_collector.reporting.events import (
     LayerStarted,
     ProcessFailed,
     RunFinished,
-    SummaryPending,
+    SummaryFailed,
+    SummaryFinished,
 )
 
 
@@ -53,8 +54,18 @@ class TerminalReporter:
                     f"{result.failed_count} fallidas",
                     file=stream,
                 )
-            case SummaryPending():
-                print("Resumen diario: pendiente de implementar", file=self._output)
+            case SummaryFinished():
+                print(
+                    f"Resumen diario exitoso: {event.generated_count} generados, "
+                    f"{event.skipped_count} omitidos",
+                    file=self._output,
+                )
+            case SummaryFailed():
+                print(
+                    f"Resumen diario fallido: error de base de datos "
+                    f"({event.generated_count} generados)",
+                    file=self._errors,
+                )
             case ProcessFailed():
                 for cause in event.causes:
                     print(f"Error general: {cause}", file=self._errors)

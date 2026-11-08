@@ -12,7 +12,8 @@ from traffic_collector.reporting.events import (
     LayerStarted,
     ProcessFailed,
     RunFinished,
-    SummaryPending,
+    SummaryFailed,
+    SummaryFinished,
 )
 from traffic_collector.reporting.run_logger import RunLogger, create_file_logger
 from traffic_collector.reporting.terminal import TerminalReporter
@@ -32,7 +33,8 @@ __all__ = [
     "ProcessFailed",
     "RunFinished",
     "RunLogger",
-    "SummaryPending",
+    "SummaryFailed",
+    "SummaryFinished",
     "TerminalReporter",
     "create_file_logger",
 ]

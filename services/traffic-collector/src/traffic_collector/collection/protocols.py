@@ -1,9 +1,10 @@
+from collections.abc import Iterator
 from typing import Protocol
 
 from bson import ObjectId
 
 from traffic_collector.clock import TargetDate
-from traffic_collector.domain import ActiveInterface, DailyTraffic
+from traffic_collector.domain import ActiveInterface, DailySummary, DailyTraffic
 from traffic_collector.domain.results import LayerResult, SummaryResult
 
 
@@ -43,6 +44,26 @@ class SummaryStore(Protocol):
         ...
 
 
+class TrafficReader(Protocol):
+    """Read access to the raw traffic of a day."""
+
+    def daily_by_date(self, date: str) -> Iterator[DailyTraffic]:
+        """Stream the stored days of every interface on a date."""
+        ...
+
+
+class SummaryWriter(Protocol):
+    """Storage of the daily summaries."""
+
+    def interface_ids_with_summary(self, date: str) -> set[ObjectId]:
+        """Return the interfaces that already have a summary on a date."""
+        ...
+
+    def save(self, summary: DailySummary) -> None:
+        """Store the summary of an interface (idempotent)."""
+        ...
+
+
 class LayerCollector(Protocol):
     """Collects all the interfaces of one layer."""
 
@@ -52,7 +73,7 @@ class LayerCollector(Protocol):
 
 
 class SummaryPhase(Protocol):
-    """Hook for the daily summary [RF-026], run once after all the layers."""
+    """Daily summary [RF-026], run once after all the layers."""
 
     def run(self, target_date: TargetDate) -> SummaryResult:
         """Generate the daily summary of `target_date` and return its result."""
