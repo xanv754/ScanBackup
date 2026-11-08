@@ -91,6 +91,12 @@
           "isArray": false
         },
         {
+          "name": "layer",
+          "type": "String",
+          "required": true,
+          "isArray": false
+        },
+        {
           "name": "date",
           "type": "String",
           "required": true,
@@ -133,6 +139,18 @@
               "isArray": false
             }
           ]
+        },
+        {
+          "name": "created_at",
+          "type": "Date",
+          "required": true,
+          "isArray": false
+        },
+        {
+          "name": "updated_at",
+          "type": "Date",
+          "required": true,
+          "isArray": false
         }
       ],
       "indexes": [
@@ -228,7 +246,7 @@
 9. **Nombres declarativos:** `scan_url` equivale a la "dirección URL de consulta de tráfico" del ERS y `capacity_gbps` lleva la unidad en el nombre. No renombrar.
 
 ### Escritura (`traffic-collector`)
-10. **Idempotencia:** toda escritura de tráfico es `upsert` sobre `(interface_id, date)`, reemplazando `samples` completo con `$set`. Reejecutar un día debe ser seguro.
+10. **Idempotencia:** toda escritura de tráfico es `upsert` sobre `(interface_id, date)`, reemplazando `layer` y `samples` completos con `$set`; `created_at` se fija solo al insertar (`$setOnInsert`) y `updated_at` en cada escritura. Reejecutar un día debe ser seguro.
 11. **Orden de escritura:** primero el bucket en `traffic_daily` y después el resumen en `traffic_summary_daily`. Si falla cualquiera de las dos, la interfaz cuenta como fallo del día y el servicio termina con código distinto de cero.
 12. **El resumen se calcula en un componente propio:** inyectado en el collector, no mezclar su lógica con la extracción de datos.
 **Reglas de cálculo del resumen diario:** `in_avg` y `out_avg` con promedio, `in_max` y `out_max` con máximo. Nunca promediar los máximos dentro del día.
@@ -236,7 +254,7 @@
 ### Lectura (`reports`)
 
 13. **Reportes mensuales, semanales y quincenales** leen `traffic_summary_daily`, no `traffic_daily`. Los reportes de valores crudos leen `traffic_daily`.
-14. **Reportes por capa:** `traffic_daily` y `traffic_summary_daily` no guardan la capa. Para filtrar por capa, primero se obtienen los `_id` de `interfaces` con esa capa y luego se filtra el tráfico por `interface_id` y `date`, apoyado en `uq_interface_date`.
+14. **Reportes por capa:** `traffic_daily` guarda la capa (`layer`), pero `traffic_summary_daily` no. Para filtrar el resumen por capa, primero se obtienen los `_id` de `interfaces` con esa capa y luego se filtra por `interface_id` y `date`, apoyado en `uq_interface_date`.
 15. **El porcentaje de uso no se almacena:** Se calcula al generar el reporte con la capacidad actual de `interfaces`: `in_max / (capacity_gbps * 1e9) * 100`. Los datos están en bps y la capacidad en Gbps, así que la conversión es obligatoria. Documentar la fórmula en el docstring. Si `capacity_gbps` es 0 (capacidad no disponible), el porcentaje de uso no se calcula.
 16. **Agregaciones en el servidor** (`$group`), no en Python. Los reportes grandes se procesan con cursor y streaming hacia openpyxl, sin cargar todo en memoria.
 17. **Una sola capacidad por interfaz:** el porcentaje de meses pasados se calcula con la capacidad actual. Es una decisión explícita, no un bug.

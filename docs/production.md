@@ -46,19 +46,19 @@ Completar en `.env.production`:
 
 ## 3. Archivos de configuración de los servicios
 
-`interface-sync` y `reports` leen un `config.yml` propio que se monta en el contenedor en modo lectura. Estos archivos no están en el repositorio (los ignora Git); se crean a partir de su ejemplo:
+`interface-sync`, `traffic-collector` y `reports` leen un `config.yml` propio que se monta en el contenedor en modo lectura. Estos archivos no están en el repositorio (los ignora Git); se crean a partir de su ejemplo:
 
 ```bash
 cp services/interface-sync/config.yml.example services/interface-sync/config.yml
+cp services/traffic-collector/config.yml.example services/traffic-collector/config.yml
 cp services/reports/config.yml.example services/reports/config.yml
 ```
 
 - `services/interface-sync/config.yml`: reemplazar los valores de ejemplo por las capas de SCAN a procesar (`layer`, `url` y `vendor` de cada enlace).
+- `services/traffic-collector/config.yml`: define `max_concurrent_requests` (consultas simultáneas a SCAN), `request_timeout_seconds` (tiempo máximo de espera de SCAN) y `max_consecutive_failures` (interfaces consecutivas fallidas que cortan una capa). Los valores del ejemplo son válidos; un valor ausente o no positivo hace que el servicio termine con código `2`.
 - `services/reports/config.yml`: define el prefijo (`preffix_name`) y el formato de fecha (`date_format`) de los nombres de los reportes. Los valores del ejemplo son válidos.
 
-> **Importante:** Ambos archivos deben existir antes de ejecutar los servicios. Si no existen, Docker crea un directorio en su lugar y el servicio falla.
-
-> **Observación:** `traffic-collector` no usa archivo de configuración.
+> **Importante:** Los tres archivos deben existir antes de ejecutar los servicios. Si no existen, Docker crea un directorio en su lugar y el servicio falla.
 
 ## 4. Preparar directorios del host
 
@@ -135,6 +135,11 @@ Sin el comando `run`, `interface-sync` solo muestra la ayuda. Códigos de salida
 
 Ejecuta la recolección todos los días a las 01:00 y toma el tráfico del día anterior. Ajustar la ruta del proyecto.
 
+- Códigos de salida: `0` todo exitoso (o todo omitido), `1` alguna interfaz o capa fallida, o ninguna capa con interfaces activas, `2` error general (configuración inválida, MongoDB inaccesible, log no escribible).
+- Es idempotente: las interfaces que ya tienen valores del día anterior se omiten sin consultar SCAN, por lo que reejecutar tras un fallo parcial solo reintenta lo pendiente. Para reemplazar los valores existentes: `make prod-collect ARGS="--force"`.
+- Una capa se corta al acumular `max_consecutive_failures` interfaces fallidas seguidas (p. ej. SCAN caído); las demás capas continúan.
+- Cada ejecución escribe un resumen por capa y los errores por interfaz (URL y causa) en `logs/traffic-collector/` (rotativo). Las credenciales no se registran.
+- El resumen diario (RF-026) aún no está implementado: cada ejecución registra el aviso «pendiente».
 - La regla usa `-T` (sin pseudo-TTY), por lo que es válida en `crontab`.
 - El código de salida del servicio se propaga a `make`: cualquier valor distinto de cero indica fallo (incluida la ausencia de interfaces activas).
 - El usuario del `crontab` debe pertenecer al grupo `docker` y MongoDB debe estar activo (`make prod-up`).
