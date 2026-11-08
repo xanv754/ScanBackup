@@ -11,7 +11,7 @@ from traffic_collector.constants.constants import (
     TRAFFIC_DAILY_COLLECTION,
     TRAFFIC_SUMMARY_DAILY_COLLECTION,
 )
-from traffic_collector.domain import DailyTraffic, Sample
+from traffic_collector.domain import DailySummary, DailyTraffic, Sample
 from traffic_collector.persistence import (
     InterfaceRepository,
     SummaryRepository,
@@ -201,3 +201,44 @@ def test_summary_delete_day_removes_only_that_interface_and_date(database: Datab
 
     remaining = {(d["interface_id"], d["date"]) for d in collection.find()}
     assert remaining == {(target, "2026-11-04"), (untouched, DATE)}
+
+
+def test_traffic_daily_by_date_streams_only_that_date(database: Database) -> None:
+    """The stored days of one date are read back as `DailyTraffic` (RF-026)."""
+    repository = TrafficRepository(database)
+    first, second = ObjectId(), ObjectId()
+    repository.save(make_daily(first))
+    repository.save(make_daily(second, layer="BRAS", count=2))
+    other_day = make_daily(ObjectId())
+    repository.save(DailyTraffic(other_day.interface_id, "BORDE", "2026-11-04", other_day.samples))
+
+    days = {daily.interface_id: daily for daily in repository.daily_by_date(DATE)}
+
+    assert set(days) == {first, second}
+    assert len(days[second].samples) == 2
+    assert days[second].layer == "BRAS"
+    assert days[first].samples == make_daily(first).samples
+
+
+def test_summary_save_is_an_idempotent_upsert(database: Database) -> None:
+    """Saving twice keeps one summary document with the latest values (RF-026)."""
+    repository = SummaryRepository(database)
+    repository.ensure_indexes()
+    interface_id = ObjectId()
+
+    repository.save(DailySummary(interface_id, DATE, 1, 2, 3, 4))
+    repository.save(DailySummary(interface_id, DATE, 5, 6, 7, 8))
+
+    documents = list(database[TRAFFIC_SUMMARY_DAILY_COLLECTION].find({}, {"_id": 0}))
+    assert documents == [
+        {
+            "interface_id": interface_id,
+            "date": DATE,
+            "in_avg": 5.0,
+            "out_avg": 6.0,
+            "in_max": 7.0,
+            "out_max": 8.0,
+        }
+    ]
+    assert repository.interface_ids_with_summary(DATE) == {interface_id}
+    assert repository.interface_ids_with_summary("2026-11-04") == set()

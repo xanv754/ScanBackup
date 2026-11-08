@@ -4,11 +4,11 @@ import pytest
 
 from tests.collection.fakes import FakeInterfaceReader, RecordingSink, make_interface
 from traffic_collector.clock import TargetDate
-from traffic_collector.collection import PendingSummaryPhase, RunOrchestrator
+from traffic_collector.collection import RunOrchestrator
 from traffic_collector.constants.enums import CutReason, ExitCode
 from traffic_collector.domain.results import LayerResult, RunResult, SummaryResult
 from traffic_collector.exceptions import ProcessError
-from traffic_collector.reporting.events import LayerFinished, RunFinished, SummaryPending
+from traffic_collector.reporting.events import LayerFinished, RunFinished
 
 TARGET = TargetDate.previous_day(date(2026, 11, 6))
 
@@ -131,16 +131,6 @@ def test_events_report_each_layer_and_the_final_result() -> None:
 
     assert [event.result.layer for event in sink.of_type(LayerFinished)] == ["A", "B"]
     assert sink.of_type(RunFinished)[0].result is result
-
-
-def test_pending_summary_reports_and_does_not_fail() -> None:
-    """While RF-026 is pending the hook only reports it and succeeds (RF-026)."""
-    sink = RecordingSink()
-
-    result = PendingSummaryPhase(sink).run(TARGET)
-
-    assert not result.failed
-    assert len(sink.of_type(SummaryPending)) == 1
 
 
 def layers_of(*layers: LayerResult, summary_failed_count: int = 0) -> RunResult:

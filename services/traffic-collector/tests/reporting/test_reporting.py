@@ -9,6 +9,7 @@ import pytest
 from tests.collection.fakes import RecordingSink, make_interface
 from traffic_collector.constants.enums import CutReason, FailureCause, SampleCountVerdict
 from traffic_collector.domain.results import LayerResult, RunResult, SummaryResult
+from traffic_collector.exceptions import DatabaseError
 from traffic_collector.reporting import (
     CompositeEventSink,
     InterfaceFailed,
@@ -21,7 +22,8 @@ from traffic_collector.reporting import (
     LayerStarted,
     RunFinished,
     RunLogger,
-    SummaryPending,
+    SummaryFailed,
+    SummaryFinished,
     TerminalReporter,
     create_file_logger,
 )
@@ -91,13 +93,15 @@ def test_log_marks_failed_layers_and_runs_as_errors(log_path: Path) -> None:
 
     run_logger.publish(LayerFinished(OK_LAYER))
     run_logger.publish(LayerFinished(FAILED_LAYER))
-    run_logger.publish(SummaryPending())
+    run_logger.publish(SummaryFinished(generated_count=2, skipped_count=1))
+    run_logger.publish(SummaryFailed(generated_count=2, error=DatabaseError("x")))
     run_logger.publish(RunFinished(RunResult((OK_LAYER, FAILED_LAYER), SummaryResult())))
     content = read_log(run_logger, log_path)
 
     assert "INFO Capa BORDE exitosa" in content
     assert "ERROR Capa DIST fallida" in content
-    assert "WARNING Resumen diario pendiente" in content
+    assert "INFO Resumen diario exitoso: 2 generados, 1 omitidos" in content
+    assert "ERROR Resumen diario fallido" in content
     assert "ERROR Resultado general: fallido" in content
 
 

@@ -126,12 +126,26 @@ def test_cut_layer_keeps_stored_data_and_next_layer_continues(harness: Harness) 
     assert "cortado por fallas consecutivas" in harness.log()
 
 
+def test_first_run_generates_the_daily_summary_and_a_rerun_keeps_it(harness: Harness) -> None:
+    """The summary is calculated from the stored samples once per interface (RF-026)."""
+    interface_id = harness.add_interface("BORDE", "a", build_log(288))
+
+    assert harness.run() is ExitCode.SUCCESS
+    assert harness.run() is ExitCode.SUCCESS
+
+    summaries = list(harness.database["traffic_summary_daily"].find())
+    assert len(summaries) == 1
+    assert summaries[0]["interface_id"] == interface_id
+    assert summaries[0]["in_avg"] == pytest.approx(143.5 * 8.022)
+    assert summaries[0]["in_max"] == pytest.approx(287 * 8.022)
+
+
 def test_force_without_valid_new_data_deletes_nothing(harness: Harness) -> None:
     """--force never deletes when SCAN fails; raw and summary stay (RF-021)."""
     interface_id = harness.add_interface("BORDE", "a", build_log(288))
     assert harness.run() is ExitCode.SUCCESS
-    harness.database["traffic_summary_daily"].insert_one(
-        {"interface_id": interface_id, "date": TARGET_DATE, "in_avg": 1.0}
+    harness.database["traffic_summary_daily"].update_one(
+        {"interface_id": interface_id, "date": TARGET_DATE}, {"$set": {"in_avg": -1.0}}
     )
     harness.simulator.routes["/BORDE/a.log"] = (500, "")
 
@@ -139,15 +153,16 @@ def test_force_without_valid_new_data_deletes_nothing(harness: Harness) -> None:
 
     assert exit_code is ExitCode.FAILED
     assert len(harness.stored_days()) == 1
-    assert harness.database["traffic_summary_daily"].count_documents({}) == 1
+    summaries = list(harness.database["traffic_summary_daily"].find())
+    assert [summary["in_avg"] for summary in summaries] == [-1.0]
 
 
 def test_force_with_new_data_replaces_raw_and_deletes_summary(harness: Harness) -> None:
-    """--force replaces the raw day and removes its summary (RF-021)."""
+    """--force replaces the raw day and its summary is recalculated (RF-021, RF-026)."""
     interface_id = harness.add_interface("BORDE", "a", build_log(288))
     assert harness.run() is ExitCode.SUCCESS
-    harness.database["traffic_summary_daily"].insert_one(
-        {"interface_id": interface_id, "date": TARGET_DATE, "in_avg": 1.0}
+    harness.database["traffic_summary_daily"].update_one(
+        {"interface_id": interface_id, "date": TARGET_DATE}, {"$set": {"in_avg": -1.0}}
     )
     harness.simulator.routes["/BORDE/a.log"] = (200, build_log(100))
 
@@ -156,7 +171,9 @@ def test_force_with_new_data_replaces_raw_and_deletes_summary(harness: Harness) 
     days = harness.stored_days()
     assert len(days) == 1
     assert len(days[0]["samples"]) == 100
-    assert harness.database["traffic_summary_daily"].count_documents({}) == 0
+    summaries = list(harness.database["traffic_summary_daily"].find())
+    assert len(summaries) == 1
+    assert summaries[0]["in_max"] == pytest.approx(99 * 8.022)
 
 
 def test_irregular_log_is_stored_with_warnings(harness: Harness) -> None:
