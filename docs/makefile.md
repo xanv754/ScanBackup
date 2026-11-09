@@ -10,7 +10,7 @@ El `Makefile` es el punto de entrada operativo de SCAN-Backup. Cada regla lanza 
 | [`dev-build`](#make-dev-build) / [`prod-build`](#make-prod-build) | Construir imágenes |
 | [`dev-up`](#make-dev-up) / [`prod-up`](#make-prod-up) | Levantar MongoDB |
 | [`dev-down`](#make-dev-down) / [`prod-down`](#make-prod-down) | Detener contenedores |
-| [`dev-clean`](#make-dev-clean) | Detener contenedores y borrar volúmenes |
+| [`dev-clean`](#make-dev-clean) / [`prod-clean`](#make-prod-clean) | Detener contenedores y borrar volúmenes e imágenes |
 | [`dev-logs`](#make-dev-logs) / [`prod-logs`](#make-prod-logs) | Ver logs de MongoDB |
 | [`dev-sync`](#make-dev-sync) / [`prod-sync`](#make-prod-sync) | Sincronizar interfaces |
 | [`dev-collect`](#make-dev-collect) / [`prod-collect`](#make-prod-collect) | Recolectar tráfico |
@@ -113,8 +113,8 @@ Notas generales:
   ```bash
   make dev-clean
   ```
-- **Nombre:** Detener contenedores y borrar volúmenes (desarrollo).
-- **Descripción:** Hace lo mismo que `make dev-down` y además elimina los volúmenes de Docker del entorno de desarrollo. Si MongoDB almacena sus datos en un volumen de Docker, esta regla borra toda la información de la base de datos de forma irreversible. Úsese solo para reiniciar el entorno desde cero. No elimina imágenes ni los archivos de `logs/` y `exports/`, que residen en el host.
+- **Nombre:** Detener contenedores y borrar volúmenes e imágenes (desarrollo).
+- **Descripción:** Hace lo mismo que `make dev-down` y además elimina los volúmenes y todas las imágenes del entorno de desarrollo (las de los servicios y las descargadas, como MongoDB), por lo que `make dev-build` y la descarga de imágenes serán necesarias de nuevo. Si MongoDB almacena sus datos en un volumen de Docker, esta regla borra toda la información de la base de datos de forma irreversible. Úsese solo para reiniciar el entorno desde cero. No elimina los archivos de `logs/` y `exports/`, que residen en el host.
 - **Parámetros disponibles:**
   - `DEV_ENV_FILE`: archivo de entorno alternativo.
     ```bash
@@ -360,6 +360,20 @@ Las reglas de producción usan `docker-compose.yml` y `.env.production`. Su comp
   - `PROD_ENV_FILE`: archivo de entorno alternativo.
     ```bash
     make prod-down PROD_ENV_FILE=.env.otro
+    ```
+
+### `make prod-clean`
+
+- **Comando:**
+  ```bash
+  make prod-clean
+  ```
+- **Nombre:** Detener contenedores y borrar volúmenes e imágenes (producción).
+- **Descripción:** Hace lo mismo que `make prod-down` y además elimina los volúmenes, incluido `scan-backup-mongo-data`, y todas las imágenes del entorno de producción (las de los servicios y las descargadas, como MongoDB), por lo que `make prod-build` y la descarga de imágenes serán necesarias de nuevo. Esto borra todo el histórico de tráfico de forma irreversible; respaldar la base de datos antes de ejecutarla. No elimina los archivos de `logs/` y `exports/`, que residen en el host.
+- **Parámetros disponibles:**
+  - `PROD_ENV_FILE`: archivo de entorno alternativo.
+    ```bash
+    make prod-clean PROD_ENV_FILE=.env.otro
     ```
 
 ### `make prod-logs`

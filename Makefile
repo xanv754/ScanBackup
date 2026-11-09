@@ -11,7 +11,7 @@ SERVICES = interface-sync traffic-collector reports
 	dev-build dev-up dev-down dev-clean dev-logs \
 	dev-sync dev-collect dev-report dev-test \
 	dev-sim-up dev-sim-down dev-sim-restart dev-sim-status dev-sim-logs \
-	prod-build prod-up prod-down prod-logs \
+	prod-build prod-up prod-down prod-clean prod-logs \
 	prod-sync prod-collect prod-report
 
 init:
@@ -27,7 +27,7 @@ dev-down:
 	$(COMPOSE_DEV) --profile services down
 
 dev-clean:
-	$(COMPOSE_DEV) --profile services down --volumes
+	$(COMPOSE_DEV) --profile services down --volumes --rmi all
 
 dev-logs:
 	$(COMPOSE_DEV) logs -f mongo
@@ -69,6 +69,9 @@ prod-up:
 
 prod-down:
 	$(COMPOSE_PROD) --profile services down
+
+prod-clean:
+	$(COMPOSE_PROD) --profile services down --volumes --rmi all
 
 prod-logs:
 	$(COMPOSE_PROD) logs -f mongo
