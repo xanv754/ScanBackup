@@ -40,6 +40,8 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:?MONGO_PASSWORD is required}
       MONGO_INITDB_DATABASE: ${MONGO_DATABASE:?MONGO_DATABASE is required}
       TZ: America/Caracas
+    ports:
+      - "127.0.0.1:27017:27017"
     volumes:
       - mongo-data:/data/db
     healthcheck:
