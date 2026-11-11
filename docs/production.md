@@ -35,6 +35,7 @@ Completar en `.env.production`:
 | `MONGO_PASSWORD` | Sí | Contraseña del usuario anterior. Usar una contraseña robusta. | --- |
 | `MONGO_DATABASE` | Sí | Nombre de la base de datos donde se almacena toda la información del sistema. | `scan_backup` |
 | `MONGO_AUTH_SOURCE` | Sí | Base de datos donde MongoDB valida las credenciales del usuario. | `admin` |
+| `MONGO_HOST_PORT` | No | Puerto del servidor por el que se expone MongoDB, solo en `127.0.0.1`. | `27017` |
 | `SCAN_USERNAME` | Sí | Usuario con acceso de lectura al sistema SCAN. Lo usan `interface-sync` y `traffic-collector`. | --- |
 | `SCAN_PASSWORD` | Sí | Contraseña del usuario de SCAN. | --- |
 | `APP_UID` | No | ID del usuario (UID) del servidor que será dueño de los archivos generados (logs y `exports/`). | Valor de respuesta de la ejecución del comando `id -u`. Por defecto `1000`. |
