@@ -21,15 +21,17 @@ classifiers = [
 dependencies = [
     "click>=8.1.8",
     "openpyxl>=3.1.5",
+    "pydantic>=2.11",
     "pymongo>=4.11.3",
     "pyyaml>=6.0.3",
+    "tzdata>=2024.1",
 ]
 
 [project.urls]
 Homepage = "https://github.com/xanv754/ScanBackup"
 
 [project.scripts]
-reports = "reports.__main__:cli"
+reports = "reports.cli:cli"
 
 [project.optional-dependencies]
 test = [
