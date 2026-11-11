@@ -111,5 +111,6 @@ El detalle por servicio está en su README.
 |---|---|
 | [docs/setup.md](./docs/setup.md) | Entorno de desarrollo y simulador de SCAN |
 | [docs/production.md](./docs/production.md) | Instalación, `crontab`, operación, respaldo y problemas comunes |
+| [docs/offline-deploy.md](./docs/offline-deploy.md) | Despliegue en un servidor sin internet (build, empaquetado y carga de imágenes) |
 | [docs/makefile.md](./docs/makefile.md) | Guía de todas las reglas del `Makefile` |
 | [services/*/README.md](./services) | Funcionamiento, configuración y códigos de salida de cada servicio |
