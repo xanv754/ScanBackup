@@ -57,7 +57,7 @@ cp services/reports/config.yml.example services/reports/config.yml
 
 - `services/interface-sync/config.yml`: reemplazar los valores de ejemplo por las capas de SCAN a procesar (`layer`, `url` y `vendor` de cada enlace).
 - `services/traffic-collector/config.yml`: define `max_concurrent_requests` (consultas simultáneas a SCAN), `request_timeout_seconds` (tiempo máximo de espera de SCAN) y `max_consecutive_failures` (interfaces consecutivas fallidas que cortan una capa). Los valores del ejemplo son válidos; un valor ausente o no positivo hace que el servicio termine con código `2`.
-- `services/reports/config.yml`: define el prefijo (`preffix_name`) y el formato de fecha (`date_format`) de los nombres de los reportes. Los valores del ejemplo son válidos.
+- `services/reports/config.yml`: define bajo `metadata.reports` el prefijo (`prefix_name`) y el formato de fecha (`date_format`) de los nombres de los reportes, y el directorio de exportación (`export_path`), que en Docker debe ser `/exports`. Los valores del ejemplo son válidos; una clave no reconocida o un valor inválido hace que el servicio termine con código `2`.
 
 > **Importante:** Los tres archivos deben existir antes de ejecutar los servicios. Si no existen, Docker crea un directorio en su lugar y el servicio falla.
 
@@ -151,7 +151,7 @@ Ejecuta la recolección todos los días a las 01:00 y toma el tráfico del día 
 make prod-report ARGS="--help"
 ```
 
-Los reportes se generan bajo demanda a partir de los datos almacenados y se exportan a `exports/`. No consulta SCAN ni modifica datos. Los argumentos disponibles (tipo de reporte, rango de fechas, etc.) se consultan con `--help`.
+Los reportes se generan bajo demanda a partir de los datos almacenados y se exportan a `exports/`. No consulta SCAN ni modifica datos. Se ejecuta con `--start` y `--end` (`YYYY-MM-DD`, ambos incluidos; `--end` anterior al día actual), por ejemplo `make prod-report ARGS="--start 2026-03-01 --end 2026-03-31"`, y genera un único archivo `.xlsx` con una hoja por capa. Se consulta con `--help`.
 
 ## 10. Verificar que funciona
 

@@ -170,6 +170,15 @@ Recolecta el tráfico (288 muestras de 5 min) del **día anterior** (zona horari
 
 > **Observación:** El simulador solo sirve los logs de `fixtures/static/mrtg/`. Si sus datos no incluyen el día anterior, las interfaces fallan con «sin muestras válidas del día anterior» y la ejecución termina con código `1`. Regenerar los fixtures con datos recientes.
 
+### `reports`
+
+Genera un único `.xlsx` con una hoja por capa a partir de `interfaces` y de los resúmenes diarios (`traffic_summary_daily`). Solo lee la base de datos; no usa SCAN.
+
+- Requisitos: MongoDB levantado, resúmenes generados por `traffic-collector` (`make dev-collect`) y `services/reports/config.yml` creado desde `config.yml.example`. En Docker `export_path` debe ser `/exports` (el volumen `./exports`).
+- Uso: `make dev-report ARGS="--start 2026-03-01 --end 2026-03-31"`. Ambas fechas son obligatorias (`YYYY-MM-DD`), se incluyen en el rango y `--end` debe ser anterior al día actual (`America/Caracas`).
+- Códigos de salida: `0` exitoso, `1` resultado fallido (capa fallida, ninguna capa con datos o falla al escribir), `2` error general (parámetros o configuración inválidos, MongoDB inaccesible, sin capas, log no escribible).
+- Salida y logs: resultado por capa en la terminal, archivo en `exports/` y log rotativo en `logs/reports/`.
+
 Los argumentos de cada servicio se consultan con `ARGS="--help"`. Por ejemplo:
 
 ```bash
@@ -182,7 +191,7 @@ make dev-report ARGS="--help"
 - Servicios operativos: `make dev-sync ARGS="--help"` debe terminar con código `0`.
 - Logs de los servicios: `logs/<servicio>/`.
 
-> **Nota:** Las pruebas se ejecutan con `make dev-test-interface-sync` y `make dev-test-traffic-collector`. `reports` aún no tiene tests, por lo que `make dev-test-reports` (y `make dev-test`, que lo incluye) termina sin pruebas ejecutadas. Las pruebas de persistencia de `traffic-collector` se omiten si MongoDB no está activo (`make dev-up`).
+> **Nota:** Las pruebas se ejecutan con `make dev-test-interface-sync`, `make dev-test-traffic-collector` y `make dev-test-reports` (`make dev-test` ejecuta las tres). Las pruebas de persistencia de `traffic-collector` y las de integración de `reports` se omiten si MongoDB no está activo (`make dev-up`).
 
 ## Detener y reiniciar
 

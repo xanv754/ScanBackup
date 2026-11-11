@@ -180,13 +180,14 @@ Notas generales:
 
 - **Comando:**
   ```bash
-  make dev-report
+  make dev-report ARGS="--start 2026-03-01 --end 2026-03-31"
   ```
 - **Nombre:** Generar reportes (desarrollo).
 - **Descripción:** Ejecuta el servicio `reports` en un contenedor efímero. El servicio genera reportes de tráfico a partir de los datos almacenados en la base de datos y los exporta como archivos a la carpeta `exports/`. No consulta a SCAN, no recolecta tráfico y no modifica los datos almacenados. Es una ejecución manual, bajo demanda. Requiere MongoDB activo (`make dev-up`) y la imagen construida (`make dev-build`).
 - **Parámetros disponibles:**
-  - `ARGS`: argumentos del servicio (tipo de reporte, rango de fechas, interfaces, etc.), entre comillas. Los disponibles se consultan con `--help`.
+  - `ARGS`: argumentos del servicio, entre comillas: `--start` y `--end` (`YYYY-MM-DD`, obligatorios, ambos incluidos; `--end` debe ser anterior al día actual). Se consultan con `--help`.
     ```bash
+    make dev-report ARGS="--start 2026-03-01 --end 2026-03-31"
     make dev-report ARGS="--help"
     ```
   - `DEV_ENV_FILE`: archivo de entorno alternativo.
@@ -434,13 +435,14 @@ Las reglas de producción usan `docker-compose.yml` y `.env.production`. Su comp
 
 - **Comando:**
   ```bash
-  make prod-report
+  make prod-report ARGS="--start 2026-03-01 --end 2026-03-31"
   ```
 - **Nombre:** Generar reportes (producción).
 - **Descripción:** Ejecuta el servicio `reports` en un contenedor efímero sin TTY. El servicio genera reportes de tráfico a partir de los datos almacenados en la base de datos y los exporta como archivos a la carpeta `exports/`. No consulta a SCAN, no recolecta tráfico y no modifica los datos almacenados. Es una ejecución manual, bajo demanda. Requiere MongoDB activo (`make prod-up`) y la imagen construida (`make prod-build`).
 - **Parámetros disponibles:**
-  - `ARGS`: argumentos del servicio (tipo de reporte, rango de fechas, interfaces, etc.), entre comillas. Los disponibles se consultan con `--help`.
+  - `ARGS`: argumentos del servicio, entre comillas: `--start` y `--end` (`YYYY-MM-DD`, obligatorios, ambos incluidos; `--end` debe ser anterior al día actual). Se consultan con `--help`.
     ```bash
+    make prod-report ARGS="--start 2026-03-01 --end 2026-03-31"
     make prod-report ARGS="--help"
     ```
   - `PROD_ENV_FILE`: archivo de entorno alternativo.
