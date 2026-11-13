@@ -62,11 +62,17 @@ def layers_with_data(
 ) -> tuple[FakeInterfaceRepository, FakeDailySummaryRepository]:
     """Build repositories where every given layer has one interface with all the days."""
     interfaces = {name: [make_interface(f"if-{name}")] for name in layer_names}
-    summaries = [make_summary(interface) for group in interfaces.values() for interface in group]
+    summaries = [
+        make_summary(interface) for group in interfaces.values() for interface in group
+    ]
     days = {
-        interface.id: set(RANGE.day_keys()) for group in interfaces.values() for interface in group
+        interface.id: set(RANGE.day_keys())
+        for group in interfaces.values()
+        for interface in group
     }
-    return FakeInterfaceRepository(interfaces), FakeDailySummaryRepository(summaries, days)
+    return FakeInterfaceRepository(interfaces), FakeDailySummaryRepository(
+        summaries, days
+    )
 
 
 def test_rf044_everything_succeeds_gives_exit_code_zero() -> None:
@@ -74,9 +80,14 @@ def test_rf044_everything_succeeds_gives_exit_code_zero() -> None:
     service, exporter, sink = build_service(*layers_with_data("BORDE", "BRAS"))
     result = service.run(RANGE)
     assert result.exit_code == ExitCode.SUCCESS
-    assert exporter.saved_paths == [EXPORT_DIRECTORY / "ScanBackup_20261110_153000.fake"]
+    assert exporter.saved_paths == [
+        EXPORT_DIRECTORY / "ScanBackup_20261110_153000.fake"
+    ]
     assert result.export_summary is not None
-    assert (result.export_summary.sheet_count, result.export_summary.interface_count) == (2, 2)
+    assert (
+        result.export_summary.sheet_count,
+        result.export_summary.interface_count,
+    ) == (2, 2)
     assert sink.of_type(FileGenerated)[0].summary == result.export_summary
     assert sink.of_type(RunFinished)[0].result == result
 
@@ -90,23 +101,38 @@ def test_rf045_run_start_is_published_once_with_the_range() -> None:
 
 def test_rf039_sheets_follow_the_layer_order() -> None:
     """RF-039: fixed layers first in their order, then the others alphabetically."""
-    service, exporter, _ = build_service(*layers_with_data("ZETA", "IXP", "ALFA", "BORDE", "BRAS"))
+    service, exporter, _ = build_service(
+        *layers_with_data("ZETA", "IXP", "ALFA", "BORDE", "BRAS")
+    )
     service.run(RANGE)
-    assert [layer.layer for layer in exporter.layers] == ["BORDE", "BRAS", "IXP", "ALFA", "ZETA"]
+    assert [layer.layer for layer in exporter.layers] == [
+        "BORDE",
+        "BRAS",
+        "IXP",
+        "ALFA",
+        "ZETA",
+    ]
 
 
 def test_rf034_layers_are_processed_one_by_one_in_order() -> None:
     """RF-034: a layer is finished before the next one starts."""
     service, _, sink = build_service(*layers_with_data("IXP", "BORDE"))
     service.run(RANGE)
-    assert [event.result.layer for event in sink.of_type(LayerFinished)] == ["BORDE", "IXP"]
+    assert [event.result.layer for event in sink.of_type(LayerFinished)] == [
+        "BORDE",
+        "IXP",
+    ]
 
 
 def test_rf034_layer_names_with_different_case_are_one_layer() -> None:
     """RF-034: `borde` and `BORDE` are the same layer, named in uppercase."""
     first, second = make_interface("a"), make_interface("b")
-    interface_repository = FakeInterfaceRepository({"BORDE": [first], "borde": [second]})
-    summary_repository = FakeDailySummaryRepository([make_summary(first), make_summary(second)])
+    interface_repository = FakeInterfaceRepository(
+        {"BORDE": [first], "borde": [second]}
+    )
+    summary_repository = FakeDailySummaryRepository(
+        [make_summary(first), make_summary(second)]
+    )
     service, exporter, _ = build_service(interface_repository, summary_repository)
     service.run(RANGE)
     assert [layer.layer for layer in exporter.layers] == ["BORDE"]
@@ -117,9 +143,12 @@ def test_rf043_layer_without_data_has_no_sheet_and_does_not_fail_the_run() -> No
     """RF-043: an empty layer gets no sheet; with another layer with data the run succeeds."""
     interfaces = {"BORDE": [make_interface("a")], "BRAS": [make_interface("b")]}
     summary_repository = FakeDailySummaryRepository(
-        [make_summary(interfaces["BORDE"][0])], {interfaces["BORDE"][0].id: set(RANGE.day_keys())}
+        [make_summary(interfaces["BORDE"][0])],
+        {interfaces["BORDE"][0].id: set(RANGE.day_keys())},
     )
-    service, exporter, _ = build_service(FakeInterfaceRepository(interfaces), summary_repository)
+    service, exporter, _ = build_service(
+        FakeInterfaceRepository(interfaces), summary_repository
+    )
     result = service.run(RANGE)
     assert [layer.layer for layer in exporter.layers] == ["BORDE"]
     assert result.exit_code == ExitCode.SUCCESS
@@ -128,9 +157,12 @@ def test_rf043_layer_without_data_has_no_sheet_and_does_not_fail_the_run() -> No
 def test_rf044_failed_layer_fails_the_run_but_the_others_are_exported() -> None:
     """RF-044: exit code 1, yet the sheets of the successful layers are still written."""
     interfaces = {"BORDE": [make_interface("a")], "BRAS": [make_interface("b")]}
-    interface_repository = FakeInterfaceRepository(interfaces, failing_layers=frozenset({"BORDE"}))
+    interface_repository = FakeInterfaceRepository(
+        interfaces, failing_layers=frozenset({"BORDE"})
+    )
     summary_repository = FakeDailySummaryRepository(
-        [make_summary(interfaces["BRAS"][0])], {interfaces["BRAS"][0].id: set(RANGE.day_keys())}
+        [make_summary(interfaces["BRAS"][0])],
+        {interfaces["BRAS"][0].id: set(RANGE.day_keys())},
     )
     service, exporter, _ = build_service(interface_repository, summary_repository)
     result = service.run(RANGE)
@@ -144,7 +176,9 @@ def test_rf044_invalid_sheet_name_fails_that_layer_only() -> None:
     """RF-044: an invalid sheet name fails the layer, the others continue."""
     interface_repository, summary_repository = layers_with_data("BORDE", "BAD:NAME")
     exporter = FakeExporter(invalid_layer_names=frozenset({"BAD:NAME"}))
-    service, exporter, _ = build_service(interface_repository, summary_repository, exporter)
+    service, exporter, _ = build_service(
+        interface_repository, summary_repository, exporter
+    )
     result = service.run(RANGE)
     assert result.failed_layers == ("BAD:NAME",)
     assert [layer.layer for layer in exporter.layers] == ["BORDE"]
@@ -154,7 +188,9 @@ def test_rf044_invalid_sheet_name_fails_that_layer_only() -> None:
 def test_rf044_no_layer_with_data_writes_no_file_and_fails() -> None:
     """RF-044: nothing to export: no file and exit code 1."""
     interface_repository = FakeInterfaceRepository({"BORDE": [make_interface()]})
-    service, exporter, sink = build_service(interface_repository, FakeDailySummaryRepository([]))
+    service, exporter, sink = build_service(
+        interface_repository, FakeDailySummaryRepository([])
+    )
     result = service.run(RANGE)
     assert exporter.saved_paths == []
     assert result.export_summary is None
@@ -188,8 +224,12 @@ def test_rf044_no_layers_is_a_general_process_error() -> None:
 
 def test_rf044_failure_obtaining_layers_is_a_general_process_error() -> None:
     """RF-044: a database failure while obtaining the layers is a general error (exit 2)."""
-    interface_repository = FakeInterfaceRepository({"BORDE": []}, fail_layer_values=True)
-    service, exporter, _ = build_service(interface_repository, FakeDailySummaryRepository([]))
+    interface_repository = FakeInterfaceRepository(
+        {"BORDE": []}, fail_layer_values=True
+    )
+    service, exporter, _ = build_service(
+        interface_repository, FakeDailySummaryRepository([])
+    )
     with pytest.raises(ProcessError, match="No se pueden obtener las capas"):
         service.run(RANGE)
     assert exporter.layers == []
@@ -229,7 +269,9 @@ def test_rf036_no_day_is_evaluated_when_every_layer_failed() -> None:
     interface_repository = FakeInterfaceRepository(
         {"BORDE": [make_interface()]}, failing_layers=frozenset({"BORDE"})
     )
-    service, _, sink = build_service(interface_repository, FakeDailySummaryRepository([]))
+    service, _, sink = build_service(
+        interface_repository, FakeDailySummaryRepository([])
+    )
     service.run(RANGE)
     assert sink.of_type(MissingDay) == []
 

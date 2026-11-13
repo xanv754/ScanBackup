@@ -5,7 +5,9 @@ from interface_sync.exceptions import (
 )
 from interface_sync.models import ExitCode, LayerResult, PageConfig, PageResult
 from interface_sync.orchestration.page_processor import PageProcessor
-from interface_sync.orchestration.scan_availability_verifier import ScanAvailabilityVerifier
+from interface_sync.orchestration.scan_availability_verifier import (
+    ScanAvailabilityVerifier,
+)
 from interface_sync.persistence import InterfaceRepository
 from interface_sync.synchronization import LayerDecommissioner
 from interface_sync.utils.configuration import ConfigurationFile
@@ -71,7 +73,9 @@ class SyncOrchestrator:
         with self._terminal.loading(f"Procesando {page.label}..."):
             result = self._page_processor.process(page)
         if not result.scraping_succeeded:
-            self._terminal.error(f"{LogEvent.PAGE_FAILED}: {result.page_label} ({result.cause})")
+            self._terminal.error(
+                f"{LogEvent.PAGE_FAILED}: {result.page_label} ({result.cause})"
+            )
         elif not result.database_succeeded:
             self._terminal.info(f"{LogEvent.SCRAPING_SUCCEEDED}: {result.page_label}")
             self._terminal.error(
@@ -107,19 +111,27 @@ class SyncOrchestrator:
         self, page_results: list[PageResult], layer_results: list[LayerResult]
     ) -> ExitCode:
         """Log and print the general result and return the matching exit code."""
-        failed_labels = [result.page_label for result in page_results if not result.succeeded]
+        failed_labels = [
+            result.page_label for result in page_results if not result.succeeded
+        ]
         failed_labels.extend(
-            f"{result.layer} (desincorporación)" for result in layer_results if not result.succeeded
+            f"{result.layer} (desincorporación)"
+            for result in layer_results
+            if not result.succeeded
         )
         if failed_labels:
             summary = f"{len(failed_labels)} operaciones fallidas"
-            self._logger.error(LogEvent.GENERAL_FAILED, f"{summary}: {', '.join(failed_labels)}")
+            self._logger.error(
+                LogEvent.GENERAL_FAILED, f"{summary}: {', '.join(failed_labels)}"
+            )
             self._terminal.error(
                 f"{LogEvent.GENERAL_FAILED}: {summary} ({', '.join(failed_labels)})"
             )
             return ExitCode.FAILED
         self._logger.info(LogEvent.GENERAL_SUCCEEDED, f"{len(page_results)} páginas")
-        self._terminal.info(f"{LogEvent.GENERAL_SUCCEEDED}: {len(page_results)} páginas")
+        self._terminal.info(
+            f"{LogEvent.GENERAL_SUCCEEDED}: {len(page_results)} páginas"
+        )
         return ExitCode.SUCCESS
 
     def _fail_process(self, cause: str) -> ExitCode:

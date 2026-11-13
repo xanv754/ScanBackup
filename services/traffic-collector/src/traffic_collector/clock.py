@@ -31,7 +31,9 @@ class TargetDate:
     @property
     def end(self) -> datetime:
         """Return 00:00:00 of the following day in America/Caracas (exclusive)."""
-        return datetime.combine(self.day + timedelta(days=1), time.min, tzinfo=CARACAS_TIMEZONE)
+        return datetime.combine(
+            self.day + timedelta(days=1), time.min, tzinfo=CARACAS_TIMEZONE
+        )
 
     def contains(self, moment: datetime) -> bool:
         """Return True if the timezone-aware `moment` falls inside the day."""

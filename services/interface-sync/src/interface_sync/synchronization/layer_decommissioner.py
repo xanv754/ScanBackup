@@ -5,7 +5,9 @@ from interface_sync.exceptions import DatabaseError
 from interface_sync.models import LayerResult, PageResult
 from interface_sync.persistence import InterfaceRepository
 from interface_sync.synchronization.change_reporter import ChangeReporter
-from interface_sync.synchronization.interface_change_planner import InterfaceChangePlanner
+from interface_sync.synchronization.interface_change_planner import (
+    InterfaceChangePlanner,
+)
 from interface_sync.utils.logger import ServiceLogger
 
 
@@ -40,9 +42,13 @@ class LayerDecommissioner:
             for layer, layer_results in results_by_layer.items()
         ]
 
-    def _decommission_layer(self, layer: str, page_results: list[PageResult]) -> LayerResult:
+    def _decommission_layer(
+        self, layer: str, page_results: list[PageResult]
+    ) -> LayerResult:
         """Decommission one layer, or skip it when any of its pages failed."""
-        failed_labels = [result.page_label for result in page_results if not result.succeeded]
+        failed_labels = [
+            result.page_label for result in page_results if not result.succeeded
+        ]
         if failed_labels:
             reason = f"páginas fallidas: {', '.join(failed_labels)}"
             self._logger.warning(LogEvent.LAYER_SKIPPED, f"{layer} | {reason}")
@@ -69,4 +75,6 @@ class LayerDecommissioner:
             f"{layer} | desincorporadas: {changes.decommissioned_count} | "
             f"sin cambios: {changes.unchanged_count}",
         )
-        return LayerResult(layer=layer, decommissioned_count=changes.decommissioned_count)
+        return LayerResult(
+            layer=layer, decommissioned_count=changes.decommissioned_count
+        )

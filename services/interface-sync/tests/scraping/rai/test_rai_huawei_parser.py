@@ -8,8 +8,12 @@ SUFFIX = " - Trafico de Red"
 
 
 def build_block(title: str | None, href: str | None = "/mrtg/x.html") -> str:
-    title_html = f'<li id="subtitulo" class="list-group-item"> {title}\n</li>' if title else ""
-    link_html = f'<a href="{href}" target="_blank"><img src="x.png"></a>' if href else ""
+    title_html = (
+        f'<li id="subtitulo" class="list-group-item"> {title}\n</li>' if title else ""
+    )
+    link_html = (
+        f'<a href="{href}" target="_blank"><img src="x.png"></a>' if href else ""
+    )
     return (
         '<div class="col-sm-12"><ul class="list-group">'
         f'{title_html}<li id="graficas"><center>{link_html}'
@@ -19,7 +23,9 @@ def build_block(title: str | None, href: str | None = "/mrtg/x.html") -> str:
 
 def build_page(*blocks: str, with_main: bool = True, with_row: bool = True) -> str:
     row_open, row_close = ('<div class="row">', "</div>") if with_row else ("", "")
-    main_open, main_close = ('<main id="main">', "</main>") if with_main else ("<main>", "</main>")
+    main_open, main_close = (
+        ('<main id="main">', "</main>") if with_main else ("<main>", "</main>")
+    )
     return (
         f"<html><body>{main_open}<section>{row_open}{''.join(blocks)}{row_close}</section>"
         f"{main_close}</body></html>"
@@ -43,7 +49,10 @@ def test_valid_interface_is_fully_extracted(parser: RaiHuaweiParser) -> None:
     [interface] = parser.parse(html, PAGE_URL)
 
     assert interface.position == 1
-    assert interface.name == "CNT-HWRAI-01 (100GE1/0/0 CONEXIÓN CON PFI-HWBORDE-01 100GE1/0/8)"
+    assert (
+        interface.name
+        == "CNT-HWRAI-01 (100GE1/0/0 CONEXIÓN CON PFI-HWBORDE-01 100GE1/0/8)"
+    )
     assert interface.scan_url == "https://scan.example/mrtg/r27116-ge100.log"
     assert interface.capacity_gbps == 100.0
     assert interface.vendor == "HUAWEI"
@@ -82,7 +91,9 @@ def test_title_without_suffix_is_kept_as_an_interface(parser: RaiHuaweiParser) -
 def test_title_without_suffix_keeps_its_whole_text(parser: RaiHuaweiParser) -> None:
     """RF-003: titles that end abruptly (`-IP`, `NGN LDN`) are kept complete, not lost."""
     html = build_page(
-        build_block("Router X (100GE3/1/0 Conexion con Y (Metro HW) (50|100GE8/0/0) -IP"),
+        build_block(
+            "Router X (100GE3/1/0 Conexion con Y (Metro HW) (50|100GE8/0/0) -IP"
+        ),
         build_block("Router X (100GE3/1/0.3231 conexión con NGN LDN"),
     )
 
@@ -97,7 +108,9 @@ def test_title_without_suffix_keeps_its_whole_text(parser: RaiHuaweiParser) -> N
 def test_truncated_suffix_is_removed_from_the_name(parser: RaiHuaweiParser) -> None:
     """RF-003: a suffix cut by SCAN (`- Tráfico de Re`) does not stay in the name."""
     html = build_page(
-        build_block("Router X (Eth-Trunk4 Conexion con Y SMARTGROUP-11) - Tráfico de Re")
+        build_block(
+            "Router X (Eth-Trunk4 Conexion con Y SMARTGROUP-11) - Tráfico de Re"
+        )
     )
 
     [interface] = parser.parse(html, PAGE_URL)
@@ -119,7 +132,9 @@ def test_customer_data_in_the_name_is_kept(parser: RaiHuaweiParser) -> None:
 def test_router_inside_the_name_is_kept(parser: RaiHuaweiParser) -> None:
     """RF-003: only the leading `Router ` prefix is removed."""
     html = build_page(
-        build_block(f"Router X (100GE1 conexión con Router NetEngine 8000 X8 y){SUFFIX}")
+        build_block(
+            f"Router X (100GE1 conexión con Router NetEngine 8000 X8 y){SUFFIX}"
+        )
     )
 
     [interface] = parser.parse(html, PAGE_URL)
@@ -150,7 +165,10 @@ def test_router_inside_the_name_is_kept(parser: RaiHuaweiParser) -> None:
         ("Router X (Eth-Trunk10 conexión con Y Eth-Trunk10)", None),
         ("Router X (Eth-Trunk1)", None),
         ("Router X (GE0/0/0 conexión con GFB y-aww-00)", None),
-        ("Router X (GE1/0/0 Conexion con Router ZTE ANZ SAR-00 Interfaz 0/0/1/6)", None),
+        (
+            "Router X (GE1/0/0 Conexion con Router ZTE ANZ SAR-00 Interfaz 0/0/1/6)",
+            None,
+        ),
         ("Router X (GE8/1/0 conexión con Y 10G Downlink)", None),
         ("Router X (GE1/1/1 conexión con Y)", None),
         ("Router X (10 GE1/0/0 conexión con Y)", None),
@@ -168,7 +186,9 @@ def test_capacity_is_read_from_the_own_port_only(
 
 def test_capacity_is_a_float(parser: RaiHuaweiParser) -> None:
     """RF-003: capacity is returned as float, as the model requires."""
-    [interface] = parser.parse(build_page(build_block(f"Router X (10GE1){SUFFIX}")), PAGE_URL)
+    [interface] = parser.parse(
+        build_page(build_block(f"Router X (10GE1){SUFFIX}")), PAGE_URL
+    )
 
     assert isinstance(interface.capacity_gbps, float)
 
@@ -195,7 +215,10 @@ def test_summaries_are_skipped_without_consuming_a_position(
 
     interfaces = parser.parse(html, PAGE_URL)
 
-    assert [(i.position, i.name) for i in interfaces] == [(1, "A (100GE1)"), (2, "B (100GE2)")]
+    assert [(i.position, i.name) for i in interfaces] == [
+        (1, "A (100GE1)"),
+        (2, "B (100GE2)"),
+    ]
 
 
 @pytest.mark.parametrize(
@@ -207,7 +230,10 @@ def test_summaries_are_skipped_without_consuming_a_position(
         ("  /mrtg/r1.html  ", "https://scan.example/mrtg/r1.log"),
         ("/mrtg/r1.html?x=1", "https://scan.example/mrtg/r1.log?x=1"),
         ("/mrtg/r1.v2.html", "https://scan.example/mrtg/r1.v2.log"),
-        ("/mrtg/r27116-ge110.301.html", "https://scan.example/mrtg/r27116-ge110.301.log"),
+        (
+            "/mrtg/r27116-ge110.301.html",
+            "https://scan.example/mrtg/r27116-ge110.301.log",
+        ),
         ("/mrtg/a.html/b.html", "https://scan.example/mrtg/a.html/b.log"),
     ],
 )
@@ -222,7 +248,9 @@ def test_scan_url_is_absolute_and_ends_in_log(
     assert interface.scan_url == expected
 
 
-@pytest.mark.parametrize("href", ["/mrtg/r1.log", "/mrtg/r1", "/mrtg/r1.htm", "/mrtg/", "#", ""])
+@pytest.mark.parametrize(
+    "href", ["/mrtg/r1.log", "/mrtg/r1", "/mrtg/r1.htm", "/mrtg/", "#", ""]
+)
 def test_href_without_html_extension_leaves_scan_url_empty(
     parser: RaiHuaweiParser, href: str
 ) -> None:
@@ -235,7 +263,9 @@ def test_href_without_html_extension_leaves_scan_url_empty(
     assert interface.name == "A (100GE1)"
 
 
-def test_block_without_link_is_kept_as_incomplete_interface(parser: RaiHuaweiParser) -> None:
+def test_block_without_link_is_kept_as_incomplete_interface(
+    parser: RaiHuaweiParser,
+) -> None:
     """RF-003/RF-004: a block with title but no anchor is not discarded."""
     html = build_page(build_block(f"Router A (100GE1){SUFFIX}", href=None))
 
@@ -249,9 +279,7 @@ def test_block_without_graphs_item_is_kept_as_incomplete_interface(
     parser: RaiHuaweiParser,
 ) -> None:
     """RF-003/RF-004: a block without `li#graficas` is not discarded."""
-    block = (
-        f'<div class="col-sm-12"><ul><li id="subtitulo"> Router A (100GE1){SUFFIX}</li></ul></div>'
-    )
+    block = f'<div class="col-sm-12"><ul><li id="subtitulo"> Router A (100GE1){SUFFIX}</li></ul></div>'
 
     [interface] = parser.parse(build_page(block), PAGE_URL)
 
@@ -260,7 +288,9 @@ def test_block_without_graphs_item_is_kept_as_incomplete_interface(
 
 def test_empty_name_is_kept_as_incomplete_interface(parser: RaiHuaweiParser) -> None:
     """RF-003/RF-004: a title that is only prefix and suffix leaves `name` as None."""
-    [interface] = parser.parse(build_page(build_block("Router - Trafico de Red")), PAGE_URL)
+    [interface] = parser.parse(
+        build_page(build_block("Router - Trafico de Red")), PAGE_URL
+    )
 
     assert interface.name is None
     assert interface.capacity_gbps is None
@@ -276,7 +306,9 @@ def test_block_without_title_is_ignored(parser: RaiHuaweiParser) -> None:
     assert [(i.position, i.name) for i in interfaces] == [(1, "A (100GE1)")]
 
 
-def test_every_interface_carries_the_vendor_of_the_parser(parser: RaiHuaweiParser) -> None:
+def test_every_interface_carries_the_vendor_of_the_parser(
+    parser: RaiHuaweiParser,
+) -> None:
     """RF-003: the vendor is set on every interface, even the incomplete ones."""
     html = build_page(
         build_block(f"Router X (100GE1){SUFFIX}"),
@@ -293,7 +325,9 @@ def test_every_interface_carries_the_vendor_of_the_parser(parser: RaiHuaweiParse
 
 def test_positions_follow_page_order(parser: RaiHuaweiParser) -> None:
     """RF-003: interfaces keep the page order with consecutive positions."""
-    html = build_page(*(build_block(f"Router R{i} (100GE{i}){SUFFIX}") for i in range(1, 6)))
+    html = build_page(
+        *(build_block(f"Router R{i} (100GE{i}){SUFFIX}") for i in range(1, 6))
+    )
 
     interfaces = parser.parse(html, PAGE_URL)
 
@@ -332,7 +366,9 @@ def test_missing_row_raises_unreadable_page(parser: RaiHuaweiParser) -> None:
     "html",
     ["", "plain text, not html", "<html><body><h1>Login</h1></body></html>"],
 )
-def test_unrelated_content_raises_unreadable_page(parser: RaiHuaweiParser, html: str) -> None:
+def test_unrelated_content_raises_unreadable_page(
+    parser: RaiHuaweiParser, html: str
+) -> None:
     """RF-003: content that is not the listing page makes the page unreadable."""
     with pytest.raises(UnreadablePageError):
         parser.parse(html, PAGE_URL)

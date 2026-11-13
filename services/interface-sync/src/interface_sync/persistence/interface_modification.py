@@ -17,7 +17,9 @@ class InterfaceModification(BaseModel):
 
     scan_url: str
     updated_at: datetime
-    field_changes: dict[str, tuple[str | float, str | float]] = Field(default_factory=dict)
+    field_changes: dict[str, tuple[str | float, str | float]] = Field(
+        default_factory=dict
+    )
     status_change: tuple[InterfaceStatus, InterfaceStatus] | None = None
 
     @property
@@ -35,7 +37,10 @@ class InterfaceModification(BaseModel):
     @property
     def is_reactivation(self) -> bool:
         """Return `True` when the interface becomes `activa` again."""
-        return self.status_change is not None and self.status_change[1] is InterfaceStatus.ACTIVE
+        return (
+            self.status_change is not None
+            and self.status_change[1] is InterfaceStatus.ACTIVE
+        )
 
 
 class InterfaceChanges(BaseModel):
@@ -53,14 +58,20 @@ class InterfaceChanges(BaseModel):
     @property
     def updated_count(self) -> int:
         """Return how many modifications change data fields."""
-        return sum(1 for modification in self.modifications if modification.changes_data)
+        return sum(
+            1 for modification in self.modifications if modification.changes_data
+        )
 
     @property
     def decommissioned_count(self) -> int:
         """Return how many modifications decommission an interface."""
-        return sum(1 for modification in self.modifications if modification.is_decommission)
+        return sum(
+            1 for modification in self.modifications if modification.is_decommission
+        )
 
     @property
     def reactivated_count(self) -> int:
         """Return how many modifications reactivate an interface."""
-        return sum(1 for modification in self.modifications if modification.is_reactivation)
+        return sum(
+            1 for modification in self.modifications if modification.is_reactivation
+        )

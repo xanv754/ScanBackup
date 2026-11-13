@@ -24,9 +24,15 @@ DATE = "2026-11-05"
 START = datetime(2026, 11, 5, 4, 0, tzinfo=UTC)
 
 
-def make_daily(interface_id: ObjectId, layer: str = "BORDE", count: int = 3) -> DailyTraffic:
-    samples = tuple(Sample(START + timedelta(minutes=5 * i), 1, 2, 3, 4) for i in range(count))
-    return DailyTraffic(interface_id=interface_id, layer=layer, date=DATE, samples=samples)
+def make_daily(
+    interface_id: ObjectId, layer: str = "BORDE", count: int = 3
+) -> DailyTraffic:
+    samples = tuple(
+        Sample(START + timedelta(minutes=5 * i), 1, 2, 3, 4) for i in range(count)
+    )
+    return DailyTraffic(
+        interface_id=interface_id, layer=layer, date=DATE, samples=samples
+    )
 
 
 def insert_interface(database: Database, layer: str, status: str, url: str) -> ObjectId:
@@ -60,7 +66,9 @@ def test_active_by_layer_returns_only_active_of_that_layer(database: Database) -
 
     interfaces = InterfaceRepository(database).active_by_layer("BORDE")
 
-    assert [(i.interface_id, i.scan_url) for i in interfaces] == [(active_id, "url-active")]
+    assert [(i.interface_id, i.scan_url) for i in interfaces] == [
+        (active_id, "url-active")
+    ]
 
 
 def test_active_by_layer_is_a_single_query(
@@ -83,7 +91,9 @@ def test_save_creates_one_document_with_float_values(database: Database) -> None
 
     repository.save(make_daily(interface_id))
 
-    document = database[TRAFFIC_DAILY_COLLECTION].find_one({"interface_id": interface_id})
+    document = database[TRAFFIC_DAILY_COLLECTION].find_one(
+        {"interface_id": interface_id}
+    )
     assert document["layer"] == "BORDE"
     assert document["date"] == DATE
     assert len(document["samples"]) == 3
@@ -100,7 +110,9 @@ def test_save_twice_does_not_duplicate(database: Database) -> None:
     repository.save(make_daily(interface_id, count=3))
     repository.save(make_daily(interface_id, count=5))
 
-    documents = list(database[TRAFFIC_DAILY_COLLECTION].find({"interface_id": interface_id}))
+    documents = list(
+        database[TRAFFIC_DAILY_COLLECTION].find({"interface_id": interface_id})
+    )
     assert len(documents) == 1
     assert len(documents[0]["samples"]) == 5
     assert documents[0]["created_at"] == START
@@ -116,7 +128,9 @@ def test_save_completes_a_document_with_empty_samples(database: Database) -> Non
 
     TrafficRepository(database).save(make_daily(interface_id))
 
-    documents = list(database[TRAFFIC_DAILY_COLLECTION].find({"interface_id": interface_id}))
+    documents = list(
+        database[TRAFFIC_DAILY_COLLECTION].find({"interface_id": interface_id})
+    )
     assert len(documents) == 1
     assert len(documents[0]["samples"]) == 3
 
@@ -129,7 +143,9 @@ def test_unique_index_rejects_duplicates(database: Database) -> None:
     collection.insert_one({"interface_id": interface_id, "date": DATE, "samples": []})
 
     with pytest.raises(DuplicateKeyError):
-        collection.insert_one({"interface_id": interface_id, "date": DATE, "samples": []})
+        collection.insert_one(
+            {"interface_id": interface_id, "date": DATE, "samples": []}
+        )
 
 
 def test_ensure_indexes_is_idempotent(database: Database) -> None:
@@ -139,11 +155,15 @@ def test_ensure_indexes_is_idempotent(database: Database) -> None:
     repository.ensure_indexes()
     repository.ensure_indexes()
 
-    names = {index["name"] for index in database[TRAFFIC_DAILY_COLLECTION].list_indexes()}
+    names = {
+        index["name"] for index in database[TRAFFIC_DAILY_COLLECTION].list_indexes()
+    }
     assert {"uq_interface_date", "idx_date"} <= names
 
 
-def test_ids_with_samples_filters_by_layer_date_and_non_empty(database: Database) -> None:
+def test_ids_with_samples_filters_by_layer_date_and_non_empty(
+    database: Database,
+) -> None:
     """Only non-empty documents of that layer and date count as already collected (RF-020)."""
     repository = TrafficRepository(database)
     collected, empty, other_layer, other_date = (ObjectId() for _ in range(4))
@@ -153,7 +173,9 @@ def test_ids_with_samples_filters_by_layer_date_and_non_empty(database: Database
     )
     repository.save(make_daily(other_layer, layer="DIST"))
     other_day = make_daily(other_date)
-    repository.save(DailyTraffic(other_day.interface_id, "BORDE", "2026-11-04", other_day.samples))
+    repository.save(
+        DailyTraffic(other_day.interface_id, "BORDE", "2026-11-04", other_day.samples)
+    )
 
     assert repository.interface_ids_with_samples("BORDE", DATE) == {collected}
 
@@ -185,7 +207,9 @@ def test_delete_day_removes_only_that_interface_and_date(database: Database) -> 
     assert remaining == [untouched]
 
 
-def test_summary_delete_day_removes_only_that_interface_and_date(database: Database) -> None:
+def test_summary_delete_day_removes_only_that_interface_and_date(
+    database: Database,
+) -> None:
     """Forced deletion removes the summary of one interface and date (RF-021)."""
     collection = database[TRAFFIC_SUMMARY_DAILY_COLLECTION]
     target, untouched = ObjectId(), ObjectId()
@@ -210,7 +234,9 @@ def test_traffic_daily_by_date_streams_only_that_date(database: Database) -> Non
     repository.save(make_daily(first))
     repository.save(make_daily(second, layer="BRAS", count=2))
     other_day = make_daily(ObjectId())
-    repository.save(DailyTraffic(other_day.interface_id, "BORDE", "2026-11-04", other_day.samples))
+    repository.save(
+        DailyTraffic(other_day.interface_id, "BORDE", "2026-11-04", other_day.samples)
+    )
 
     days = {daily.interface_id: daily for daily in repository.daily_by_date(DATE)}
 

@@ -43,7 +43,9 @@ class LogParser:
                 invalid_line_numbers.append(line_number)
             else:
                 samples.append(sample)
-        return ParsedLog(samples=tuple(samples), invalid_line_numbers=tuple(invalid_line_numbers))
+        return ParsedLog(
+            samples=tuple(samples), invalid_line_numbers=tuple(invalid_line_numbers)
+        )
 
     @staticmethod
     def _parse_line(line: str) -> Sample | None:
@@ -52,13 +54,20 @@ class LogParser:
         if len(fields) != LOG_FIELDS_PER_LINE:
             return None
         try:
-            unix_date, in_avg, out_avg, in_max, out_max = (float(field) for field in fields)
+            unix_date, in_avg, out_avg, in_max, out_max = (
+                float(field) for field in fields
+            )
         except ValueError:
             return None
-        if not all(math.isfinite(value) for value in (unix_date, in_avg, out_avg, in_max, out_max)):
+        if not all(
+            math.isfinite(value)
+            for value in (unix_date, in_avg, out_avg, in_max, out_max)
+        ):
             return None
         try:
             moment = datetime.fromtimestamp(unix_date, tz=UTC)
         except (OverflowError, OSError, ValueError):
             return None
-        return Sample(ts=moment, in_avg=in_avg, out_avg=out_avg, in_max=in_max, out_max=out_max)
+        return Sample(
+            ts=moment, in_avg=in_avg, out_avg=out_avg, in_max=in_max, out_max=out_max
+        )

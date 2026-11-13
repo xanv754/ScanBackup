@@ -33,7 +33,9 @@ class ReportConfigValidator:
     export directory is never created: it must already exist and be writable.
     """
 
-    def validate(self, section: Mapping[str, object], causes: list[str]) -> ReportConfig | None:
+    def validate(
+        self, section: Mapping[str, object], causes: list[str]
+    ) -> ReportConfig | None:
         """Return the config, or None after recording one cause per invalid key."""
         initial_cause_count = len(causes)
         prefix_name = section.get(CONFIG_PREFIX_NAME_KEY, DEFAULT_PREFIX_NAME)
@@ -63,7 +65,9 @@ class ReportConfigValidator:
         if not value.strip():
             return [f"'{key}' no puede estar vacío"]
         if self.contains_forbidden_characters(value):
-            return [f"'{key}' contiene caracteres no permitidos en un nombre de archivo"]
+            return [
+                f"'{key}' contiene caracteres no permitidos en un nombre de archivo"
+            ]
         return []
 
     def _date_format_causes(self, value: object) -> list[str]:

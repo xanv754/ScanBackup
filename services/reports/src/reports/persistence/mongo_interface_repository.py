@@ -35,7 +35,9 @@ class MongoInterfaceRepository(InterfaceRepository):
     def layer_values(self) -> list[str]:
         with translate_database_errors():
             return [
-                value for value in self._collection.distinct(FIELD_LAYER) if isinstance(value, str)
+                value
+                for value in self._collection.distinct(FIELD_LAYER)
+                if isinstance(value, str)
             ]
 
     def find_by_layer_values(self, stored_values: Sequence[str]) -> list[InterfaceInfo]:

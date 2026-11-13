@@ -48,11 +48,14 @@ class InterfaceRepository(AbstractRepository[InterfaceDocument]):
             self.get_collection().create_indexes(
                 [
                     IndexModel(
-                        [(FIELD_SCAN_URL, ASCENDING)], name=UNIQUE_SCAN_URL_INDEX, unique=True
+                        [(FIELD_SCAN_URL, ASCENDING)],
+                        name=UNIQUE_SCAN_URL_INDEX,
+                        unique=True,
                     ),
                     IndexModel([(FIELD_STATUS, ASCENDING)], name=STATUS_INDEX),
                     IndexModel(
-                        [(FIELD_LAYER, ASCENDING), (FIELD_NAME, ASCENDING)], name=LAYER_NAME_INDEX
+                        [(FIELD_LAYER, ASCENDING), (FIELD_NAME, ASCENDING)],
+                        name=LAYER_NAME_INDEX,
                     ),
                 ]
             )
@@ -67,7 +70,9 @@ class InterfaceRepository(AbstractRepository[InterfaceDocument]):
 
     def find_active_by_layer(self, layer: str) -> list[InterfaceDocument]:
         """Return the stored interfaces of a layer whose status is `activa`, in one query."""
-        return self._find({FIELD_LAYER: layer, FIELD_STATUS: InterfaceStatus.ACTIVE.value})
+        return self._find(
+            {FIELD_LAYER: layer, FIELD_STATUS: InterfaceStatus.ACTIVE.value}
+        )
 
     def apply(self, changes: InterfaceChanges) -> None:
         """Write registrations and modifications in a single ordered bulk operation.

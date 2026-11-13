@@ -38,7 +38,10 @@ class TerminalReporter:
             case LayerEmpty():
                 print(f"Capa {event.layer}: sin interfaces activas", file=self._output)
             case LayerReadFailed():
-                print(f"Capa {event.layer}: error al leer la base de datos", file=self._errors)
+                print(
+                    f"Capa {event.layer}: error al leer la base de datos",
+                    file=self._errors,
+                )
             case LayerCut():
                 print(
                     f"Capa {event.layer}: cortada por {event.reason.value} "

@@ -73,17 +73,25 @@ class FakeDailySummaryRepository(DailySummaryRepository):
         self, interface_ids: Sequence[ObjectId], date_range: DateRange
     ) -> list[AggregatedSummary]:
         self._fail_if_needed(interface_ids)
-        return [summary for summary in self._summaries if summary.interface_id in interface_ids]
+        return [
+            summary
+            for summary in self._summaries
+            if summary.interface_id in interface_ids
+        ]
 
     def dates_with_summary(
         self, interface_ids: Sequence[ObjectId], date_range: DateRange
     ) -> set[str]:
         self._fail_if_needed(interface_ids)
-        return set().union(*(self._days_by_interface.get(id_, set()) for id_ in interface_ids))
+        return set().union(
+            *(self._days_by_interface.get(id_, set()) for id_ in interface_ids)
+        )
 
     def _fail_if_needed(self, interface_ids: Sequence[ObjectId]) -> None:
         """Raise `DatabaseError` if any requested interface is configured to fail."""
-        if any(interface_id in self._failing_interfaces for interface_id in interface_ids):
+        if any(
+            interface_id in self._failing_interfaces for interface_id in interface_ids
+        ):
             raise DatabaseError("OperationFailure")
 
 
@@ -91,7 +99,9 @@ class FakeExporter(ReportExporter):
     """Records the layers it receives and the files it would write."""
 
     def __init__(
-        self, invalid_layer_names: frozenset[str] = frozenset(), fail_on_save: bool = False
+        self,
+        invalid_layer_names: frozenset[str] = frozenset(),
+        fail_on_save: bool = False,
     ) -> None:
         """Receive the layer names to reject and whether saving must fail."""
         self._invalid_layer_names = invalid_layer_names

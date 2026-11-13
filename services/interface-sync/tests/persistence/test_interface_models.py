@@ -5,7 +5,11 @@ import pytest
 from pydantic import ValidationError
 
 from interface_sync.constants.enums import InterfaceStatus
-from interface_sync.persistence import InterfaceChanges, InterfaceDocument, InterfaceModification
+from interface_sync.persistence import (
+    InterfaceChanges,
+    InterfaceDocument,
+    InterfaceModification,
+)
 
 Document = Callable[..., InterfaceDocument]
 
@@ -18,7 +22,9 @@ def test_document_requires_a_valid_status(make_document: Document):
 
 def test_document_accepts_status_values_as_text(make_document: Document):
     """The stored text values map back to the Enum."""
-    assert make_document(status="desincorporada").status is InterfaceStatus.DECOMMISSIONED
+    assert (
+        make_document(status="desincorporada").status is InterfaceStatus.DECOMMISSIONED
+    )
     assert make_document(status="activa").status is InterfaceStatus.ACTIVE
 
 
@@ -34,7 +40,9 @@ def test_document_capacity_is_always_a_float(make_document: Document):
 def test_document_requires_every_text_field(make_document: Document, missing: str):
     """Required fields cannot be left out."""
     with pytest.raises(ValidationError):
-        InterfaceDocument.model_validate(make_document().model_dump(exclude={"id", missing}))
+        InterfaceDocument.model_validate(
+            make_document().model_dump(exclude={"id", missing})
+        )
 
 
 def test_document_rejects_non_date_timestamps(make_document: Document):
@@ -88,7 +96,9 @@ def test_changes_counters_split_updates_decommissions_and_reactivations(now: dat
     """The summary counters classify each modification."""
     changes = InterfaceChanges(
         modifications=[
-            InterfaceModification(scan_url="1", updated_at=now, field_changes={"name": ("a", "b")}),
+            InterfaceModification(
+                scan_url="1", updated_at=now, field_changes={"name": ("a", "b")}
+            ),
             InterfaceModification(
                 scan_url="2",
                 updated_at=now,
@@ -113,7 +123,11 @@ def test_empty_changes_have_zero_counters():
     """No changes means every counter is 0."""
     changes = InterfaceChanges()
 
-    assert (changes.updated_count, changes.reactivated_count, changes.decommissioned_count) == (
+    assert (
+        changes.updated_count,
+        changes.reactivated_count,
+        changes.decommissioned_count,
+    ) == (
         0,
         0,
         0,

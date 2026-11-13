@@ -1,4 +1,7 @@
-from interface_sync.validation.capacity_validator import CapacityResult, CapacityValidator
+from interface_sync.validation.capacity_validator import (
+    CapacityResult,
+    CapacityValidator,
+)
 from interface_sync.validation.completeness_validator import (
     CompletenessResult,
     CompletenessValidator,

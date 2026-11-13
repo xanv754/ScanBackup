@@ -8,8 +8,12 @@ SUFFIX = " - Tr&aacute;fico de Red"
 
 
 def build_block(title: str | None, href: str | None = "/mrtg/x.html") -> str:
-    title_html = f'<li id="subtitulo" class="list-group-item"> {title}\n</li>' if title else ""
-    link_html = f'<a href="{href}" target="_blank"><img src="x.png"></a>' if href else ""
+    title_html = (
+        f'<li id="subtitulo" class="list-group-item"> {title}\n</li>' if title else ""
+    )
+    link_html = (
+        f'<a href="{href}" target="_blank"><img src="x.png"></a>' if href else ""
+    )
     return (
         '<div class="col-sm-12"><ul class="list-group">'
         f'{title_html}<li id="graficas"><center>{link_html}'
@@ -19,7 +23,9 @@ def build_block(title: str | None, href: str | None = "/mrtg/x.html") -> str:
 
 def build_page(*blocks: str, with_main: bool = True, with_row: bool = True) -> str:
     row_open, row_close = ('<div class="row">', "</div>") if with_row else ("", "")
-    main_open, main_close = ('<main id="main">', "</main>") if with_main else ("<main>", "</main>")
+    main_open, main_close = (
+        ('<main id="main">', "</main>") if with_main else ("<main>", "</main>")
+    )
     return (
         f"<html><body>{main_open}<section>{row_open}{''.join(blocks)}{row_close}</section>"
         f"{main_close}</body></html>"
@@ -44,7 +50,10 @@ def test_valid_interface_is_fully_extracted(parser: BordeJuniperParser) -> None:
 
     assert interface.position == 1
     assert interface.name == "COLUMBUS XIX - PFI-JBORDE-MX-00 100GB-ET-0/0/12"
-    assert interface.scan_url == "https://scan.example/mrtg/epfi-jborde-mx-00-100et0012.log"
+    assert (
+        interface.scan_url
+        == "https://scan.example/mrtg/epfi-jborde-mx-00-100et0012.log"
+    )
     assert interface.capacity_gbps == 100.0
     assert interface.vendor == "JUNIPER"
 
@@ -71,7 +80,9 @@ def test_name_ignores_prefix_and_suffix_in_any_format(
     assert interface.name == "X 100GB-ET-0/0/12"
 
 
-def test_every_interface_carries_the_vendor_of_the_parser(parser: BordeJuniperParser) -> None:
+def test_every_interface_carries_the_vendor_of_the_parser(
+    parser: BordeJuniperParser,
+) -> None:
     """RF-003: the vendor is set on every interface, even the incomplete ones."""
     html = build_page(
         build_block(f"X 40GE2/0/0{SUFFIX}"),
@@ -94,7 +105,9 @@ def test_name_is_always_uppercase(parser: BordeJuniperParser) -> None:
 
     [interface] = parser.parse(html, PAGE_URL)
 
-    assert interface.name == interface.name.upper() == "COLUMBUS XIX - PFI 100GB-ET-0/0/12"
+    assert (
+        interface.name == interface.name.upper() == "COLUMBUS XIX - PFI 100GB-ET-0/0/12"
+    )
 
 
 def test_prefix_and_suffix_inside_the_name_are_kept(parser: BordeJuniperParser) -> None:
@@ -178,7 +191,9 @@ def test_scan_url_is_complete_and_uses_log_extension(
     assert interface.scan_url == expected_url
 
 
-@pytest.mark.parametrize("href", ["/mrtg/x.png", "/mrtg/x", "/mrtg/x.log", "/mrtg/x.htm", "#"])
+@pytest.mark.parametrize(
+    "href", ["/mrtg/x.png", "/mrtg/x", "/mrtg/x.log", "/mrtg/x.htm", "#"]
+)
 def test_href_without_html_extension_gives_no_scan_url(
     parser: BordeJuniperParser, href: str
 ) -> None:
@@ -201,7 +216,9 @@ def test_block_without_link_is_kept_as_incomplete(parser: BordeJuniperParser) ->
     assert interface.name == "A 10GB-ET-0/0/0"
 
 
-def test_block_without_graphs_item_is_kept_as_incomplete(parser: BordeJuniperParser) -> None:
+def test_block_without_graphs_item_is_kept_as_incomplete(
+    parser: BordeJuniperParser,
+) -> None:
     """RF-003/RF-004: a block lacking li#graficas keeps its name and has no scan_url."""
     html = build_page(
         '<div><ul><li id="subtitulo">'
@@ -214,7 +231,9 @@ def test_block_without_graphs_item_is_kept_as_incomplete(parser: BordeJuniperPar
     assert interface.name == "A 10GB-ET-0/0/0"
 
 
-def test_block_with_empty_name_is_kept_as_incomplete(parser: BordeJuniperParser) -> None:
+def test_block_with_empty_name_is_kept_as_incomplete(
+    parser: BordeJuniperParser,
+) -> None:
     """RF-003/RF-004: a title that is only prefix and suffix gives name None."""
     html = build_page(build_block("Enlace Internacional" + SUFFIX, "/mrtg/x.html"))
 
@@ -227,7 +246,9 @@ def test_block_with_empty_name_is_kept_as_incomplete(parser: BordeJuniperParser)
 
 def test_block_without_title_is_ignored(parser: BordeJuniperParser) -> None:
     """RF-003: a block that has no li#subtitulo is not an interface."""
-    html = build_page(build_block(None), build_block("Enlace Internacional A 10GB-et-0/0/0"))
+    html = build_page(
+        build_block(None), build_block("Enlace Internacional A 10GB-et-0/0/0")
+    )
 
     interfaces = parser.parse(html, PAGE_URL)
 
@@ -255,7 +276,9 @@ def test_capacity_is_the_number_before_gb_or_ge(
     parser: BordeJuniperParser, name: str, expected_capacity: float | None
 ) -> None:
     """RF-003: capacity is the number before "GB" or "GE"; None when it cannot be obtained."""
-    [interface] = parser.parse(build_page(build_block(f"Enlace Internacional {name}")), PAGE_URL)
+    [interface] = parser.parse(
+        build_page(build_block(f"Enlace Internacional {name}")), PAGE_URL
+    )
 
     assert interface.capacity_gbps == expected_capacity
 
@@ -282,7 +305,9 @@ def test_only_summaries_returns_empty_list(parser: BordeJuniperParser) -> None:
 def test_missing_main_raises_unreadable_page(parser: BordeJuniperParser) -> None:
     """RF-003: a page without main#main is unreadable."""
     with pytest.raises(UnreadablePageError) as error_info:
-        parser.parse(build_page(build_block("Enlace Internacional A"), with_main=False), PAGE_URL)
+        parser.parse(
+            build_page(build_block("Enlace Internacional A"), with_main=False), PAGE_URL
+        )
 
     assert "main#main" in error_info.value.cause
 
@@ -290,13 +315,19 @@ def test_missing_main_raises_unreadable_page(parser: BordeJuniperParser) -> None
 def test_missing_row_raises_unreadable_page(parser: BordeJuniperParser) -> None:
     """RF-003: a page without div.row is unreadable."""
     with pytest.raises(UnreadablePageError) as error_info:
-        parser.parse(build_page(build_block("Enlace Internacional A"), with_row=False), PAGE_URL)
+        parser.parse(
+            build_page(build_block("Enlace Internacional A"), with_row=False), PAGE_URL
+        )
 
     assert "div.row" in error_info.value.cause
 
 
-@pytest.mark.parametrize("html", ["", "not html at all", "<html><body><p>Error</p></body></html>"])
-def test_unrelated_content_raises_unreadable_page(parser: BordeJuniperParser, html: str) -> None:
+@pytest.mark.parametrize(
+    "html", ["", "not html at all", "<html><body><p>Error</p></body></html>"]
+)
+def test_unrelated_content_raises_unreadable_page(
+    parser: BordeJuniperParser, html: str
+) -> None:
     """RF-003: content lacking the expected structure is unreadable."""
     with pytest.raises(UnreadablePageError):
         parser.parse(html, PAGE_URL)

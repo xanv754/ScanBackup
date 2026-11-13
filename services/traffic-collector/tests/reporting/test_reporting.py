@@ -7,7 +7,11 @@ from pathlib import Path
 import pytest
 
 from tests.collection.fakes import RecordingSink, make_interface
-from traffic_collector.constants.enums import CutReason, FailureCause, SampleCountVerdict
+from traffic_collector.constants.enums import (
+    CutReason,
+    FailureCause,
+    SampleCountVerdict,
+)
 from traffic_collector.domain.results import LayerResult, RunResult, SummaryResult
 from traffic_collector.exceptions import DatabaseError
 from traffic_collector.reporting import (
@@ -95,7 +99,9 @@ def test_log_marks_failed_layers_and_runs_as_errors(log_path: Path) -> None:
     run_logger.publish(LayerFinished(FAILED_LAYER))
     run_logger.publish(SummaryFinished(generated_count=2, skipped_count=1))
     run_logger.publish(SummaryFailed(generated_count=2, error=DatabaseError("x")))
-    run_logger.publish(RunFinished(RunResult((OK_LAYER, FAILED_LAYER), SummaryResult())))
+    run_logger.publish(
+        RunFinished(RunResult((OK_LAYER, FAILED_LAYER), SummaryResult()))
+    )
     content = read_log(run_logger, log_path)
 
     assert "INFO Capa BORDE exitosa" in content
@@ -105,7 +111,9 @@ def test_log_marks_failed_layers_and_runs_as_errors(log_path: Path) -> None:
     assert "ERROR Resultado general: fallido" in content
 
 
-def test_log_has_one_line_per_event_and_no_line_per_successful_interface(log_path: Path) -> None:
+def test_log_has_one_line_per_event_and_no_line_per_successful_interface(
+    log_path: Path,
+) -> None:
     """A successful layer produces only its start and finish lines (RF-029)."""
     run_logger = RunLogger(create_file_logger(log_path))
 

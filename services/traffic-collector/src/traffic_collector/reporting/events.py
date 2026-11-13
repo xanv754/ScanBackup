@@ -1,7 +1,11 @@
 from dataclasses import dataclass
 from typing import Protocol
 
-from traffic_collector.constants.enums import CutReason, FailureCause, SampleCountVerdict
+from traffic_collector.constants.enums import (
+    CutReason,
+    FailureCause,
+    SampleCountVerdict,
+)
 from traffic_collector.domain import ActiveInterface
 from traffic_collector.domain.results import LayerResult, RunResult
 

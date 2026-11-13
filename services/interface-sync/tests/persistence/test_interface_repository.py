@@ -127,7 +127,10 @@ def test_duplicate_scan_url_is_rejected_by_the_unique_index(
 
 
 def test_modification_sets_only_changed_fields_status_and_updated_at(
-    repository: InterfaceRepository, make_document: Document, earlier: datetime, now: datetime
+    repository: InterfaceRepository,
+    make_document: Document,
+    earlier: datetime,
+    now: datetime,
 ):
     """RF-008/RF-009: one $set with the changed fields; created_at and the rest are untouched."""
     register(repository, make_document(status=InterfaceStatus.DECOMMISSIONED))
@@ -138,8 +141,14 @@ def test_modification_sets_only_changed_fields_status_and_updated_at(
                 InterfaceModification(
                     scan_url="http://scan/1.log",
                     updated_at=now,
-                    field_changes={"name": ("IF-1", "RENAMED"), "capacity_gbps": (10.0, 100.0)},
-                    status_change=(InterfaceStatus.DECOMMISSIONED, InterfaceStatus.ACTIVE),
+                    field_changes={
+                        "name": ("IF-1", "RENAMED"),
+                        "capacity_gbps": (10.0, 100.0),
+                    },
+                    status_change=(
+                        InterfaceStatus.DECOMMISSIONED,
+                        InterfaceStatus.ACTIVE,
+                    ),
                 )
             ]
         )
@@ -191,7 +200,9 @@ def test_ordered_write_stops_at_the_first_error_and_keeps_what_was_applied(
     with pytest.raises(DatabaseError):
         register(repository, first, duplicate, never_reached)
 
-    stored_urls = {document["scan_url"] for document in repository.get_collection().find()}
+    stored_urls = {
+        document["scan_url"] for document in repository.get_collection().find()
+    }
     assert stored_urls == {"http://scan/a.log"}
 
 
@@ -206,9 +217,14 @@ def test_find_by_scan_urls_returns_only_the_requested_ones(
         make_document(scan_url="http://scan/c.log"),
     )
 
-    found = repository.find_by_scan_urls({"http://scan/a.log", "http://scan/c.log", "http://x"})
+    found = repository.find_by_scan_urls(
+        {"http://scan/a.log", "http://scan/c.log", "http://x"}
+    )
 
-    assert {document.scan_url for document in found} == {"http://scan/a.log", "http://scan/c.log"}
+    assert {document.scan_url for document in found} == {
+        "http://scan/a.log",
+        "http://scan/c.log",
+    }
 
 
 def test_find_by_scan_urls_with_nothing_returns_nothing(
@@ -240,7 +256,9 @@ def test_find_active_by_layer_filters_by_layer_and_status(
     assert [document.scan_url for document in found] == ["http://scan/borde-active.log"]
 
 
-def test_find_active_by_layer_of_an_unknown_layer_is_empty(repository: InterfaceRepository):
+def test_find_active_by_layer_of_an_unknown_layer_is_empty(
+    repository: InterfaceRepository,
+):
     """A layer without interfaces yields an empty list."""
     assert repository.find_active_by_layer("NOPE") == []
 

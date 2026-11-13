@@ -25,7 +25,11 @@ class RecordingLogger(ServiceLogger):
         self.records.append(("error", message, details))
 
     def messages(self, level: str) -> list[str]:
-        return [message for record_level, message, _ in self.records if record_level == level]
+        return [
+            message
+            for record_level, message, _ in self.records
+            if record_level == level
+        ]
 
 
 @pytest.fixture

@@ -57,10 +57,12 @@ class FakeSummaryPhase:
         return SummaryResult(failed_count=self._failed_count)
 
 
-def build(
-    results: dict[str, LayerResult], summary_failed_count: int = 0
-) -> tuple[
-    RunOrchestrator, FakeLayerCollector, FakeSummaryPhase, RecordingSink, FakeInterfaceReader
+def build(results: dict[str, LayerResult], summary_failed_count: int = 0) -> tuple[
+    RunOrchestrator,
+    FakeLayerCollector,
+    FakeSummaryPhase,
+    RecordingSink,
+    FakeInterfaceReader,
 ]:
     collector = FakeLayerCollector(results)
     summary = FakeSummaryPhase(collector, summary_failed_count)
@@ -72,7 +74,9 @@ def build(
 
 def test_layers_are_processed_in_ascending_order_then_summary_once() -> None:
     """Layers run one after another in order and the summary runs once at the end (RF-019)."""
-    orchestrator, collector, summary, _, _ = build({"DIST": OK, "BORDE": OK, "BRAS": OK})
+    orchestrator, collector, summary, _, _ = build(
+        {"DIST": OK, "BORDE": OK, "BRAS": OK}
+    )
 
     orchestrator.run()
 
@@ -134,7 +138,9 @@ def test_events_report_each_layer_and_the_final_result() -> None:
 
 
 def layers_of(*layers: LayerResult, summary_failed_count: int = 0) -> RunResult:
-    return RunResult(layers=tuple(layers), summary=SummaryResult(failed_count=summary_failed_count))
+    return RunResult(
+        layers=tuple(layers), summary=SummaryResult(failed_count=summary_failed_count)
+    )
 
 
 def test_all_layers_successful_is_a_successful_run() -> None:
@@ -157,7 +163,9 @@ def test_all_layers_empty_is_a_failed_run() -> None:
     assert layers_of(EMPTY, EMPTY).exit_code is ExitCode.FAILED
 
 
-@pytest.mark.parametrize("bad_layer", [FAILED, CUT, UNREADABLE], ids=["failed", "cut", "unread"])
+@pytest.mark.parametrize(
+    "bad_layer", [FAILED, CUT, UNREADABLE], ids=["failed", "cut", "unread"]
+)
 def test_any_failed_layer_makes_the_run_failed(bad_layer: LayerResult) -> None:
     """One failed, cut or unreadable layer fails the run (RF-028)."""
     assert layers_of(OK, bad_layer).exit_code is ExitCode.FAILED

@@ -51,7 +51,8 @@ class MongoSettings(BaseModel):
                 username=values[MONGO_USERNAME_VARIABLE],
                 password=values[MONGO_PASSWORD_VARIABLE],
                 database=values[MONGO_DATABASE_VARIABLE],
-                auth_source=os.environ.get(MONGO_AUTH_SOURCE_VARIABLE) or DEFAULT_MONGO_AUTH_SOURCE,
+                auth_source=os.environ.get(MONGO_AUTH_SOURCE_VARIABLE)
+                or DEFAULT_MONGO_AUTH_SOURCE,
             )
         except ValidationError as error:
             raise MissingDatabaseSettingsError(

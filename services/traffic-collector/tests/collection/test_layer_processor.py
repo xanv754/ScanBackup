@@ -28,9 +28,7 @@ from traffic_collector.settings import CollectionConfig
 TARGET = TargetDate.previous_day(date(2026, 11, 6))
 LAYER = "BORDE"
 GOOD_LOG = f"{int(datetime(2026, 11, 5, 4, 0, tzinfo=UTC).timestamp())} 1 2 3 4\n"
-GOOD_LOG_LATER = (
-    f"{int((datetime(2026, 11, 5, 4, 0, tzinfo=UTC) + timedelta(minutes=5)).timestamp())} 1 2 3 4\n"
-)
+GOOD_LOG_LATER = f"{int((datetime(2026, 11, 5, 4, 0, tzinfo=UTC) + timedelta(minutes=5)).timestamp())} 1 2 3 4\n"
 
 
 class Scenario:
@@ -44,7 +42,9 @@ class Scenario:
         force: bool = False,
         delay_seconds: float = 0.0,
     ) -> None:
-        self.interfaces = [make_interface(f"https://scan/{i}.log") for i in range(len(behaviors))]
+        self.interfaces = [
+            make_interface(f"https://scan/{i}.log") for i in range(len(behaviors))
+        ]
         self.stores = FakeStores()
         self.reader = FakeInterfaceReader({LAYER: self.interfaces})
         self.scan_client = FakeScanClient(
@@ -173,7 +173,15 @@ def test_consecutive_failures_cut_the_layer_and_keep_what_was_stored() -> None:
 
 def test_a_success_resets_the_consecutive_failure_count() -> None:
     """Failures separated by a success never reach the threshold (RF-027)."""
-    behaviors = [failing(), failing(), GOOD_LOG, failing(), failing(), GOOD_LOG, failing()]
+    behaviors = [
+        failing(),
+        failing(),
+        GOOD_LOG,
+        failing(),
+        failing(),
+        GOOD_LOG,
+        failing(),
+    ]
     scenario = Scenario(behaviors)
 
     result = scenario.run()

@@ -10,7 +10,9 @@ from interface_sync.scraping.caching.netflix import CachingNetflixParser
 
 MENU_URL = "https://scan.example/cgi-bin/chg/trafico-caching.cgi?SUMAS-CACHING.dummy"
 SUFFIX = " - Trafico de Red"
-LONG_NAME = "Router ANZ-HWDIST-00 (100GE1/1/0.2171 conexión con NODO GOOGLE CACHING ANZ)"
+LONG_NAME = (
+    "Router ANZ-HWDIST-00 (100GE1/1/0.2171 conexión con NODO GOOGLE CACHING ANZ)"
+)
 
 SERVICES = {
     "Google": (CachingGoogleParser, "Suma GOOGLE", 19),
@@ -55,7 +57,8 @@ def build_menu(
 ) -> str:
     """Build a menu with every service (Inter nested one level deeper, as in SCAN)."""
     hrefs = {
-        vendor: service_url(vendor).removeprefix("https://scan.example") for vendor in SERVICES
+        vendor: service_url(vendor).removeprefix("https://scan.example")
+        for vendor in SERVICES
     }
     hrefs.update(entries or {})
     flat = "".join(
@@ -82,8 +85,12 @@ def build_menu(
 
 
 def build_block(title: str | None, href: str | None = "/mrtg/x.html") -> str:
-    title_html = f'<li id="subtitulo" class="list-group-item"> {title}\n</li>' if title else ""
-    link_html = f'<a href="{href}" target="_blank"><img src="x.png"></a>' if href else ""
+    title_html = (
+        f'<li id="subtitulo" class="list-group-item"> {title}\n</li>' if title else ""
+    )
+    link_html = (
+        f'<a href="{href}" target="_blank"><img src="x.png"></a>' if href else ""
+    )
     return (
         '<div class="col-sm-12"><ul class="list-group">'
         f'{title_html}<li id="graficas"><center>{link_html}'
@@ -99,7 +106,9 @@ def build_service_page(
 ) -> str:
     content_tag = "section" if with_content else "article"
     row_open, row_close = ('<div class="row">', "</div>") if with_row else ("", "")
-    col_open, col_close = ('<div class="col-md-12"><br>', "</div>") if with_column else ("", "")
+    col_open, col_close = (
+        ('<div class="col-md-12"><br>', "</div>") if with_column else ("", "")
+    )
     return (
         f'<html><body><{content_tag} class="content">{row_open}{col_open}'
         f"{''.join(blocks)}{col_close}{row_close}</{content_tag}></body></html>"
@@ -250,7 +259,9 @@ def test_capacity_is_read_from_the_port_name(
         "Router X (100GE1) Sumatoria - Trafico de Red",
     ],
 )
-def test_summaries_are_skipped_without_consuming_a_position(vendor: str, title: str) -> None:
+def test_summaries_are_skipped_without_consuming_a_position(
+    vendor: str, title: str
+) -> None:
     """RF-003: any title containing "Sumatoria" is omitted; positions stay consecutive."""
     blocks = [
         build_block(title),
@@ -261,7 +272,10 @@ def test_summaries_are_skipped_without_consuming_a_position(vendor: str, title: 
 
     interfaces = parse_blocks(vendor, blocks)
 
-    assert [(i.position, i.name) for i in interfaces] == [(1, "A (100GE1)"), (2, "B (100GE2)")]
+    assert [(i.position, i.name) for i in interfaces] == [
+        (1, "A (100GE1)"),
+        (2, "B (100GE2)"),
+    ]
 
 
 @pytest.mark.parametrize(
@@ -276,17 +290,27 @@ def test_summaries_are_skipped_without_consuming_a_position(vendor: str, title: 
         ("/mrtg/a.html/b.html", "https://scan.example/mrtg/a.html/b.log"),
     ],
 )
-def test_scan_url_is_absolute_and_ends_in_log(vendor: str, href: str, expected: str) -> None:
+def test_scan_url_is_absolute_and_ends_in_log(
+    vendor: str, href: str, expected: str
+) -> None:
     """RF-003: the href is resolved against the service page and `.html` becomes `.log`."""
-    [interface] = parse_blocks(vendor, [build_block(f"Router A (100GE1){SUFFIX}", href)])
+    [interface] = parse_blocks(
+        vendor, [build_block(f"Router A (100GE1){SUFFIX}", href)]
+    )
 
     assert interface.scan_url == expected
 
 
-@pytest.mark.parametrize("href", ["/mrtg/r1.log", "/mrtg/r1", "/mrtg/r1.htm", "/mrtg/", "#", ""])
-def test_href_without_html_extension_leaves_scan_url_empty(vendor: str, href: str) -> None:
+@pytest.mark.parametrize(
+    "href", ["/mrtg/r1.log", "/mrtg/r1", "/mrtg/r1.htm", "/mrtg/", "#", ""]
+)
+def test_href_without_html_extension_leaves_scan_url_empty(
+    vendor: str, href: str
+) -> None:
     """RF-003/RF-004: an href not ending in `.html` makes the interface incomplete."""
-    [interface] = parse_blocks(vendor, [build_block(f"Router A (100GE1){SUFFIX}", href)])
+    [interface] = parse_blocks(
+        vendor, [build_block(f"Router A (100GE1){SUFFIX}", href)]
+    )
 
     assert interface.scan_url is None
     assert interface.name == "A (100GE1)"
@@ -294,7 +318,9 @@ def test_href_without_html_extension_leaves_scan_url_empty(vendor: str, href: st
 
 def test_block_without_link_is_kept_as_incomplete_interface(vendor: str) -> None:
     """RF-003/RF-004: a block with title but no anchor is not discarded."""
-    [interface] = parse_blocks(vendor, [build_block(f"Router A (100GE1){SUFFIX}", href=None)])
+    [interface] = parse_blocks(
+        vendor, [build_block(f"Router A (100GE1){SUFFIX}", href=None)]
+    )
 
     assert interface.scan_url is None
     assert interface.name == "A (100GE1)"
@@ -302,9 +328,7 @@ def test_block_without_link_is_kept_as_incomplete_interface(vendor: str) -> None
 
 def test_block_without_graphs_item_is_kept_as_incomplete_interface(vendor: str) -> None:
     """RF-003/RF-004: a block without `li#graficas` is not discarded."""
-    block = (
-        f'<div class="col-sm-12"><ul><li id="subtitulo"> Router A (100GE1){SUFFIX}</li></ul></div>'
-    )
+    block = f'<div class="col-sm-12"><ul><li id="subtitulo"> Router A (100GE1){SUFFIX}</li></ul></div>'
 
     [interface] = parse_blocks(vendor, [block])
 
@@ -322,7 +346,10 @@ def test_block_without_title_is_ignored(vendor: str) -> None:
 
 def test_service_page_with_only_summaries_returns_empty_list(vendor: str) -> None:
     """RF-003: a page with only summaries (Facebook today) yields no interfaces, not an error."""
-    assert parse_blocks(vendor, [build_block("Sumatoria X CACHING - Tráfico de Red")]) == []
+    assert (
+        parse_blocks(vendor, [build_block("Sumatoria X CACHING - Tráfico de Red")])
+        == []
+    )
 
 
 def test_service_page_with_zero_rows_returns_empty_list(vendor: str) -> None:

@@ -24,7 +24,9 @@ def test_rf044_all_layers_ok_and_file_written_is_success() -> None:
 
 def test_rf044_layer_without_data_does_not_fail_if_another_has_data() -> None:
     """RF-044: a successful layer without data still gives a successful run."""
-    result = RunResult((ok_layer(), ok_layer("BRAS", included=0)), export_summary=WRITTEN)
+    result = RunResult(
+        (ok_layer(), ok_layer("BRAS", included=0)), export_summary=WRITTEN
+    )
     assert result.exit_code == ExitCode.SUCCESS
 
 

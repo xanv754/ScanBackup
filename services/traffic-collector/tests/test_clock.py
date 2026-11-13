@@ -21,7 +21,9 @@ def test_start_is_inclusive_and_end_is_exclusive() -> None:
     assert target.contains(datetime(2026, 11, 5, 0, 0, 0, tzinfo=CARACAS_TIMEZONE))
     assert target.contains(datetime(2026, 11, 5, 23, 55, 0, tzinfo=CARACAS_TIMEZONE))
     assert not target.contains(datetime(2026, 11, 6, 0, 0, 0, tzinfo=CARACAS_TIMEZONE))
-    assert not target.contains(datetime(2026, 11, 4, 23, 59, 59, tzinfo=CARACAS_TIMEZONE))
+    assert not target.contains(
+        datetime(2026, 11, 4, 23, 59, 59, tzinfo=CARACAS_TIMEZONE)
+    )
 
 
 def test_contains_uses_caracas_offset_for_utc_moments() -> None:

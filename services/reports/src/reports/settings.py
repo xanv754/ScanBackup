@@ -54,7 +54,9 @@ class SettingsLoader:
     """
 
     def __init__(
-        self, environment: Mapping[str, str], validator: ReportConfigValidator | None = None
+        self,
+        environment: Mapping[str, str],
+        validator: ReportConfigValidator | None = None,
     ) -> None:
         """Receive the environment to read (injected instead of reading `os.environ`)."""
         self._environment = environment
@@ -81,7 +83,9 @@ class SettingsLoader:
 
     def _read_config_file(self, causes: list[str]) -> Mapping[str, object] | None:
         """Parse `config.yml`; an empty file is an empty mapping (all defaults)."""
-        config_path = Path(self._environment.get(CONFIG_PATH_VARIABLE) or DEFAULT_CONFIG_PATH)
+        config_path = Path(
+            self._environment.get(CONFIG_PATH_VARIABLE) or DEFAULT_CONFIG_PATH
+        )
         try:
             content = yaml.safe_load(config_path.read_text(encoding=TEXT_ENCODING))
         except (OSError, UnicodeDecodeError) as error:
@@ -94,7 +98,9 @@ class SettingsLoader:
         if content is None:
             return {}
         if not isinstance(content, dict):
-            causes.append(f"El archivo {config_path} debe ser un mapeo de claves y valores")
+            causes.append(
+                f"El archivo {config_path} debe ser un mapeo de claves y valores"
+            )
             return None
         return content
 
@@ -131,7 +137,9 @@ class SettingsLoader:
         return None if has_invalid_structure else reports_values
 
     @staticmethod
-    def _mapping_or_cause(value: object, path: str, causes: list[str]) -> Mapping[str, object]:
+    def _mapping_or_cause(
+        value: object, path: str, causes: list[str]
+    ) -> Mapping[str, object]:
         """Return `value` as a mapping; None is an empty mapping and anything else a cause."""
         if value is None:
             return {}
@@ -160,7 +168,8 @@ class SettingsLoader:
             "password": self._environment.get(MONGO_PASSWORD_VARIABLE, ""),
             "database": self._environment.get(MONGO_DATABASE_VARIABLE, ""),
             "auth_source": (
-                self._environment.get(MONGO_AUTH_SOURCE_VARIABLE) or DEFAULT_MONGO_AUTH_SOURCE
+                self._environment.get(MONGO_AUTH_SOURCE_VARIABLE)
+                or DEFAULT_MONGO_AUTH_SOURCE
             ),
         }
         try:
@@ -176,7 +185,10 @@ class SettingsLoader:
     @staticmethod
     def _describe(error_type: str) -> str:
         """Return the cause text for a validation error type."""
-        if error_type in (ValidationErrorType.MISSING, ValidationErrorType.STRING_TOO_SHORT):
+        if error_type in (
+            ValidationErrorType.MISSING,
+            ValidationErrorType.STRING_TOO_SHORT,
+        ):
             return "ausente o vacío"
         if error_type == ValidationErrorType.EXTRA_FORBIDDEN:
             return "clave no reconocida"

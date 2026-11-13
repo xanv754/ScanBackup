@@ -76,7 +76,9 @@ def test_connect_timeout_is_a_timeout_not_a_connection_error(
         client.fetch_html(PAGE_URL)
 
 
-def test_connection_failure_maps_to_connection_error(client: ScanClient, session: Mock) -> None:
+def test_connection_failure_maps_to_connection_error(
+    client: ScanClient, session: Mock
+) -> None:
     """RF-003: requests.ConnectionError means "sin conexión a SCAN"."""
     session.get.side_effect = requests.ConnectionError()
 
@@ -128,7 +130,9 @@ def test_context_manager_closes_session(session: Mock) -> None:
     session.close.assert_called_once()
 
 
-def test_same_session_is_reused_between_pages(client: ScanClient, session: Mock) -> None:
+def test_same_session_is_reused_between_pages(
+    client: ScanClient, session: Mock
+) -> None:
     """RF-003: one session is reused for every page."""
     session.get.return_value = build_response(200)
 
@@ -157,7 +161,9 @@ def test_probe_rejects_401(client: ScanClient, session: Mock) -> None:
 
 
 @pytest.mark.parametrize("status_code", [500, 503])
-def test_probe_rejects_server_errors(client: ScanClient, session: Mock, status_code: int) -> None:
+def test_probe_rejects_server_errors(
+    client: ScanClient, session: Mock, status_code: int
+) -> None:
     """Startup: HTTP 5xx means SCAN is failing."""
     session.get.return_value = build_response(status_code)
 
@@ -167,7 +173,10 @@ def test_probe_rejects_server_errors(client: ScanClient, session: Mock, status_c
 
 @pytest.mark.parametrize(
     ("raised", "expected"),
-    [(requests.Timeout(), ScanTimeoutError), (requests.ConnectionError(), ScanConnectionError)],
+    [
+        (requests.Timeout(), ScanTimeoutError),
+        (requests.ConnectionError(), ScanConnectionError),
+    ],
 )
 def test_probe_maps_transport_failures(
     client: ScanClient, session: Mock, raised: Exception, expected: type[Exception]

@@ -29,6 +29,8 @@ class InterfaceRepository:
                 {"_id": 1, "scan_url": 1},
             )
             return [
-                ActiveInterface(interface_id=document["_id"], scan_url=document["scan_url"])
+                ActiveInterface(
+                    interface_id=document["_id"], scan_url=document["scan_url"]
+                )
                 for document in documents
             ]

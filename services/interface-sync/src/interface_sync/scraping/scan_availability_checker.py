@@ -27,7 +27,9 @@ class ScanAvailabilityChecker:
         try:
             self._prober.probe(base_url)
         except PageFetchError as error:
-            self._logger.error(LogEvent.SCAN_BASE_UNREACHABLE, f"{base_url} ({error.cause})")
+            self._logger.error(
+                LogEvent.SCAN_BASE_UNREACHABLE, f"{base_url} ({error.cause})"
+            )
             return BaseUrlCheck(base_url=base_url, cause=error.cause)
         self._logger.info(LogEvent.SCAN_BASE_RESPONDED, base_url)
         return BaseUrlCheck(base_url=base_url)

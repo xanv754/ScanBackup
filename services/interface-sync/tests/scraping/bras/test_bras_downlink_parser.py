@@ -5,9 +5,15 @@ from interface_sync.scraping.bras.downlink import BrasDownlinkParser
 
 MENU_URL = "https://scan.example/cgi-bin/bras/captura-ip-bras.cgi?IP-CAPTURADAS-SUMA-BRAS.dummy"
 SUFFIX = " - Trafico de Red"
-ANZ_00_URL = "https://scan.example/cgi-bin/bras/downlink-bras-anz.cgi?DOWNLINK-ANZ-BRAS-00.dummy"
-ANZ_02_URL = "https://scan.example/cgi-bin/bras/downlink-bras-anz.cgi?DOWNLINK-ANZ-BRAS-02.dummy"
-BOL_01_URL = "https://scan.example/cgi-bin/bras/downlink-bras-bol.cgi?DOWNLINK-BOL-BRAS-01.dummy"
+ANZ_00_URL = (
+    "https://scan.example/cgi-bin/bras/downlink-bras-anz.cgi?DOWNLINK-ANZ-BRAS-00.dummy"
+)
+ANZ_02_URL = (
+    "https://scan.example/cgi-bin/bras/downlink-bras-anz.cgi?DOWNLINK-ANZ-BRAS-02.dummy"
+)
+BOL_01_URL = (
+    "https://scan.example/cgi-bin/bras/downlink-bras-bol.cgi?DOWNLINK-BOL-BRAS-01.dummy"
+)
 
 
 class FakeFetcher:
@@ -47,9 +53,15 @@ def build_group(
 ) -> str:
     sections = [
         build_entry("Disp. X-BRAS-00", "/status.html"),
-        build_entry("Sumatorias DOWNLINK", "/cgi-bin/bras/downlink-bras.cgi?DOWNLINK-BRAS.dummy"),
-        build_entry("Sumatorias UPLINK", "/cgi-bin/bras/uplink-bras.cgi?UPLINK-BRAS.dummy"),
-        build_section("POOLS POR BRAS", [(f"{label}-00", "/cgi-bin/bras/pool.cgi?POOL.dummy")]),
+        build_entry(
+            "Sumatorias DOWNLINK", "/cgi-bin/bras/downlink-bras.cgi?DOWNLINK-BRAS.dummy"
+        ),
+        build_entry(
+            "Sumatorias UPLINK", "/cgi-bin/bras/uplink-bras.cgi?UPLINK-BRAS.dummy"
+        ),
+        build_section(
+            "POOLS POR BRAS", [(f"{label}-00", "/cgi-bin/bras/pool.cgi?POOL.dummy")]
+        ),
     ]
     if downlink is not None:
         sections.append(build_section("DOWNLINK POR BRAS", downlink))
@@ -62,7 +74,9 @@ def build_group(
 
 
 def build_menu(*groups: str, with_sidebar: bool = True, with_menu: bool = True) -> str:
-    menu_open, menu_close = ('<ul role="menu">', "</ul>") if with_menu else ("<ul>", "</ul>")
+    menu_open, menu_close = (
+        ('<ul role="menu">', "</ul>") if with_menu else ("<ul>", "</ul>")
+    )
     sidebar_class = "sidebar" if with_sidebar else "other"
     return (
         f'<html><body><div class="{sidebar_class}"><nav>{menu_open}'
@@ -73,8 +87,12 @@ def build_menu(*groups: str, with_sidebar: bool = True, with_menu: bool = True) 
 
 
 def build_block(title: str | None, href: str | None = "/mrtg/x.html") -> str:
-    title_html = f'<li id="subtitulo" class="list-group-item"> {title}\n</li>' if title else ""
-    link_html = f'<a href="{href}" target="_blank"><img src="x.png"></a>' if href else ""
+    title_html = (
+        f'<li id="subtitulo" class="list-group-item"> {title}\n</li>' if title else ""
+    )
+    link_html = (
+        f'<a href="{href}" target="_blank"><img src="x.png"></a>' if href else ""
+    )
     return (
         '<div class="col-sm-12"><ul class="list-group">'
         f'{title_html}<li id="graficas"><center>{link_html}'
@@ -90,7 +108,9 @@ def build_device_page(
 ) -> str:
     content_tag = "section" if with_content else "article"
     row_open, row_close = ('<div class="row">', "</div>") if with_row else ("", "")
-    col_open, col_close = ('<div class="col-md-12"><br>', "</div>") if with_column else ("", "")
+    col_open, col_close = (
+        ('<div class="col-md-12"><br>', "</div>") if with_column else ("", "")
+    )
     return (
         f'<html><body><{content_tag} class="content">{row_open}{col_open}'
         f"{''.join(blocks)}{col_close}{row_close}</{content_tag}></body></html>"
@@ -102,7 +122,10 @@ def menu_with_anz_00() -> str:
         build_group(
             "ANZ-BRAS",
             downlink=[
-                ("ANZ-BRAS-00", "/cgi-bin/bras/downlink-bras-anz.cgi?DOWNLINK-ANZ-BRAS-00.dummy")
+                (
+                    "ANZ-BRAS-00",
+                    "/cgi-bin/bras/downlink-bras-anz.cgi?DOWNLINK-ANZ-BRAS-00.dummy",
+                )
             ],
         )
     )
@@ -115,7 +138,9 @@ def parse_one_page(blocks: list[str]) -> list:
 
 def test_valid_interface_is_fully_extracted() -> None:
     """RF-003: name, scan_url, capacity and vendor come from a regular block."""
-    blocks = [build_block(f"ANZ-BRAS-00 - (10GB GE1/0/1){SUFFIX}", "/mrtg/r27429-ge101.html")]
+    blocks = [
+        build_block(f"ANZ-BRAS-00 - (10GB GE1/0/1){SUFFIX}", "/mrtg/r27429-ge101.html")
+    ]
 
     [interface] = parse_one_page(blocks)
 
@@ -132,14 +157,23 @@ def test_device_pages_are_fetched_in_menu_order_with_absolute_urls() -> None:
         build_group(
             "ANZ-BRAS",
             downlink=[
-                ("ANZ-BRAS-00", "/cgi-bin/bras/downlink-bras-anz.cgi?DOWNLINK-ANZ-BRAS-00.dummy"),
-                ("ANZ-BRAS-02", "/cgi-bin/bras/downlink-bras-anz.cgi?DOWNLINK-ANZ-BRAS-02.dummy"),
+                (
+                    "ANZ-BRAS-00",
+                    "/cgi-bin/bras/downlink-bras-anz.cgi?DOWNLINK-ANZ-BRAS-00.dummy",
+                ),
+                (
+                    "ANZ-BRAS-02",
+                    "/cgi-bin/bras/downlink-bras-anz.cgi?DOWNLINK-ANZ-BRAS-02.dummy",
+                ),
             ],
         ),
         build_group(
             "BOL-BRAS",
             downlink=[
-                ("BOL-BRAS-01", "/cgi-bin/bras/downlink-bras-bol.cgi?DOWNLINK-BOL-BRAS-01.dummy")
+                (
+                    "BOL-BRAS-01",
+                    "/cgi-bin/bras/downlink-bras-bol.cgi?DOWNLINK-BOL-BRAS-01.dummy",
+                )
             ],
         ),
     )
@@ -154,17 +188,29 @@ def test_device_pages_are_fetched_in_menu_order_with_absolute_urls() -> None:
 
 def test_only_its_own_direction_is_followed() -> None:
     """RF-003: Uplink, Sumatorias, Pools and Disp. entries are never downloaded."""
-    uplink_url = "https://scan.example/cgi-bin/bras/uplink-bras-anz.cgi?UPLINK-ANZ-BRAS-00.dummy"
+    uplink_url = (
+        "https://scan.example/cgi-bin/bras/uplink-bras-anz.cgi?UPLINK-ANZ-BRAS-00.dummy"
+    )
     menu = build_menu(
         build_group(
             "ANZ-BRAS",
             downlink=[
-                ("ANZ-BRAS-00", "/cgi-bin/bras/downlink-bras-anz.cgi?DOWNLINK-ANZ-BRAS-00.dummy")
+                (
+                    "ANZ-BRAS-00",
+                    "/cgi-bin/bras/downlink-bras-anz.cgi?DOWNLINK-ANZ-BRAS-00.dummy",
+                )
             ],
-            uplink=[("ANZ-BRAS-00", "/cgi-bin/bras/uplink-bras-anz.cgi?UPLINK-ANZ-BRAS-00.dummy")],
+            uplink=[
+                (
+                    "ANZ-BRAS-00",
+                    "/cgi-bin/bras/uplink-bras-anz.cgi?UPLINK-ANZ-BRAS-00.dummy",
+                )
+            ],
         )
     )
-    fetcher = FakeFetcher({ANZ_00_URL: build_device_page(), uplink_url: build_device_page()})
+    fetcher = FakeFetcher(
+        {ANZ_00_URL: build_device_page(), uplink_url: build_device_page()}
+    )
 
     BrasDownlinkParser(fetcher).parse(menu, MENU_URL)
 
@@ -177,8 +223,14 @@ def test_interfaces_of_different_devices_keep_consecutive_positions() -> None:
         build_group(
             "ANZ-BRAS",
             downlink=[
-                ("ANZ-BRAS-00", "/cgi-bin/bras/downlink-bras-anz.cgi?DOWNLINK-ANZ-BRAS-00.dummy"),
-                ("ANZ-BRAS-02", "/cgi-bin/bras/downlink-bras-anz.cgi?DOWNLINK-ANZ-BRAS-02.dummy"),
+                (
+                    "ANZ-BRAS-00",
+                    "/cgi-bin/bras/downlink-bras-anz.cgi?DOWNLINK-ANZ-BRAS-00.dummy",
+                ),
+                (
+                    "ANZ-BRAS-02",
+                    "/cgi-bin/bras/downlink-bras-anz.cgi?DOWNLINK-ANZ-BRAS-02.dummy",
+                ),
             ],
         )
     )
@@ -200,7 +252,9 @@ def test_interfaces_of_different_devices_keep_consecutive_positions() -> None:
 @pytest.mark.parametrize(
     "group",
     [
-        build_group("ANZ-BRAS", downlink=[("ANZ-BRAS-00", "/x.cgi")], css_class="nav-item"),
+        build_group(
+            "ANZ-BRAS", downlink=[("ANZ-BRAS-00", "/x.cgi")], css_class="nav-item"
+        ),
         build_group("ANZ-BRAS", downlink=[("ANZ-BRAS-00", "/x.cgi")], css_class="menu"),
         build_group("ANZ-BRAS-1", downlink=[("ANZ-BRAS-1-00", "/x.cgi")]),
         build_group("anz-bras", downlink=[("anz-bras-00", "/x.cgi")]),
@@ -298,7 +352,9 @@ def test_empty_name_is_kept_as_incomplete_interface() -> None:
         ("ANZ-BRAS-00", None),
     ],
 )
-def test_capacity_is_read_from_the_port_name(title: str, expected: float | None) -> None:
+def test_capacity_is_read_from_the_port_name(
+    title: str, expected: float | None
+) -> None:
     """RF-003: the number before `GB` is the capacity; otherwise it is not obtainable."""
     [interface] = parse_one_page([build_block(f"{title}{SUFFIX}")])
 
@@ -325,7 +381,10 @@ def test_summaries_are_skipped_without_consuming_a_position(title: str) -> None:
 
     interfaces = parse_one_page(blocks)
 
-    assert [(i.position, i.name) for i in interfaces] == [(1, "A (10GB GE1)"), (2, "B (10GB GE2)")]
+    assert [(i.position, i.name) for i in interfaces] == [
+        (1, "A (10GB GE1)"),
+        (2, "B (10GB GE2)"),
+    ]
 
 
 @pytest.mark.parametrize(
@@ -347,7 +406,9 @@ def test_scan_url_is_absolute_and_ends_in_log(href: str, expected: str) -> None:
     assert interface.scan_url == expected
 
 
-@pytest.mark.parametrize("href", ["/mrtg/r1.log", "/mrtg/r1", "/mrtg/r1.htm", "/mrtg/", "#", ""])
+@pytest.mark.parametrize(
+    "href", ["/mrtg/r1.log", "/mrtg/r1", "/mrtg/r1.htm", "/mrtg/", "#", ""]
+)
 def test_href_without_html_extension_leaves_scan_url_empty(href: str) -> None:
     """RF-003/RF-004: an href not ending in `.html` makes the interface incomplete."""
     [interface] = parse_one_page([build_block(f"A (10GB GE1){SUFFIX}", href)])
@@ -375,14 +436,18 @@ def test_block_without_graphs_item_is_kept_as_incomplete_interface() -> None:
 
 def test_block_without_title_is_ignored() -> None:
     """RF-003: a block with no `li#subtitulo` is not an interface."""
-    interfaces = parse_one_page([build_block(None), build_block(f"A (10GB GE1){SUFFIX}")])
+    interfaces = parse_one_page(
+        [build_block(None), build_block(f"A (10GB GE1){SUFFIX}")]
+    )
 
     assert [(i.position, i.name) for i in interfaces] == [(1, "A (10GB GE1)")]
 
 
 def test_device_page_with_only_summaries_returns_empty_list() -> None:
     """RF-003/RF-006: structure present but no interface rows yields an empty listing."""
-    assert parse_one_page([build_block("Sumatoria ANZ-BRAS-00 - Total de downlink")]) == []
+    assert (
+        parse_one_page([build_block("Sumatoria ANZ-BRAS-00 - Total de downlink")]) == []
+    )
 
 
 def test_device_page_with_zero_rows_returns_empty_list() -> None:
@@ -450,12 +515,20 @@ def test_failure_downloading_a_device_page_reaches_the_caller() -> None:
         build_group(
             "ANZ-BRAS",
             downlink=[
-                ("ANZ-BRAS-00", "/cgi-bin/bras/downlink-bras-anz.cgi?DOWNLINK-ANZ-BRAS-00.dummy"),
-                ("ANZ-BRAS-02", "/cgi-bin/bras/downlink-bras-anz.cgi?DOWNLINK-ANZ-BRAS-02.dummy"),
+                (
+                    "ANZ-BRAS-00",
+                    "/cgi-bin/bras/downlink-bras-anz.cgi?DOWNLINK-ANZ-BRAS-00.dummy",
+                ),
+                (
+                    "ANZ-BRAS-02",
+                    "/cgi-bin/bras/downlink-bras-anz.cgi?DOWNLINK-ANZ-BRAS-02.dummy",
+                ),
             ],
         )
     )
-    fetcher = FakeFetcher({ANZ_00_URL: build_device_page(build_block(f"A (10GB GE1){SUFFIX}"))})
+    fetcher = FakeFetcher(
+        {ANZ_00_URL: build_device_page(build_block(f"A (10GB GE1){SUFFIX}"))}
+    )
 
     with pytest.raises(ScanHttpError):
         BrasDownlinkParser(fetcher).parse(menu, MENU_URL)

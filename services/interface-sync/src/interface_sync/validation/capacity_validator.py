@@ -35,11 +35,17 @@ class CapacityValidator:
             else:
                 defaulted.append(interface)
                 normalized.append(
-                    interface.model_copy(update={FIELD_CAPACITY_GBPS: self.DEFAULT_CAPACITY_GBPS})
+                    interface.model_copy(
+                        update={FIELD_CAPACITY_GBPS: self.DEFAULT_CAPACITY_GBPS}
+                    )
                 )
 
         return CapacityResult(interfaces=normalized, defaulted=defaulted)
 
     def _is_valid(self, capacity_gbps: float | None) -> bool:
         """Tell whether the capacity is a finite, non-negative number."""
-        return capacity_gbps is not None and math.isfinite(capacity_gbps) and capacity_gbps >= 0
+        return (
+            capacity_gbps is not None
+            and math.isfinite(capacity_gbps)
+            and capacity_gbps >= 0
+        )

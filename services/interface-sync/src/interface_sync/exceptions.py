@@ -110,4 +110,6 @@ class UnsupportedPageError(PageFetchError):
 
     def __init__(self, layer: str, vendor: str) -> None:
         """Build the cause from the unsupported layer and vendor."""
-        super().__init__(f"sin soporte para la capa '{layer}' y el proveedor '{vendor}'")
+        super().__init__(
+            f"sin soporte para la capa '{layer}' y el proveedor '{vendor}'"
+        )

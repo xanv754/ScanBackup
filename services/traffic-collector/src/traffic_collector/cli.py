@@ -70,7 +70,9 @@ def execute(
         settings = SettingsLoader(environment).load()
         target_date = TargetDate.previous_day(today)
         connection = MongoConnection(settings.mongo)
-        scan_client = HttpScanClient(settings.scan, settings.collection.request_timeout_seconds)
+        scan_client = HttpScanClient(
+            settings.scan, settings.collection.request_timeout_seconds
+        )
         orchestrator = _build_orchestrator(
             force, target_date, settings, connection, scan_client, event_sink
         )
@@ -81,7 +83,9 @@ def execute(
         event_sink.publish(ProcessFailed((DATABASE_UNAVAILABLE_CAUSE,), error))
     except Exception as error:
         event_sink.publish(
-            ProcessFailed((f"{UNEXPECTED_ERROR_CAUSE}: {type(error).__name__}: {error}",), error)
+            ProcessFailed(
+                (f"{UNEXPECTED_ERROR_CAUSE}: {type(error).__name__}: {error}",), error
+            )
         )
     finally:
         if scan_client is not None:

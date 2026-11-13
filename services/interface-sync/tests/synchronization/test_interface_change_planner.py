@@ -46,7 +46,11 @@ def test_new_interface_is_registered_as_active(
     assert document.id is None
     assert document.status is InterfaceStatus.ACTIVE
     assert document.created_at == document.updated_at == now
-    assert (document.layer, document.name, document.vendor) == ("BORDE", "IF-1", "HUAWEI")
+    assert (document.layer, document.name, document.vendor) == (
+        "BORDE",
+        "IF-1",
+        "HUAWEI",
+    )
     assert document.scan_url == "http://scan/1.log"
     assert document.capacity_gbps == 40.0
     assert isinstance(document.capacity_gbps, float)
@@ -108,7 +112,9 @@ def test_identical_interface_produces_no_change(
     now: datetime,
 ):
     """RF-008/RF-011: without differences nothing is written, so updated_at stays intact."""
-    changes = planner.plan_page(huawei_page, make_listing([make_scraped()]), [make_document()], now)
+    changes = planner.plan_page(
+        huawei_page, make_listing([make_scraped()]), [make_document()], now
+    )
 
     assert changes.registrations == []
     assert changes.modifications == []
@@ -180,14 +186,18 @@ def test_vendor_priority_rules(
     interface = make_scraped(vendor=obtained_vendor, layer="BRAS")
     stored = make_document(vendor=stored_vendor, layer="BRAS")
 
-    changes = planner.plan_page(undefined_page, make_listing([interface]), [stored], now)
+    changes = planner.plan_page(
+        undefined_page, make_listing([interface]), [stored], now
+    )
 
     if expected_vendor is None:
         assert changes.modifications == []
         assert changes.unchanged_count == 1
     else:
         [modification] = changes.modifications
-        assert modification.field_changes == {"vendor": (stored_vendor, expected_vendor)}
+        assert modification.field_changes == {
+            "vendor": (stored_vendor, expected_vendor)
+        }
 
 
 def test_unextracted_vendor_does_not_override_stored_concrete_vendor(
@@ -202,7 +212,9 @@ def test_unextracted_vendor_does_not_override_stored_concrete_vendor(
     interface = make_scraped(vendor=None, name="OTHER NAME", layer="BRAS")
     stored = make_document(vendor="UPLINK", layer="BRAS")
 
-    changes = planner.plan_page(undefined_page, make_listing([interface]), [stored], now)
+    changes = planner.plan_page(
+        undefined_page, make_listing([interface]), [stored], now
+    )
 
     [modification] = changes.modifications
     assert modification.field_changes == {"name": ("IF-1", "OTHER NAME")}
@@ -289,10 +301,15 @@ def test_reappearing_decommissioned_interface_is_reactivated(
     """RF-009: a decommissioned interface that is listed again becomes active."""
     stored = make_document(status=InterfaceStatus.DECOMMISSIONED)
 
-    changes = planner.plan_page(huawei_page, make_listing([make_scraped()]), [stored], now)
+    changes = planner.plan_page(
+        huawei_page, make_listing([make_scraped()]), [stored], now
+    )
 
     [modification] = changes.modifications
-    assert modification.status_change == (InterfaceStatus.DECOMMISSIONED, InterfaceStatus.ACTIVE)
+    assert modification.status_change == (
+        InterfaceStatus.DECOMMISSIONED,
+        InterfaceStatus.ACTIVE,
+    )
     assert modification.field_changes == {}
     assert changes.reactivated_count == 1
     assert changes.updated_count == 0
@@ -313,7 +330,10 @@ def test_reactivation_with_data_changes_is_a_single_modification(
     changes = planner.plan_page(huawei_page, make_listing([interface]), [stored], now)
 
     [modification] = changes.modifications
-    assert modification.status_change == (InterfaceStatus.DECOMMISSIONED, InterfaceStatus.ACTIVE)
+    assert modification.status_change == (
+        InterfaceStatus.DECOMMISSIONED,
+        InterfaceStatus.ACTIVE,
+    )
     assert set(modification.field_changes) == {"name", "capacity_gbps"}
     assert modification.updated_at == now
     assert changes.reactivated_count == 1
@@ -360,7 +380,9 @@ def test_page_plan_mixes_registrations_updates_and_unchanged(
 
     changes = planner.plan_page(huawei_page, make_listing(interfaces), stored, now)
 
-    assert [document.scan_url for document in changes.registrations] == ["http://scan/new.log"]
+    assert [document.scan_url for document in changes.registrations] == [
+        "http://scan/new.log"
+    ]
     assert [modification.scan_url for modification in changes.modifications] == [
         "http://scan/changed.log"
     ]
@@ -392,7 +414,9 @@ def test_interface_without_layer_is_rejected_on_registration(
 ):
     """RF-007: the layer is mandatory; a missing one is a programming error, not a default."""
     with pytest.raises(MissingLayerError):
-        planner.plan_page(huawei_page, make_listing([make_scraped(layer=None)]), [], now)
+        planner.plan_page(
+            huawei_page, make_listing([make_scraped(layer=None)]), [], now
+        )
 
 
 def test_interface_without_layer_is_rejected_on_update(
@@ -416,11 +440,16 @@ def test_missing_active_interface_is_decommissioned(
     """RF-009: an active interface absent from the listing becomes decommissioned."""
     active = [make_document(scan_url="http://scan/gone.log")]
 
-    changes = planner.plan_decommission(active, frozenset({"http://scan/other.log"}), now)
+    changes = planner.plan_decommission(
+        active, frozenset({"http://scan/other.log"}), now
+    )
 
     [modification] = changes.modifications
     assert modification.scan_url == "http://scan/gone.log"
-    assert modification.status_change == (InterfaceStatus.ACTIVE, InterfaceStatus.DECOMMISSIONED)
+    assert modification.status_change == (
+        InterfaceStatus.ACTIVE,
+        InterfaceStatus.DECOMMISSIONED,
+    )
     assert modification.field_changes == {}
     assert modification.updated_at == now
     assert changes.decommissioned_count == 1
@@ -432,7 +461,9 @@ def test_present_active_interface_is_not_decommissioned(
     """RF-009: an interface whose scan_url is present (even if incomplete) is kept."""
     active = [make_document(scan_url="http://scan/incomplete.log")]
 
-    changes = planner.plan_decommission(active, frozenset({"http://scan/incomplete.log"}), now)
+    changes = planner.plan_decommission(
+        active, frozenset({"http://scan/incomplete.log"}), now
+    )
 
     assert changes.modifications == []
     assert changes.unchanged_count == 1

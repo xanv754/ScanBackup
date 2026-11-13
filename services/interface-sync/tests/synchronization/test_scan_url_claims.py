@@ -7,7 +7,9 @@ Scraped = Callable[..., ScrapedInterface]
 Listing = Callable[..., ValidatedListing]
 
 
-def test_first_page_keeps_all_its_interfaces(make_scraped: Scraped, make_listing: Listing):
+def test_first_page_keeps_all_its_interfaces(
+    make_scraped: Scraped, make_listing: Listing
+):
     """RF-011: nothing is dropped from the first page that shows a scan_url."""
     claims = ScanUrlClaims()
     listing = make_listing([make_scraped(scan_url="http://scan/a.log")])
@@ -23,7 +25,9 @@ def test_later_page_drops_scan_urls_taken_by_an_earlier_page(
 ):
     """RF-011: the first page in config.yml order owns a scan_url shown by two pages."""
     claims = ScanUrlClaims()
-    claims.claim(make_listing([make_scraped(scan_url="http://scan/shared.log", layer="DIST")]))
+    claims.claim(
+        make_listing([make_scraped(scan_url="http://scan/shared.log", layer="DIST")])
+    )
     second = make_listing(
         [
             make_scraped(position=1, scan_url="http://scan/shared.log", layer="RAI"),
@@ -34,12 +38,14 @@ def test_later_page_drops_scan_urls_taken_by_an_earlier_page(
     claimed_listing, duplicated = claims.claim(second)
 
     assert duplicated == ["http://scan/shared.log"]
-    assert [interface.scan_url for interface in claimed_listing.complete_interfaces] == [
-        "http://scan/own.log"
-    ]
+    assert [
+        interface.scan_url for interface in claimed_listing.complete_interfaces
+    ] == ["http://scan/own.log"]
 
 
-def test_dropped_interface_still_counts_as_present(make_scraped: Scraped, make_listing: Listing):
+def test_dropped_interface_still_counts_as_present(
+    make_scraped: Scraped, make_listing: Listing
+):
     """RF-009: a duplicated interface stays in present_scan_urls so it is not decommissioned."""
     claims = ScanUrlClaims()
     claims.claim(make_listing([make_scraped(scan_url="http://scan/shared.log")]))

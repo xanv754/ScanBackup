@@ -10,7 +10,11 @@ def make_interface(
 ) -> InterfaceInfo:
     """Build an interface with a new id."""
     return InterfaceInfo(
-        id=ObjectId(), name=name, vendor=vendor, capacity_gbps=capacity, scan_url=f"url/{name}"
+        id=ObjectId(),
+        name=name,
+        vendor=vendor,
+        capacity_gbps=capacity,
+        scan_url=f"url/{name}",
     )
 
 

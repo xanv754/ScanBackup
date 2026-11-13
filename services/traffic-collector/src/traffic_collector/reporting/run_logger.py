@@ -39,7 +39,10 @@ def create_file_logger(log_path: Path) -> logging.Logger:
         existing_handler.close()
         logger.removeHandler(existing_handler)
     handler = RotatingFileHandler(
-        log_path, maxBytes=LOG_MAX_BYTES, backupCount=LOG_BACKUP_COUNT, encoding=TEXT_ENCODING
+        log_path,
+        maxBytes=LOG_MAX_BYTES,
+        backupCount=LOG_BACKUP_COUNT,
+        encoding=TEXT_ENCODING,
     )
     handler.setFormatter(logging.Formatter(LOG_FORMAT))
     logger.addHandler(handler)
@@ -71,7 +74,8 @@ class RunLogger:
                 self._logger.warning("Capa %s: sin interfaces activas", event.layer)
             case LayerReadFailed():
                 self._logger.error(
-                    "Capa %s: no se pudieron leer sus interfaces de la base de datos", event.layer
+                    "Capa %s: no se pudieron leer sus interfaces de la base de datos",
+                    event.layer,
                 )
             case InterfaceFailed():
                 self._logger.error(

@@ -31,7 +31,9 @@ class DailySummaryPhase:
         generated_count = 0
         skipped_count = 0
         try:
-            summarized_ids = self._summary_writer.interface_ids_with_summary(target_date.key)
+            summarized_ids = self._summary_writer.interface_ids_with_summary(
+                target_date.key
+            )
             for daily_traffic in self._traffic_reader.daily_by_date(target_date.key):
                 summary = self._calculator.calculate(daily_traffic)
                 if summary is None or daily_traffic.interface_id in summarized_ids:

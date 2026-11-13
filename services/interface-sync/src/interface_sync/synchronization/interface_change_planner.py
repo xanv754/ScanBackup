@@ -10,7 +10,11 @@ from interface_sync.constants.constants import (
 from interface_sync.constants.enums import InterfaceStatus
 from interface_sync.exceptions import EmptyListingError, MissingLayerError
 from interface_sync.models import PageConfig, ScrapedInterface, ValidatedListing
-from interface_sync.persistence import InterfaceChanges, InterfaceDocument, InterfaceModification
+from interface_sync.persistence import (
+    InterfaceChanges,
+    InterfaceDocument,
+    InterfaceModification,
+)
 
 
 class InterfaceChangePlanner:
@@ -74,7 +78,9 @@ class InterfaceChangePlanner:
         never decommission anything.
         """
         if not present_scan_urls:
-            raise EmptyListingError("un listado vacío no puede desincorporar interfaces")
+            raise EmptyListingError(
+                "un listado vacío no puede desincorporar interfaces"
+            )
         modifications = [
             InterfaceModification(
                 scan_url=active.scan_url,
@@ -145,7 +151,9 @@ class InterfaceChangePlanner:
         return interface.layer
 
     @staticmethod
-    def _resolve_capacity(interface: ScrapedInterface, stored: InterfaceDocument) -> float:
+    def _resolve_capacity(
+        interface: ScrapedInterface, stored: InterfaceDocument
+    ) -> float:
         """Return the capacity to keep: a defaulted `0` never replaces a stored non-zero one."""
         obtained = float(interface.capacity_gbps or 0.0)
         if obtained == 0.0 and stored.capacity_gbps != 0.0:

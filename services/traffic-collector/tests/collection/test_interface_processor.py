@@ -128,7 +128,9 @@ def test_scan_error_fails_with_its_cause_and_touches_nothing(
 
 def test_force_with_zero_valid_samples_deletes_nothing(stores: FakeStores) -> None:
     """--force never deletes when the new data is not valid (RF-021)."""
-    result = build_processor(stores, force=True).process(make_interface(), "BORDE", "garbage")
+    result = build_processor(stores, force=True).process(
+        make_interface(), "BORDE", "garbage"
+    )
 
     assert not result.succeeded
     assert stores.operations == []
@@ -136,7 +138,9 @@ def test_force_with_zero_valid_samples_deletes_nothing(stores: FakeStores) -> No
 
 def test_force_deletes_summary_then_raw_then_saves(stores: FakeStores) -> None:
     """--force deletes the summary, then the raw day, then stores the new one (RF-021)."""
-    result = build_processor(stores, force=True).process(make_interface(), "BORDE", build_log(288))
+    result = build_processor(stores, force=True).process(
+        make_interface(), "BORDE", build_log(288)
+    )
 
     assert result.succeeded
     assert stores.operations == ["delete_summary", "delete", "save"]
@@ -167,7 +171,9 @@ def test_database_error_on_forced_delete_does_not_save(
     """If a forced deletion fails, nothing new is saved (RF-021, RF-025)."""
     stores.fail_on = failing_operation
 
-    result = build_processor(stores, force=True).process(make_interface(), "BORDE", build_log(288))
+    result = build_processor(stores, force=True).process(
+        make_interface(), "BORDE", build_log(288)
+    )
 
     assert result.is_storage_failure
     assert stores.saved == []

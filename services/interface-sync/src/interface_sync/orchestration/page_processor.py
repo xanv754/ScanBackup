@@ -5,7 +5,11 @@ from interface_sync.exceptions import DatabaseError, PageFetchError
 from interface_sync.models import PageConfig, PageResult
 from interface_sync.persistence import InterfaceRepository
 from interface_sync.scraping import PageScraper
-from interface_sync.synchronization import ChangeReporter, InterfaceChangePlanner, ScanUrlClaims
+from interface_sync.synchronization import (
+    ChangeReporter,
+    InterfaceChangePlanner,
+    ScanUrlClaims,
+)
 from interface_sync.utils.logger import ServiceLogger
 from interface_sync.validation import ListingValidator
 
@@ -47,21 +51,31 @@ class PageProcessor:
             listing = self._listing_validator.validate(page, interfaces)
         except PageFetchError as error:
             self._logger.error(LogEvent.PAGE_FAILED, f"{page_label} | {error.cause}")
-            return PageResult(page_label=page_label, layer=page.layer, cause=error.cause)
+            return PageResult(
+                page_label=page_label, layer=page.layer, cause=error.cause
+            )
 
         listing, duplicated_scan_urls = self._scan_url_claims.claim(listing)
         for scan_url in duplicated_scan_urls:
-            self._logger.warning(LogEvent.DUPLICATED_INTERFACE, f"{page_label} | {scan_url}")
+            self._logger.warning(
+                LogEvent.DUPLICATED_INTERFACE, f"{page_label} | {scan_url}"
+            )
 
         try:
             stored_interfaces = self._repository.find_by_scan_urls(
                 {str(interface.scan_url) for interface in listing.complete_interfaces}
             )
-            changes = self._planner.plan_page(page, listing, stored_interfaces, datetime.now(UTC))
+            changes = self._planner.plan_page(
+                page, listing, stored_interfaces, datetime.now(UTC)
+            )
             self._repository.apply(changes)
         except DatabaseError as error:
-            self._logger.error(LogEvent.DATABASE_FAILED, f"{page_label} | {error.cause}")
-            return PageResult(page_label=page_label, layer=page.layer, database_cause=error.cause)
+            self._logger.error(
+                LogEvent.DATABASE_FAILED, f"{page_label} | {error.cause}"
+            )
+            return PageResult(
+                page_label=page_label, layer=page.layer, database_cause=error.cause
+            )
 
         self._change_reporter.report(changes)
         self._logger.info(

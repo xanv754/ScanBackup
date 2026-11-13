@@ -8,8 +8,12 @@ SUFFIX = " - Tr&aacute;fico de Red"
 
 
 def build_block(title: str | None, href: str | None = "/mrtg/x.html") -> str:
-    title_html = f'<li id="subtitulo" class="list-group-item"> {title}\n</li>' if title else ""
-    link_html = f'<a href="{href}" target="_blank"><img src="x.png"></a>' if href else ""
+    title_html = (
+        f'<li id="subtitulo" class="list-group-item"> {title}\n</li>' if title else ""
+    )
+    link_html = (
+        f'<a href="{href}" target="_blank"><img src="x.png"></a>' if href else ""
+    )
     return (
         '<div class="col-sm-12"><ul class="list-group">'
         f'{title_html}<li id="graficas"><center>{link_html}'
@@ -19,7 +23,9 @@ def build_block(title: str | None, href: str | None = "/mrtg/x.html") -> str:
 
 def build_page(*blocks: str, with_main: bool = True, with_row: bool = True) -> str:
     row_open, row_close = ('<div class="row">', "</div>") if with_row else ("", "")
-    main_open, main_close = ('<main id="main">', "</main>") if with_main else ("<main>", "</main>")
+    main_open, main_close = (
+        ('<main id="main">', "</main>") if with_main else ("<main>", "</main>")
+    )
     return (
         f"<html><body>{main_open}<section>{row_open}{''.join(blocks)}{row_close}</section>"
         f"{main_close}</body></html>"
@@ -71,7 +77,9 @@ def test_name_ignores_prefix_and_suffix_in_any_format(
     assert interface.name == "X 40GE1/0/0"
 
 
-def test_every_interface_carries_the_vendor_of_the_parser(parser: BordeHuaweiParser) -> None:
+def test_every_interface_carries_the_vendor_of_the_parser(
+    parser: BordeHuaweiParser,
+) -> None:
     """RF-003: the vendor is set on every interface, even the incomplete ones."""
     html = build_page(
         build_block(f"X 40GE2/0/0{SUFFIX}"),
@@ -88,7 +96,9 @@ def test_every_interface_carries_the_vendor_of_the_parser(parser: BordeHuaweiPar
 
 def test_name_is_always_uppercase(parser: BordeHuaweiParser) -> None:
     """RF-003: names end up completely in uppercase."""
-    html = build_page(build_block("Enlace Internacional Lanautilus i - chc 40ge2/0/0" + SUFFIX))
+    html = build_page(
+        build_block("Enlace Internacional Lanautilus i - chc 40ge2/0/0" + SUFFIX)
+    )
 
     [interface] = parser.parse(html, PAGE_URL)
 
@@ -97,7 +107,9 @@ def test_name_is_always_uppercase(parser: BordeHuaweiParser) -> None:
 
 def test_prefix_and_suffix_inside_the_name_are_kept(parser: BordeHuaweiParser) -> None:
     """RF-003: only a leading prefix and a trailing suffix are removed."""
-    html = build_page(build_block("Enlace Internacional A Tráfico de Red B 40GE1/0/0" + SUFFIX))
+    html = build_page(
+        build_block("Enlace Internacional A Tráfico de Red B 40GE1/0/0" + SUFFIX)
+    )
 
     [interface] = parser.parse(html, PAGE_URL)
 
@@ -106,7 +118,9 @@ def test_prefix_and_suffix_inside_the_name_are_kept(parser: BordeHuaweiParser) -
 
 def test_title_without_prefix_keeps_its_text(parser: BordeHuaweiParser) -> None:
     """RF-003: a title lacking the prefix is not discarded."""
-    [interface] = parser.parse(build_page(build_block("Otro Enlace 10GE1/0/0" + SUFFIX)), PAGE_URL)
+    [interface] = parser.parse(
+        build_page(build_block("Otro Enlace 10GE1/0/0" + SUFFIX)), PAGE_URL
+    )
 
     assert interface.name == "OTRO ENLACE 10GE1/0/0"
 
@@ -121,7 +135,9 @@ def test_title_without_prefix_keeps_its_text(parser: BordeHuaweiParser) -> None:
 )
 def test_summary_blocks_are_skipped(parser: BordeHuaweiParser, title: str) -> None:
     """RF-003: "Sumatoria" blocks are never obtained, in any format."""
-    html = build_page(build_block(title), build_block("Enlace Internacional A 10GE1/0/0" + SUFFIX))
+    html = build_page(
+        build_block(title), build_block("Enlace Internacional A 10GE1/0/0" + SUFFIX)
+    )
 
     interfaces = parser.parse(html, PAGE_URL)
 
@@ -170,7 +186,9 @@ def test_scan_url_is_complete_and_uses_log_extension(
     assert interface.scan_url == expected_url
 
 
-@pytest.mark.parametrize("href", ["/mrtg/x.png", "/mrtg/x", "/mrtg/x.log", "/mrtg/x.htm", "#"])
+@pytest.mark.parametrize(
+    "href", ["/mrtg/x.png", "/mrtg/x", "/mrtg/x.log", "/mrtg/x.htm", "#"]
+)
 def test_href_without_html_extension_gives_no_scan_url(
     parser: BordeHuaweiParser, href: str
 ) -> None:
@@ -193,7 +211,9 @@ def test_block_without_link_is_kept_as_incomplete(parser: BordeHuaweiParser) -> 
     assert interface.name == "A 10GE1/0/0"
 
 
-def test_block_without_graphs_item_is_kept_as_incomplete(parser: BordeHuaweiParser) -> None:
+def test_block_without_graphs_item_is_kept_as_incomplete(
+    parser: BordeHuaweiParser,
+) -> None:
     """RF-003/RF-004: a block lacking li#graficas keeps its name and has no scan_url."""
     html = build_page(
         '<div><ul><li id="subtitulo">'
@@ -219,7 +239,9 @@ def test_block_with_empty_name_is_kept_as_incomplete(parser: BordeHuaweiParser) 
 
 def test_block_without_title_is_ignored(parser: BordeHuaweiParser) -> None:
     """RF-003: a block that has no li#subtitulo is not an interface."""
-    html = build_page(build_block(None), build_block("Enlace Internacional A 10GE1/0/0"))
+    html = build_page(
+        build_block(None), build_block("Enlace Internacional A 10GE1/0/0")
+    )
 
     interfaces = parser.parse(html, PAGE_URL)
 
@@ -243,7 +265,9 @@ def test_capacity_is_the_number_before_ge(
     parser: BordeHuaweiParser, name: str, expected_capacity: float | None
 ) -> None:
     """RF-003: capacity is the number before "GE"; None when it cannot be obtained."""
-    [interface] = parser.parse(build_page(build_block(f"Enlace Internacional {name}")), PAGE_URL)
+    [interface] = parser.parse(
+        build_page(build_block(f"Enlace Internacional {name}")), PAGE_URL
+    )
 
     assert interface.capacity_gbps == expected_capacity
 
@@ -270,7 +294,9 @@ def test_only_summaries_returns_empty_list(parser: BordeHuaweiParser) -> None:
 def test_missing_main_raises_unreadable_page(parser: BordeHuaweiParser) -> None:
     """RF-003: a page without main#main is unreadable."""
     with pytest.raises(UnreadablePageError) as error_info:
-        parser.parse(build_page(build_block("Enlace Internacional A"), with_main=False), PAGE_URL)
+        parser.parse(
+            build_page(build_block("Enlace Internacional A"), with_main=False), PAGE_URL
+        )
 
     assert "main#main" in error_info.value.cause
 
@@ -278,13 +304,19 @@ def test_missing_main_raises_unreadable_page(parser: BordeHuaweiParser) -> None:
 def test_missing_row_raises_unreadable_page(parser: BordeHuaweiParser) -> None:
     """RF-003: a page without div.row is unreadable."""
     with pytest.raises(UnreadablePageError) as error_info:
-        parser.parse(build_page(build_block("Enlace Internacional A"), with_row=False), PAGE_URL)
+        parser.parse(
+            build_page(build_block("Enlace Internacional A"), with_row=False), PAGE_URL
+        )
 
     assert "div.row" in error_info.value.cause
 
 
-@pytest.mark.parametrize("html", ["", "not html at all", "<html><body><p>Error</p></body></html>"])
-def test_unrelated_content_raises_unreadable_page(parser: BordeHuaweiParser, html: str) -> None:
+@pytest.mark.parametrize(
+    "html", ["", "not html at all", "<html><body><p>Error</p></body></html>"]
+)
+def test_unrelated_content_raises_unreadable_page(
+    parser: BordeHuaweiParser, html: str
+) -> None:
     """RF-003: content lacking the expected structure is unreadable."""
     with pytest.raises(UnreadablePageError):
         parser.parse(html, PAGE_URL)

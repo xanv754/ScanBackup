@@ -20,4 +20,7 @@ class PageScraper:
         parser = self._parser_factory.create(page)
         html = self._client.fetch_html(page.url)
         interfaces = parser.parse(html, page.url)
-        return [interface.model_copy(update={"layer": page.layer}) for interface in interfaces]
+        return [
+            interface.model_copy(update={"layer": page.layer})
+            for interface in interfaces
+        ]

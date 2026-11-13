@@ -48,14 +48,23 @@ def test_each_distinct_base_url_is_probed_once(recording_logger: Any) -> None:
 
 def test_success_is_logged_as_info(recording_logger: Any) -> None:
     """Startup: an answering base URL is registered in the log."""
-    ScanAvailabilityChecker(FakeProber(), recording_logger).check([page("http://scan/a")])
+    ScanAvailabilityChecker(FakeProber(), recording_logger).check(
+        [page("http://scan/a")]
+    )
 
-    assert recording_logger.records == [("info", LogEvent.SCAN_BASE_RESPONDED, "http://scan")]
+    assert recording_logger.records == [
+        ("info", LogEvent.SCAN_BASE_RESPONDED, "http://scan")
+    ]
 
 
 @pytest.mark.parametrize(
     "error",
-    [ScanTimeoutError(), ScanConnectionError(), ScanUnauthorizedError(), ScanHttpError(503)],
+    [
+        ScanTimeoutError(),
+        ScanConnectionError(),
+        ScanUnauthorizedError(),
+        ScanHttpError(503),
+    ],
 )
 def test_failure_is_logged_as_error_with_cause(
     recording_logger: Any, error: PageFetchError
@@ -63,7 +72,9 @@ def test_failure_is_logged_as_error_with_cause(
     """Startup: a base URL that does not answer is registered with its cause."""
     prober = FakeProber({"http://scan": error})
 
-    checks = ScanAvailabilityChecker(prober, recording_logger).check([page("http://scan/a")])
+    checks = ScanAvailabilityChecker(prober, recording_logger).check(
+        [page("http://scan/a")]
+    )
 
     assert not checks[0].responded
     assert checks[0].cause == error.cause
@@ -85,4 +96,7 @@ def test_every_base_url_is_checked_after_a_failure(recording_logger: Any) -> Non
 
 def test_base_url_drops_credentials_and_lowercases_scheme() -> None:
     """Startup: credentials in the URL never reach the log."""
-    assert page("HTTPS://user:pass@scan.example:8443/a").base_url == "https://scan.example:8443"
+    assert (
+        page("HTTPS://user:pass@scan.example:8443/a").base_url
+        == "https://scan.example:8443"
+    )

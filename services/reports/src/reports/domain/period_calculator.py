@@ -10,7 +10,9 @@ class PeriodCalculator:
     in Gbps and no upper limit; it is 0 when the capacity is 0 [RF-038]. Nothing is rounded.
     """
 
-    def calculate(self, interface: InterfaceInfo, summary: AggregatedSummary) -> InterfaceRow:
+    def calculate(
+        self, interface: InterfaceInfo, summary: AggregatedSummary
+    ) -> InterfaceRow:
         """Return the report row of `interface` [RF-035 to RF-038]."""
         in_max_gbps = summary.in_max_bps / BPS_PER_GBPS
         out_max_gbps = summary.out_max_bps / BPS_PER_GBPS

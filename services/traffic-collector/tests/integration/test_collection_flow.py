@@ -10,7 +10,12 @@ from bson import ObjectId
 from pymongo import MongoClient
 from pymongo.database import Database
 
-from tests.integration.conftest import SCAN_PASSWORD, SCAN_USERNAME, ScanSimulator, build_log
+from tests.integration.conftest import (
+    SCAN_PASSWORD,
+    SCAN_USERNAME,
+    ScanSimulator,
+    build_log,
+)
 from traffic_collector.cli import execute
 from traffic_collector.constants.enums import ExitCode
 
@@ -23,7 +28,9 @@ TARGET_DATE = "2026-11-05"
 class Harness:
     """Runs the real `execute` against a throwaway database and the SCAN simulator."""
 
-    def __init__(self, database: Database, simulator: ScanSimulator, tmp_path: Path) -> None:
+    def __init__(
+        self, database: Database, simulator: ScanSimulator, tmp_path: Path
+    ) -> None:
         self.database = database
         self.simulator = simulator
         self.log_path = tmp_path / "logs" / "traffic-collector.log"
@@ -46,7 +53,12 @@ class Harness:
         self.errors = ""
 
     def add_interface(
-        self, layer: str, name: str, body: str | None, status: int = 200, active: bool = True
+        self,
+        layer: str,
+        name: str,
+        body: str | None,
+        status: int = 200,
+        active: bool = True,
     ) -> ObjectId:
         url = self.simulator.serve(f"/{layer}/{name}.log", body or "", status)
         return (
@@ -64,7 +76,9 @@ class Harness:
 
     def run(self, force: bool = False) -> ExitCode:
         output, errors = io.StringIO(), io.StringIO()
-        exit_code = execute(force, self.environment, TODAY, self.log_path, output, errors)
+        exit_code = execute(
+            force, self.environment, TODAY, self.log_path, output, errors
+        )
         self.errors = errors.getvalue()
         return exit_code
 
@@ -122,11 +136,16 @@ def test_cut_layer_keeps_stored_data_and_next_layer_continues(harness: Harness) 
     assert exit_code is ExitCode.FAILED
     layers_stored = sorted(day["layer"] for day in harness.stored_days())
     assert layers_stored == ["A", "B"]
-    assert len([path for path in harness.simulator.requests if path.startswith("/A/")]) <= 3
+    assert (
+        len([path for path in harness.simulator.requests if path.startswith("/A/")])
+        <= 3
+    )
     assert "cortado por fallas consecutivas" in harness.log()
 
 
-def test_first_run_generates_the_daily_summary_and_a_rerun_keeps_it(harness: Harness) -> None:
+def test_first_run_generates_the_daily_summary_and_a_rerun_keeps_it(
+    harness: Harness,
+) -> None:
     """The summary is calculated from the stored samples once per interface (RF-026)."""
     interface_id = harness.add_interface("BORDE", "a", build_log(288))
 
@@ -187,7 +206,9 @@ def test_irregular_log_is_stored_with_warnings(harness: Harness) -> None:
     assert "1 líneas inválidas" in harness.log()
 
 
-def test_interface_without_valid_samples_fails_and_stores_nothing(harness: Harness) -> None:
+def test_interface_without_valid_samples_fails_and_stores_nothing(
+    harness: Harness,
+) -> None:
     """A log with no valid sample of the day fails the interface (RF-024)."""
     harness.add_interface("BORDE", "a", "garbage\n")
 
@@ -197,7 +218,9 @@ def test_interface_without_valid_samples_fails_and_stores_nothing(harness: Harne
     assert "sin muestras válidas" in harness.log()
 
 
-def test_layer_without_active_interfaces_is_skipped_with_warning(harness: Harness) -> None:
+def test_layer_without_active_interfaces_is_skipped_with_warning(
+    harness: Harness,
+) -> None:
     """An empty layer warns and does not stop the run (RF-019)."""
     harness.add_interface("A", "old", None, active=False)
     harness.add_interface("B", "ok", build_log(288))

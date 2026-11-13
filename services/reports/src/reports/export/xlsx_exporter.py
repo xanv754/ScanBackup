@@ -51,7 +51,9 @@ class XlsxReportExporter(ReportExporter):
             raise InvalidSheetNameError(
                 f"el nombre de la capa supera {MAX_SHEET_NAME_LENGTH} caracteres"
             )
-        if any(character in FORBIDDEN_SHEET_NAME_CHARACTERS for character in layer_name):
+        if any(
+            character in FORBIDDEN_SHEET_NAME_CHARACTERS for character in layer_name
+        ):
             raise InvalidSheetNameError(
                 f"el nombre de la capa contiene caracteres no permitidos "
                 f"({FORBIDDEN_SHEET_NAME_CHARACTERS})"

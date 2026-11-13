@@ -17,7 +17,9 @@ class CommandRecorder(monitoring.CommandListener):
         self.commands: list[tuple[str, str]] = []
 
     def started(self, event: monitoring.CommandStartedEvent) -> None:
-        self.commands.append((event.command_name, str(event.command.get(event.command_name))))
+        self.commands.append(
+            (event.command_name, str(event.command.get(event.command_name)))
+        )
 
     def succeeded(self, event: monitoring.CommandSucceededEvent) -> None:
         return

@@ -64,7 +64,8 @@ def execute(
     try:
         causes: list[str] = []
         date_range = _collect(
-            lambda: DateRangeValidator(clock).validate(start, end, extra_arguments), causes
+            lambda: DateRangeValidator(clock).validate(start, end, extra_arguments),
+            causes,
         )
         settings = _collect(SettingsLoader(environment).load, causes)
         if causes or date_range is None or settings is None:
@@ -79,7 +80,9 @@ def execute(
         event_sink.publish(ProcessFailed((DATABASE_UNAVAILABLE_CAUSE,)))
     except Exception as error:
         event_sink.publish(
-            ProcessFailed((f"{UNEXPECTED_ERROR_CAUSE}: {type(error).__name__}: {error}",))
+            ProcessFailed(
+                (f"{UNEXPECTED_ERROR_CAUSE}: {type(error).__name__}: {error}",)
+            )
         )
     finally:
         if connection is not None:
@@ -88,7 +91,9 @@ def execute(
     return ExitCode.PROCESS_ERROR
 
 
-def _collect[ValueT](validate: Callable[[], ValueT], causes: list[str]) -> ValueT | None:
+def _collect[ValueT](
+    validate: Callable[[], ValueT], causes: list[str]
+) -> ValueT | None:
     """Run a validation; add its causes to `causes` and return None if it fails."""
     try:
         return validate()

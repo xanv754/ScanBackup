@@ -31,7 +31,9 @@ class SummaryRepository:
     def interface_ids_with_summary(self, date: str) -> set[ObjectId]:
         """Return the interfaces that already have a summary on `date` with a single query."""
         with translate_database_errors():
-            documents = self._collection.find({"date": date}, {"_id": 0, "interface_id": 1})
+            documents = self._collection.find(
+                {"date": date}, {"_id": 0, "interface_id": 1}
+            )
             return {document["interface_id"] for document in documents}
 
     def save(self, summary: DailySummary) -> None:

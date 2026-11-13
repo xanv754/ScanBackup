@@ -25,12 +25,16 @@ def client() -> Iterator[HttpScanClient]:
     http_client.close()
 
 
-def test_fetch_returns_the_body(client: HttpScanClient, scan_simulator_url: str) -> None:
+def test_fetch_returns_the_body(
+    client: HttpScanClient, scan_simulator_url: str
+) -> None:
     """A successful answer returns the log text with basic auth (RF-016)."""
     assert client.fetch(f"{scan_simulator_url}/ok.log") == LOG_BODY
 
 
-def test_slow_answer_is_a_timeout(client: HttpScanClient, scan_simulator_url: str) -> None:
+def test_slow_answer_is_a_timeout(
+    client: HttpScanClient, scan_simulator_url: str
+) -> None:
     """An answer slower than the timeout is a timeout, not a connection error (RF-022)."""
     with pytest.raises(ScanTimeout):
         client.fetch(f"{scan_simulator_url}/hang.log")
@@ -66,13 +70,17 @@ def test_other_http_errors_keep_the_status(
     assert error.value.status_code == status
 
 
-def test_blank_body_is_an_empty_response(client: HttpScanClient, scan_simulator_url: str) -> None:
+def test_blank_body_is_an_empty_response(
+    client: HttpScanClient, scan_simulator_url: str
+) -> None:
     """A blank body is "respuesta sin datos" (RF-022)."""
     with pytest.raises(ScanEmptyResponse):
         client.fetch(f"{scan_simulator_url}/empty.log")
 
 
-def test_each_thread_uses_its_own_session(client: HttpScanClient, scan_simulator_url: str) -> None:
+def test_each_thread_uses_its_own_session(
+    client: HttpScanClient, scan_simulator_url: str
+) -> None:
     """Sessions are never shared between threads (design: one session per thread)."""
     sessions: list[int] = []
 

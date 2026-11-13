@@ -6,9 +6,7 @@ from traffic_collector.constants.constants import CONFIG_PATH_VARIABLE
 from traffic_collector.exceptions import InvalidSettingsError
 from traffic_collector.settings import SettingsLoader
 
-VALID_CONFIG = (
-    "max_concurrent_requests: 5\nrequest_timeout_seconds: 30\nmax_consecutive_failures: 5\n"
-)
+VALID_CONFIG = "max_concurrent_requests: 5\nrequest_timeout_seconds: 30\nmax_consecutive_failures: 5\n"
 
 
 @pytest.fixture
@@ -74,15 +72,25 @@ def test_non_mapping_config_is_invalid(environment: dict[str, str]) -> None:
     "content",
     [
         "request_timeout_seconds: 30\nmax_consecutive_failures: 5\n",
-        VALID_CONFIG.replace("max_concurrent_requests: 5", "max_concurrent_requests: 0"),
-        VALID_CONFIG.replace("request_timeout_seconds: 30", "request_timeout_seconds: -1"),
-        VALID_CONFIG.replace("max_consecutive_failures: 5", "max_consecutive_failures: true"),
-        VALID_CONFIG.replace("max_concurrent_requests: 5", "max_concurrent_requests: '5'"),
+        VALID_CONFIG.replace(
+            "max_concurrent_requests: 5", "max_concurrent_requests: 0"
+        ),
+        VALID_CONFIG.replace(
+            "request_timeout_seconds: 30", "request_timeout_seconds: -1"
+        ),
+        VALID_CONFIG.replace(
+            "max_consecutive_failures: 5", "max_consecutive_failures: true"
+        ),
+        VALID_CONFIG.replace(
+            "max_concurrent_requests: 5", "max_concurrent_requests: '5'"
+        ),
         VALID_CONFIG + "unknown_key: 1\n",
     ],
     ids=["missing", "zero", "negative", "boolean", "text", "unknown-key"],
 )
-def test_invalid_config_values_are_rejected(environment: dict[str, str], content: str) -> None:
+def test_invalid_config_values_are_rejected(
+    environment: dict[str, str], content: str
+) -> None:
     """Missing, non-positive, mistyped or unknown keys are a general error (RF-028)."""
     write_config(environment, content)
 

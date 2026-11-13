@@ -90,7 +90,9 @@ def test_rf032_missing_file_is_invalid(tmp_path: Path) -> None:
 
 def test_rf032_invalid_yaml_is_invalid(tmp_path: Path) -> None:
     """RF-032: a file that is not valid YAML is invalid."""
-    causes = load_causes(build_environment(write_config(tmp_path, "metadata: [unclosed")))
+    causes = load_causes(
+        build_environment(write_config(tmp_path, "metadata: [unclosed"))
+    )
     assert any("no es YAML válido" in cause for cause in causes)
 
 
@@ -119,7 +121,9 @@ def test_rf032_unknown_keys_are_invalid_at_every_level(
 @pytest.mark.parametrize(
     "prefix", ["", "   ", "a/b", "a\\b", "a:b", "a*b", "a?b", '"', "<>", "a|b"]
 )
-def test_rf032_invalid_prefix_name(tmp_path: Path, export_directory: Path, prefix: str) -> None:
+def test_rf032_invalid_prefix_name(
+    tmp_path: Path, export_directory: Path, prefix: str
+) -> None:
     """RF-032: prefix_name cannot be empty, blank or contain forbidden file name characters."""
     text = reports_section(prefix_name=prefix, export_path=str(export_directory))
     causes = load_causes(build_environment(write_config(tmp_path, text)))
@@ -129,7 +133,9 @@ def test_rf032_invalid_prefix_name(tmp_path: Path, export_directory: Path, prefi
 def test_rf032_prefix_name_must_be_text(tmp_path: Path) -> None:
     """RF-032: prefix_name that is not text is invalid."""
     causes = load_causes(
-        build_environment(write_config(tmp_path, "metadata:\n  reports:\n    prefix_name: 12\n"))
+        build_environment(
+            write_config(tmp_path, "metadata:\n  reports:\n    prefix_name: 12\n")
+        )
     )
     assert any("prefix_name" in cause and "texto" in cause for cause in causes)
 
@@ -155,10 +161,14 @@ def test_rf032_date_format_without_directives_is_valid(
 def test_rf032_date_format_must_be_text_and_not_empty(tmp_path: Path) -> None:
     """RF-032: date_format that is empty or not text is invalid."""
     empty = load_causes(
-        build_environment(write_config(tmp_path, 'metadata:\n  reports:\n    date_format: ""\n'))
+        build_environment(
+            write_config(tmp_path, 'metadata:\n  reports:\n    date_format: ""\n')
+        )
     )
     number = load_causes(
-        build_environment(write_config(tmp_path, "metadata:\n  reports:\n    date_format: 5\n"))
+        build_environment(
+            write_config(tmp_path, "metadata:\n  reports:\n    date_format: 5\n")
+        )
     )
     assert any("vacío" in cause for cause in empty)
     assert any("texto" in cause for cause in number)
@@ -199,10 +209,14 @@ def test_rf032_export_path_without_write_permission_is_invalid(tmp_path: Path) -
 def test_rf032_export_path_must_be_text_and_not_empty(tmp_path: Path) -> None:
     """RF-032: export_path that is empty or not text is invalid."""
     empty = load_causes(
-        build_environment(write_config(tmp_path, 'metadata:\n  reports:\n    export_path: " "\n'))
+        build_environment(
+            write_config(tmp_path, 'metadata:\n  reports:\n    export_path: " "\n')
+        )
     )
     number = load_causes(
-        build_environment(write_config(tmp_path, "metadata:\n  reports:\n    export_path: 5\n"))
+        build_environment(
+            write_config(tmp_path, "metadata:\n  reports:\n    export_path: 5\n")
+        )
     )
     assert any("vacío" in cause for cause in empty)
     assert any("texto" in cause for cause in number)
@@ -227,8 +241,12 @@ def test_rf032_missing_mongo_variables_are_causes_without_secrets(
     tmp_path: Path, export_directory: Path
 ) -> None:
     """RF-032: missing database variables are reported; secret values never are."""
-    config_path = write_config(tmp_path, reports_section(export_path=str(export_directory)))
-    environment = build_environment(config_path, MONGO_HOST="", MONGO_PORT="not-a-number")
+    config_path = write_config(
+        tmp_path, reports_section(export_path=str(export_directory))
+    )
+    environment = build_environment(
+        config_path, MONGO_HOST="", MONGO_PORT="not-a-number"
+    )
     causes = load_causes(environment)
     assert any("host" in cause for cause in causes)
     assert any("port" in cause for cause in causes)

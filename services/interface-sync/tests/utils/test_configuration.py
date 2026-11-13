@@ -59,7 +59,9 @@ def test_load_valid_configuration(config_path: Path, recording_logger: Recording
     assert recording_logger.records == [("info", "Configuración cargada", "2 páginas")]
 
 
-def test_load_standardizes_layer_and_vendor(config_path: Path, recording_logger: RecordingLogger):
+def test_load_standardizes_layer_and_vendor(
+    config_path: Path, recording_logger: RecordingLogger
+):
     """RF-002: text is stripped and layer and vendor are uppercased; the URL is kept."""
     config_path.write_text(
         "links:\n"
@@ -71,12 +73,22 @@ def test_load_standardizes_layer_and_vendor(config_path: Path, recording_logger:
 
     page = ConfigurationFile(config_path, recording_logger).load()[0]
 
-    assert (page.layer, page.vendor, page.url) == ("BORDE", "JUNIPER", "https://Host/Path")
+    assert (page.layer, page.vendor, page.url) == (
+        "BORDE",
+        "JUNIPER",
+        "https://Host/Path",
+    )
 
 
 @pytest.mark.parametrize(
     "vendor_line",
-    ["", "    vendor:\n", '    vendor: ""\n', '    vendor: "   "\n', "    vendor: UnDefined\n"],
+    [
+        "",
+        "    vendor:\n",
+        '    vendor: ""\n',
+        '    vendor: "   "\n',
+        "    vendor: UnDefined\n",
+    ],
 )
 def test_load_vendor_defaults_to_undefined(
     config_path: Path, recording_logger: RecordingLogger, vendor_line: str
@@ -86,7 +98,9 @@ def test_load_vendor_defaults_to_undefined(
         f"links:\n  - layer: a\n    url: http://h\n{vendor_line}", encoding="utf-8"
     )
 
-    assert ConfigurationFile(config_path, recording_logger).load()[0].vendor == "UNDEFINED"
+    assert (
+        ConfigurationFile(config_path, recording_logger).load()[0].vendor == "UNDEFINED"
+    )
 
 
 def test_load_same_layer_with_different_vendor_is_valid(
@@ -128,7 +142,9 @@ def test_load_not_yaml(config_path: Path, recording_logger: RecordingLogger):
     assert "no es YAML válido" in causes[0]
 
 
-def test_load_root_is_not_a_mapping(config_path: Path, recording_logger: RecordingLogger):
+def test_load_root_is_not_a_mapping(
+    config_path: Path, recording_logger: RecordingLogger
+):
     """RF-001: a YAML root that is not a mapping is invalid (cause b)."""
     causes = load_causes(config_path, "- layer: a\n", recording_logger)
 
@@ -136,7 +152,9 @@ def test_load_root_is_not_a_mapping(config_path: Path, recording_logger: Recordi
 
 
 @pytest.mark.parametrize("content", ["", "# only a comment\n"])
-def test_load_without_content(config_path: Path, recording_logger: RecordingLogger, content: str):
+def test_load_without_content(
+    config_path: Path, recording_logger: RecordingLogger, content: str
+):
     """RF-001: an empty file or one with only comments is invalid (cause c)."""
     causes = load_causes(config_path, content, recording_logger)
 
@@ -144,7 +162,9 @@ def test_load_without_content(config_path: Path, recording_logger: RecordingLogg
 
 
 @pytest.mark.parametrize("content", ["links:\n", "links: []\n"])
-def test_load_empty_links(config_path: Path, recording_logger: RecordingLogger, content: str):
+def test_load_empty_links(
+    config_path: Path, recording_logger: RecordingLogger, content: str
+):
     """RF-001: an empty `links` is invalid (cause c)."""
     causes = load_causes(config_path, content, recording_logger)
 
@@ -165,15 +185,27 @@ def test_load_links_is_not_a_list(config_path: Path, recording_logger: Recording
         ("{layer: a}", "Página 1: url: campo obligatorio ausente"),
         ("{layer: '  ', url: 'http://h'}", "Página 1: layer: campo obligatorio vacío"),
         ("{layer: a, url: ''}", "Página 1: url: campo obligatorio vacío"),
-        ("{layer: a, url: 'http://h', extra: 1}", "Página 1: extra: clave no reconocida"),
-        ("{layer: a, url: 'ftp://h/x'}", "Página 1: url: la URL debe usar el esquema http o https"),
-        ("{layer: a, url: 'h/x'}", "Página 1: url: la URL debe usar el esquema http o https"),
+        (
+            "{layer: a, url: 'http://h', extra: 1}",
+            "Página 1: extra: clave no reconocida",
+        ),
+        (
+            "{layer: a, url: 'ftp://h/x'}",
+            "Página 1: url: la URL debe usar el esquema http o https",
+        ),
+        (
+            "{layer: a, url: 'h/x'}",
+            "Página 1: url: la URL debe usar el esquema http o https",
+        ),
         ("{layer: a, url: 'https:///x'}", "Página 1: url: la URL no tiene host"),
         ("just text", "Página 1: entrada: cada entrada debe ser un mapeo"),
     ],
 )
 def test_load_invalid_entry(
-    config_path: Path, recording_logger: RecordingLogger, entry: str, expected_cause: str
+    config_path: Path,
+    recording_logger: RecordingLogger,
+    entry: str,
+    expected_cause: str,
 ):
     """RF-001: each invalid entry cause (d, e, g) is reported with its position."""
     causes = load_causes(config_path, f"links:\n  - {entry}\n", recording_logger)
@@ -195,10 +227,14 @@ def test_load_duplicate_layer_and_vendor_after_standardizing(
 
     causes = load_causes(config_path, content, recording_logger)
 
-    assert causes == ["Capa 'BORDE' y proveedor 'HUAWEI' repetidos entre las páginas 1 y 3"]
+    assert causes == [
+        "Capa 'BORDE' y proveedor 'HUAWEI' repetidos entre las páginas 1 y 3"
+    ]
 
 
-def test_load_accumulates_all_causes(config_path: Path, recording_logger: RecordingLogger):
+def test_load_accumulates_all_causes(
+    config_path: Path, recording_logger: RecordingLogger
+):
     """RF-001: causes are not cut at the first one and are all logged as errors."""
     content = (
         "unknown: 1\n"
@@ -221,7 +257,9 @@ def test_load_invalid_entry_is_not_reported_as_duplicate(
     config_path: Path, recording_logger: RecordingLogger
 ):
     """RF-001: duplicate detection only compares entries that are valid on their own."""
-    content = "links:\n  - {layer: a, url: 'http://h/1'}\n  - {layer: a, url: 'ftp://h/2'}\n"
+    content = (
+        "links:\n  - {layer: a, url: 'http://h/1'}\n  - {layer: a, url: 'ftp://h/2'}\n"
+    )
 
     causes = load_causes(config_path, content, recording_logger)
 

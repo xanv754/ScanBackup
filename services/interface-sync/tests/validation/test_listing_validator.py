@@ -5,7 +5,11 @@ import pytest
 from interface_sync.exceptions import InvalidListingError, PageFetchError
 from interface_sync.models import PageConfig, ScrapedInterface
 from interface_sync.utils.logger import ServiceLogger
-from interface_sync.validation import CapacityValidator, CompletenessValidator, ListingValidator
+from interface_sync.validation import (
+    CapacityValidator,
+    CompletenessValidator,
+    ListingValidator,
+)
 
 
 class RecordingLogger(ServiceLogger):
@@ -40,7 +44,9 @@ def recording_logger() -> RecordingLogger:
 
 @pytest.fixture
 def validator(recording_logger: RecordingLogger) -> ListingValidator:
-    return ListingValidator(CompletenessValidator(), CapacityValidator(), recording_logger)
+    return ListingValidator(
+        CompletenessValidator(), CapacityValidator(), recording_logger
+    )
 
 
 @pytest.fixture
@@ -54,7 +60,9 @@ def bras_page() -> PageConfig:
 
 
 def test_valid_listing_continues_without_warnings(
-    validator: ListingValidator, borde_page: PageConfig, recording_logger: RecordingLogger
+    validator: ListingValidator,
+    borde_page: PageConfig,
+    recording_logger: RecordingLogger,
 ):
     """RF-004/005/006: a fully complete listing with valid capacities passes silently."""
     interfaces = [
@@ -72,7 +80,9 @@ def test_valid_listing_continues_without_warnings(
 
 
 def test_incomplete_interface_is_discarded_with_warning(
-    validator: ListingValidator, borde_page: PageConfig, recording_logger: RecordingLogger
+    validator: ListingValidator,
+    borde_page: PageConfig,
+    recording_logger: RecordingLogger,
 ):
     """RF-004: an incomplete interface is warned once and does not fail the page."""
     complete = build_interface(position=1)
@@ -92,7 +102,9 @@ def test_incomplete_interface_is_discarded_with_warning(
 
 
 def test_incomplete_warning_lists_known_data_and_all_missing_fields(
-    validator: ListingValidator, borde_page: PageConfig, recording_logger: RecordingLogger
+    validator: ListingValidator,
+    borde_page: PageConfig,
+    recording_logger: RecordingLogger,
 ):
     """RF-004: the warning includes name and URL when they exist and every missing field."""
     complete = build_interface(position=1)
@@ -107,7 +119,11 @@ def test_incomplete_warning_lists_known_data_and_all_missing_fields(
             "Interfaz incompleta",
             "BORDE HUAWEI | posición 2 | nombre=IF-2 | faltan: scan_url",
         ),
-        ("warning", "Interfaz incompleta", "BORDE HUAWEI | posición 3 | faltan: name, scan_url"),
+        (
+            "warning",
+            "Interfaz incompleta",
+            "BORDE HUAWEI | posición 3 | faltan: name, scan_url",
+        ),
     ]
 
 
@@ -122,7 +138,9 @@ def test_incomplete_interface_with_url_counts_as_present(
     listing = validator.validate(borde_page, [complete, incomplete, without_url])
 
     assert listing.present_scan_urls == {"http://scan/1.log", "http://scan/2.log"}
-    assert [item.scan_url for item in listing.complete_interfaces] == ["http://scan/1.log"]
+    assert [item.scan_url for item in listing.complete_interfaces] == [
+        "http://scan/1.log"
+    ]
 
 
 @pytest.mark.parametrize("capacity_gbps", [None, math.nan, math.inf, -1.0])
@@ -146,7 +164,9 @@ def test_invalid_capacity_defaults_to_zero_with_warning(
 
 
 def test_capacity_is_not_checked_on_incomplete_interfaces(
-    validator: ListingValidator, borde_page: PageConfig, recording_logger: RecordingLogger
+    validator: ListingValidator,
+    borde_page: PageConfig,
+    recording_logger: RecordingLogger,
 ):
     """RF-005: incomplete interfaces are discarded first, so they get no capacity warning."""
     complete = build_interface(position=1)
@@ -159,7 +179,9 @@ def test_capacity_is_not_checked_on_incomplete_interfaces(
 
 
 def test_listing_without_interfaces_is_invalid(
-    validator: ListingValidator, borde_page: PageConfig, recording_logger: RecordingLogger
+    validator: ListingValidator,
+    borde_page: PageConfig,
+    recording_logger: RecordingLogger,
 ):
     """RF-006: a page with zero interfaces is an invalid listing and fails."""
     with pytest.raises(InvalidListingError) as error_info:
@@ -170,7 +192,9 @@ def test_listing_without_interfaces_is_invalid(
 
 
 def test_listing_with_only_incomplete_interfaces_is_invalid(
-    validator: ListingValidator, borde_page: PageConfig, recording_logger: RecordingLogger
+    validator: ListingValidator,
+    borde_page: PageConfig,
+    recording_logger: RecordingLogger,
 ):
     """RF-006: all interfaces incomplete is an invalid listing; each one is still warned."""
     interfaces = [
@@ -181,22 +205,35 @@ def test_listing_with_only_incomplete_interfaces_is_invalid(
     with pytest.raises(InvalidListingError) as error_info:
         validator.validate(borde_page, interfaces)
 
-    assert error_info.value.cause == "listado inválido (todas las interfaces están incompletas)"
-    assert [record[1] for record in recording_logger.records] == ["Interfaz incompleta"] * 2
+    assert (
+        error_info.value.cause
+        == "listado inválido (todas las interfaces están incompletas)"
+    )
+    assert [record[1] for record in recording_logger.records] == [
+        "Interfaz incompleta"
+    ] * 2
 
 
-def test_invalid_listing_is_a_page_failure(validator: ListingValidator, borde_page: PageConfig):
+def test_invalid_listing_is_a_page_failure(
+    validator: ListingValidator, borde_page: PageConfig
+):
     """RF-006: the error is a PageFetchError so the caller handles it as any failed page."""
     with pytest.raises(PageFetchError):
         validator.validate(borde_page, [])
 
 
 def test_bras_listing_uses_page_label_and_interface_vendors(
-    validator: ListingValidator, bras_page: PageConfig, recording_logger: RecordingLogger
+    validator: ListingValidator,
+    bras_page: PageConfig,
+    recording_logger: RecordingLogger,
 ):
     """RF-004/005/006: Bras pages validate like any other; vendors stay on each interface."""
     uplink = ScrapedInterface(
-        position=1, name="UP-1", scan_url="http://scan/u.log", capacity_gbps=10.0, vendor="Uplink"
+        position=1,
+        name="UP-1",
+        scan_url="http://scan/u.log",
+        capacity_gbps=10.0,
+        vendor="Uplink",
     )
     downlink = ScrapedInterface(
         position=2,
@@ -211,9 +248,16 @@ def test_bras_listing_uses_page_label_and_interface_vendors(
 
     listing = validator.validate(bras_page, [uplink, downlink, broken])
 
-    assert [item.vendor for item in listing.complete_interfaces] == ["Uplink", "Downlink"]
+    assert [item.vendor for item in listing.complete_interfaces] == [
+        "Uplink",
+        "Downlink",
+    ]
     assert [item.capacity_gbps for item in listing.complete_interfaces] == [10.0, 0.0]
     assert recording_logger.records == [
-        ("warning", "Interfaz incompleta", "BRAS UNDEFINED | posición 3 | faltan: name, scan_url"),
+        (
+            "warning",
+            "Interfaz incompleta",
+            "BRAS UNDEFINED | posición 3 | faltan: name, scan_url",
+        ),
         ("warning", "Capacidad por defecto", "BRAS UNDEFINED | posición 2 | DOWN-1"),
     ]

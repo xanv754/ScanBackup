@@ -25,5 +25,7 @@ class BrasParser(PageParser):
         interfaces: list[ScrapedInterface] = []
         for direction_parser in self._direction_parsers:
             for interface in direction_parser.parse(html, page_url):
-                interfaces.append(interface.model_copy(update={"position": len(interfaces) + 1}))
+                interfaces.append(
+                    interface.model_copy(update={"position": len(interfaces) + 1})
+                )
         return interfaces

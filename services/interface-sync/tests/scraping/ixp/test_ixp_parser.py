@@ -11,8 +11,12 @@ SUFFIX = " - Trafico de Red"
 
 
 def build_block(title: str | None, href: str | None = "/mrtg/x.html") -> str:
-    title_html = f'<li id="subtitulo" class="list-group-item"> {title}\n</li>' if title else ""
-    link_html = f'<a href="{href}" target="_blank"><img src="x.png"></a>' if href else ""
+    title_html = (
+        f'<li id="subtitulo" class="list-group-item"> {title}\n</li>' if title else ""
+    )
+    link_html = (
+        f'<a href="{href}" target="_blank"><img src="x.png"></a>' if href else ""
+    )
     return (
         '<div class="col-sm-12"><ul class="list-group">'
         f'{title_html}<li id="graficas"><center>{link_html}'
@@ -22,7 +26,9 @@ def build_block(title: str | None, href: str | None = "/mrtg/x.html") -> str:
 
 def build_page(*blocks: str, with_main: bool = True, with_row: bool = True) -> str:
     row_open, row_close = ('<div class="row">', "</div>") if with_row else ("", "")
-    main_open, main_close = ('<main id="main">', "</main>") if with_main else ("<main>", "</main>")
+    main_open, main_close = (
+        ('<main id="main">', "</main>") if with_main else ("<main>", "</main>")
+    )
     return (
         f"<html><body>{main_open}<section>{row_open}{''.join(blocks)}{row_close}</section>"
         f"{main_close}</body></html>"
@@ -50,7 +56,9 @@ def test_valid_interface_is_fully_extracted(parser: IxpParser) -> None:
     assert interface.name == (
         "CHC-HWDINT-01 (100GB ETH-TRUNK1.1502 CONEXIÓN CON PEERING PRIVADO CANTV - MOVILNET)"
     )
-    assert interface.scan_url == "https://scan.example/mrtg/rchc-hwdint-01-100et1_1502.log"
+    assert (
+        interface.scan_url == "https://scan.example/mrtg/rchc-hwdint-01-100et1_1502.log"
+    )
     assert interface.capacity_gbps == 100.0
     assert interface.vendor == "MOVILNET"
 
@@ -86,7 +94,9 @@ def test_title_without_suffix_is_kept_as_an_interface(parser: IxpParser) -> None
 def test_title_without_suffix_keeps_its_whole_text(parser: IxpParser) -> None:
     """RF-003: titles that end abruptly (`-IP`, `NGN LDN`) are kept complete, not lost."""
     html = build_page(
-        build_block("Router X (100GE3/1/0 Conexion con Y (Metro HW) (50|100GE8/0/0) -IP"),
+        build_block(
+            "Router X (100GE3/1/0 Conexion con Y (Metro HW) (50|100GE8/0/0) -IP"
+        ),
         build_block("Router X (100GE3/1/0.3231 conexión con NGN LDN"),
     )
 
@@ -101,7 +111,9 @@ def test_title_without_suffix_keeps_its_whole_text(parser: IxpParser) -> None:
 def test_router_inside_the_name_is_kept(parser: IxpParser) -> None:
     """RF-003: only the leading `Router ` prefix is removed."""
     html = build_page(
-        build_block(f"Router X (100GE1 conexión con Router NetEngine 8000 X8 y){SUFFIX}")
+        build_block(
+            f"Router X (100GE1 conexión con Router NetEngine 8000 X8 y){SUFFIX}"
+        )
     )
 
     [interface] = parser.parse(html, PAGE_URL)
@@ -147,7 +159,9 @@ def test_capacity_is_read_from_the_own_port_only(
 
 def test_capacity_is_a_float(parser: IxpParser) -> None:
     """RF-003: capacity is returned as float, as the model requires."""
-    [interface] = parser.parse(build_page(build_block(f"Router X (10GE1){SUFFIX}")), PAGE_URL)
+    [interface] = parser.parse(
+        build_page(build_block(f"Router X (10GE1){SUFFIX}")), PAGE_URL
+    )
 
     assert isinstance(interface.capacity_gbps, float)
 
@@ -161,7 +175,9 @@ def test_capacity_is_a_float(parser: IxpParser) -> None:
         "Router X (100GE1) Sumatoria - Trafico de Red",
     ],
 )
-def test_summaries_are_skipped_without_consuming_a_position(parser: IxpParser, title: str) -> None:
+def test_summaries_are_skipped_without_consuming_a_position(
+    parser: IxpParser, title: str
+) -> None:
     """RF-003: any title containing "Sumatoria" is omitted; positions stay consecutive."""
     html = build_page(
         build_block(title),
@@ -172,7 +188,10 @@ def test_summaries_are_skipped_without_consuming_a_position(parser: IxpParser, t
 
     interfaces = parser.parse(html, PAGE_URL)
 
-    assert [(i.position, i.name) for i in interfaces] == [(1, "A (100GE1)"), (2, "B (100GE2)")]
+    assert [(i.position, i.name) for i in interfaces] == [
+        (1, "A (100GE1)"),
+        (2, "B (100GE2)"),
+    ]
 
 
 @pytest.mark.parametrize(
@@ -184,11 +203,16 @@ def test_summaries_are_skipped_without_consuming_a_position(parser: IxpParser, t
         ("  /mrtg/r1.html  ", "https://scan.example/mrtg/r1.log"),
         ("/mrtg/r1.html?x=1", "https://scan.example/mrtg/r1.log?x=1"),
         ("/mrtg/r1.v2.html", "https://scan.example/mrtg/r1.v2.log"),
-        ("/mrtg/r27116-ge110.301.html", "https://scan.example/mrtg/r27116-ge110.301.log"),
+        (
+            "/mrtg/r27116-ge110.301.html",
+            "https://scan.example/mrtg/r27116-ge110.301.log",
+        ),
         ("/mrtg/a.html/b.html", "https://scan.example/mrtg/a.html/b.log"),
     ],
 )
-def test_scan_url_is_absolute_and_ends_in_log(parser: IxpParser, href: str, expected: str) -> None:
+def test_scan_url_is_absolute_and_ends_in_log(
+    parser: IxpParser, href: str, expected: str
+) -> None:
     """RF-003: the href is resolved against the page URL and `.html` becomes `.log`."""
     html = build_page(build_block(f"Router A (100GE1){SUFFIX}", href))
 
@@ -197,8 +221,12 @@ def test_scan_url_is_absolute_and_ends_in_log(parser: IxpParser, href: str, expe
     assert interface.scan_url == expected
 
 
-@pytest.mark.parametrize("href", ["/mrtg/r1.log", "/mrtg/r1", "/mrtg/r1.htm", "/mrtg/", "#", ""])
-def test_href_without_html_extension_leaves_scan_url_empty(parser: IxpParser, href: str) -> None:
+@pytest.mark.parametrize(
+    "href", ["/mrtg/r1.log", "/mrtg/r1", "/mrtg/r1.htm", "/mrtg/", "#", ""]
+)
+def test_href_without_html_extension_leaves_scan_url_empty(
+    parser: IxpParser, href: str
+) -> None:
     """RF-003/RF-004: an href not ending in `.html` makes the interface incomplete."""
     html = build_page(build_block(f"Router A (100GE1){SUFFIX}", href))
 
@@ -222,9 +250,7 @@ def test_block_without_graphs_item_is_kept_as_incomplete_interface(
     parser: IxpParser,
 ) -> None:
     """RF-003/RF-004: a block without `li#graficas` is not discarded."""
-    block = (
-        f'<div class="col-sm-12"><ul><li id="subtitulo"> Router A (100GE1){SUFFIX}</li></ul></div>'
-    )
+    block = f'<div class="col-sm-12"><ul><li id="subtitulo"> Router A (100GE1){SUFFIX}</li></ul></div>'
 
     [interface] = parser.parse(build_page(block), PAGE_URL)
 
@@ -233,7 +259,9 @@ def test_block_without_graphs_item_is_kept_as_incomplete_interface(
 
 def test_empty_name_is_kept_as_incomplete_interface(parser: IxpParser) -> None:
     """RF-003/RF-004: a title that is only prefix and suffix leaves `name` as None."""
-    [interface] = parser.parse(build_page(build_block("Router - Trafico de Red")), PAGE_URL)
+    [interface] = parser.parse(
+        build_page(build_block("Router - Trafico de Red")), PAGE_URL
+    )
 
     assert interface.name is None
     assert interface.capacity_gbps is None
@@ -277,7 +305,9 @@ def test_vendor_comes_from_each_interface_name(parser: IxpParser) -> None:
 
 def test_vendor_is_none_when_the_name_is_empty(parser: IxpParser) -> None:
     """RF-003/RF-004: an interface without name has no vendor to extract."""
-    [interface] = parser.parse(build_page(build_block("Router - Trafico de Red")), PAGE_URL)
+    [interface] = parser.parse(
+        build_page(build_block("Router - Trafico de Red")), PAGE_URL
+    )
 
     assert interface.name is None
     assert interface.vendor is None
@@ -288,7 +318,9 @@ def test_vendor_extractor_is_injected(parser: IxpParser) -> None:
     extractor = Mock(spec=IxpVendorExtractor)
     extractor.extract.return_value = "Fake"
 
-    [interface] = IxpParser(extractor).parse(build_page(build_block("Router X")), PAGE_URL)
+    [interface] = IxpParser(extractor).parse(
+        build_page(build_block("Router X")), PAGE_URL
+    )
 
     extractor.extract.assert_called_once_with("X")
     assert interface.vendor == "Fake"
@@ -296,7 +328,9 @@ def test_vendor_extractor_is_injected(parser: IxpParser) -> None:
 
 def test_positions_follow_page_order(parser: IxpParser) -> None:
     """RF-003: interfaces keep the page order with consecutive positions."""
-    html = build_page(*(build_block(f"Router R{i} (100GE{i}){SUFFIX}") for i in range(1, 6)))
+    html = build_page(
+        *(build_block(f"Router R{i} (100GE{i}){SUFFIX}") for i in range(1, 6))
+    )
 
     interfaces = parser.parse(html, PAGE_URL)
 

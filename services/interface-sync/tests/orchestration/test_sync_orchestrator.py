@@ -6,7 +6,13 @@ import pytest
 
 from interface_sync.constants.enums import LogEvent
 from interface_sync.exceptions import DatabaseUnavailableError, InvalidConfigError
-from interface_sync.models import BaseUrlCheck, ExitCode, LayerResult, PageConfig, PageResult
+from interface_sync.models import (
+    BaseUrlCheck,
+    ExitCode,
+    LayerResult,
+    PageConfig,
+    PageResult,
+)
 from interface_sync.orchestration import (
     ScanAvailabilityVerifier,
     ScanCheckOrchestrator,
@@ -54,7 +60,9 @@ class FakeScanAvailabilityChecker:
     def check(self, pages: list[PageConfig]) -> list[BaseUrlCheck]:
         self.checked = True
         return [
-            BaseUrlCheck(base_url=page.base_url, cause=self._unreachable.get(page.base_url))
+            BaseUrlCheck(
+                base_url=page.base_url, cause=self._unreachable.get(page.base_url)
+            )
             for page in pages
         ]
 
@@ -101,7 +109,9 @@ def build_orchestrator(
     recording_logger: Any,
     repository: FakeRepository | None = None,
     checker: FakeScanAvailabilityChecker | None = None,
-) -> tuple[SyncOrchestrator, RecordingTerminal, FakePageProcessor, FakeLayerDecommissioner]:
+) -> tuple[
+    SyncOrchestrator, RecordingTerminal, FakePageProcessor, FakeLayerDecommissioner
+]:
     terminal = RecordingTerminal()
     processor = FakePageProcessor(results)
     decommissioner = FakeLayerDecommissioner(layer_results)
@@ -122,7 +132,9 @@ def build_orchestrator(
 
 
 def ok(page: PageConfig) -> PageResult:
-    return PageResult(page_label=page.label, layer=page.layer, present_scan_urls=frozenset({"u"}))
+    return PageResult(
+        page_label=page.label, layer=page.layer, present_scan_urls=frozenset({"u"})
+    )
 
 
 def test_everything_succeeding_exits_with_zero(recording_logger: Any):
@@ -145,7 +157,11 @@ def test_database_is_prepared_before_any_page(recording_logger: Any):
     """The indexes and connection are checked at startup."""
     repository = FakeRepository()
     orchestrator, _, _, _ = build_orchestrator(
-        [BORDE_PAGE], {BORDE_PAGE.label: ok(BORDE_PAGE)}, [], recording_logger, repository
+        [BORDE_PAGE],
+        {BORDE_PAGE.label: ok(BORDE_PAGE)},
+        [],
+        recording_logger,
+        repository,
     )
 
     orchestrator.run()
@@ -157,9 +173,15 @@ def test_database_unavailable_at_startup_is_a_process_error_without_pages(
     recording_logger: Any,
 ):
     """RF-013: with the database down no page is processed and the exit code is 2."""
-    repository = FakeRepository(DatabaseUnavailableError("Base de datos no disponible (X)"))
+    repository = FakeRepository(
+        DatabaseUnavailableError("Base de datos no disponible (X)")
+    )
     orchestrator, terminal, processor, decommissioner = build_orchestrator(
-        [BORDE_PAGE], {BORDE_PAGE.label: ok(BORDE_PAGE)}, [], recording_logger, repository
+        [BORDE_PAGE],
+        {BORDE_PAGE.label: ok(BORDE_PAGE)},
+        [],
+        recording_logger,
+        repository,
     )
 
     assert orchestrator.run() is ExitCode.PROCESS_ERROR
@@ -183,7 +205,9 @@ def test_invalid_configuration_is_a_process_error_without_pages(recording_logger
 
 def test_scraping_failure_fails_the_run_but_keeps_processing(recording_logger: Any):
     """RF-010: a failed page does not stop the rest, and the run exits with 1."""
-    failed = PageResult(page_label=BORDE_PAGE.label, layer="BORDE", cause="sin conexión a SCAN")
+    failed = PageResult(
+        page_label=BORDE_PAGE.label, layer="BORDE", cause="sin conexión a SCAN"
+    )
     orchestrator, terminal, processor, decommissioner = build_orchestrator(
         [BORDE_PAGE, DIST_PAGE],
         {BORDE_PAGE.label: failed, DIST_PAGE.label: ok(DIST_PAGE)},
@@ -194,21 +218,30 @@ def test_scraping_failure_fails_the_run_but_keeps_processing(recording_logger: A
     assert orchestrator.run() is ExitCode.FAILED
     assert processor.processed == [BORDE_PAGE.label, DIST_PAGE.label]
     assert decommissioner.received is not None
-    assert any(LogEvent.PAGE_FAILED in message for message in terminal.messages("error"))
-    assert any(LogEvent.LAYER_SKIPPED in message for message in terminal.messages("warning"))
+    assert any(
+        LogEvent.PAGE_FAILED in message for message in terminal.messages("error")
+    )
+    assert any(
+        LogEvent.LAYER_SKIPPED in message for message in terminal.messages("warning")
+    )
 
 
 def test_database_failure_is_named_apart_and_fails_the_run(recording_logger: Any):
     """Scraping and database results are separate: scraping succeeds, the database fails, exit 1."""
     failed = PageResult(
-        page_label=BORDE_PAGE.label, layer="BORDE", database_cause="error de base de datos"
+        page_label=BORDE_PAGE.label,
+        layer="BORDE",
+        database_cause="error de base de datos",
     )
     orchestrator, terminal, _, _ = build_orchestrator(
         [BORDE_PAGE], {BORDE_PAGE.label: failed}, [], recording_logger
     )
 
     assert orchestrator.run() is ExitCode.FAILED
-    assert ("info", f"{LogEvent.SCRAPING_SUCCEEDED}: {BORDE_PAGE.label}") in terminal.lines
+    assert (
+        "info",
+        f"{LogEvent.SCRAPING_SUCCEEDED}: {BORDE_PAGE.label}",
+    ) in terminal.lines
     assert (
         "error",
         f"{LogEvent.DATABASE_FAILED}: {BORDE_PAGE.label} (error de base de datos)",
@@ -246,12 +279,20 @@ def test_layer_summary_is_printed_per_layer(recording_logger: Any):
 
     orchestrator.run()
 
-    assert ("info", f"{LogEvent.LAYER_SUMMARY}: BORDE (desincorporadas: 3)") in terminal.lines
-    assert ("info", f"{LogEvent.LAYER_SUMMARY}: DIST (desincorporadas: 0)") in terminal.lines
+    assert (
+        "info",
+        f"{LogEvent.LAYER_SUMMARY}: BORDE (desincorporadas: 3)",
+    ) in terminal.lines
+    assert (
+        "info",
+        f"{LogEvent.LAYER_SUMMARY}: DIST (desincorporadas: 0)",
+    ) in terminal.lines
 
 
 @pytest.mark.parametrize("pages", [[BORDE_PAGE], [BORDE_PAGE, DIST_PAGE]])
-def test_decommission_runs_once_after_all_pages(recording_logger: Any, pages: list[PageConfig]):
+def test_decommission_runs_once_after_all_pages(
+    recording_logger: Any, pages: list[PageConfig]
+):
     """RF-009: the layer decommission needs every page, so it runs once at the end."""
     results = {page.label: ok(page) for page in pages}
     orchestrator, _, processor, decommissioner = build_orchestrator(
@@ -264,7 +305,9 @@ def test_decommission_runs_once_after_all_pages(recording_logger: Any, pages: li
     assert decommissioner.received == [results[page.label] for page in pages]
 
 
-def test_scan_unavailable_is_a_process_error_without_pages_or_database(recording_logger: Any):
+def test_scan_unavailable_is_a_process_error_without_pages_or_database(
+    recording_logger: Any,
+):
     """Startup: a SCAN base URL without answer stops the run before the database and pages."""
     repository = FakeRepository()
     checker = FakeScanAvailabilityChecker({"http://scan": "sin conexión a SCAN"})
@@ -287,7 +330,11 @@ def test_scan_available_is_reported_per_base_url(recording_logger: Any):
     """Startup: each answering base URL is printed and the run continues."""
     checker = FakeScanAvailabilityChecker()
     orchestrator, terminal, processor, _ = build_orchestrator(
-        [BORDE_PAGE], {BORDE_PAGE.label: ok(BORDE_PAGE)}, [], recording_logger, checker=checker
+        [BORDE_PAGE],
+        {BORDE_PAGE.label: ok(BORDE_PAGE)},
+        [],
+        recording_logger,
+        checker=checker,
     )
 
     orchestrator.run()

@@ -4,7 +4,10 @@ from collections.abc import Callable
 import click
 
 from interface_sync.constants.enums import LogEvent
-from interface_sync.exceptions import MissingCredentialsError, MissingDatabaseSettingsError
+from interface_sync.exceptions import (
+    MissingCredentialsError,
+    MissingDatabaseSettingsError,
+)
 from interface_sync.models import ExitCode
 from interface_sync.orchestration import SyncOrchestratorBuilder
 

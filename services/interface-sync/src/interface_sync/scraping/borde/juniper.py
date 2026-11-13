@@ -26,7 +26,9 @@ class BordeJuniperParser(PageParser):
     SUMMARY_PREFIX = "sumatoria"
     PAGE_EXTENSION = ".html"
     TRAFFIC_EXTENSION = ".log"
-    TITLE_PREFIX_PATTERN = re.compile(r"^\s*enlaces?\s+internacional(?:es)?\b", re.IGNORECASE)
+    TITLE_PREFIX_PATTERN = re.compile(
+        r"^\s*enlaces?\s+internacional(?:es)?\b", re.IGNORECASE
+    )
     TITLE_SUFFIX_PATTERN = re.compile(r"-\s*tr[aá]fico\s+de\s+red\s*$", re.IGNORECASE)
     CAPACITY_PATTERN = re.compile(r"(\d+)G[BE]")
 
@@ -78,7 +80,9 @@ class BordeJuniperParser(PageParser):
         parts = urlsplit(urljoin(page_url, str(anchor["href"]).strip()))
         if not parts.path.endswith(self.PAGE_EXTENSION):
             return None
-        traffic_path = parts.path.removesuffix(self.PAGE_EXTENSION) + self.TRAFFIC_EXTENSION
+        traffic_path = (
+            parts.path.removesuffix(self.PAGE_EXTENSION) + self.TRAFFIC_EXTENSION
+        )
         return urlunsplit(parts._replace(path=traffic_path))
 
     def _extract_capacity_gbps(self, name: str | None) -> float | None:

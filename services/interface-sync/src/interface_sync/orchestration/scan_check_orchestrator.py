@@ -1,7 +1,9 @@
 from interface_sync.constants.enums import LogEvent
 from interface_sync.exceptions import InvalidConfigError, ServiceStartupError
 from interface_sync.models import ExitCode
-from interface_sync.orchestration.scan_availability_verifier import ScanAvailabilityVerifier
+from interface_sync.orchestration.scan_availability_verifier import (
+    ScanAvailabilityVerifier,
+)
 from interface_sync.utils.configuration import ConfigurationFile
 from interface_sync.utils.logger import ServiceLogger
 from interface_sync.utils.terminal import Terminal

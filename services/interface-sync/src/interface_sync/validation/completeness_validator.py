@@ -39,7 +39,9 @@ class CompletenessValidator:
             missing_fields = self._find_missing_fields(interface)
             if missing_fields:
                 incomplete.append(
-                    IncompleteInterface(interface=interface, missing_fields=missing_fields)
+                    IncompleteInterface(
+                        interface=interface, missing_fields=missing_fields
+                    )
                 )
             else:
                 complete.append(interface)

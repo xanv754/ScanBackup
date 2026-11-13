@@ -68,8 +68,12 @@ class LayerProcessor:
             return LayerResult(layer=layer, read_failed=True)
 
         skipped_count = len(active_interfaces) - len(pending_interfaces)
-        self._event_sink.publish(LayerStarted(layer, len(active_interfaces), skipped_count))
-        return self._collect(layer, len(active_interfaces), skipped_count, pending_interfaces)
+        self._event_sink.publish(
+            LayerStarted(layer, len(active_interfaces), skipped_count)
+        )
+        return self._collect(
+            layer, len(active_interfaces), skipped_count, pending_interfaces
+        )
 
     def _exclude_collected(
         self, layer: str, active_interfaces: list[ActiveInterface]
@@ -80,8 +84,12 @@ class LayerProcessor:
         """
         if self._force:
             return active_interfaces
-        collected_ids = self._traffic_store.interface_ids_with_samples(layer, self._target_date.key)
-        return [item for item in active_interfaces if item.interface_id not in collected_ids]
+        collected_ids = self._traffic_store.interface_ids_with_samples(
+            layer, self._target_date.key
+        )
+        return [
+            item for item in active_interfaces if item.interface_id not in collected_ids
+        ]
 
     def _collect(
         self,
@@ -99,7 +107,9 @@ class LayerProcessor:
         remaining = iter(pending_interfaces)
         in_flight: dict[Future[str | ScanError], ActiveInterface] = {}
 
-        with ThreadPoolExecutor(max_workers=self._config.max_concurrent_requests) as pool:
+        with ThreadPoolExecutor(
+            max_workers=self._config.max_concurrent_requests
+        ) as pool:
             self._fill_window(pool, remaining, in_flight)
             while in_flight:
                 finished, _ = wait(in_flight, return_when=FIRST_COMPLETED)
@@ -107,7 +117,9 @@ class LayerProcessor:
                     interface = in_flight.pop(future)
                     if cut_reason is not None:
                         continue
-                    result = self._interface_processor.process(interface, layer, future.result())
+                    result = self._interface_processor.process(
+                        interface, layer, future.result()
+                    )
                     processed_count += 1
                     self._report(layer, result)
                     if result.succeeded:
@@ -156,7 +168,9 @@ class LayerProcessor:
         except ScanError as error:
             return error
 
-    def _cut_reason(self, result: InterfaceResult, consecutive_failures: int) -> CutReason | None:
+    def _cut_reason(
+        self, result: InterfaceResult, consecutive_failures: int
+    ) -> CutReason | None:
         """Return why the layer must be cut after a failed interface, or None to continue."""
         if result.is_storage_failure:
             return CutReason.STORAGE_ERROR
@@ -167,7 +181,9 @@ class LayerProcessor:
     def _report(self, layer: str, result: InterfaceResult) -> None:
         """Publish the events that an interface result produces."""
         if result.cause is not None:
-            self._event_sink.publish(InterfaceFailed(layer, result.interface, result.cause))
+            self._event_sink.publish(
+                InterfaceFailed(layer, result.interface, result.cause)
+            )
         elif result.verdict not in (SampleCountVerdict.COMPLETE, None):
             self._event_sink.publish(
                 InterfaceSampleCountWarning(
@@ -176,5 +192,7 @@ class LayerProcessor:
             )
         if result.invalid_line_count:
             self._event_sink.publish(
-                InterfaceInvalidLines(layer, result.interface, result.invalid_line_count)
+                InterfaceInvalidLines(
+                    layer, result.interface, result.invalid_line_count
+                )
             )

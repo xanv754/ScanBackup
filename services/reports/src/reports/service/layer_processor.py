@@ -55,7 +55,9 @@ class LayerProcessor:
         if not result.has_data:
             self._event_sink.publish(LayerEmpty(layer.name))
         if result.incomplete_count > 0:
-            self._event_sink.publish(LayerIncomplete(layer.name, result.incomplete_count))
+            self._event_sink.publish(
+                LayerIncomplete(layer.name, result.incomplete_count)
+            )
         self._event_sink.publish(LayerFinished(result))
         return outcome
 
@@ -80,7 +82,9 @@ class LayerProcessor:
         result = LayerResult(
             layer=layer.name,
             included_count=len(rows),
-            incomplete_count=sum(1 for summary in summaries if summary.days < date_range.day_count),
+            incomplete_count=sum(
+                1 for summary in summaries if summary.days < date_range.day_count
+            ),
             dates_with_summary=dates_with_summary,
         )
         data = LayerData(layer=layer.name, rows=tuple(rows)) if rows else None

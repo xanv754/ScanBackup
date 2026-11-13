@@ -5,7 +5,11 @@ import pytest
 from interface_sync.constants.enums import InterfaceStatus, LogEvent
 from interface_sync.exceptions import DatabaseError, EmptyListingError
 from interface_sync.models import PageResult
-from interface_sync.persistence import InterfaceChanges, InterfaceDocument, InterfaceRepository
+from interface_sync.persistence import (
+    InterfaceChanges,
+    InterfaceDocument,
+    InterfaceRepository,
+)
 from interface_sync.synchronization import (
     ChangeReporter,
     InterfaceChangePlanner,
@@ -19,7 +23,9 @@ Document = Callable[..., InterfaceDocument]
 class FakeRepository:
     """In-memory repository double: records applied changes and can fail on demand."""
 
-    def __init__(self, active_by_layer: dict[str, list[InterfaceDocument]] | None = None) -> None:
+    def __init__(
+        self, active_by_layer: dict[str, list[InterfaceDocument]] | None = None
+    ) -> None:
         self.active_by_layer = active_by_layer or {}
         self.applied: list[InterfaceChanges] = []
         self.queried_layers: list[str] = []
@@ -38,7 +44,9 @@ class FakeRepository:
         self.applied.append(changes)
 
 
-def build_decommissioner(repository: FakeRepository, logger: ServiceLogger) -> LayerDecommissioner:
+def build_decommissioner(
+    repository: FakeRepository, logger: ServiceLogger
+) -> LayerDecommissioner:
     return LayerDecommissioner(
         repository,  # type: ignore[arg-type]
         InterfaceChangePlanner(),
@@ -48,7 +56,9 @@ def build_decommissioner(repository: FakeRepository, logger: ServiceLogger) -> L
 
 
 def succeeded(label: str, layer: str, *scan_urls: str) -> PageResult:
-    return PageResult(page_label=label, layer=layer, present_scan_urls=frozenset(scan_urls))
+    return PageResult(
+        page_label=label, layer=layer, present_scan_urls=frozenset(scan_urls)
+    )
 
 
 def test_missing_interfaces_of_a_successful_layer_are_decommissioned(
@@ -75,9 +85,11 @@ def test_missing_interfaces_of_a_successful_layer_are_decommissioned(
     assert [modification.scan_url for modification in applied.modifications] == [
         "http://scan/gone.log"
     ]
-    assert ("info", LogEvent.LAYER_SUMMARY, "BORDE | desincorporadas: 1 | sin cambios: 1") in (
-        recording_logger.records
-    )
+    assert (
+        "info",
+        LogEvent.LAYER_SUMMARY,
+        "BORDE | desincorporadas: 1 | sin cambios: 1",
+    ) in (recording_logger.records)
     assert LogEvent.STATUS_CHANGED in recording_logger.messages("info")
 
 
@@ -117,7 +129,11 @@ def test_layer_with_a_scraping_failure_is_skipped_untouched(
     [result] = decommissioner.decommission(
         [
             succeeded("BORDE HUAWEI", "BORDE", "http://scan/other.log"),
-            PageResult(page_label="BORDE JUNIPER", layer="BORDE", cause="tiempo de espera agotado"),
+            PageResult(
+                page_label="BORDE JUNIPER",
+                layer="BORDE",
+                cause="tiempo de espera agotado",
+            ),
         ]
     )
 
@@ -138,7 +154,9 @@ def test_layer_with_a_database_failure_page_is_skipped(
     [result] = decommissioner.decommission(
         [
             PageResult(
-                page_label="BORDE HUAWEI", layer="BORDE", database_cause="error de base de datos"
+                page_label="BORDE HUAWEI",
+                layer="BORDE",
+                database_cause="error de base de datos",
             )
         ]
     )
@@ -158,7 +176,9 @@ def test_failed_layer_does_not_block_other_layers(
 
     results = decommissioner.decommission(
         [
-            PageResult(page_label="BORDE HUAWEI", layer="BORDE", cause="sin conexión a SCAN"),
+            PageResult(
+                page_label="BORDE HUAWEI", layer="BORDE", cause="sin conexión a SCAN"
+            ),
             succeeded("DIST HUAWEI", "DIST", "http://scan/other.log"),
         ]
     )
@@ -184,7 +204,11 @@ def test_database_error_while_querying_fails_the_layer(
     assert result.database_cause == "error de base de datos"
     assert repository.applied == []
     assert recording_logger.records == [
-        ("error", LogEvent.DATABASE_FAILED, "BORDE | desincorporación | error de base de datos")
+        (
+            "error",
+            LogEvent.DATABASE_FAILED,
+            "BORDE | desincorporación | error de base de datos",
+        )
     ]
 
 
@@ -231,7 +255,9 @@ def test_nothing_missing_means_nothing_decommissioned(
     recording_logger: ServiceLogger, make_document: Document
 ):
     """RF-011: when every active interface is still listed, no modification is written."""
-    repository = FakeRepository({"BORDE": [make_document(scan_url="http://scan/a.log")]})
+    repository = FakeRepository(
+        {"BORDE": [make_document(scan_url="http://scan/a.log")]}
+    )
     decommissioner = build_decommissioner(repository, recording_logger)
 
     [result] = decommissioner.decommission(
@@ -249,13 +275,18 @@ def test_already_decommissioned_interfaces_are_not_queried_or_touched(
     repository = FakeRepository(
         {
             "BORDE": [
-                make_document(scan_url="http://scan/old.log", status=InterfaceStatus.DECOMMISSIONED)
+                make_document(
+                    scan_url="http://scan/old.log",
+                    status=InterfaceStatus.DECOMMISSIONED,
+                )
             ]
         }
     )
     decommissioner = build_decommissioner(repository, recording_logger)
 
-    decommissioner.decommission([succeeded("BORDE HUAWEI", "BORDE", "http://scan/a.log")])
+    decommissioner.decommission(
+        [succeeded("BORDE HUAWEI", "BORDE", "http://scan/a.log")]
+    )
 
     assert repository.queried_layers == ["BORDE"]
 

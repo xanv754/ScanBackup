@@ -29,13 +29,17 @@ class LayerCatalog:
         """Group the distinct stored values by canonical name."""
         stored_by_name: dict[str, set[str]] = {}
         for stored_value in stored_layer_values:
-            stored_by_name.setdefault(canonical_layer_name(stored_value), set()).add(stored_value)
+            stored_by_name.setdefault(canonical_layer_name(stored_value), set()).add(
+                stored_value
+            )
         self._stored_by_name = stored_by_name
 
     def ordered(self) -> tuple[Layer, ...]:
         """Return the existing fixed layers in their order, then the others alphabetically."""
         fixed_names = [name for name in FIXED_LAYERS if name in self._stored_by_name]
-        other_names = sorted(name for name in self._stored_by_name if name not in FIXED_LAYERS)
+        other_names = sorted(
+            name for name in self._stored_by_name if name not in FIXED_LAYERS
+        )
         return tuple(
             Layer(name=name, stored_values=tuple(sorted(self._stored_by_name[name])))
             for name in (*fixed_names, *other_names)

@@ -8,9 +8,17 @@ from interface_sync.exceptions import DatabaseError, PageFetchError, ScanConnect
 from interface_sync.models import PageConfig, ScrapedInterface
 from interface_sync.orchestration import PageProcessor
 from interface_sync.persistence import InterfaceChanges, InterfaceDocument
-from interface_sync.synchronization import ChangeReporter, InterfaceChangePlanner, ScanUrlClaims
+from interface_sync.synchronization import (
+    ChangeReporter,
+    InterfaceChangePlanner,
+    ScanUrlClaims,
+)
 from interface_sync.utils.logger import ServiceLogger
-from interface_sync.validation import CapacityValidator, CompletenessValidator, ListingValidator
+from interface_sync.validation import (
+    CapacityValidator,
+    CompletenessValidator,
+    ListingValidator,
+)
 
 Scraped = Callable[..., ScrapedInterface]
 Document = Callable[..., InterfaceDocument]
@@ -81,13 +89,18 @@ def test_successful_page_registers_new_interfaces(
     assert result.layer == "BORDE"
     assert result.present_scan_urls == frozenset({"http://scan/1.log"})
     [changes] = repository.applied
-    assert [document.scan_url for document in changes.registrations] == ["http://scan/1.log"]
+    assert [document.scan_url for document in changes.registrations] == [
+        "http://scan/1.log"
+    ]
     assert LogEvent.PAGE_SUMMARY in recording_logger.messages("info")
     assert LogEvent.PAGE_SUCCEEDED in recording_logger.messages("info")
 
 
 def test_page_summary_reports_every_counter(
-    page: PageConfig, make_scraped: Scraped, make_document: Document, recording_logger: Any
+    page: PageConfig,
+    make_scraped: Scraped,
+    make_document: Document,
+    recording_logger: Any,
 ):
     """RF-014: the page summary lists new, updated, reactivated, unchanged and incomplete."""
     interfaces = [
@@ -105,7 +118,9 @@ def test_page_summary_reports_every_counter(
     processor.process(page)
 
     [(_, _, details)] = [
-        record for record in recording_logger.records if record[1] == LogEvent.PAGE_SUMMARY
+        record
+        for record in recording_logger.records
+        if record[1] == LogEvent.PAGE_SUMMARY
     ]
     assert details == (
         "BORDE HUAWEI | nuevas: 1 | actualizadas: 1 | reactivadas: 0 | sin cambios: 1 | "
@@ -126,13 +141,17 @@ def test_incomplete_interface_is_present_but_never_stored(
 
     result = processor.process(page)
 
-    assert result.present_scan_urls == frozenset({"http://scan/1.log", "http://scan/2.log"})
+    assert result.present_scan_urls == frozenset(
+        {"http://scan/1.log", "http://scan/2.log"}
+    )
     assert [document.scan_url for document in repository.applied[0].registrations] == [
         "http://scan/1.log"
     ]
 
 
-def test_scraping_failure_never_touches_the_database(page: PageConfig, recording_logger: Any):
+def test_scraping_failure_never_touches_the_database(
+    page: PageConfig, recording_logger: Any
+):
     """RF-010: a page that could not be scraped does not read or write anything."""
     repository = FakeRepository()
     processor = build_processor(ScanConnectionError(), repository, recording_logger)
@@ -149,7 +168,9 @@ def test_scraping_failure_never_touches_the_database(page: PageConfig, recording
     assert recording_logger.messages("error") == [LogEvent.PAGE_FAILED]
 
 
-def test_empty_listing_never_reaches_the_database(page: PageConfig, recording_logger: Any):
+def test_empty_listing_never_reaches_the_database(
+    page: PageConfig, recording_logger: Any
+):
     """RF-006: an empty listing is an invalid page and is kept out of the storage."""
     repository = FakeRepository()
     processor = build_processor([], repository, recording_logger)
@@ -198,12 +219,17 @@ def test_database_failure_is_reported_apart_from_a_successful_scraping(
 
 
 def test_changes_are_logged_only_after_a_successful_write(
-    page: PageConfig, make_scraped: Scraped, make_document: Document, recording_logger: Any
+    page: PageConfig,
+    make_scraped: Scraped,
+    make_document: Document,
+    recording_logger: Any,
 ):
     """RF-014: a failed write must not leave logs claiming the changes were applied."""
     repository = FakeRepository([make_document(name="OLD")])
     repository.fail_on_apply = True
-    processor = build_processor([make_scraped(name="NEW")], repository, recording_logger)
+    processor = build_processor(
+        [make_scraped(name="NEW")], repository, recording_logger
+    )
 
     processor.process(page)
 
@@ -211,17 +237,24 @@ def test_changes_are_logged_only_after_a_successful_write(
 
 
 def test_updated_interface_is_logged_after_a_successful_write(
-    page: PageConfig, make_scraped: Scraped, make_document: Document, recording_logger: Any
+    page: PageConfig,
+    make_scraped: Scraped,
+    make_document: Document,
+    recording_logger: Any,
 ):
     """RF-014: an applied update is logged with its scan_url and values."""
     repository = FakeRepository([make_document(name="OLD")])
-    processor = build_processor([make_scraped(name="NEW")], repository, recording_logger)
+    processor = build_processor(
+        [make_scraped(name="NEW")], repository, recording_logger
+    )
 
     processor.process(page)
 
-    assert ("info", LogEvent.INTERFACE_UPDATED, "http://scan/1.log | name: OLD -> NEW") in (
-        recording_logger.records
-    )
+    assert (
+        "info",
+        LogEvent.INTERFACE_UPDATED,
+        "http://scan/1.log | name: OLD -> NEW",
+    ) in (recording_logger.records)
 
 
 def test_page_queries_the_database_once_for_all_its_interfaces(
@@ -252,10 +285,16 @@ def test_scan_url_shown_by_two_pages_is_stored_only_by_the_first(
     shared = "http://scan/shared.log"
 
     build_processor(
-        [make_scraped(scan_url=shared, layer="DIST")], repository, recording_logger, claims
+        [make_scraped(scan_url=shared, layer="DIST")],
+        repository,
+        recording_logger,
+        claims,
     ).process(dist_page)
     second = build_processor(
-        [make_scraped(scan_url=shared, layer="RAI")], repository, recording_logger, claims
+        [make_scraped(scan_url=shared, layer="RAI")],
+        repository,
+        recording_logger,
+        claims,
     ).process(rai_page)
 
     assert [len(changes.registrations) for changes in repository.applied] == [1, 0]

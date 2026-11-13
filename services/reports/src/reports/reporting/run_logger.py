@@ -39,7 +39,10 @@ def create_file_logger(log_path: Path) -> logging.Logger:
         existing_handler.close()
         logger.removeHandler(existing_handler)
     handler = RotatingFileHandler(
-        log_path, maxBytes=LOG_MAX_BYTES, backupCount=LOG_BACKUP_COUNT, encoding=TEXT_ENCODING
+        log_path,
+        maxBytes=LOG_MAX_BYTES,
+        backupCount=LOG_BACKUP_COUNT,
+        encoding=TEXT_ENCODING,
     )
     handler.setFormatter(logging.Formatter(LOG_FORMAT))
     logger.addHandler(handler)
@@ -102,7 +105,9 @@ class RunLogger(EventSink):
                     summary.interface_count,
                 )
             case ExportFailed():
-                self._logger.error("Falla en la generación del archivo: %s", event.cause)
+                self._logger.error(
+                    "Falla en la generación del archivo: %s", event.cause
+                )
             case RunFinished():
                 result = event.result
                 if result.failed:

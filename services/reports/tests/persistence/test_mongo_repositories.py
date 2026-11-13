@@ -18,7 +18,11 @@ RANGE = DateRange(start=date(2026, 3, 1), end=date(2026, 3, 31))
 
 
 def insert_interface(
-    database: Database, layer: str, name: str = "eth", status: str = "activa", **extra: object
+    database: Database,
+    layer: str,
+    name: str = "eth",
+    status: str = "activa",
+    **extra: object,
 ) -> ObjectId:
     """Insert an interface and return its id."""
     document = {
@@ -60,7 +64,9 @@ def insert_summary(
 pytestmark = pytest.mark.integration
 
 
-def test_rf034_layer_values_include_every_status_and_are_distinct(database: Database) -> None:
+def test_rf034_layer_values_include_every_status_and_are_distinct(
+    database: Database,
+) -> None:
     """RF-034: layers come from `interfaces`, whatever the status, without repeats."""
     insert_interface(database, "BORDE", "a")
     insert_interface(database, "BORDE", "b", status="desincorporada")
@@ -90,11 +96,17 @@ def test_rf034_interface_data_comes_from_interfaces(database: Database) -> None:
     interface_id = insert_interface(database, "BORDE", "eth-1", capacity_gbps=40.0)
     (interface,) = MongoInterfaceRepository(database).find_by_layer_values(["BORDE"])
     assert interface.id == interface_id
-    assert (interface.name, interface.vendor, interface.capacity_gbps) == ("eth-1", "HUAWEI", 40.0)
+    assert (interface.name, interface.vendor, interface.capacity_gbps) == (
+        "eth-1",
+        "HUAWEI",
+        40.0,
+    )
     assert interface.scan_url == "http://scan/eth-1/BORDE"
 
 
-def test_rf040_missing_vendor_and_capacity_are_empty_and_zero(database: Database) -> None:
+def test_rf040_missing_vendor_and_capacity_are_empty_and_zero(
+    database: Database,
+) -> None:
     """RF-040: a missing vendor is read as empty and a missing capacity as 0."""
     database["interfaces"].insert_one({"layer": "BORDE", "name": "bare"})
     (interface,) = MongoInterfaceRepository(database).find_by_layer_values(["BORDE"])
@@ -134,7 +146,9 @@ def test_rf034_interface_without_summaries_is_absent(database: Database) -> None
     without_data = insert_interface(database, "BORDE", "without")
     insert_summary(database, with_data, "2026-03-05")
     insert_summary(database, without_data, "2026-04-05")
-    result = MongoDailySummaryRepository(database).aggregate([with_data, without_data], RANGE)
+    result = MongoDailySummaryRepository(database).aggregate(
+        [with_data, without_data], RANGE
+    )
     assert [summary.interface_id for summary in result] == [with_data]
 
 
@@ -150,16 +164,22 @@ def test_rf034_ids_are_split_in_batches_and_combined(
     database: Database, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     """RF-034: a large id list is split in batches and the results are combined."""
-    monkeypatch.setattr("reports.persistence.mongo_summary_repository.LOOKUP_BATCH_SIZE", 2)
+    monkeypatch.setattr(
+        "reports.persistence.mongo_summary_repository.LOOKUP_BATCH_SIZE", 2
+    )
     ids = [insert_interface(database, "BORDE", f"if-{number}") for number in range(5)]
     for interface_id in ids:
         insert_summary(database, interface_id, "2026-03-05", in_max=GBPS)
     repository = MongoDailySummaryRepository(database)
-    assert {summary.interface_id for summary in repository.aggregate(ids, RANGE)} == set(ids)
+    assert {
+        summary.interface_id for summary in repository.aggregate(ids, RANGE)
+    } == set(ids)
     assert repository.dates_with_summary(ids, RANGE) == {"2026-03-05"}
 
 
-def test_rf036_dates_with_summary_are_distinct_and_inside_the_range(database: Database) -> None:
+def test_rf036_dates_with_summary_are_distinct_and_inside_the_range(
+    database: Database,
+) -> None:
     """RF-036: the days that have at least one summary in the layer."""
     first = insert_interface(database, "BORDE", "a")
     second = insert_interface(database, "BORDE", "b")
@@ -167,7 +187,9 @@ def test_rf036_dates_with_summary_are_distinct_and_inside_the_range(database: Da
         insert_summary(database, interface_id, "2026-03-10")
     insert_summary(database, first, "2026-03-11")
     insert_summary(database, first, "2026-05-01")
-    dates = MongoDailySummaryRepository(database).dates_with_summary([first, second], RANGE)
+    dates = MongoDailySummaryRepository(database).dates_with_summary(
+        [first, second], RANGE
+    )
     assert dates == {"2026-03-10", "2026-03-11"}
 
 
@@ -205,5 +227,8 @@ def test_rnf_reads_do_not_change_the_database(database: Database) -> None:
 
 def test_rf043_database_failures_become_database_error() -> None:
     """RF-043: any PyMongo error is translated so the layer can be marked as failed."""
-    with pytest.raises(DatabaseError, match="OperationFailure"), translate_database_errors():
+    with (
+        pytest.raises(DatabaseError, match="OperationFailure"),
+        translate_database_errors(),
+    ):
         raise OperationFailure("boom")

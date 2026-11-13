@@ -84,6 +84,10 @@ class InterfaceProcessor:
     def _store(self, daily_traffic: DailyTraffic) -> None:
         """Store the day; with `force`, delete the summary and the raw day first [RF-021]."""
         if self._force:
-            self._summary_store.delete_day(daily_traffic.interface_id, daily_traffic.date)
-            self._traffic_store.delete_day(daily_traffic.interface_id, daily_traffic.date)
+            self._summary_store.delete_day(
+                daily_traffic.interface_id, daily_traffic.date
+            )
+            self._traffic_store.delete_day(
+                daily_traffic.interface_id, daily_traffic.date
+            )
         self._traffic_store.save(daily_traffic)

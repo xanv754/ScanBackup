@@ -63,7 +63,9 @@ class MongoDailySummaryRepository(DailySummaryRepository):
                         out_max_bps=float(document[FIELD_OUT_MAX]),
                         days=int(document[FIELD_DAYS]),
                     )
-                    for document in self._collection.aggregate(pipeline, allowDiskUse=True)
+                    for document in self._collection.aggregate(
+                        pipeline, allowDiskUse=True
+                    )
                 )
         return summaries
 
@@ -78,7 +80,8 @@ class MongoDailySummaryRepository(DailySummaryRepository):
                     {"$group": {FIELD_ID: f"${FIELD_DATE}"}},
                 ]
                 dates.update(
-                    document[FIELD_ID] for document in self._collection.aggregate(pipeline)
+                    document[FIELD_ID]
+                    for document in self._collection.aggregate(pipeline)
                 )
         return dates
 

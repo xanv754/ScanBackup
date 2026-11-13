@@ -27,4 +27,7 @@ class ScanUrlClaims:
                 continue
             self._claimed_scan_urls.add(scan_url)
             remaining.append(interface)
-        return listing.model_copy(update={"complete_interfaces": remaining}), duplicated_scan_urls
+        return (
+            listing.model_copy(update={"complete_interfaces": remaining}),
+            duplicated_scan_urls,
+        )

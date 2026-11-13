@@ -14,4 +14,6 @@ class DayFilter:
 
         The values are not modified and the dates stay in UTC.
         """
-        return tuple(sample for sample in samples if self._target_date.contains(sample.ts))
+        return tuple(
+            sample for sample in samples if self._target_date.contains(sample.ts)
+        )

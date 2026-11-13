@@ -64,7 +64,9 @@ def fetcher() -> FakeFetcher:
             url_of("Akamai"): build_service_page("Router A1 (Eth-Trunk1)"),
             url_of("Facebook"): build_service_page("Sumatoria FACEBOOK CACHING"),
             url_of("Inter"): build_service_page("Router I1 (100GE3)"),
-            url_of("Netflix"): build_service_page("Router N1 (100GE4)", "Router N2 (100GE5)"),
+            url_of("Netflix"): build_service_page(
+                "Router N1 (100GE4)", "Router N2 (100GE5)"
+            ),
             url_of("Abatvgo"): build_service_page("Router B1 (100GE6)"),
         }
     )
@@ -95,7 +97,9 @@ def test_service_with_only_summaries_contributes_nothing(fetcher: FakeFetcher) -
 
 def test_service_missing_from_menu_contributes_nothing(fetcher: FakeFetcher) -> None:
     """RF-003: a service absent from the menu is skipped; the others are still returned."""
-    interfaces = CachingParser(fetcher).parse(build_menu(missing=("Netflix",)), MENU_URL)
+    interfaces = CachingParser(fetcher).parse(
+        build_menu(missing=("Netflix",)), MENU_URL
+    )
 
     assert "NETFLIX" not in {i.vendor for i in interfaces}
     assert [i.position for i in interfaces] == [1, 2, 3, 4]
@@ -129,9 +133,16 @@ def test_services_are_independent_of_each_other(fetcher: FakeFetcher) -> None:
     with pytest.raises(UnreadablePageError):
         CachingParser(fetcher).parse(build_menu(), MENU_URL)
 
-    without_google = CachingParser(fetcher).parse(build_menu(missing=("Google",)), MENU_URL)
+    without_google = CachingParser(fetcher).parse(
+        build_menu(missing=("Google",)), MENU_URL
+    )
 
-    assert {i.vendor for i in without_google} == {"AKAMAI", "INTER", "NETFLIX", "ABATVGO"}
+    assert {i.vendor for i in without_google} == {
+        "AKAMAI",
+        "INTER",
+        "NETFLIX",
+        "ABATVGO",
+    }
 
 
 def test_fetcher_is_injected_not_created() -> None:

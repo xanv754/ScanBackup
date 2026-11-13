@@ -31,8 +31,12 @@ def test_valid_capacity_is_kept(validator: CapacityValidator, capacity_gbps: flo
     assert result.defaulted == []
 
 
-@pytest.mark.parametrize("capacity_gbps", [None, math.nan, math.inf, -math.inf, -1.0, -0.5])
-def test_invalid_capacity_becomes_zero(validator: CapacityValidator, capacity_gbps: float | None):
+@pytest.mark.parametrize(
+    "capacity_gbps", [None, math.nan, math.inf, -math.inf, -1.0, -0.5]
+)
+def test_invalid_capacity_becomes_zero(
+    validator: CapacityValidator, capacity_gbps: float | None
+):
     """RF-005: a missing, non-finite or negative capacity is replaced by zero."""
     interface = build_interface(capacity_gbps)
 
@@ -58,7 +62,9 @@ def test_normalization_keeps_the_rest_of_the_interface(validator: CapacityValida
     assert interface.capacity_gbps is None
 
 
-def test_mixed_listing_keeps_order_and_reports_only_defaulted(validator: CapacityValidator):
+def test_mixed_listing_keeps_order_and_reports_only_defaulted(
+    validator: CapacityValidator,
+):
     """RF-005: valid and invalid capacities coexist; order is kept and one page does not fail."""
     valid = build_interface(10.0, position=1)
     invalid = build_interface(math.nan, position=2)

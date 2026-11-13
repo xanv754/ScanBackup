@@ -43,7 +43,9 @@ def test_settings_are_read_from_the_environment(full_environment: pytest.MonkeyP
     assert settings.auth_source == "other"
 
 
-def test_auth_source_defaults_to_admin_when_absent(full_environment: pytest.MonkeyPatch):
+def test_auth_source_defaults_to_admin_when_absent(
+    full_environment: pytest.MonkeyPatch,
+):
     """MONGO_AUTH_SOURCE is optional and defaults to the admin database."""
     full_environment.delenv("MONGO_AUTH_SOURCE")
 

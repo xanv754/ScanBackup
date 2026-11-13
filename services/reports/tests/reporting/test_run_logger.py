@@ -51,12 +51,20 @@ def log_lines(log_path: Path, *events: object) -> list[str]:
     [
         (RunStarted(DATE_RANGE), "INFO", "2026-03-01 a 2026-03-31"),
         (LayerEmpty("BORDE"), "WARNING", "BORDE"),
-        (LayerFailed("BRAS", "error de base de datos"), "ERROR", "BRAS fallida: error de base"),
+        (
+            LayerFailed("BRAS", "error de base de datos"),
+            "ERROR",
+            "BRAS fallida: error de base",
+        ),
         (MissingDay("2026-03-05"), "WARNING", "2026-03-05"),
         (LayerIncomplete("BORDE", 3), "WARNING", "BORDE: 3 interfaces"),
         (LayerFinished(OK_LAYER), "INFO", "BORDE exitosa: 4 interfaces incluidas"),
         (LayerFinished(FAILED_LAYER), "ERROR", "BRAS fallida: 0 interfaces incluidas"),
-        (FileGenerated(EXPORT_SUMMARY), "INFO", "ScanBackup_x.xlsx en /exports (2 hojas, 7 inter"),
+        (
+            FileGenerated(EXPORT_SUMMARY),
+            "INFO",
+            "ScanBackup_x.xlsx en /exports (2 hojas, 7 inter",
+        ),
         (ExportFailed("disco lleno"), "ERROR", "disco lleno"),
         (RunFinished(SUCCESSFUL_RUN), "INFO", "exitoso"),
         (RunFinished(FAILED_RUN), "ERROR", "fallido (capas fallidas: BRAS)"),

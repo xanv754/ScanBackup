@@ -34,11 +34,18 @@ def test_rf033_day_count_includes_both_ends(clock: FixedClock) -> None:
     """RF-033: the number of days is (end - start) + 1."""
     date_range = DateRangeValidator(clock).validate("2026-02-27", "2026-03-02", ())
     assert date_range.day_count == 4
-    assert date_range.day_keys() == ("2026-02-27", "2026-02-28", "2026-03-01", "2026-03-02")
+    assert date_range.day_keys() == (
+        "2026-02-27",
+        "2026-02-28",
+        "2026-03-01",
+        "2026-03-02",
+    )
 
 
 @pytest.mark.parametrize("missing", [None, "", "   "])
-def test_rf033_missing_or_empty_option_is_invalid(clock: FixedClock, missing: str | None) -> None:
+def test_rf033_missing_or_empty_option_is_invalid(
+    clock: FixedClock, missing: str | None
+) -> None:
     """RF-033: an absent or empty option is a cause, each one on its own."""
     causes = validate_causes(clock, missing, missing)
     assert causes == ["Falta la opción --start", "Falta la opción --end"]
@@ -68,14 +75,16 @@ def test_rf033_start_after_end_is_invalid(clock: FixedClock) -> None:
 @pytest.mark.parametrize("end", ["2026-11-10", "2026-11-11", "2027-01-01"])
 def test_rf033_end_must_be_before_today(clock: FixedClock, end: str) -> None:
     """RF-033: --end equal to today or in the future is invalid (today is 2026-11-10)."""
-    assert validate_causes(clock, "2026-11-01", end) == ["--end debe ser anterior al día actual"]
+    assert validate_causes(clock, "2026-11-01", end) == [
+        "--end debe ser anterior al día actual"
+    ]
 
 
 def test_rf033_yesterday_is_valid(clock: FixedClock) -> None:
     """RF-033: the day before today is the latest valid --end."""
-    assert DateRangeValidator(clock).validate("2026-11-09", "2026-11-09", ()).end == date(
-        2026, 11, 9
-    )
+    assert DateRangeValidator(clock).validate(
+        "2026-11-09", "2026-11-09", ()
+    ).end == date(2026, 11, 9)
 
 
 def test_rf033_today_is_calculated_in_caracas() -> None:
@@ -85,7 +94,10 @@ def test_rf033_today_is_calculated_in_caracas() -> None:
         "--end debe ser anterior al día actual"
     ]
     assert (
-        DateRangeValidator(early_morning).validate("2026-11-01", "2026-11-10", ()).day_count == 10
+        DateRangeValidator(early_morning)
+        .validate("2026-11-01", "2026-11-10", ())
+        .day_count
+        == 10
     )
 
 

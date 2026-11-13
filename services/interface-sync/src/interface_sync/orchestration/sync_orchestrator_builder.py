@@ -8,10 +8,16 @@ from interface_sync.constants.constants import (
 )
 from interface_sync.models import ScanCredentials
 from interface_sync.orchestration.page_processor import PageProcessor
-from interface_sync.orchestration.scan_availability_verifier import ScanAvailabilityVerifier
+from interface_sync.orchestration.scan_availability_verifier import (
+    ScanAvailabilityVerifier,
+)
 from interface_sync.orchestration.scan_check_orchestrator import ScanCheckOrchestrator
 from interface_sync.orchestration.sync_orchestrator import SyncOrchestrator
-from interface_sync.persistence import InterfaceRepository, MongoConnection, MongoSettings
+from interface_sync.persistence import (
+    InterfaceRepository,
+    MongoConnection,
+    MongoSettings,
+)
 from interface_sync.scraping import (
     PageParserFactory,
     PageScraper,
@@ -27,7 +33,11 @@ from interface_sync.synchronization import (
 from interface_sync.utils.configuration import ConfigurationFile
 from interface_sync.utils.logger import ServiceLogger
 from interface_sync.utils.terminal import Terminal
-from interface_sync.validation import CapacityValidator, CompletenessValidator, ListingValidator
+from interface_sync.validation import (
+    CapacityValidator,
+    CompletenessValidator,
+    ListingValidator,
+)
 
 
 class SyncOrchestratorBuilder:
@@ -106,7 +116,9 @@ class SyncOrchestratorBuilder:
         """Return the path of `config.yml` taken from `CONFIG_PATH` or the default one."""
         return Path(os.environ.get(CONFIG_PATH_VARIABLE, DEFAULT_CONFIG_PATH))
 
-    def _build_scan_availability_verifier(self, client: ScanClient) -> ScanAvailabilityVerifier:
+    def _build_scan_availability_verifier(
+        self, client: ScanClient
+    ) -> ScanAvailabilityVerifier:
         """Return the SCAN availability verifier that probes through `client`."""
         return ScanAvailabilityVerifier(
             ScanAvailabilityChecker(client, self._logger), self._logger, self._terminal

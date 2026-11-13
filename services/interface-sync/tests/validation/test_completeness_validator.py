@@ -5,9 +5,13 @@ from interface_sync.validation import CompletenessValidator
 
 
 def build_interface(
-    position: int = 1, name: str | None = "IF-1", scan_url: str | None = "http://scan/1.log"
+    position: int = 1,
+    name: str | None = "IF-1",
+    scan_url: str | None = "http://scan/1.log",
 ) -> ScrapedInterface:
-    return ScrapedInterface(position=position, name=name, scan_url=scan_url, capacity_gbps=10.0)
+    return ScrapedInterface(
+        position=position, name=name, scan_url=scan_url, capacity_gbps=10.0
+    )
 
 
 @pytest.fixture

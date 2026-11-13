@@ -28,7 +28,9 @@ class ListingValidator:
         self._capacity_validator = capacity_validator
         self._logger = logger
 
-    def validate(self, page: PageConfig, interfaces: list[ScrapedInterface]) -> ValidatedListing:
+    def validate(
+        self, page: PageConfig, interfaces: list[ScrapedInterface]
+    ) -> ValidatedListing:
         """Validate the interfaces scraped from a page.
 
         Incomplete interfaces are discarded before the capacity is checked. Raises
@@ -66,7 +68,9 @@ class ListingValidator:
             defaulted_capacity_count=len(capacity.defaulted),
         )
 
-    def _report_incomplete(self, page_label: str, incomplete: IncompleteInterface) -> None:
+    def _report_incomplete(
+        self, page_label: str, incomplete: IncompleteInterface
+    ) -> None:
         """Log one warning with the page, the known data and the missing fields."""
         interface = incomplete.interface
         known_data = [

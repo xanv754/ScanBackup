@@ -10,9 +10,7 @@ from traffic_collector.cli import cli, execute
 from traffic_collector.constants.enums import ExitCode
 
 TODAY = date(2026, 11, 6)
-VALID_CONFIG = (
-    "max_concurrent_requests: 5\nrequest_timeout_seconds: 30\nmax_consecutive_failures: 5\n"
-)
+VALID_CONFIG = "max_concurrent_requests: 5\nrequest_timeout_seconds: 30\nmax_consecutive_failures: 5\n"
 
 
 @pytest.fixture
@@ -31,7 +29,9 @@ def environment(tmp_path: Path) -> dict[str, str]:
     }
 
 
-def run_execute(environment: dict[str, str], log_path: Path) -> tuple[ExitCode, str, str]:
+def run_execute(
+    environment: dict[str, str], log_path: Path
+) -> tuple[ExitCode, str, str]:
     output, errors = io.StringIO(), io.StringIO()
     exit_code = execute(False, environment, TODAY, log_path, output, errors)
     return exit_code, output.getvalue(), errors.getvalue()
@@ -52,7 +52,9 @@ def test_invalid_settings_exit_with_process_error_and_are_logged(
     assert "password" in log_path.read_text(encoding="utf-8")
 
 
-def test_secrets_never_reach_log_or_terminal(environment: dict[str, str], tmp_path: Path) -> None:
+def test_secrets_never_reach_log_or_terminal(
+    environment: dict[str, str], tmp_path: Path
+) -> None:
     """Passwords do not appear in log or terminal even when startup fails (RF-029)."""
     environment["MONGO_PORT"] = "not-a-port"
     log_path = tmp_path / "traffic-collector.log"
@@ -64,7 +66,9 @@ def test_secrets_never_reach_log_or_terminal(environment: dict[str, str], tmp_pa
     assert "mongo-s3cr3t" not in combined
 
 
-def test_unwritable_log_is_a_process_error(environment: dict[str, str], tmp_path: Path) -> None:
+def test_unwritable_log_is_a_process_error(
+    environment: dict[str, str], tmp_path: Path
+) -> None:
     """If the log file cannot be written the process fails with code 2 (RF-029)."""
     blocker = tmp_path / "blocker"
     blocker.write_text("not a directory", encoding="utf-8")
@@ -75,7 +79,9 @@ def test_unwritable_log_is_a_process_error(environment: dict[str, str], tmp_path
     assert "log" in errors
 
 
-def test_database_down_is_a_process_error(environment: dict[str, str], tmp_path: Path) -> None:
+def test_database_down_is_a_process_error(
+    environment: dict[str, str], tmp_path: Path
+) -> None:
     """An unreachable database is a general error before any SCAN request (RF-018, RF-028)."""
     with socket.socket() as probe:
         probe.bind(("127.0.0.1", 0))

@@ -28,9 +28,13 @@ class DistHuaweiParser(PageParser):
     PAGE_EXTENSION = ".html"
     TRAFFIC_EXTENSION = ".log"
     TITLE_PREFIX_PATTERN = re.compile(r"^\s*router\s+", re.IGNORECASE)
-    TITLE_SUFFIX_PATTERN = re.compile(r"-\s*tr[aá]fico\s+de\s+r(?:ed|d)\s*$", re.IGNORECASE)
+    TITLE_SUFFIX_PATTERN = re.compile(
+        r"-\s*tr[aá]fico\s+de\s+r(?:ed|d)\s*$", re.IGNORECASE
+    )
     PORT_SEPARATOR_PATTERN = re.compile(r"\bconexi[oó]n\b", re.IGNORECASE)
-    CAPACITY_PATTERN = re.compile(r"(\d+)(?:G(?:[EB]|(?=\)))|(?=Eth-Trunk))", re.IGNORECASE)
+    CAPACITY_PATTERN = re.compile(
+        r"(\d+)(?:G(?:[EB]|(?=\)))|(?=Eth-Trunk))", re.IGNORECASE
+    )
 
     def parse(self, html: str, page_url: str) -> list[ScrapedInterface]:
         """Return every Dist Huawei interface in page order, without summaries."""
@@ -80,7 +84,9 @@ class DistHuaweiParser(PageParser):
         parts = urlsplit(urljoin(page_url, str(anchor["href"]).strip()))
         if not parts.path.endswith(self.PAGE_EXTENSION):
             return None
-        traffic_path = parts.path.removesuffix(self.PAGE_EXTENSION) + self.TRAFFIC_EXTENSION
+        traffic_path = (
+            parts.path.removesuffix(self.PAGE_EXTENSION) + self.TRAFFIC_EXTENSION
+        )
         return urlunsplit(parts._replace(path=traffic_path))
 
     def _extract_capacity_gbps(self, name: str | None) -> float | None:

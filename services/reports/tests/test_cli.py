@@ -34,7 +34,8 @@ def valid_config(tmp_path: Path, export_directory: Path) -> Path:
     """A valid config file whose export directory exists."""
     config_path = tmp_path / "config.yml"
     config_path.write_text(
-        f'metadata:\n  reports:\n    export_path: "{export_directory}"\n', encoding="utf-8"
+        f'metadata:\n  reports:\n    export_path: "{export_directory}"\n',
+        encoding="utf-8",
     )
     return config_path
 
@@ -64,7 +65,9 @@ class ForbiddenConnection:
 
     def __init__(self, *_: object) -> None:
         """Fail the test as soon as it is built."""
-        pytest.fail("MongoDB must not be opened when parameters or configuration are invalid")
+        pytest.fail(
+            "MongoDB must not be opened when parameters or configuration are invalid"
+        )
 
 
 def test_rf031_invalid_parameters_and_config_are_accumulated_without_opening_mongo(
@@ -73,7 +76,9 @@ def test_rf031_invalid_parameters_and_config_are_accumulated_without_opening_mon
     """RF-031, RF-033, RF-032: causes of both validations are reported together; no connection."""
     monkeypatch.setattr(cli_module, "MongoConnection", ForbiddenConnection)
     config_path = tmp_path / "bad.yml"
-    config_path.write_text('metadata:\n  reports:\n    prefix_name: ""\n', encoding="utf-8")
+    config_path.write_text(
+        'metadata:\n  reports:\n    prefix_name: ""\n', encoding="utf-8"
+    )
     environment = {**MONGO_ENVIRONMENT, "CONFIG_PATH": str(config_path)}
     execution = run("2026-1-5", None, environment, extras=("--layer",))
     assert execution.code == ExitCode.PROCESS_ERROR
@@ -90,7 +95,9 @@ def test_rf031_invalid_parameters_and_config_are_accumulated_without_opening_mon
     assert "Inicio de la ejecución" not in execution.log
 
 
-def test_rf032_missing_config_file_is_a_general_error(run: Callable[..., Execution]) -> None:
+def test_rf032_missing_config_file_is_a_general_error(
+    run: Callable[..., Execution],
+) -> None:
     """RF-032: a config file that does not exist is a general error (exit 2)."""
     environment = {**MONGO_ENVIRONMENT, "CONFIG_PATH": "/does/not/exist.yml"}
     execution = run("2026-03-01", "2026-03-02", environment)
@@ -147,7 +154,9 @@ def test_rf045_unwritable_log_is_a_general_error_shown_in_the_terminal(
     blocker = tmp_path / "blocker"
     blocker.write_text("file", encoding="utf-8")
     environment = {**MONGO_ENVIRONMENT, "CONFIG_PATH": str(valid_config)}
-    execution = run("2026-03-01", "2026-03-02", environment, log_path=blocker / "reports.log")
+    execution = run(
+        "2026-03-01", "2026-03-02", environment, log_path=blocker / "reports.log"
+    )
     assert execution.code == ExitCode.PROCESS_ERROR
     assert "No se puede escribir el archivo de log" in execution.errors
 
@@ -156,7 +165,13 @@ def test_rf031_help_describes_the_options(monkeypatch: pytest.MonkeyPatch) -> No
     """RF-031: --help describes --start, --end, the format, inclusive ends and the end limit."""
     result = CliRunner().invoke(cli, ["--help"])
     assert result.exit_code == 0
-    for text in ("--start", "--end", "YYYY-MM-DD", "incluido", "anterior al día actual"):
+    for text in (
+        "--start",
+        "--end",
+        "YYYY-MM-DD",
+        "incluido",
+        "anterior al día actual",
+    ):
         assert text in result.output
     assert "0  resultado general exitoso" in result.output
 
@@ -178,7 +193,9 @@ def test_rf033_cli_reports_unrecognized_options_and_missing_values(
     assert "Opción no reconocida: --unknown" in log_text
 
 
-def seed(database: Database, layer: str, name: str, vendor: str, capacity: float) -> None:
+def seed(
+    database: Database, layer: str, name: str, vendor: str, capacity: float
+) -> None:
     """Insert an interface with three daily summaries (March 1 to 3)."""
     interface_id = (
         database["interfaces"]
@@ -223,12 +240,17 @@ def integration_environment(database: Database, config_path: Path) -> dict[str, 
 
 @pytest.mark.integration
 def test_rf031_full_run_writes_the_report_with_the_calculated_values(
-    run: Callable[..., Execution], database: Database, valid_config: Path, export_directory: Path
+    run: Callable[..., Execution],
+    database: Database,
+    valid_config: Path,
+    export_directory: Path,
 ) -> None:
     """RF-031, RF-035, RF-038, RF-042: a real run exports one sheet per layer with the values."""
     seed(database, "BRAS", "ae1", "huawei", 10)
     seed(database, "borde", "eth-1", "", 0)
-    execution = run("2026-03-01", "2026-03-03", integration_environment(database, valid_config))
+    execution = run(
+        "2026-03-01", "2026-03-03", integration_environment(database, valid_config)
+    )
     assert execution.code == ExitCode.SUCCESS
     (report,) = export_directory.glob("ScanBackup_*.xlsx")
     workbook = load_workbook(report)
@@ -253,12 +275,17 @@ def test_rf031_full_run_writes_the_report_with_the_calculated_values(
 
 @pytest.mark.integration
 def test_rf044_layer_with_invalid_sheet_name_fails_but_the_rest_is_exported(
-    run: Callable[..., Execution], database: Database, valid_config: Path, export_directory: Path
+    run: Callable[..., Execution],
+    database: Database,
+    valid_config: Path,
+    export_directory: Path,
 ) -> None:
     """RF-043, RF-044: a layer with forbidden characters fails; the rest is still exported."""
     seed(database, "BORDE", "eth-1", "huawei", 10)
     seed(database, "BAD/LAYER", "eth-2", "huawei", 10)
-    execution = run("2026-03-01", "2026-03-02", integration_environment(database, valid_config))
+    execution = run(
+        "2026-03-01", "2026-03-02", integration_environment(database, valid_config)
+    )
     assert execution.code == ExitCode.FAILED
     (report,) = export_directory.glob("ScanBackup_*.xlsx")
     assert load_workbook(report).sheetnames == ["BORDE"]
@@ -268,11 +295,16 @@ def test_rf044_layer_with_invalid_sheet_name_fails_but_the_rest_is_exported(
 
 @pytest.mark.integration
 def test_rf044_range_without_data_writes_no_file_and_fails(
-    run: Callable[..., Execution], database: Database, valid_config: Path, export_directory: Path
+    run: Callable[..., Execution],
+    database: Database,
+    valid_config: Path,
+    export_directory: Path,
 ) -> None:
     """RF-044: layers exist but none has summaries in the range: no file, exit 1."""
     seed(database, "BORDE", "eth-1", "huawei", 10)
-    execution = run("2025-01-01", "2025-01-02", integration_environment(database, valid_config))
+    execution = run(
+        "2025-01-01", "2025-01-02", integration_environment(database, valid_config)
+    )
     assert execution.code == ExitCode.FAILED
     assert list(export_directory.iterdir()) == []
     assert "Capa BORDE: sin datos en el rango" in execution.errors
@@ -283,14 +315,19 @@ def test_rf044_database_without_layers_is_a_general_error(
     run: Callable[..., Execution], database: Database, valid_config: Path
 ) -> None:
     """RF-044: no layer in the database gives exit 2 and no file."""
-    execution = run("2026-03-01", "2026-03-02", integration_environment(database, valid_config))
+    execution = run(
+        "2026-03-01", "2026-03-02", integration_environment(database, valid_config)
+    )
     assert execution.code == ExitCode.PROCESS_ERROR
     assert "No hay capas en la base de datos" in execution.errors
 
 
 @pytest.mark.integration
 def test_rf031_two_runs_give_the_same_content(
-    run: Callable[..., Execution], database: Database, valid_config: Path, export_directory: Path
+    run: Callable[..., Execution],
+    database: Database,
+    valid_config: Path,
+    export_directory: Path,
 ) -> None:
     """RF-031: running the same range twice produces the same sheet contents."""
     seed(database, "BORDE", "eth-1", "huawei", 10)
@@ -300,6 +337,9 @@ def test_rf031_two_runs_give_the_same_content(
     def contents() -> list[list[object]]:
         run("2026-03-01", "2026-03-02", environment)
         report = max(export_directory.glob("ScanBackup_*.xlsx"))
-        return [[cell.value for cell in row] for row in load_workbook(report)["BORDE"].iter_rows()]
+        return [
+            [cell.value for cell in row]
+            for row in load_workbook(report)["BORDE"].iter_rows()
+        ]
 
     assert contents() == contents()

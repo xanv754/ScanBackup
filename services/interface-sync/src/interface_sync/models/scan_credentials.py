@@ -2,7 +2,10 @@ import os
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from interface_sync.constants.constants import SCAN_PASSWORD_VARIABLE, SCAN_USERNAME_VARIABLE
+from interface_sync.constants.constants import (
+    SCAN_PASSWORD_VARIABLE,
+    SCAN_USERNAME_VARIABLE,
+)
 from interface_sync.exceptions import MissingCredentialsError
 
 
@@ -28,5 +31,7 @@ class ScanCredentials(BaseModel):
             if not value
         ]
         if missing:
-            raise MissingCredentialsError(f"Credenciales de SCAN ausentes: {', '.join(missing)}")
+            raise MissingCredentialsError(
+                f"Credenciales de SCAN ausentes: {', '.join(missing)}"
+            )
         return cls(username=username, password=password)

@@ -89,7 +89,9 @@ class ReportService:
         return layers
 
     @staticmethod
-    def _missing_days(layer_results: list[LayerResult], date_range: DateRange) -> tuple[str, ...]:
+    def _missing_days(
+        layer_results: list[LayerResult], date_range: DateRange
+    ) -> tuple[str, ...]:
         """Return the days without summaries in every successfully processed layer [RF-036].
 
         Nothing is evaluated when no layer succeeded: its days were not read, not missing.
@@ -97,14 +99,22 @@ class ReportService:
         successful = [result for result in layer_results if not result.failed]
         if not successful:
             return ()
-        days_with_summary = frozenset().union(*(result.dates_with_summary for result in successful))
-        return tuple(day for day in date_range.day_keys() if day not in days_with_summary)
+        days_with_summary = frozenset().union(
+            *(result.dates_with_summary for result in successful)
+        )
+        return tuple(
+            day for day in date_range.day_keys() if day not in days_with_summary
+        )
 
-    def _export(self, sheet_count: int, interface_count: int) -> tuple[ExportSummary | None, bool]:
+    def _export(
+        self, sheet_count: int, interface_count: int
+    ) -> tuple[ExportSummary | None, bool]:
         """Write the file if there is a sheet; return its summary and whether writing failed."""
         if sheet_count == 0:
             return None, False
-        file_name = self._file_namer.file_name(self._clock.now(), self._exporter.file_extension)
+        file_name = self._file_namer.file_name(
+            self._clock.now(), self._exporter.file_extension
+        )
         destination = self._export_directory / file_name
         try:
             self._exporter.save(destination)

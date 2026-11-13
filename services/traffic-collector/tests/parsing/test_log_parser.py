@@ -11,8 +11,15 @@ def test_valid_line_becomes_a_utc_sample_with_float_values() -> None:
 
     sample = parsed.samples[0]
     assert sample.ts == datetime(2025, 11, 5, 4, 0, tzinfo=UTC)
-    assert (sample.in_avg, sample.out_avg, sample.in_max, sample.out_max) == (100, 200, 300, 400)
-    assert all(isinstance(v, float) for v in (sample.in_avg, sample.out_avg, sample.in_max))
+    assert (sample.in_avg, sample.out_avg, sample.in_max, sample.out_max) == (
+        100,
+        200,
+        300,
+        400,
+    )
+    assert all(
+        isinstance(v, float) for v in (sample.in_avg, sample.out_avg, sample.in_max)
+    )
     assert parsed.invalid_line_numbers == ()
 
 
@@ -63,7 +70,9 @@ def test_empty_text_has_no_samples() -> None:
 
 def test_three_field_header_on_first_line_is_ignored_without_warning() -> None:
     """SCAN logs start with a three-field header that is not a sample."""
-    parsed = LogParser().parse("1794099779 3963040349914706 8049084489756333\n1762315200 1 2 3 4\n")
+    parsed = LogParser().parse(
+        "1794099779 3963040349914706 8049084489756333\n1762315200 1 2 3 4\n"
+    )
 
     assert len(parsed.samples) == 1
     assert parsed.invalid_line_numbers == ()

@@ -68,7 +68,11 @@ class RunResult:
     @property
     def failed(self) -> bool:
         """Return True unless every layer succeeded, one had data and the file was written."""
-        return bool(self.failed_layers) or self.export_failed or self.export_summary is None
+        return (
+            bool(self.failed_layers)
+            or self.export_failed
+            or self.export_summary is None
+        )
 
     @property
     def exit_code(self) -> ExitCode:

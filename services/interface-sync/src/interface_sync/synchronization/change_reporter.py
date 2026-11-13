@@ -19,7 +19,8 @@ class ChangeReporter:
                     for field, (previous, new) in modification.field_changes.items()
                 )
                 self._logger.info(
-                    LogEvent.INTERFACE_UPDATED, f"{modification.scan_url} | {differences}"
+                    LogEvent.INTERFACE_UPDATED,
+                    f"{modification.scan_url} | {differences}",
                 )
             if modification.status_change is not None:
                 previous_status, new_status = modification.status_change

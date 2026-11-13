@@ -21,8 +21,11 @@ class DailySummaryCalculator:
         return DailySummary(
             interface_id=daily_traffic.interface_id,
             date=daily_traffic.date,
-            in_avg=fmean(sample.in_avg for sample in samples) * SCAN_VALUE_TO_BPS_FACTOR,
-            out_avg=fmean(sample.out_avg for sample in samples) * SCAN_VALUE_TO_BPS_FACTOR,
+            in_avg=fmean(sample.in_avg for sample in samples)
+            * SCAN_VALUE_TO_BPS_FACTOR,
+            out_avg=fmean(sample.out_avg for sample in samples)
+            * SCAN_VALUE_TO_BPS_FACTOR,
             in_max=max(sample.in_max for sample in samples) * SCAN_VALUE_TO_BPS_FACTOR,
-            out_max=max(sample.out_max for sample in samples) * SCAN_VALUE_TO_BPS_FACTOR,
+            out_max=max(sample.out_max for sample in samples)
+            * SCAN_VALUE_TO_BPS_FACTOR,
         )

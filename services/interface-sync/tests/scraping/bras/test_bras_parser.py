@@ -7,8 +7,12 @@ from interface_sync.scraping.bras.bras_parser import BrasParser
 from interface_sync.scraping.html_fetcher import HtmlFetcher
 
 MENU_URL = "https://scan.example/cgi-bin/bras/captura-ip-bras.cgi?IP-CAPTURADAS-SUMA-BRAS.dummy"
-UPLINK_URL = "https://scan.example/cgi-bin/bras/uplink-bras-anz.cgi?UPLINK-ANZ-BRAS-00.dummy"
-DOWNLINK_URL = "https://scan.example/cgi-bin/bras/downlink-bras-anz.cgi?DOWNLINK-ANZ-BRAS-00.dummy"
+UPLINK_URL = (
+    "https://scan.example/cgi-bin/bras/uplink-bras-anz.cgi?UPLINK-ANZ-BRAS-00.dummy"
+)
+DOWNLINK_URL = (
+    "https://scan.example/cgi-bin/bras/downlink-bras-anz.cgi?DOWNLINK-ANZ-BRAS-00.dummy"
+)
 
 
 def build_menu(uplink: bool = True, downlink: bool = True) -> str:
@@ -20,9 +24,13 @@ def build_menu(uplink: bool = True, downlink: bool = True) -> str:
 
     sections = ""
     if uplink:
-        sections += section("UPLINK POR BRAS", UPLINK_URL.removeprefix("https://scan.example"))
+        sections += section(
+            "UPLINK POR BRAS", UPLINK_URL.removeprefix("https://scan.example")
+        )
     if downlink:
-        sections += section("DOWNLINK POR BRAS", DOWNLINK_URL.removeprefix("https://scan.example"))
+        sections += section(
+            "DOWNLINK POR BRAS", DOWNLINK_URL.removeprefix("https://scan.example")
+        )
     return (
         '<div class="sidebar"><ul role="menu"><li class="nav-item menu">'
         f'<a href="#"><p>ANZ-BRAS</p></a><ul>{sections}</ul></li></ul></div>'
@@ -65,7 +73,9 @@ def fetcher() -> FakeFetcher:
     )
 
 
-def test_uplink_comes_first_with_global_positions_and_own_vendor(fetcher: FakeFetcher) -> None:
+def test_uplink_comes_first_with_global_positions_and_own_vendor(
+    fetcher: FakeFetcher,
+) -> None:
     """RF-003: Uplink then Downlink, numbered over the whole listing, each with its vendor."""
     interfaces = BrasParser(fetcher).parse(build_menu(), MENU_URL)
 
@@ -87,7 +97,10 @@ def test_only_uplink_in_menu_returns_only_uplink(fetcher: FakeFetcher) -> None:
 
 def test_menu_without_devices_returns_empty_list(fetcher: FakeFetcher) -> None:
     """RF-003/RF-006: no device pages in the menu yields an empty listing."""
-    assert BrasParser(fetcher).parse(build_menu(uplink=False, downlink=False), MENU_URL) == []
+    assert (
+        BrasParser(fetcher).parse(build_menu(uplink=False, downlink=False), MENU_URL)
+        == []
+    )
 
 
 def test_unreadable_menu_raises(fetcher: FakeFetcher) -> None:
@@ -108,7 +121,10 @@ def test_uplink_and_downlink_are_independent_of_each_other() -> None:
     """RF-003: an Uplink page structure change does not alter what Downlink returns."""
     broken_uplink_page = "<html><body>changed</body></html>"
     fetcher = FakeFetcher(
-        {UPLINK_URL: broken_uplink_page, DOWNLINK_URL: build_device_page("D1 - Trafico de Red")}
+        {
+            UPLINK_URL: broken_uplink_page,
+            DOWNLINK_URL: build_device_page("D1 - Trafico de Red"),
+        }
     )
 
     with pytest.raises(UnreadablePageError):

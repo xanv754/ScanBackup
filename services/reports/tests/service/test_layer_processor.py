@@ -39,7 +39,9 @@ def test_rf043_layer_with_data_is_successful_and_gives_its_rows() -> None:
     interface = make_interface("eth-1")
     processor, sink = build_processor(
         FakeInterfaceRepository({"BORDE": [interface]}),
-        FakeDailySummaryRepository([make_summary(interface)], {interface.id: {"2026-03-01"}}),
+        FakeDailySummaryRepository(
+            [make_summary(interface)], {interface.id: {"2026-03-01"}}
+        ),
     )
     outcome = processor.process(LAYER, RANGE)
     assert not outcome.result.failed
@@ -123,7 +125,9 @@ def test_rf040_rows_are_sorted_by_type_then_name_then_scan_url() -> None:
     interfaces.append(twin)
     processor, _ = build_processor(
         FakeInterfaceRepository({"BORDE": interfaces}),
-        FakeDailySummaryRepository([make_summary(interface) for interface in interfaces]),
+        FakeDailySummaryRepository(
+            [make_summary(interface) for interface in interfaces]
+        ),
     )
     outcome = processor.process(LAYER, RANGE)
     assert outcome.data is not None
@@ -140,7 +144,9 @@ def test_rf043_database_error_fails_the_layer() -> None:
     """RF-043: a database error makes the layer failed, with its cause, and no rows."""
     interface = make_interface()
     processor, sink = build_processor(
-        FakeInterfaceRepository({"BORDE": [interface]}, failing_layers=frozenset({"BORDE"})),
+        FakeInterfaceRepository(
+            {"BORDE": [interface]}, failing_layers=frozenset({"BORDE"})
+        ),
         FakeDailySummaryRepository([]),
     )
     outcome = processor.process(LAYER, RANGE)

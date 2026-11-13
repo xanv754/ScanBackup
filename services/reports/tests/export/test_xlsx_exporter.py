@@ -8,7 +8,16 @@ from reports.domain.models import InterfaceRow, LayerData
 from reports.exceptions import ExportError, InvalidSheetNameError
 from reports.export import XlsxReportExporter
 
-HEADERS = ["Interfaz", "In Prom", "In Max", "Out Prom", "Out Max", "Capacidad", "Tipo", "Uso (%)"]
+HEADERS = [
+    "Interfaz",
+    "In Prom",
+    "In Max",
+    "Out Prom",
+    "Out Max",
+    "Capacidad",
+    "Tipo",
+    "Uso (%)",
+]
 
 
 def row(name: str = "ETH-1", vendor: str = "HUAWEI", **values: float) -> InterfaceRow:
@@ -21,7 +30,9 @@ def row(name: str = "ETH-1", vendor: str = "HUAWEI", **values: float) -> Interfa
         "capacity_gbps": 10.0,
         "usage_percent": 40.0,
     }
-    return InterfaceRow(name=name, vendor=vendor, scan_url=f"url/{name}", **{**defaults, **values})
+    return InterfaceRow(
+        name=name, vendor=vendor, scan_url=f"url/{name}", **{**defaults, **values}
+    )
 
 
 def write_file(destination: Path, layers: list[LayerData]) -> None:
@@ -37,7 +48,11 @@ def test_rf039_one_sheet_per_layer_in_the_order_added(tmp_path: Path) -> None:
     destination = tmp_path / "report.xlsx"
     write_file(
         destination,
-        [LayerData("BORDE", (row(),)), LayerData("IXP", (row(),)), LayerData("ALFA", (row(),))],
+        [
+            LayerData("BORDE", (row(),)),
+            LayerData("IXP", (row(),)),
+            LayerData("ALFA", (row(),)),
+        ],
     )
     assert load_workbook(destination).sheetnames == ["BORDE", "IXP", "ALFA"]
 
@@ -55,10 +70,21 @@ def test_rf040_columns_follow_the_specified_order(tmp_path: Path) -> None:
     destination = tmp_path / "report.xlsx"
     write_file(destination, [LayerData("BORDE", (row("ETH-9", "JUNIPER"),))])
     sheet = load_workbook(destination)["BORDE"]
-    assert [cell.value for cell in sheet[2]] == ["ETH-9", 1.0, 2.0, 3.0, 4.0, 10.0, "JUNIPER", 40.0]
+    assert [cell.value for cell in sheet[2]] == [
+        "ETH-9",
+        1.0,
+        2.0,
+        3.0,
+        4.0,
+        10.0,
+        "JUNIPER",
+        40.0,
+    ]
 
 
-def test_rf040_numeric_values_are_numeric_cells_and_keep_precision(tmp_path: Path) -> None:
+def test_rf040_numeric_values_are_numeric_cells_and_keep_precision(
+    tmp_path: Path,
+) -> None:
     """RF-040, RF-041: numbers are not text and the stored value is not rounded."""
     destination = tmp_path / "report.xlsx"
     precise = row(in_average_gbps=1.23456789012, capacity_gbps=0.0, usage_percent=0.0)
@@ -140,8 +166,12 @@ def test_rf042_failed_write_without_previous_file_leaves_nothing(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     """RF-042: a failed first write leaves no file at all."""
-    monkeypatch.setattr(Workbook, "save", lambda self, filename: Path(filename).write_bytes(b"x"))
-    monkeypatch.setattr(Path, "replace", lambda self, target: (_ for _ in ()).throw(OSError("no")))
+    monkeypatch.setattr(
+        Workbook, "save", lambda self, filename: Path(filename).write_bytes(b"x")
+    )
+    monkeypatch.setattr(
+        Path, "replace", lambda self, target: (_ for _ in ()).throw(OSError("no"))
+    )
     exporter = XlsxReportExporter()
     exporter.add_layer(LayerData("NEW", (row(),)))
     with pytest.raises(ExportError):
@@ -156,7 +186,9 @@ def test_rf043_valid_sheet_names(name: str) -> None:
     XlsxReportExporter().validate_layer_name(name)
 
 
-@pytest.mark.parametrize("name", ["", "A" * 32, "A:B", "A\\B", "A/B", "A?B", "A*B", "A[B", "A]B"])
+@pytest.mark.parametrize(
+    "name", ["", "A" * 32, "A:B", "A\\B", "A/B", "A?B", "A*B", "A[B", "A]B"]
+)
 def test_rf043_invalid_sheet_names(name: str) -> None:
     """RF-043: empty, longer than 31 or with `: \\ / ? * [ ]` are invalid sheet names."""
     with pytest.raises(InvalidSheetNameError):

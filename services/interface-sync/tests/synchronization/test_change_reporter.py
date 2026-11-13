@@ -48,11 +48,17 @@ def test_status_change_is_logged_with_previous_and_new_status(
     ChangeReporter(recording_logger).report(changes)
 
     assert recording_logger.records == [
-        ("info", LogEvent.STATUS_CHANGED, "http://scan/1.log | activa -> desincorporada")
+        (
+            "info",
+            LogEvent.STATUS_CHANGED,
+            "http://scan/1.log | activa -> desincorporada",
+        )
     ]
 
 
-def test_reactivation_with_data_logs_both_events(recording_logger: ServiceLogger, now: datetime):
+def test_reactivation_with_data_logs_both_events(
+    recording_logger: ServiceLogger, now: datetime
+):
     """RF-014: one modification with data and status writes one line for each."""
     changes = InterfaceChanges(
         modifications=[

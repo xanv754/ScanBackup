@@ -86,7 +86,9 @@ def test_info_and_warning_go_to_stdout_only(
     ("method_name", "level", "ansi_color_code"),
     [("info", "INFO", "32"), ("warning", "WARNING", "33"), ("error", "ERROR", "31")],
 )
-def test_only_level_is_colored(method_name: str, level: str, ansi_color_code: str) -> None:
+def test_only_level_is_colored(
+    method_name: str, level: str, ansi_color_code: str
+) -> None:
     """RF-015: INFO is green, WARNING yellow, ERROR red; the message keeps default color."""
     output_console, output_buffer = build_console(is_terminal=True)
     error_console, error_buffer = build_console(is_terminal=True)
@@ -134,7 +136,10 @@ def test_loading_runs_wrapped_operation(plain_terminal: Terminal) -> None:
 
 def test_loading_propagates_exception(plain_terminal: Terminal) -> None:
     """RF-015: the spinner does not swallow errors of the wrapped operation."""
-    with pytest.raises(RuntimeError, match="boom"), plain_terminal.loading("Loading pages"):
+    with (
+        pytest.raises(RuntimeError, match="boom"),
+        plain_terminal.loading("Loading pages"),
+    ):
         raise RuntimeError("boom")
 
 

@@ -14,7 +14,9 @@ def test_page_result_succeeds_without_causes():
 
 def test_page_result_with_scraping_cause_fails_only_scraping():
     """A scraping cause fails the page but not the database operation."""
-    result = PageResult(page_label="BORDE HUAWEI", layer="BORDE", cause="sin conexión a SCAN")
+    result = PageResult(
+        page_label="BORDE HUAWEI", layer="BORDE", cause="sin conexión a SCAN"
+    )
 
     assert not result.scraping_succeeded
     assert result.database_succeeded
@@ -24,7 +26,9 @@ def test_page_result_with_scraping_cause_fails_only_scraping():
 def test_page_result_with_database_cause_keeps_scraping_successful():
     """The database result is kept apart: scraping stays successful while the page fails."""
     result = PageResult(
-        page_label="BORDE HUAWEI", layer="BORDE", database_cause="error de base de datos"
+        page_label="BORDE HUAWEI",
+        layer="BORDE",
+        database_cause="error de base de datos",
     )
 
     assert result.scraping_succeeded
@@ -62,4 +66,6 @@ def test_layer_result_succeeds_when_decommissioned_or_skipped():
 
 def test_layer_result_fails_with_a_database_cause():
     """RF-010: a database failure while decommissioning fails the layer."""
-    assert not LayerResult(layer="BORDE", database_cause="error de base de datos").succeeded
+    assert not LayerResult(
+        layer="BORDE", database_cause="error de base de datos"
+    ).succeeded

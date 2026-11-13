@@ -4,7 +4,12 @@ from dataclasses import dataclass
 from datetime import date, datetime, timedelta
 
 from reports.clock import Clock
-from reports.constants.constants import DATE_FORMAT, DATE_PATTERN, END_OPTION, START_OPTION
+from reports.constants.constants import (
+    DATE_FORMAT,
+    DATE_PATTERN,
+    END_OPTION,
+    START_OPTION,
+)
 from reports.exceptions import InvalidInputError
 
 
@@ -46,7 +51,10 @@ class DateRangeValidator:
         self._clock = clock
 
     def validate(
-        self, start_text: str | None, end_text: str | None, extra_arguments: Sequence[str]
+        self,
+        start_text: str | None,
+        end_text: str | None,
+        extra_arguments: Sequence[str],
     ) -> DateRange:
         """Return the range or raise `InvalidInputError` with every cause that can be detected.
 
@@ -61,7 +69,9 @@ class DateRangeValidator:
             causes.append(f"{START_OPTION} no puede ser posterior a {END_OPTION}")
         if end is not None and end >= self._clock.today():
             causes.append(f"{END_OPTION} debe ser anterior al día actual")
-        causes.extend(f"Opción no reconocida: {argument}" for argument in extra_arguments)
+        causes.extend(
+            f"Opción no reconocida: {argument}" for argument in extra_arguments
+        )
         if causes or start is None or end is None:
             raise InvalidInputError(causes)
         return DateRange(start=start, end=end)

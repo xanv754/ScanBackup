@@ -31,7 +31,10 @@ class FakeStores:
 
     def save(self, daily_traffic: DailyTraffic) -> None:
         self._record("save")
-        if self.fail_on_nth_save is not None and len(self.saved) + 1 == self.fail_on_nth_save:
+        if (
+            self.fail_on_nth_save is not None
+            and len(self.saved) + 1 == self.fail_on_nth_save
+        ):
             raise DatabaseError("save")
         self.saved.append(daily_traffic)
 

@@ -85,11 +85,17 @@ class TrafficRepository:
         moment = self._clock()
         with translate_database_errors():
             self._collection.update_one(
-                {"interface_id": daily_traffic.interface_id, "date": daily_traffic.date},
+                {
+                    "interface_id": daily_traffic.interface_id,
+                    "date": daily_traffic.date,
+                },
                 {
                     "$set": {
                         "layer": daily_traffic.layer,
-                        "samples": [self._to_document(sample) for sample in daily_traffic.samples],
+                        "samples": [
+                            self._to_document(sample)
+                            for sample in daily_traffic.samples
+                        ],
                         "updated_at": moment,
                     },
                     "$setOnInsert": {"created_at": moment},

@@ -92,7 +92,9 @@ class SettingsLoader:
 
     def _read_config(self, causes: list[str]) -> dict | None:
         """Parse `config.yml`; record the cause and return None if the file is unusable."""
-        config_path = Path(self._environment.get(CONFIG_PATH_VARIABLE) or DEFAULT_CONFIG_PATH)
+        config_path = Path(
+            self._environment.get(CONFIG_PATH_VARIABLE) or DEFAULT_CONFIG_PATH
+        )
         try:
             content = yaml.safe_load(config_path.read_text(encoding=TEXT_ENCODING))
         except (OSError, UnicodeDecodeError) as error:
@@ -103,7 +105,9 @@ class SettingsLoader:
             causes.append(f"El archivo {config_path} no es YAML válido ({reason})")
             return None
         if not isinstance(content, dict):
-            causes.append(f"El archivo {config_path} debe ser un mapeo de claves y valores")
+            causes.append(
+                f"El archivo {config_path} debe ser un mapeo de claves y valores"
+            )
             return None
         return content
 
@@ -123,7 +127,8 @@ class SettingsLoader:
             "password": self._environment.get(MONGO_PASSWORD_VARIABLE, ""),
             "database": self._environment.get(MONGO_DATABASE_VARIABLE, ""),
             "auth_source": (
-                self._environment.get(MONGO_AUTH_SOURCE_VARIABLE) or DEFAULT_MONGO_AUTH_SOURCE
+                self._environment.get(MONGO_AUTH_SOURCE_VARIABLE)
+                or DEFAULT_MONGO_AUTH_SOURCE
             ),
         }
 
@@ -148,7 +153,10 @@ class SettingsLoader:
     @staticmethod
     def _describe(error_type: str) -> str:
         """Return the cause text for a validation error type."""
-        if error_type in (ValidationErrorType.MISSING, ValidationErrorType.STRING_TOO_SHORT):
+        if error_type in (
+            ValidationErrorType.MISSING,
+            ValidationErrorType.STRING_TOO_SHORT,
+        ):
             return "ausente o vacío"
         if error_type == ValidationErrorType.EXTRA_FORBIDDEN:
             return "clave no reconocida"

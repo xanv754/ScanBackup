@@ -14,7 +14,10 @@ class ScanAvailabilityVerifier:
     """
 
     def __init__(
-        self, checker: ScanAvailabilityChecker, logger: ServiceLogger, terminal: Terminal
+        self,
+        checker: ScanAvailabilityChecker,
+        logger: ServiceLogger,
+        terminal: Terminal,
     ) -> None:
         """Receive the checker and the channels where the result is reported."""
         self._checker = checker

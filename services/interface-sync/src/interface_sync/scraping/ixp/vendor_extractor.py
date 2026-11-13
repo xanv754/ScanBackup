@@ -16,14 +16,20 @@ class IxpVendorExtractor:
     OPERATOR_CANTV = "cantv"
     SIDE_STRIP_CHARS = " )"
     POSITION_PATTERN = re.compile(r"\bposici[oó]n\s+([a-z]\d+)\b", re.IGNORECASE)
-    PEERING_PATTERN = re.compile(r"\bpeering\s+privado\s+(.+?)\s+-\s+(.+)$", re.IGNORECASE)
+    PEERING_PATTERN = re.compile(
+        r"\bpeering\s+privado\s+(.+?)\s+-\s+(.+)$", re.IGNORECASE
+    )
     LAST_WORD_PATTERN = re.compile(r"([^\s()]+)[\s()]*$")
 
     def extract(self, name: str | None) -> str | None:
         """Return the vendor found in the name, or `None` if the name is empty."""
         if not name or not name.strip():
             return None
-        vendor = self._from_position(name) or self._from_peering(name) or self._from_last_word(name)
+        vendor = (
+            self._from_position(name)
+            or self._from_peering(name)
+            or self._from_last_word(name)
+        )
         return vendor.upper() if vendor else None
 
     def _from_position(self, name: str) -> str | None:

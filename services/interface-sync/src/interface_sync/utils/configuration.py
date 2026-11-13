@@ -77,17 +77,23 @@ class ConfigurationFile:
                 [f"El archivo {self._config_path} no es YAML válido ({reason})"]
             ) from error
         if not content:
-            raise InvalidConfigError([f"El archivo {self._config_path} no tiene contenido"])
+            raise InvalidConfigError(
+                [f"El archivo {self._config_path} no tiene contenido"]
+            )
         if not isinstance(content, dict):
             raise InvalidConfigError(
-                [f"El archivo {self._config_path} debe ser un mapeo con '{CONFIG_LINKS_KEY}'"]
+                [
+                    f"El archivo {self._config_path} debe ser un mapeo con '{CONFIG_LINKS_KEY}'"
+                ]
             )
         return content
 
     def _extract_links(self, content: dict) -> tuple[list | None, list[str]]:
         """Return the raw `links` entries (None if not inspectable) and the causes found."""
         causes = [
-            f"Clave no reconocida en la raíz: '{key}'" for key in content if key != CONFIG_LINKS_KEY
+            f"Clave no reconocida en la raíz: '{key}'"
+            for key in content
+            if key != CONFIG_LINKS_KEY
         ]
         raw_links = content.get(CONFIG_LINKS_KEY)
         if not raw_links:

@@ -17,7 +17,8 @@ FACTOR = 8.022
 
 def make_daily(*values: tuple[float, float, float, float]) -> DailyTraffic:
     samples = tuple(
-        Sample(START + timedelta(minutes=5 * index), *value) for index, value in enumerate(values)
+        Sample(START + timedelta(minutes=5 * index), *value)
+        for index, value in enumerate(values)
     )
     return DailyTraffic(ObjectId(), "BORDE", TARGET.key, samples)
 
@@ -37,7 +38,9 @@ def test_averages_are_the_mean_and_maximums_the_max_with_the_factor() -> None:
 
 def test_legacy_factor_in_gbps_matches_the_stored_bps() -> None:
     """The stored bps divided by 1e9 equals the legacy value raw * 0.000000008022 (RF-026)."""
-    summary = DailySummaryCalculator().calculate(make_daily((1_000_000.0, 0.0, 2_000_000.0, 0.0)))
+    summary = DailySummaryCalculator().calculate(
+        make_daily((1_000_000.0, 0.0, 2_000_000.0, 0.0))
+    )
 
     assert summary.in_max / 1e9 == pytest.approx(2_000_000.0 * 0.000000008022)
 
@@ -55,7 +58,9 @@ class FakeTrafficReader:
 
 
 class FakeSummaryWriter:
-    def __init__(self, existing: set[ObjectId] = frozenset(), fail: bool = False) -> None:
+    def __init__(
+        self, existing: set[ObjectId] = frozenset(), fail: bool = False
+    ) -> None:
         self.existing = set(existing)
         self.fail = fail
         self.saved: list[DailySummary] = []
@@ -71,13 +76,19 @@ class FakeSummaryWriter:
 
 def run_phase(days: list[DailyTraffic], writer: FakeSummaryWriter):
     sink = RecordingSink()
-    phase = DailySummaryPhase(FakeTrafficReader(days), writer, DailySummaryCalculator(), sink)
+    phase = DailySummaryPhase(
+        FakeTrafficReader(days), writer, DailySummaryCalculator(), sink
+    )
     return phase.run(TARGET), sink
 
 
 def test_phase_summarizes_new_days_and_skips_existing_and_empty() -> None:
     """Only days without summary and with samples are written (RF-026)."""
-    new, existing, empty = make_daily((1, 1, 1, 1)), make_daily((1, 1, 1, 1)), make_daily()
+    new, existing, empty = (
+        make_daily((1, 1, 1, 1)),
+        make_daily((1, 1, 1, 1)),
+        make_daily(),
+    )
     writer = FakeSummaryWriter(existing={existing.interface_id})
 
     result, sink = run_phase([new, existing, empty], writer)

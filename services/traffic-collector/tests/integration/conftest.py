@@ -55,7 +55,9 @@ class ScanSimulator:
             def do_GET(self) -> None:
                 with simulator._lock:
                     simulator.requests.append(self.path)
-                token = base64.b64encode(f"{SCAN_USERNAME}:{SCAN_PASSWORD}".encode()).decode()
+                token = base64.b64encode(
+                    f"{SCAN_USERNAME}:{SCAN_PASSWORD}".encode()
+                ).decode()
                 if self.headers.get("Authorization") != f"Basic {token}":
                     status, body = 401, ""
                 else:

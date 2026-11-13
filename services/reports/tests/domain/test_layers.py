@@ -19,7 +19,13 @@ def test_rf039_fixed_layers_keep_their_exact_order() -> None:
 
 def test_rf039_other_layers_follow_alphabetically() -> None:
     """RF-039: layers outside the fixed list come after, in ascending order."""
-    assert names(["ZETA", "IXP", "ALFA", "BORDE", "MID"]) == ["BORDE", "IXP", "ALFA", "MID", "ZETA"]
+    assert names(["ZETA", "IXP", "ALFA", "BORDE", "MID"]) == [
+        "BORDE",
+        "IXP",
+        "ALFA",
+        "MID",
+        "ZETA",
+    ]
 
 
 def test_rf039_missing_fixed_layer_is_not_an_existing_layer() -> None:
