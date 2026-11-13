@@ -5,7 +5,7 @@ Guía para construir las imágenes en un servidor **A** (con internet), empaquet
 | Servidor | Rol | Requisitos |
 |---|---|---|
 | A (build) | Descarga dependencias y construye las imágenes | Internet, Git, Docker y Docker Compose v2, Make |
-| B (destino) | Ejecuta el sistema | Docker y Docker Compose v2, Make, acceso de red a SCAN. **No** necesita internet, Git ni Python |
+| B (destino) | Ejecuta el sistema | Docker y Docker Compose v2 (`docker compose`; si solo tiene `docker-compose` v1, ver paso 2 de B), Make, acceso de red a SCAN. **No** necesita internet, Git ni Python |
 
 > **Importante:** A y B deben tener la misma arquitectura de CPU (`uname -m`, p. ej. `x86_64`). Una imagen construida para `x86_64` no corre en `aarch64`.
 
@@ -82,6 +82,8 @@ docker save \
   mongo:8.0 | gzip > $PKG/images.tar.gz
 
 cp docker-compose.yml Makefile .env.production.example $PKG/
+# Solo si B no tiene Docker Compose v2 (ajustar arquitectura: x86_64 / aarch64)
+curl -fL -o $PKG/docker-compose https://github.com/docker/compose/releases/download/v2.29.7/docker-compose-linux-$(uname -m)
 for svc in interface-sync traffic-collector reports; do
   cp services/$svc/config.yml.example $PKG/services/$svc/
 done
@@ -127,7 +129,17 @@ docker image ls --filter "reference=scan-backup/*" --filter "reference=mongo:8.0
 
 Deben aparecer las cuatro imágenes. Con ellas cargadas, Compose no intenta descargar ni construir nada.
 
-### 3. Variables de entorno definitivas
+### 3. Docker Compose v2 (solo si `docker compose` no existe)
+
+`docker-compose` v1 (1.29.x) no es compatible: el `docker-compose.yml` usa `name:` de nivel superior y el `Makefile` invoca `docker compose`. Instalar el binario v2 incluido en el paquete como plugin de Docker, sin tocar el `docker-compose` v1:
+
+```bash
+mkdir -p ~/.docker/cli-plugins
+install -m 755 docker-compose ~/.docker/cli-plugins/docker-compose
+docker compose version      # debe mostrar v2.x
+```
+
+### 4. Variables de entorno definitivas
 
 ```bash
 cp .env.production.example .env.production
@@ -138,7 +150,7 @@ Completar `.env.production` con los valores reales (ver tabla en [production.md]
 
 > **Importante:** `MONGO_USERNAME`, `MONGO_PASSWORD` y `MONGO_DATABASE` se aplican solo cuando MongoDB inicializa su volumen por primera vez. Definir los valores definitivos antes de `make prod-up`.
 
-### 4. Archivos de configuración
+### 5. Archivos de configuración
 
 ```bash
 for svc in interface-sync traffic-collector reports; do
@@ -148,7 +160,7 @@ done
 
 Editarlos según [production.md](production.md#3-archivos-de-configuración-de-los-servicios) (capas y URLs de SCAN en `interface-sync`, `export_path: /exports` en `reports`). Si el paquete se prepara desde un equipo que ya tiene los `config.yml` definitivos, se pueden copiar en lugar del ejemplo.
 
-### 5. Directorios del host y MongoDB
+### 6. Directorios del host y MongoDB
 
 ```bash
 make init
@@ -158,7 +170,7 @@ make prod-logs      # esperar a que MongoDB esté listo; salir con Ctrl+C
 
 `make init` debe ejecutarlo el usuario cuyo UID/GID se usó como `APP_UID`/`APP_GID`.
 
-### 6. Cargar interfaces y verificar
+### 7. Cargar interfaces y verificar
 
 ```bash
 make prod-sync ARGS="run"
@@ -190,6 +202,7 @@ Los servicios son efímeros: la siguiente ejecución usa la imagen cargada. No h
 | `exec format error` al ejecutar un servicio | Arquitectura distinta entre A y B | Construir en un servidor A con la misma arquitectura que B |
 | Los servicios no pueden escribir en `logs/` o `exports/` | `APP_UID`/`APP_GID` usados al construir no coinciden con el usuario de B | Reconstruir en A con el UID/GID correcto y repetir el traslado |
 | Compose intenta construir o descargar imágenes | Las imágenes no están cargadas, o `docker load` falló | Verificar con `docker image ls`, repetir `docker load`. No ejecutar `make prod-build` en B |
+| `docker: 'compose' is not a docker command` | B solo tiene `docker-compose` v1 | Instalar el plugin v2 (paso 3 de B) |
 | `sha256sum -c` falla | Paquete corrupto durante el traslado | Copiar nuevamente el paquete |
-| `MONGO_USERNAME is required` al ejecutar `make` | Falta `.env.production` o tiene variables vacías en B | Repetir el paso 3 de B |
+| `MONGO_USERNAME is required` al ejecutar `make` | Falta `.env.production` o tiene variables vacías en B | Repetir el paso 4 de B |
 | El servicio falla y `config.yml` aparece como directorio | `config.yml` no existía al ejecutar el servicio | Eliminar el directorio y crear el archivo desde su ejemplo |
