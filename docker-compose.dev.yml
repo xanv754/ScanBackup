@@ -1,0 +1,170 @@
+name: scan-backup-dev
+
+x-service-defaults: &service-defaults
+  restart: "no"
+  depends_on:
+    mongo:
+      condition: service_healthy
+  networks:
+    - scan-backup
+
+x-mongo-env: &mongo-env
+  MONGO_HOST: mongo
+  MONGO_PORT: 27017
+  MONGO_USERNAME: ${MONGO_USERNAME:?MONGO_USERNAME is required}
+  MONGO_PASSWORD: ${MONGO_PASSWORD:?MONGO_PASSWORD is required}
+  MONGO_DATABASE: ${MONGO_DATABASE:?MONGO_DATABASE is required}
+  MONGO_AUTH_SOURCE: ${MONGO_AUTH_SOURCE:-admin}
+
+x-scan-env: &scan-env
+  SCAN_USERNAME: ${SCAN_USERNAME:?SCAN_USERNAME is required}
+  SCAN_PASSWORD: ${SCAN_PASSWORD:?SCAN_PASSWORD is required}
+
+x-scan-deps: &scan-deps
+  mongo:
+    condition: service_healthy
+  scan-simulator:
+    condition: service_healthy
+
+services:
+  mongo:
+    image: mongo:8.0
+    container_name: scan-backup-mongo-dev
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USERNAME:?MONGO_USERNAME is required}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:?MONGO_PASSWORD is required}
+      MONGO_INITDB_DATABASE: ${MONGO_DATABASE:?MONGO_DATABASE is required}
+      TZ: America/Caracas
+    ports:
+      - "127.0.0.1:${MONGO_HOST_PORT:-27017}:27017"
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          mongosh --quiet
+          -u "$$MONGO_INITDB_ROOT_USERNAME"
+          -p "$$MONGO_INITDB_ROOT_PASSWORD"
+          --authenticationDatabase admin
+          --eval "db.adminCommand('ping').ok"
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      - scan-backup
+
+  scan-simulator-certs:
+    image: alpine/openssl
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - >-
+        test -f /certs/tls.crt ||
+        openssl req -x509 -newkey rsa:2048 -nodes -days 3650
+        -keyout /certs/tls.key -out /certs/tls.crt
+        -subj "/CN=scan-simulator"
+    restart: "no"
+    network_mode: none
+    volumes:
+      - scan-simulator-certs:/certs
+
+  scan-simulator:
+    image: nginx:1.28-alpine
+    container_name: scan-backup-scan-simulator-dev
+    restart: unless-stopped
+    depends_on:
+      scan-simulator-certs:
+        condition: service_completed_successfully
+    environment:
+      <<: *scan-env
+      NGINX_ENVSUBST_FILTER: ^SCAN_
+    ports:
+      - "127.0.0.1:${SCAN_SIM_HOST_PORT:-8443}:443"
+    volumes:
+      - ./dev/scan-simulator/templates:/etc/nginx/templates:ro
+      - ./dev/scan-simulator/fixtures:/fixtures:ro
+      - scan-simulator-certs:/certs:ro
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    networks:
+      scan-backup:
+        aliases:
+          - monitoreo11.cantv.net
+          - monitoreo8.cantv.net
+          - monitoreo10.cantv.net
+
+  interface-sync:
+    <<: *service-defaults
+    depends_on: *scan-deps
+    profiles: ["services"]
+    build:
+      context: ./services/interface-sync
+      target: dev
+      args:
+        APP_UID: ${APP_UID:-1000}
+        APP_GID: ${APP_GID:-1000}
+    image: scan-backup/interface-sync:dev
+    environment:
+      <<: [*mongo-env, *scan-env]
+      CONFIG_PATH: /app/config.yml
+    volumes:
+      - ./services/interface-sync/config.yml:/app/config.yml:ro
+      - ./services/interface-sync/src:/app/src
+      - ./services/interface-sync/tests:/app/tests
+      - ./logs/interface-sync:/logs
+
+  traffic-collector:
+    <<: *service-defaults
+    depends_on: *scan-deps
+    profiles: ["services"]
+    build:
+      context: ./services/traffic-collector
+      target: dev
+      args:
+        APP_UID: ${APP_UID:-1000}
+        APP_GID: ${APP_GID:-1000}
+    image: scan-backup/traffic-collector:dev
+    environment:
+      <<: [*mongo-env, *scan-env]
+      CONFIG_PATH: /app/config.yml
+    volumes:
+      - ./services/traffic-collector/config.yml:/app/config.yml:ro
+      - ./services/traffic-collector/src:/app/src
+      - ./services/traffic-collector/tests:/app/tests
+      - ./logs/traffic-collector:/logs
+
+  reports:
+    <<: *service-defaults
+    profiles: ["services"]
+    build:
+      context: ./services/reports
+      target: dev
+      args:
+        APP_UID: ${APP_UID:-1000}
+        APP_GID: ${APP_GID:-1000}
+    image: scan-backup/reports:dev
+    environment:
+      <<: *mongo-env
+      CONFIG_PATH: /app/config.yml
+    volumes:
+      - ./services/reports/config.yml:/app/config.yml:ro
+      - ./services/reports/src:/app/src
+      - ./services/reports/tests:/app/tests
+      - ./logs/reports:/logs
+      - ./exports:/exports
+
+networks:
+  scan-backup:
+    name: scan-backup-dev
+
+volumes:
+  mongo-data:
+    name: scan-backup-mongo-data-dev
+  scan-simulator-certs:
+    name: scan-backup-scan-simulator-certs-dev

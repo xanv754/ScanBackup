@@ -1,0 +1,67 @@
+from pathlib import Path
+
+from interface_sync.constants.enums import TerminalLevel
+
+TEXT_ENCODING = "utf-8"
+DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
+
+LAYER_BORDE = "BORDE"
+LAYER_BRAS = "BRAS"
+LAYER_CACHING = "CACHING"
+LAYER_DINT = "DINT"
+LAYER_DIST = "DIST"
+LAYER_IXP = "IXP"
+LAYER_RAI = "RAI"
+
+UNDEFINED_VENDOR = "UNDEFINED"
+
+FIELD_NAME = "name"
+FIELD_SCAN_URL = "scan_url"
+FIELD_CAPACITY_GBPS = "capacity_gbps"
+FIELD_LAYER = "layer"
+FIELD_VENDOR = "vendor"
+FIELD_STATUS = "status"
+FIELD_CREATED_AT = "created_at"
+FIELD_UPDATED_AT = "updated_at"
+MONGO_ID_FIELD = "_id"
+FIELD_LABELS = {FIELD_NAME: "nombre", FIELD_SCAN_URL: "url"}
+
+CONFIG_PATH_VARIABLE = "CONFIG_PATH"
+DEFAULT_CONFIG_PATH = "/app/config.yml"
+CONFIG_LINKS_KEY = "links"
+ALLOWED_URL_SCHEMES = ("http", "https")
+
+MONGO_HOST_VARIABLE = "MONGO_HOST"
+MONGO_PORT_VARIABLE = "MONGO_PORT"
+MONGO_USERNAME_VARIABLE = "MONGO_USERNAME"
+MONGO_PASSWORD_VARIABLE = "MONGO_PASSWORD"
+MONGO_DATABASE_VARIABLE = "MONGO_DATABASE"
+MONGO_AUTH_SOURCE_VARIABLE = "MONGO_AUTH_SOURCE"
+DEFAULT_MONGO_AUTH_SOURCE = "admin"
+MONGO_SERVER_SELECTION_TIMEOUT_MS = 5000
+
+INTERFACES_COLLECTION = "interfaces"
+UNIQUE_SCAN_URL_INDEX = "uq_scan_url"
+STATUS_INDEX = "idx_status"
+LAYER_NAME_INDEX = "idx_layer_name"
+MONGO_IN_OPERATOR = "$in"
+MONGO_SET_OPERATOR = "$set"
+
+DATABASE_ERROR_CAUSE = "error de base de datos"
+
+SCAN_USERNAME_VARIABLE = "SCAN_USERNAME"
+SCAN_PASSWORD_VARIABLE = "SCAN_PASSWORD"
+
+LOG_FILE_PATH = Path("/logs/interface-sync.log")
+LOGGER_NAME = "interface_sync"
+LOG_FORMAT = "%(asctime)s %(levelname)s %(message)s"
+LOG_DETAILS_SEPARATOR = " - "
+LOG_ROTATION_DAY = "W5"
+LOG_ROTATION_SUFFIX = "%Y-%m-%d"
+
+TERMINAL_SPINNER_NAME = "dots"
+TERMINAL_LEVEL_STYLES = {
+    TerminalLevel.INFO: "green",
+    TerminalLevel.WARNING: "yellow",
+    TerminalLevel.ERROR: "red",
+}

@@ -1,0 +1,57 @@
+# Simulador de SCAN (solo para desarrollo).
+#
+# Sirve archivos de fixtures SIN modificarlos y replica las condiciones de SCAN:
+#   - HTTPS con certificado no confiable (autofirmado).
+#   - HTTP Basic con SCAN_USERNAME / SCAN_PASSWORD.
+#   - Los hosts resuelven aqui (aliases de red en docker-compose.dev.yml).
+#
+# Como agregar contenido:
+#   - Pagina de una capa : soltar el HTML en fixtures/pages/ y registrar su URL en fixtures/pages.map.
+#   - Log MRTG (u otro)  : soltar el archivo en fixtures/static/ con el MISMO path de la URL.
+#                          Ej: https://pagina/mrtg/x.log -> fixtures/static/mrtg/x.log
+#   - Sin fixture        : 404. El request queda en `docker logs scan-backup-scan-simulator-dev`.
+
+map_hash_bucket_size 256;
+
+map $request_uri $scan_page {
+    default "";
+    include /fixtures/pages.map;
+}
+
+server {
+    listen 443 ssl;
+    server_name _;
+
+    ssl_certificate     /certs/tls.crt;
+    ssl_certificate_key /certs/tls.key;
+
+    auth_basic           "SCAN";
+    auth_basic_user_file /etc/nginx/conf.d/scan.htpasswd;
+
+    # Paginas de las capas.
+    location /cgi-bin/ {
+        if ($scan_page = "") {
+            return 404;
+        }
+        root /fixtures/pages;
+        default_type text/html;
+        rewrite ^ /$scan_page break;
+    }
+
+    # Todo lo demas (logs MRTG): el archivo vive en fixtures/static con el mismo path de la URL.
+    location / {
+        root /fixtures/static;
+        default_type text/plain;
+        try_files $uri =404;
+    }
+}
+
+# Solo para el healthcheck de Docker (puerto interno, sin auth, no se publica).
+server {
+    listen 8080;
+
+    location = /health {
+        access_log off;
+        return 200 "ok\n";
+    }
+}

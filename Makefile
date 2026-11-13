@@ -1,69 +1,86 @@
-PWDSCANBACKUP := $(shell echo "$$PWDSCANBACKUP")
-VENV_EXISTS := $(shell if [ -d "$(PWDSCANBACKUP)/.venv" ]; then echo 1; else echo 0; fi)
+DEV_ENV_FILE ?= .env.development
+PROD_ENV_FILE ?= .env.production
+ARGS ?=
 
-.PHONY: venv setup
+COMPOSE_DEV = docker compose --env-file $(DEV_ENV_FILE) -f docker-compose.dev.yml
+COMPOSE_PROD = docker compose --env-file $(PROD_ENV_FILE) -f docker-compose.yml
 
-venv:
-ifeq ($(VENV_EXISTS),0)
-	@echo "Creando entorno virtual del sistema..."
-	python3 -m venv $(PWDSCANBACKUP)/.venv
-	$(PWDSCANBACKUP)/.venv/bin/pip install .
-endif
+SERVICES = interface-sync traffic-collector reports
 
-setup-files:
-	@echo "Creando directorios requeridos..."
-	mkdir -p $(PWDSCANBACKUP)/data/SCAN/BORDE
-	mkdir -p $(PWDSCANBACKUP)/data/SCAN/BRAS
-	mkdir -p $(PWDSCANBACKUP)/data/SCAN/CACHING
-	mkdir -p $(PWDSCANBACKUP)/data/SCAN/RAI
-	mkdir -p $(PWDSCANBACKUP)/data/SCAN/IXP
-	mkdir -p $(PWDSCANBACKUP)/data/SCAN/IPBRAS
-	mkdir -p $(PWDSCANBACKUP)/data/SCAN/DAILY_SUMMARY
-	mkdir -p $(PWDSCANBACKUP)/data/logs
-	mkdir -p $(PWDSCANBACKUP)/sources/SCAN/
-	mkdir -p $(PWDSCANBACKUP)/sources/BK_SCAN/
-	mkdir -p $(PWDSCANBACKUP)/scanbackup/routines/tmp/
-	@echo "Creando archivos fuentes..."
-	touch $(PWDSCANBACKUP)/sources/SCAN/BORDE
-	touch $(PWDSCANBACKUP)/sources/SCAN/BRAS
-	touch $(PWDSCANBACKUP)/sources/SCAN/CACHING
-	touch $(PWDSCANBACKUP)/sources/SCAN/RAI
-	touch $(PWDSCANBACKUP)/sources/SCAN/IXP
-	touch $(PWDSCANBACKUP)/sources/SCAN/IPBRAS
-	
-setup: venv setup-files
-	@echo "Inicializando base de datos..."
-	$(PWDSCANBACKUP)/.venv/bin/python -m scanbackup.database start
-	@echo "Sistema instanciado correctamente."
+.PHONY: init \
+	dev-build dev-up dev-down dev-clean dev-logs \
+	dev-sync dev-collect dev-report dev-test \
+	dev-sim-up dev-sim-down dev-sim-restart dev-sim-status dev-sim-logs \
+	prod-build prod-up prod-down prod-clean prod-logs \
+	prod-sync prod-collect prod-report
 
-run-scanner:
-	bash $(PWDSCANBACKUP)/scanbackup/routines/scanner.sh
+init:
+	mkdir -p exports $(addprefix logs/,$(SERVICES))
 
-run-daily:
-	$(PWDSCANBACKUP)/.venv/bin/python -m scanbackup.routines.daily
+dev-build:
+	$(COMPOSE_DEV) --profile services build
 
-run-updater:
-	$(PWDSCANBACKUP)/.venv/bin/python -m scanbackup.updater data
+dev-up:
+	$(COMPOSE_DEV) up -d mongo
 
-run-updater-dev:
-	$(PWDSCANBACKUP)/.venv/bin/python -m scanbackup.updater data --dev
+dev-down:
+	$(COMPOSE_DEV) --profile services down
 
-run-base: run-scanner run-daily
+dev-clean:
+	$(COMPOSE_DEV) --profile services down --volumes --rmi all
 
-run: run-base run-updater
+dev-logs:
+	$(COMPOSE_DEV) logs -f mongo
 
-run-dev: run-base run-updater-dev
+dev-sync:
+	$(COMPOSE_DEV) run --rm interface-sync $(ARGS)
 
-updater-sources:
-	$(PWDSCANBACKUP)/.venv/bin/python -m scanbackup.updater sources
+dev-collect:
+	$(COMPOSE_DEV) run --rm traffic-collector $(ARGS)
 
-clean-data:
-	@echo "Limpiando datos temporales..."
-	rm -rf $(PWDSCANBACKUP)/data/SCAN/BORDE/*
-	rm -rf $(PWDSCANBACKUP)/data/SCAN/BRAS/*
-	rm -rf $(PWDSCANBACKUP)/data/SCAN/CACHING/*
-	rm -rf $(PWDSCANBACKUP)/data/SCAN/RAI/*
-	rm -rf $(PWDSCANBACKUP)/data/SCAN/IXP/*
-	rm -rf $(PWDSCANBACKUP)/data/SCAN/IPBRAS/*
-	rm -rf $(PWDSCANBACKUP)/data/SCAN/DAILY_SUMMARY/*
-	rm -rf $(PWDSCANBACKUP)/scanbackup/routines/tmp/*
+dev-report:
+	$(COMPOSE_DEV) run --rm reports $(ARGS)
+
+dev-test: $(addprefix dev-test-,$(SERVICES))
+
+dev-test-%:
+	$(COMPOSE_DEV) run --rm --no-deps --entrypoint pytest $* $(ARGS)
+
+dev-sim-up:
+	$(COMPOSE_DEV) up -d --wait scan-simulator
+
+dev-sim-down:
+	$(COMPOSE_DEV) rm -sf scan-simulator
+
+dev-sim-restart:
+	$(COMPOSE_DEV) up -d --force-recreate --wait scan-simulator
+
+dev-sim-status:
+	$(COMPOSE_DEV) ps scan-simulator
+
+dev-sim-logs:
+	$(COMPOSE_DEV) logs -f scan-simulator
+
+prod-build:
+	$(COMPOSE_PROD) --profile services build
+
+prod-up:
+	$(COMPOSE_PROD) up -d mongo
+
+prod-down:
+	$(COMPOSE_PROD) --profile services down
+
+prod-clean:
+	$(COMPOSE_PROD) --profile services down --volumes --rmi all
+
+prod-logs:
+	$(COMPOSE_PROD) logs -f mongo
+
+prod-sync:
+	$(COMPOSE_PROD) run --rm -T interface-sync $(ARGS)
+
+prod-collect:
+	$(COMPOSE_PROD) run --rm -T traffic-collector $(ARGS)
+
+prod-report:
+	$(COMPOSE_PROD) run --rm -T reports $(ARGS)

@@ -1,0 +1,6 @@
+# Máximo de consultas simultáneas a SCAN.
+max_concurrent_requests: 5
+# Tiempo máximo de espera de una respuesta de SCAN, en segundos.
+request_timeout_seconds: 30
+# Interfaces consecutivas fallidas que cortan el procesamiento de una capa.
+max_consecutive_failures: 5

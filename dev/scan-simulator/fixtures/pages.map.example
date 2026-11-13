@@ -1,0 +1,10 @@
+# Copiar a pages.map y reemplazar con las URLs reales de config.yml de interface-sync.
+#   cp fixtures/pages.map.example fixtures/pages.map
+# Formato: "<path>?<query>"  <archivo en fixtures/pages/>;
+
+"/cgi-bin/<script>.cgi?<query>"  borde-huawei.html;
+"/cgi-bin/<otro-script>.cgi?<query>"  bras.html;
+
+# Paginas hijas de una capa (ej. BRAS): una entrada por cada enlace del menu de la pagina principal, con su URL exacta.
+"/cgi-bin/bras/<script-uplink>.cgi?<query>"  bras-uplink-anz.html;
+"/cgi-bin/bras/<script-downlink>.cgi?<query>"  bras-downlink-anz.html;

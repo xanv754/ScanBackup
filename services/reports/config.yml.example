@@ -1,0 +1,8 @@
+metadata:
+  reports:
+    # Prefix of the report file name.
+    prefix_name: "ScanBackup"
+    # strftime format of the generation date in the file name.
+    date_format: "%Y%m%d_%H%M%S"
+    # Existing, writable directory. In Docker it must be the mounted volume.
+    export_path: "/exports"

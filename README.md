@@ -1,135 +1,116 @@
-# Scan Backup
-Un sistema diseñado para la recolección de datos de tráfico de todas las interfaces de la red a través de la plataforma de Monitoreo (SCAN), y procesamiento de la misma para la generación de distintos reportes para el análisis de tráfico.
+# SCAN-Backup
 
-![Diagrama de Procesos](./docs/process.png)
+Histórico de tráfico de interfaces de red del BackboneIP de CANTV. Recolecta diariamente, vía SCAN, los valores de tráfico (periodos de 5 minutos) del día anterior, los almacena en MongoDB y genera reportes `.xlsx`. No consulta equipos de red ni modifica datos de SCAN.
 
-# Índice
+## Tabla de contenido
+
+- [Servicios](#servicios)
+- [Arquitectura](#arquitectura)
+- [Requisitos](#requisitos)
+- [Inicio rápido](#inicio-rápido)
+- [Variables de entorno](#variables-de-entorno)
+- [Uso con Make](#uso-con-make)
+- [Códigos de salida](#códigos-de-salida)
+- [Logs y exportaciones](#logs-y-exportaciones)
 - [Documentación](#documentación)
-- [Requerimientos](#requerimientos)
-- [Instalación](#instalación)
-- [Pruebas unitarias](#pruebas-unitarias)
-- [Comandos Básicos](#comandos-básicos)
-    - [Configuración del Sistema](#configuración-del-sistema)
-    - [Actualizador del Sistema](#actualizador-del-sistema)
-    - [Generador de Reportes](#generador-de-reportes)
 
+## Servicios
 
-# Documentación 
-- Para descargar todo el manual técnico, descargue el archivo [Manual Técnico.pdf](./docs/Manual%20Tecnico.pdf).
-- Para ver los diagramas, revisa: [Diagramas](https://lucid.app/lucidchart/dad09d4e-e34e-4d32-a254-e62e64d820e4/edit?viewport_loc=-393%2C-398%2C5836%2C3094%2CbOV_OreY9Nsi&invitationId=inv_2ab76b6f-cab5-4df0-bde3-fcae7c263901) o descargue el archivo [Diagramas.pdf](./docs/Diagramas.pdf).
+Tres paquetes Python independientes (Python 3.13, CLI con `click`). No se comunican entre sí; MongoDB es el único punto de integración. El fallo de uno no impide la ejecución de los demás.
 
-**IMPORTANTE:** Antes de realizar cualquier operación o modificación del sistema, se recomienda leer todo este archivo para entender el funcionamiento del sistema y sus procedimientos.
+| Servicio | Responsabilidad | Ejecución | Detalle |
+|---|---|---|---|
+| `interface-sync` | Scraping de interfaces en SCAN; sincroniza la BD con su estatus (activa/desincorporada) | Manual | [README](./services/interface-sync/README.md) |
+| `traffic-collector` | Consulta en SCAN el tráfico del día anterior de las interfaces activas y lo almacena | Automática, `crontab`, 1 vez/día | [README](./services/traffic-collector/README.md) |
+| `reports` | Genera reportes `.xlsx` por rango de fechas desde la BD | Manual | [README](./services/reports/README.md) |
 
-También puedes visualizar la documentación del funcionamiento en: [Funcionamiento del Sistema](./DOCUMENTATION.md)
+El `crontab` es responsabilidad del usuario de operatividad, no del sistema.
 
-# Requerimientos
-El sistema requiere la instalación de:
-- Python 3.10 o superior. 
-- MongoDB 8.0 o superior.
+## Arquitectura
 
-Solo válido para sistemas Linux.
-
-## Variables de Entorno Requeridas
-El sistema requiere un archivo `.env.production` o `.env` con las siguientes variables de entorno:
-```bash
-URI_MONGO="mongodb://localhost:27017/ScanBackupDB"
 ```
-> **Nota**: Para la carga de variables de entorno en modo desarrollador se debe tener el archivo `.env.development` y especificar la opción en los comandos correspondientes (`--dev`).
-
-## Variables en Shell
-El sistema requiere que se añadan las siguientes variables a nuestro archivo de shell (`.bashrc` o `.zshrc`):
-```bash
-export PWDSCANBACKUP="/home/user/ScanBackup" # Debe reemplazarse por la ruta del directorio del sistema
-export USERSCAN="usuario" # Debe reemplazarse por el usuario
-export PASSWORDSCAN="contraseña" # Debe reemplazarse por la contraseña
-```
-> **Nota:** Esto es importante para el correcto funcionamiento de la captura de data.
-
-## Otras Variables de Entorno
-Solo para el funcionamiento del actualizador de las fuentes de enlaces, se debe añadir las siguientes variables de entorno en el archivo `.env.production` o `.env`:
-```bash
-SCAN_USERNAME="username"
-SCAN_PASSWORD="password"
-SCAN_URL_BORDE_HUAWEI="url" # Página principal de los enlaces
-SCAN_URL_BORDE_CISCO="url" # Página principal de los enlaces
-SCAN_URL_BORDE_JUNIPER="url" # Página principal de los enlaces
-SCAN_URL_BRAS_HUAWEI="url" # Página principal de los enlaces
-SCAN_URL_CACHING_HUAWEI="url" # Página principal de los enlaces
-SCAN_URL_RAI_HUAWEI="url" # Página principal de los enlaces
-SCAN_URL_RAI_ZTE="url" # Página principal de los enlaces
-SCAN_URL_IPBRAS="url" # Página principal de los enlaces
-SCAN_URL_IXP="url" # Página principal de los enlaces
+SCAN ──► interface-sync ──► ┌─────────┐ ◄── traffic-collector ◄── SCAN
+                            │ MongoDB │
+         exports/*.xlsx ◄── └─────────┘ ──► reports
 ```
 
-> *Nota:* Esto puede ser omitido si no se espera realizar la ejecución del mismo. Por defecto, se puede omitir.
+- Servicios como contenedores efímeros (`docker compose run --rm`), lanzados desde el `Makefile`.
+- Dependencia crítica: SCAN. Un cambio o caída de SCAN afecta o impide el sistema.
+- Exportación sobre una abstracción que permite agregar formatos sin tocar la lógica de reportes.
 
-# Instalación 
-> **Nota**: Se recomienda realizar la instalación del sistema con el comando disponible del makefile. Revisar [Configuración-del-Sistema](./COMMAND.md#configuración-del-sistema).
+## Requisitos
 
-Para realizar la configuración ideal del sistema, se debe ejecutar el siguiente comando:
+Git, Docker con Docker Compose v2 y Make. Python y MongoDB corren dentro de contenedores. Se requiere acceso de red a SCAN y un usuario de SCAN con permiso de lectura.
+
+## Inicio rápido
+
+1. Copiar y completar las variables de entorno (ver [siguiente sección](#variables-de-entorno)).
+2. Crear el `config.yml` de cada servicio desde su `config.yml.example`.
+3. Crear `logs/` y `exports/` con el usuario dueño de `APP_UID`/`APP_GID`.
+4. Construir imágenes, levantar la base de datos y ejecutar los servicios.
+
+Pasos completos: [Producción](./docs/production.md) · [Desarrollo](./docs/setup.md).
+
+## Variables de entorno
+
 ```bash
-make setup
+cp .env.production.example .env.production   # producción (docker-compose.yml)
+cp .env.development.example .env.development # desarrollo (docker-compose.dev.yml)
 ```
 
-De otra forma, el proyecto cuenta con un archivo `pyproject.toml` que contiene toda la información necesaria para instalar el sistema, así que se puede instalar solo la librería ejecutando el siguiente comando:
-```bash
-pip install .
-```
+El archivo resultante contiene credenciales: no debe versionarse. Los secretos solo se leen del entorno, nunca de archivos de configuración.
 
-Si se realiza de esta manera, una vez finalizada la instalación de dependencias, debe instancia la base de datos a través del siguiente comando:
-```bash
-python3 –m scanbackup.database start
-```
+| Variable | Obligatoria | Descripción |
+|---|---|---|
+| `MONGO_USERNAME` / `MONGO_PASSWORD` | Sí | Usuario administrador de MongoDB, usado por los tres servicios |
+| `MONGO_DATABASE` | Sí | Base de datos del sistema (recomendado `scan_backup`) |
+| `MONGO_AUTH_SOURCE` | Sí | Base donde se validan las credenciales (`admin`) |
+| `MONGO_HOST_PORT` | No | Puerto expuesto en `127.0.0.1` (`27017`) |
+| `SCAN_USERNAME` / `SCAN_PASSWORD` | Sí | Acceso de lectura a SCAN (`interface-sync` y `traffic-collector`) |
+| `APP_UID` / `APP_GID` | No | Dueño de logs y `exports/` (`id -u` / `id -g`, defecto `1000`). Requieren reconstruir imágenes si cambian |
 
-> **Nota**: Es importante que recuerde que el sistema necesita la creación de algunas carpetas para alojar datos temporales, y algunos otros archivos. Revise la documentación si necesita más información.
+> **Importante:** `MONGO_USERNAME`, `MONGO_PASSWORD` y `MONGO_DATABASE` solo se aplican cuando MongoDB inicializa su volumen por primera vez. Cambiarlos después rompe la conexión de los servicios salvo que se modifiquen dentro de MongoDB o se elimine el volumen (borra el histórico).
 
-# Pruebas unitarias
-Para ejecutar las pruebas unitarias del sistema, necesario tener el archivo `env.testing` con todas las [Variables de Entorno Requeridas](#variables-de-entorno-requeridas). Los siguientes comandos ejecutan las pruebas pertinentes:
-```bash
-python3 -m unittest discover -s scanbackup/test/querys -p "*_test.py"
-python3 -m unittest discover -s scanbackup/test/updater -p "*_test.py"
-python3 -m unittest discover -s scanbackup/test/handler -p "*_test.py"
-```
+> **Importante:** `logs/` y `exports/` deben existir antes de la primera ejecución y pertenecer a `APP_UID`/`APP_GID`; de lo contrario Docker las crea como `root` y los servicios no podrán escribir.
 
-> **Nota:** Tenga en cuenta que siempre puede ejecutar pruebas unitarias individualmente siguiendo la [Documentación oficial de Unittest](!https://docs.python.org/es/3/library/unittest.html) de python.
+## Uso con Make
 
-# Comandos Básicos
-## Configuración del Sistema
-Para instanciar correctamente el sistema, se debe ejecutar el siguiente comando:
-```bash
-make setup
-```
+Cada regla existe con prefijo `dev-` (desarrollo) y `prod-` (producción).
 
-## Actualizador del Sistema
-Para poder ejecutar el actualizador del sistema, se debe ejecutar el siguiente comando:
-```bash
-make run
-```
+| Regla | Acción |
+|---|---|
+| `make init` | Prepara el entorno |
+| `make prod-build` / `prod-up` / `prod-down` | Construir imágenes, levantar y detener MongoDB |
+| `make prod-sync ARGS="run"` | Sincroniza interfaces (`check-scan` solo verifica SCAN) |
+| `make prod-collect [ARGS="--force"]` | Recolecta el tráfico del día anterior |
+| `make prod-report ARGS="--start YYYY-MM-DD --end YYYY-MM-DD"` | Genera el reporte `.xlsx` del rango |
+| `make dev-test` | Pruebas de los tres servicios |
+| `make dev-sim-up` | Simulador de SCAN (solo desarrollo) |
 
-## Generador de Reportes
-> **Nota**: Se debe tener activado el entorno virtual antes de ejecutar este comando.
+Todas las reglas y variables: [makefile.md](./docs/makefile.md).
 
-Para poder ejecutar el generador de reportes, se debe ejecutar alguno de los siguientes comandos según corresponda:
-```bash
-python3 -m scanbackup diario
-python3 -m scanbackup semanal
-python3 -m scanbackup quincenal
-python3 -m scanbackup mensual
-```
+## Códigos de salida
 
-Para más información sobre los comandos disponibles ejecutando el sistema, se puede leer la sección [Comandos](./COMMANDS.md).
+`0` solo ante éxito. Cualquier otro valor indica fallo:
 
+| Código | Significado |
+|---|---|
+| `1` | Resultado fallido (capas/páginas/interfaces fallidas, ausencia de datos requeridos) |
+| `2` | Error general del proceso (configuración inválida, credenciales ausentes, BD o SCAN no disponibles) |
 
+El detalle por servicio está en su README.
 
+## Logs y exportaciones
 
+- `logs/<servicio>/`: logs rotativos con `logging` estándar, un directorio por servicio (bind mount del host).
+- `exports/`: bind mount del host; solo `reports` escribe ahí (`<prefix_name>_<fecha>.xlsx`).
 
+## Documentación
 
-
-
-
-
-
-
-
-
-
+| Documento | Contenido |
+|---|---|
+| [docs/setup.md](./docs/setup.md) | Entorno de desarrollo y simulador de SCAN |
+| [docs/production.md](./docs/production.md) | Instalación, `crontab`, operación, respaldo y problemas comunes |
+| [docs/offline-deploy.md](./docs/offline-deploy.md) | Despliegue en un servidor sin internet (build, empaquetado y carga de imágenes) |
+| [docs/makefile.md](./docs/makefile.md) | Guía de todas las reglas del `Makefile` |
+| [services/*/README.md](./services) | Funcionamiento, configuración y códigos de salida de cada servicio |

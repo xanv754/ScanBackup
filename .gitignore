@@ -1,15 +1,24 @@
-# Files
-data/*
-sources/*
-*/routines/tmp/*
-*/routines/capa
-*/test/correcciondata
-*/test/data/*
-*/test/calculos/*
-*/tmp/*
+# Output locals
+logs/
+exports/
+
+# Config files
+services/*/config.yml
+*copy*
+
+# Dev files
+dev/scan-simulator/fixtures/pages.map
+dev/scan-simulator/fixtures/pages/*
+dev/scan-simulator/fixtures/static/*
+!dev/scan-simulator/fixtures/pages/.gitkeep
+!dev/scan-simulator/fixtures/static/.gitkeep
+
+# IA
+.claude/*.local.*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
+*/__pycache__/*
 *.py[cod]
 *$py.class
 
@@ -186,3 +195,4 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+/scanbackup/infrastructure/persistence/mongodb/connection
